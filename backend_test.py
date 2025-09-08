@@ -11,6 +11,7 @@ class ZionCityAPITester:
         self.base_url = base_url
         self.token = None
         self.user_id = None
+        self.custom_group_id = None
         self.tests_run = 0
         self.tests_passed = 0
         self.test_user_email = f"test_user_{datetime.now().strftime('%Y%m%d_%H%M%S')}@zioncity.test"
