@@ -202,7 +202,8 @@ class ZionCityAPITester:
             success = True
             self.log_test("Invalid login rejection", success, "Correctly rejected invalid credentials")
         else:
-            self.log_test("Invalid login rejection", False, f"Expected 401, got {response.status_code if response else 'No response'}")
+            status = response.status_code if response else "No response"
+            self.log_test("Invalid login rejection", False, f"Expected 401, got {status}")
 
     def test_get_user_profile(self):
         """Test getting current user profile"""
