@@ -722,6 +722,23 @@ body {
 /* Family Dashboard Specific Styles */
 .family-dashboard {
   max-width: 100%;
+  height: 100%;
+}
+
+.family-chat-container {
+  display: flex;
+  height: calc(100vh - 200px);
+  gap: 1rem;
+}
+
+.chat-groups-sidebar {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.chat-area {
+  flex: 1;
+  min-width: 0;
 }
 
 .welcome-section {
