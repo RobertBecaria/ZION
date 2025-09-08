@@ -109,7 +109,7 @@ function AuthProvider({ children }) {
   const completeOnboarding = async (onboardingData) => {
     try {
       const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/onboarding`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/onboarding`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
