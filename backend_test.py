@@ -353,6 +353,321 @@ class ZionCityAPITester:
         
         return False
 
+    def test_auto_family_groups_creation(self):
+        """Test that auto family groups are created during registration"""
+        print("\n🔍 Testing Auto Family Groups Creation...")
+        
+        if not self.token:
+            self.log_test("Auto family groups creation", False, "No authentication token available")
+            return False
+        
+        response = self.make_request('GET', 'chat-groups', auth_required=True)
+        
+        if response and response.status_code == 200:
+            data = response.json()
+            chat_groups = data.get('chat_groups', [])
+            
+            # Look for auto-created Family and Relatives groups
+            family_group = None
+            relatives_group = None
+            
+            for group_data in chat_groups:
+                group = group_data.get('group', {})
+                if group.get('group_type') == 'FAMILY':
+                    family_group = group
+                elif group.get('group_type') == 'RELATIVES':
+                    relatives_group = group
+            
+            success = family_group is not None and relatives_group is not None
+            
+            if success:
+                # Verify group properties
+                family_valid = (
+                    family_group.get('admin_id') == self.user_id and
+                    'Family' in family_group.get('name', '') and
+                    family_group.get('color_code') == '#059669'
+                )
+                
+                relatives_valid = (
+                    relatives_group.get('admin_id') == self.user_id and
+                    'Relatives' in relatives_group.get('name', '') and
+                    relatives_group.get('color_code') == '#047857'
+                )
+                
+                success = family_valid and relatives_valid
+                
+                details = f"Family group: {family_group.get('name')}, Relatives group: {relatives_group.get('name')}"
+            else:
+                details = f"Found {len(chat_groups)} groups, but missing Family/Relatives auto-groups"
+            
+            self.log_test("Auto family groups creation", success, details)
+            return success
+        else:
+            error_msg = f"Status: {response.status_code}" if response else "No response"
+            self.log_test("Auto family groups creation", False, error_msg)
+        
+        return False
+
+    def test_chat_groups_management(self):
+        """Test chat groups management API"""
+        print("\n🔍 Testing Chat Groups Management API...")
+        
+        if not self.token:
+            self.log_test("Chat groups management", False, "No authentication token available")
+            return False
+        
+        # Test GET /api/chat-groups
+        response = self.make_request('GET', 'chat-groups', auth_required=True)
+        
+        if response and response.status_code == 200:
+            data = response.json()
+            chat_groups = data.get('chat_groups', [])
+            
+            # Should have at least 2 groups (Family and Relatives)
+            get_success = len(chat_groups) >= 2
+            self.log_test("Get chat groups", get_success, f"Found {len(chat_groups)} groups")
+            
+            # Test POST /api/chat-groups - Create custom group
+            custom_group_data = {
+                "name": "Test Custom Group",
+                "description": "A test custom chat group",
+                "group_type": "CUSTOM",
+                "color_code": "#3B82F6",
+                "member_ids": []
+            }
+            
+            create_response = self.make_request('POST', 'chat-groups', custom_group_data, auth_required=True)
+            
+            if create_response and create_response.status_code == 200:
+                create_data = create_response.json()
+                create_success = (
+                    'group_id' in create_data and
+                    create_data.get('message') == 'Chat group created successfully'
+                )
+                self.log_test("Create custom chat group", create_success, f"Group ID: {create_data.get('group_id')}")
+                
+                # Store group ID for later tests
+                if create_success:
+                    self.custom_group_id = create_data['group_id']
+                
+                return get_success and create_success
+            else:
+                error_msg = f"Status: {create_response.status_code}" if create_response else "No response"
+                self.log_test("Create custom chat group", False, error_msg)
+        else:
+            error_msg = f"Status: {response.status_code}" if response else "No response"
+            self.log_test("Get chat groups", False, error_msg)
+        
+        return False
+
+    def test_chat_messages_api(self):
+        """Test chat messages API"""
+        print("\n🔍 Testing Chat Messages API...")
+        
+        if not self.token:
+            self.log_test("Chat messages API", False, "No authentication token available")
+            return False
+        
+        # First get a group to test with
+        response = self.make_request('GET', 'chat-groups', auth_required=True)
+        
+        if not (response and response.status_code == 200):
+            self.log_test("Chat messages API", False, "Could not get chat groups")
+            return False
+        
+        data = response.json()
+        chat_groups = data.get('chat_groups', [])
+        
+        if not chat_groups:
+            self.log_test("Chat messages API", False, "No chat groups available")
+            return False
+        
+        # Use the first available group
+        test_group_id = chat_groups[0]['group']['id']
+        
+        # Test GET messages (should be empty initially)
+        get_response = self.make_request('GET', f'chat-groups/{test_group_id}/messages', auth_required=True)
+        
+        if get_response and get_response.status_code == 200:
+            get_data = get_response.json()
+            messages = get_data.get('messages', [])
+            get_success = isinstance(messages, list)  # Should return a list (even if empty)
+            self.log_test("Get chat messages", get_success, f"Found {len(messages)} messages")
+            
+            # Test POST message
+            message_data = {
+                "group_id": test_group_id,
+                "content": "Hello! This is a test message from the API test suite.",
+                "message_type": "TEXT"
+            }
+            
+            post_response = self.make_request('POST', f'chat-groups/{test_group_id}/messages', message_data, auth_required=True)
+            
+            if post_response and post_response.status_code == 200:
+                post_data = post_response.json()
+                post_success = (
+                    'message_id' in post_data and
+                    post_data.get('message') == 'Message sent successfully'
+                )
+                self.log_test("Send chat message", post_success, f"Message ID: {post_data.get('message_id')}")
+                
+                # Test GET messages again to verify message was saved
+                verify_response = self.make_request('GET', f'chat-groups/{test_group_id}/messages', auth_required=True)
+                
+                if verify_response and verify_response.status_code == 200:
+                    verify_data = verify_response.json()
+                    new_messages = verify_data.get('messages', [])
+                    verify_success = len(new_messages) > len(messages)
+                    
+                    if verify_success and new_messages:
+                        # Check message structure
+                        latest_message = new_messages[-1]
+                        verify_success = (
+                            latest_message.get('content') == message_data['content'] and
+                            latest_message.get('user_id') == self.user_id and
+                            'sender' in latest_message
+                        )
+                    
+                    self.log_test("Verify message saved", verify_success, f"Total messages: {len(new_messages)}")
+                    return get_success and post_success and verify_success
+                else:
+                    self.log_test("Verify message saved", False, "Could not verify message was saved")
+            else:
+                error_msg = f"Status: {post_response.status_code}" if post_response else "No response"
+                self.log_test("Send chat message", False, error_msg)
+        else:
+            error_msg = f"Status: {get_response.status_code}" if get_response else "No response"
+            self.log_test("Get chat messages", False, error_msg)
+        
+        return False
+
+    def test_scheduled_actions_api(self):
+        """Test scheduled actions API"""
+        print("\n🔍 Testing Scheduled Actions API...")
+        
+        if not self.token:
+            self.log_test("Scheduled actions API", False, "No authentication token available")
+            return False
+        
+        # First get a group to test with
+        response = self.make_request('GET', 'chat-groups', auth_required=True)
+        
+        if not (response and response.status_code == 200):
+            self.log_test("Scheduled actions API", False, "Could not get chat groups")
+            return False
+        
+        data = response.json()
+        chat_groups = data.get('chat_groups', [])
+        
+        if not chat_groups:
+            self.log_test("Scheduled actions API", False, "No chat groups available")
+            return False
+        
+        # Use the first available group
+        test_group_id = chat_groups[0]['group']['id']
+        
+        # Test GET scheduled actions (should be empty initially)
+        get_response = self.make_request('GET', f'chat-groups/{test_group_id}/scheduled-actions', auth_required=True)
+        
+        if get_response and get_response.status_code == 200:
+            get_data = get_response.json()
+            actions = get_data.get('scheduled_actions', [])
+            get_success = isinstance(actions, list)
+            self.log_test("Get scheduled actions", get_success, f"Found {len(actions)} actions")
+            
+            # Test POST scheduled action
+            from datetime import datetime, timedelta, timezone
+            future_date = datetime.now(timezone.utc) + timedelta(days=7)
+            
+            action_data = {
+                "group_id": test_group_id,
+                "title": "Test Family Meeting",
+                "description": "Weekly family meeting to discuss plans",
+                "action_type": "APPOINTMENT",
+                "scheduled_date": future_date.isoformat(),
+                "scheduled_time": "19:00",
+                "color_code": "#059669",
+                "invitees": [self.user_id],
+                "location": "Living Room"
+            }
+            
+            post_response = self.make_request('POST', f'chat-groups/{test_group_id}/scheduled-actions', action_data, auth_required=True)
+            
+            if post_response and post_response.status_code == 200:
+                post_data = post_response.json()
+                post_success = (
+                    'action_id' in post_data and
+                    post_data.get('message') == 'Scheduled action created successfully'
+                )
+                self.log_test("Create scheduled action", post_success, f"Action ID: {post_data.get('action_id')}")
+                
+                if post_success:
+                    action_id = post_data['action_id']
+                    
+                    # Test PUT complete action
+                    complete_response = self.make_request('PUT', f'scheduled-actions/{action_id}/complete', auth_required=True)
+                    
+                    if complete_response and complete_response.status_code == 200:
+                        complete_data = complete_response.json()
+                        complete_success = complete_data.get('message') == 'Scheduled action marked as completed'
+                        self.log_test("Complete scheduled action", complete_success, "Action marked as completed")
+                        
+                        return get_success and post_success and complete_success
+                    else:
+                        error_msg = f"Status: {complete_response.status_code}" if complete_response else "No response"
+                        self.log_test("Complete scheduled action", False, error_msg)
+            else:
+                error_msg = f"Status: {post_response.status_code}" if post_response else "No response"
+                self.log_test("Create scheduled action", False, error_msg)
+        else:
+            error_msg = f"Status: {get_response.status_code}" if get_response else "No response"
+            self.log_test("Get scheduled actions", False, error_msg)
+        
+        return False
+
+    def test_chat_authorization(self):
+        """Test chat group authorization and membership verification"""
+        print("\n🔍 Testing Chat Authorization...")
+        
+        if not self.token:
+            self.log_test("Chat authorization", False, "No authentication token available")
+            return False
+        
+        # Try to access a non-existent group
+        fake_group_id = str(uuid.uuid4())
+        
+        # Test unauthorized access to messages
+        response = self.make_request('GET', f'chat-groups/{fake_group_id}/messages', auth_required=True)
+        
+        if response and response.status_code == 403:
+            auth_success = True
+            self.log_test("Unauthorized message access blocked", auth_success, "Correctly blocked access to non-member group")
+        else:
+            auth_success = False
+            expected_status = 403
+            actual_status = response.status_code if response else "No response"
+            self.log_test("Unauthorized message access blocked", auth_success, f"Expected {expected_status}, got {actual_status}")
+        
+        # Test unauthorized message sending
+        message_data = {
+            "group_id": fake_group_id,
+            "content": "This should not work",
+            "message_type": "TEXT"
+        }
+        
+        send_response = self.make_request('POST', f'chat-groups/{fake_group_id}/messages', message_data, auth_required=True)
+        
+        if send_response and send_response.status_code == 403:
+            send_success = True
+            self.log_test("Unauthorized message sending blocked", send_success, "Correctly blocked message sending to non-member group")
+        else:
+            send_success = False
+            expected_status = 403
+            actual_status = send_response.status_code if send_response else "No response"
+            self.log_test("Unauthorized message sending blocked", send_success, f"Expected {expected_status}, got {actual_status}")
+        
+        return auth_success and send_success
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting ZION.CITY API Tests...")
