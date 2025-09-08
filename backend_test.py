@@ -684,6 +684,25 @@ class ZionCityAPITester:
             self.test_user_login()
             self.test_get_user_profile()
             
+            # Phase 1: Universal Chat Foundation Tests
+            print("\n🔥 PHASE 1: UNIVERSAL CHAT FOUNDATION TESTS")
+            print("=" * 60)
+            
+            # Test auto family groups creation (should happen during registration)
+            self.test_auto_family_groups_creation()
+            
+            # Test chat groups management API
+            self.test_chat_groups_management()
+            
+            # Test chat messages API
+            self.test_chat_messages_api()
+            
+            # Test scheduled actions API
+            self.test_scheduled_actions_api()
+            
+            # Test authorization and security
+            self.test_chat_authorization()
+            
             # Onboarding and affiliations tests
             onboarding_success = self.test_onboarding_flow()
             if onboarding_success:
