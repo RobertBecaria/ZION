@@ -45,17 +45,18 @@ class ZionCityAPITester:
         
         try:
             if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=10)
+                response = requests.get(url, headers=headers, timeout=30)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=10)
+                response = requests.post(url, json=data, headers=headers, timeout=30)
             elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers, timeout=10)
+                response = requests.put(url, json=data, headers=headers, timeout=30)
             elif method == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=10)
+                response = requests.delete(url, headers=headers, timeout=30)
             
+            print(f"   Request: {method} {url} -> Status: {response.status_code}")
             return response
         except requests.exceptions.RequestException as e:
-            print(f"❌ Network error: {str(e)}")
+            print(f"❌ Network error for {method} {url}: {str(e)}")
             return None
 
     def test_health_check(self):
