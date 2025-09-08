@@ -875,7 +875,7 @@ function Dashboard() {
                       activeGroup={activeGroup}
                       chatGroups={chatGroups}
                       onGroupSelect={handleGroupSelect}
-                      moduleColor={moduleColor}
+                      moduleColor={currentModule.color}
                       onCreateGroup={handleCreateGroup}
                       user={user}
                     />
