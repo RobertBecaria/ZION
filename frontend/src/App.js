@@ -779,7 +779,10 @@ function Dashboard() {
 
           <div className="user-section">
             <div className="clock-widget">
-              <div className="time">{currentTime}</div>
+              <div className="time">{currentTime.toLocaleTimeString('ru-RU', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}</div>
               <div className="date">{currentDate}</div>
             </div>
             <div className="user-menu">
