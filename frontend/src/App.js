@@ -33,7 +33,7 @@ function AuthProvider({ children }) {
 
   const fetchUserProfile = async (token) => {
     try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/auth/me`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
