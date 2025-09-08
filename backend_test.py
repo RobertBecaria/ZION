@@ -683,12 +683,12 @@ class ZionCityAPITester:
         send_response = self.make_request('POST', f'chat-groups/{fake_group_id}/messages', message_data, auth_required=True)
         
         if send_response and send_response.status_code == 403:
+            self.log_test("Unauthorized message sending blocked", True, "Correctly blocked message sending to non-member group")
             send_success = True
-            self.log_test("Unauthorized message sending blocked", send_success, "Correctly blocked message sending to non-member group")
         else:
-            send_success = False
             status = send_response.status_code if send_response else "No response"
-            self.log_test("Unauthorized message sending blocked", send_success, f"Expected 403, got {status}")
+            self.log_test("Unauthorized message sending blocked", False, f"Expected 403, got {status}")
+            send_success = False
         
         return auth_success and send_success
 
