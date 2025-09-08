@@ -61,6 +61,53 @@ class VerificationLevel(str, Enum):
 
 # === CORE MODELS ===
 
+class ChatGroup(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: Optional[str] = None
+    group_type: str  # "FAMILY", "RELATIVES", "CUSTOM"
+    admin_id: str  # User who created/manages the group
+    color_code: str = "#059669"  # Default to Family green
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class ChatGroupMember(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    group_id: str
+    user_id: str
+    role: str = "MEMBER"  # "ADMIN", "MEMBER"
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class ChatMessage(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    group_id: str
+    user_id: str
+    content: str
+    message_type: str = "TEXT"  # "TEXT", "IMAGE", "FILE", "SYSTEM"
+    reply_to: Optional[str] = None  # ID of message being replied to
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+    is_edited: bool = False
+    is_deleted: bool = False
+
+class ScheduledAction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    group_id: str
+    user_id: str  # Who created the action
+    title: str
+    description: Optional[str] = None
+    action_type: str  # "REMINDER", "BIRTHDAY", "APPOINTMENT", "EVENT", "TASK"
+    scheduled_date: datetime
+    scheduled_time: Optional[str] = None  # Time in HH:MM format
+    color_code: str = "#059669"  # Inherits from module/group color
+    is_completed: bool = False
+    invitees: List[str] = []  # User IDs who are invited
+    location: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
 class Affiliation(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
