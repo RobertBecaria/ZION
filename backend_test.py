@@ -668,9 +668,8 @@ class ZionCityAPITester:
             self.log_test("Unauthorized message access blocked", auth_success, "Correctly blocked access to non-member group")
         else:
             auth_success = False
-            expected_status = 403
-            actual_status = response.status_code if response else "No response"
-            self.log_test("Unauthorized message access blocked", auth_success, f"Expected {expected_status}, got {actual_status}")
+            status = response.status_code if response else "No response"
+            self.log_test("Unauthorized message access blocked", auth_success, f"Expected 403, got {status}")
         
         # Test unauthorized message sending
         message_data = {
