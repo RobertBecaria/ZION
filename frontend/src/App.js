@@ -690,10 +690,6 @@ function Dashboard() {
   ];
 
   const currentModule = modules.find(m => m.key === activeModule);
-  const currentTime = new Date().toLocaleTimeString('ru-RU', { 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  });
   const currentDate = new Date().toLocaleDateString('ru-RU', { 
     day: 'numeric', 
     month: 'long',
