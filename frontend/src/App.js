@@ -857,19 +857,7 @@ function Dashboard() {
             {activeModule === 'family' && (
               <div className="family-dashboard">
                 <div className="family-chat-container">
-                  {/* Left sidebar with chat groups */}
-                  <div className="chat-groups-sidebar">
-                    <ChatGroupList
-                      chatGroups={chatGroups}
-                      activeGroup={activeGroup}
-                      onGroupSelect={handleGroupSelect}
-                      onCreateGroup={handleCreateGroup}
-                      moduleColor={currentModule.color}
-                      user={user}
-                    />
-                  </div>
-                  
-                  {/* Main chat area */}
+                  {/* Full width chat area */}
                   <div className="chat-area">
                     <UniversalChatLayout
                       activeGroup={activeGroup}
