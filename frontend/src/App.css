@@ -1877,7 +1877,7 @@ body {
 }
 
 .group-list-header {
-  padding: 1rem 1.5rem;
+  padding: 1rem;
   background: #fafafa;
   border-bottom: 1px solid #e2e8f0;
   display: flex;
@@ -1887,8 +1887,8 @@ body {
 
 .group-list-header h3 {
   color: #374151;
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 600;
   margin: 0;
 }
 
