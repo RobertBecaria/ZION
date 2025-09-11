@@ -816,30 +816,48 @@ function Dashboard() {
         {/* Left Sidebar - "Me" Zone */}
         <aside className="left-sidebar" style={sidebarTintStyle}>
           <div className="sidebar-header">
-            <h3>Личная Зона</h3>
+            <h3>Личный кабинет</h3>
           </div>
+          
+          {/* User Profile Section */}
+          <div className="user-profile-section">
+            <div className="profile-card">
+              <div className="profile-avatar" style={{ backgroundColor: currentModule.color }}>
+                <User size={32} color="white" />
+              </div>
+              <div className="profile-info">
+                <h4>{user.first_name} {user.last_name}</h4>
+                <p>@{user.email.split('@')[0]}</p>
+              </div>
+            </div>
+            
+            <button className="profile-btn primary" style={{ backgroundColor: currentModule.color }}>
+              Мой Профиль
+            </button>
+            
+            <button className="profile-btn secondary">
+              Моя Лента
+            </button>
+          </div>
+
           <nav className="sidebar-nav">
-            <a href="#profile" className="nav-item">
-              <User size={20} />
-              <span>Профиль</span>
-            </a>
-            <a href="#friends" className="nav-item">
+            <a href="#" className="nav-item">
               <Users size={20} />
-              <span>Друзья</span>
+              <span>Мои Друзья</span>
             </a>
-            <a href="#messages" className="nav-item">
+            <a href="#" className="nav-item">
               <MessageCircle size={20} />
-              <span>Сообщения</span>
+              <span>Мои Сообщения</span>
             </a>
-            <a href="#videos" className="nav-item">
+            <a href="#" className="nav-item">
               <Video size={20} />
-              <span>Видео</span>
+              <span>Мои Видео</span>
             </a>
-            <a href="#documents" className="nav-item">
+            <a href="#" className="nav-item">
               <FileText size={20} />
-              <span>Документы</span>
+              <span>Мои Документы</span>
             </a>
-            <a href="#settings" className="nav-item">
+            <a href="#" className="nav-item">
               <Settings size={20} />
               <span>Настройки</span>
             </a>
