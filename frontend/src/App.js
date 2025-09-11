@@ -844,42 +844,52 @@ function Dashboard() {
 
         {/* Central Content Area */}
         <main className="content-area">
-          <div className="content-header">
-            <h2 className="module-title" style={{ color: currentModule.color }}>
-              {currentModule.name}
-            </h2>
-            <div className="breadcrumb">
-              <span>Главная</span> / <span>{currentModule.name}</span>
-            </div>
-            {user.affiliations && user.affiliations.length > 0 && (
-              <div className="context-tags">
-                {user.affiliations.slice(0, 3).map((affiliation) => (
-                  <span key={affiliation.id} className="context-tag">
-                    {affiliation.affiliation.name} - {affiliation.user_role_in_org}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="content-body">
-            {activeModule === 'family' && (
-              <div className="family-dashboard">
-                <div className="family-chat-container">
-                  {/* Full width chat area */}
-                  <div className="chat-area">
-                    <UniversalChatLayout
-                      activeGroup={activeGroup}
-                      chatGroups={chatGroups}
-                      onGroupSelect={handleGroupSelect}
-                      moduleColor={currentModule.color}
-                      onCreateGroup={handleCreateGroup}
-                      user={user}
-                    />
-                  </div>
+          {/* Show Calendar when active */}
+          {showCalendar ? (
+            <UniversalCalendar
+              user={user}
+              activeModule={activeModule}
+              moduleColor={currentModule.color}
+              onClose={() => setShowCalendar(false)}
+            />
+          ) : (
+            <>
+              <div className="content-header">
+                <h2 className="module-title" style={{ color: currentModule.color }}>
+                  {currentModule.name}
+                </h2>
+                <div className="breadcrumb">
+                  <span>Главная</span> / <span>{currentModule.name}</span>
                 </div>
+                {user.affiliations && user.affiliations.length > 0 && (
+                  <div className="context-tags">
+                    {user.affiliations.slice(0, 3).map((affiliation) => (
+                      <span key={affiliation.id} className="context-tag">
+                        {affiliation.affiliation.name} - {affiliation.user_role_in_org}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+              
+              <div className="content-body">
+                {activeModule === 'family' && (
+                  <div className="family-dashboard">
+                    <div className="family-chat-container">
+                      {/* Full width chat area */}
+                      <div className="chat-area">
+                        <UniversalChatLayout
+                          activeGroup={activeGroup}
+                          chatGroups={chatGroups}
+                          onGroupSelect={handleGroupSelect}
+                          moduleColor={currentModule.color}
+                          onCreateGroup={handleCreateGroup}
+                          user={user}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
 
             {activeModule === 'organizations' && (
               <div className="organizations-dashboard">
