@@ -666,6 +666,7 @@ function Dashboard() {
   const [chatGroups, setChatGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState(null);
   const [loadingGroups, setLoadingGroups] = useState(true);
+  const [showCalendar, setShowCalendar] = useState(false);
   const { user, logout } = useAuth();
 
   // Check if user needs onboarding (no affiliations)
