@@ -994,125 +994,188 @@ function Dashboard() {
             )}
         </main>
 
-        {/* Right Sidebar - "World" Zone */}
+        {/* Right Sidebar - "World" Zone - Context-Specific */}
         <aside className="right-sidebar" style={sidebarTintStyle}>
           <div className="sidebar-header">
             <h3>Мировая Зона</h3>
           </div>
           
-          {/* Horizontal Filter Row */}
-          <div className="filter-section">
-            <div className="filter-header">
-              <Filter size={16} />
-              <span>Фильтры</span>
-            </div>
-            <div className="filter-row">
-              <button className="filter-btn active">Все</button>
-              <button className="filter-btn">Семья</button>
-              <button className="filter-btn">Друзья</button>
-              <button className="filter-btn">Работа</button>
-            </div>
-          </div>
-
-          {/* Search Widget */}
-          <div className="widget search-widget">
-            <div className="widget-header">
-              <Search size={16} />
-              <span>Поиск</span>
-            </div>
-            <input type="text" placeholder="Поиск по платформе..." className="search-input" />
-          </div>
-
-          {/* Context Widget */}
-          {user.affiliations && user.affiliations.length > 0 && (
-            <div className="widget context-widget">
-              <div className="widget-header">
-                <Building2 size={16} />
-                <span>Ваши организации</span>
+          {/* WALL View - Wall-specific widgets */}
+          {activeView === 'wall' && (
+            <>
+              {/* Search Widget */}
+              <div className="widget search-widget">
+                <div className="widget-header">
+                  <Search size={16} />
+                  <span>Поиск записей</span>
+                </div>
+                <input type="text" placeholder="Поиск по записям..." className="search-input" />
               </div>
-              <div className="context-list">
-                {user.affiliations.slice(0, 3).map((affiliation) => (
-                  <div key={affiliation.id} className="context-item">
-                    <div className="context-icon">
-                      {affiliation.affiliation.type === 'WORK' && <Briefcase size={16} />}
-                      {affiliation.affiliation.type === 'UNIVERSITY' && <GraduationCap size={16} />}
-                      {affiliation.affiliation.type === 'SCHOOL' && <Building2 size={16} />}
+
+              {/* Quick Filters Widget */}
+              <div className="widget filters-widget">
+                <div className="widget-header">
+                  <Filter size={16} />
+                  <span>Быстрые фильтры</span>
+                </div>
+                <div className="filter-row">
+                  <button className="filter-btn active" style={{ backgroundColor: currentModule.color, borderColor: currentModule.color }}>Все</button>
+                  <button className="filter-btn">Новости</button>
+                  <button className="filter-btn">События</button>
+                </div>
+              </div>
+
+              {/* Online Friends Widget */}
+              <div className="widget friends-widget">
+                <div className="widget-header">
+                  <Users size={16} />
+                  <span>Друзья онлайн</span>
+                </div>
+                <div className="friends-list">
+                  <div className="friend-item">
+                    <div className="friend-avatar"></div>
+                    <div className="friend-info">
+                      <span className="friend-name">Анна Петрова</span>
+                      <span className="friend-status">В сети</span>
                     </div>
-                    <div className="context-info">
-                      <span className="context-name">{affiliation.affiliation.name}</span>
-                      <span className="context-role">{affiliation.user_role_in_org}</span>
+                    <div className="status-indicator online"></div>
+                  </div>
+                  <div className="friend-item">
+                    <div className="friend-avatar"></div>
+                    <div className="friend-info">
+                      <span className="friend-name">Максим Иванов</span>
+                      <span className="friend-status">В сети</span>
+                    </div>
+                    <div className="status-indicator online"></div>
+                  </div>
+                  <div className="friend-item">
+                    <div className="friend-avatar"></div>
+                    <div className="friend-info">
+                      <span className="friend-name">Елена Сидорова</span>
+                      <span className="friend-status">В сети</span>
+                    </div>
+                    <div className="status-indicator online"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Popular Hashtags Widget */}
+              <div className="widget hashtags-widget">
+                <div className="widget-header">
+                  <Bell size={16} />
+                  <span>Популярное</span>
+                </div>
+                <div className="hashtags-list">
+                  <a href="#" className="hashtag" style={{ color: currentModule.color }}>#Community</a>
+                  <a href="#" className="hashtag" style={{ color: currentModule.color }}>#Agriculture</a>
+                  <a href="#" className="hashtag" style={{ color: currentModule.color }}>#Notice</a>
+                  <a href="#" className="hashtag" style={{ color: currentModule.color }}>#ZIONCITY</a>
+                </div>
+              </div>
+
+              {/* Wall Activity Widget */}
+              <div className="widget activity-widget">
+                <div className="widget-header">
+                  <MessageCircle size={16} />
+                  <span>Активность</span>
+                </div>
+                <div className="activity-stats">
+                  <div className="stat-item">
+                    <span className="stat-number">12</span>
+                    <span className="stat-label">Новых записей</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">5</span>
+                    <span className="stat-label">Лайков</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">8</span>
+                    <span className="stat-label">Комментариев</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* CHAT View - Chat-specific widgets */}
+          {activeView === 'chat' && (
+            <>
+              {/* Chat Groups Widget */}
+              <div className="widget chat-groups-widget">
+                <ChatGroupList
+                  chatGroups={chatGroups}
+                  activeGroup={activeGroup}
+                  onGroupSelect={handleGroupSelect}
+                  onCreateGroup={handleCreateGroup}
+                  moduleColor={currentModule.color}
+                  user={user}
+                />
+              </div>
+
+              {/* Chat Settings Widget */}
+              <div className="widget chat-settings-widget">
+                <div className="widget-header">
+                  <Settings size={16} />
+                  <span>Настройки чата</span>
+                </div>
+                <div className="chat-settings-list">
+                  <div className="setting-item">
+                    <span>Уведомления</span>
+                    <label className="toggle">
+                      <input type="checkbox" defaultChecked />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div className="setting-item">
+                    <span>Звук сообщений</span>
+                    <label className="toggle">
+                      <input type="checkbox" defaultChecked />
+                      <span className="toggle-slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chat Participants Widget */}
+              {activeGroup && (
+                <div className="widget participants-widget">
+                  <div className="widget-header">
+                    <Users size={16} />
+                    <span>Участники ({activeGroup.member_count})</span>
+                  </div>
+                  <div className="participants-list">
+                    <div className="participant-item">
+                      <div className="participant-avatar" style={{ backgroundColor: currentModule.color }}>
+                        <User size={16} color="white" />
+                      </div>
+                      <div className="participant-info">
+                        <span className="participant-name">{user.first_name} {user.last_name}</span>
+                        <span className="participant-role">Администратор</span>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Chat Groups Widget - Show only when in Family module */}
-          {activeModule === 'family' && (
-            <div className="widget chat-groups-widget">
-              <ChatGroupList
-                chatGroups={chatGroups}
-                activeGroup={activeGroup}
-                onGroupSelect={handleGroupSelect}
-                onCreateGroup={handleCreateGroup}
-                moduleColor={currentModule.color}
-                user={user}
-              />
-            </div>
-          )}
-
-          {/* Friends List Widget */}
-          <div className="widget friends-widget">
-            <div className="widget-header">
-              <Users size={16} />
-              <span>Друзья онлайн</span>
-            </div>
-            <div className="friends-list">
-              <div className="friend-item">
-                <div className="friend-avatar"></div>
-                <div className="friend-info">
-                  <span className="friend-name">Анна Петрова</span>
-                  <span className="friend-status">В сети</span>
                 </div>
-                <div className="status-indicator online"></div>
-              </div>
-              <div className="friend-item">
-                <div className="friend-avatar"></div>
-                <div className="friend-info">
-                  <span className="friend-name">Максим Иванов</span>
-                  <span className="friend-status">В сети</span>
-                </div>
-                <div className="status-indicator online"></div>
-              </div>
-            </div>
-          </div>
+              )}
 
-          {/* Quick Stats Widget */}
-          <div className="widget stats-widget">
-            <div className="widget-header">
-              <Bell size={16} />
-              <span>Быстрая статистика</span>
-            </div>
-            <div className="stats-grid">
-              <div className="stat-item">
-                <span className="stat-number">12</span>
-                <span className="stat-label">Сообщения</span>
+              {/* Chat Activity Widget */}
+              <div className="widget chat-activity-widget">
+                <div className="widget-header">
+                  <MessageCircle size={16} />
+                  <span>Активность чата</span>
+                </div>
+                <div className="activity-stats">
+                  <div className="stat-item">
+                    <span className="stat-number">25</span>
+                    <span className="stat-label">Сообщений сегодня</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">{chatGroups.length}</span>
+                    <span className="stat-label">Активных групп</span>
+                  </div>
+                </div>
               </div>
-              <div className="stat-item">
-                <span className="stat-number">3</span>
-                <span className="stat-label">События</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">{user.affiliations ? user.affiliations.length : 0}</span>
-                <span className="stat-label">Организации</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-number">24</span>
-                <span className="stat-label">Уведомления</span>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </aside>
       </div>
     </div>
