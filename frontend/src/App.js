@@ -780,12 +780,19 @@ function Dashboard() {
           </div>
 
           <div className="user-section">
-            <div className="clock-widget">
+            <div 
+              className="clock-widget clickable" 
+              onClick={() => setShowCalendar(!showCalendar)}
+              title="Открыть календарь"
+            >
               <div className="time">{currentTime.toLocaleTimeString('ru-RU', { 
                 hour: '2-digit', 
                 minute: '2-digit' 
               })}</div>
               <div className="date">{currentDate}</div>
+              <div className="calendar-icon">
+                <Calendar size={16} />
+              </div>
             </div>
             <div className="user-menu">
               <button className="user-button">
