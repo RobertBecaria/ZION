@@ -1086,17 +1086,18 @@ body {
 
 .split-content-layout {
   display: flex;
-  gap: 1.5rem;
+  gap: 1.25rem;
   flex: 1;
+  min-width: 0;
 }
 
 .main-content-area {
-  flex: 0 0 70%;
+  flex: 0 0 68%;
   min-width: 0;
 }
 
 .events-panel-area {
-  flex: 0 0 30%;
+  flex: 0 0 32%;
   min-width: 0;
 }
 
