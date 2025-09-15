@@ -5,7 +5,6 @@ import ChatGroupList from './components/ChatGroupList';
 import UniversalCalendar from './components/UniversalCalendar';
 import UniversalWall from './components/UniversalWall';
 import ContentNavigation from './components/ContentNavigation';
-import EnhancedEventsPanel from './components/EnhancedEventsPanel';
 import UniversalEventsPanel from './components/UniversalEventsPanel';
 import { 
   Clock, User, MessageCircle, Video, FileText, Settings, Search, Filter, Users,
