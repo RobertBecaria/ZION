@@ -807,6 +807,7 @@ body {
   flex-direction: column;
   gap: 1rem;
   flex-shrink: 0;
+  margin-left: 2rem;
 }
 
 /* Widget Styles */
