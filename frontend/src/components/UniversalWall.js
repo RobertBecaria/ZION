@@ -149,7 +149,7 @@ function UniversalWall({
   };
 
   return (
-    <div className="universal-wall">
+    <div className="universal-wall-full">
       {/* Wall Header */}
       <div className="wall-header">
         <h2>Лента Новостей</h2>
@@ -166,20 +166,26 @@ function UniversalWall({
               type="text"
               placeholder="Что у Вас нового?"
               className="post-input-placeholder"
-              onClick={() => document.querySelector('.post-textarea').focus()}
+              onClick={() => {
+                const textarea = document.querySelector('.post-textarea');
+                if (textarea) {
+                  textarea.style.display = 'block';
+                  textarea.focus();
+                }
+                document.querySelector('.post-form').style.display = 'block';
+              }}
               readOnly
             />
           </div>
 
-          <form onSubmit={handlePostSubmit} className="post-form" style={{ display: newPost ? 'block' : 'none' }}>
+          <form onSubmit={handlePostSubmit} className="post-form" style={{ display: 'none' }}>
             <textarea
               value={newPost}
               onChange={(e) => setNewPost(e.target.value)}
-              placeholder={`Поделитесь новостями...`}
+              placeholder="Поделитесь новостями..."
               className="post-textarea"
               rows={3}
               disabled={loading}
-              onFocus={() => setNewPost(' ')}
             />
             
             <div className="post-actions">
@@ -190,32 +196,44 @@ function UniversalWall({
                   onClick={handleImageUpload}
                   title="Добавить изображение"
                 >
-                  <Image size={20} />
+                  <Image size={18} />
                 </button>
                 <button 
                   type="button" 
                   className="post-tool-btn"
                   title="Добавить файл"
                 >
-                  <Paperclip size={20} />
+                  <Paperclip size={18} />
                 </button>
                 <button 
                   type="button" 
                   className="post-tool-btn"
                   title="Эмодзи"
                 >
-                  <Smile size={20} />
+                  <Smile size={18} />
                 </button>
               </div>
 
-              <button 
-                type="submit" 
-                className="post-submit-btn"
-                style={{ backgroundColor: moduleColor }}
-                disabled={!newPost.trim() || loading}
-              >
-                {loading ? 'Публикуем...' : 'Опубликовать'}
-              </button>
+              <div className="post-submit-actions">
+                <button 
+                  type="button" 
+                  className="post-cancel-btn"
+                  onClick={() => {
+                    setNewPost('');
+                    document.querySelector('.post-form').style.display = 'none';
+                  }}
+                >
+                  Отмена
+                </button>
+                <button 
+                  type="submit" 
+                  className="post-submit-btn"
+                  style={{ backgroundColor: moduleColor }}
+                  disabled={!newPost.trim() || loading}
+                >
+                  {loading ? 'Публикуем...' : 'Опубликовать'}
+                </button>
+              </div>
             </div>
           </form>
 
