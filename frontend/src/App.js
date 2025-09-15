@@ -979,15 +979,25 @@ function Dashboard() {
                     )}
                   </div>
 
-                  {/* Events Panel (30%) */}
+                  {/* Events Panel (30%) - Context-Specific */}
                   <div className="events-panel-area">
-                    <EnhancedEventsPanel
-                      activeGroup={activeGroup}
-                      moduleColor={currentModule.color}
-                      moduleName={currentModule.name}
-                      user={user}
-                      context={activeView}
-                    />
+                    {activeView === 'wall' ? (
+                      <EnhancedEventsPanel
+                        activeGroup={activeGroup}
+                        moduleColor={currentModule.color}
+                        moduleName={currentModule.name}
+                        user={user}
+                        context={activeView}
+                      />
+                    ) : (
+                      <UniversalEventsPanel
+                        activeGroup={activeGroup}
+                        moduleColor={currentModule.color}
+                        moduleName={currentModule.name}
+                        user={user}
+                        context={activeView}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
