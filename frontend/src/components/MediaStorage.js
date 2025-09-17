@@ -71,6 +71,76 @@ const MediaStorage = ({
     }
   };
 
+  // Handle file upload
+  const handleFileUpload = async (files) => {
+    if (!files || files.length === 0) return;
+    
+    setUploading(true);
+    setUploadProgress(0);
+    
+    try {
+      const token = localStorage.getItem('zion_token');
+      const uploadedFiles = [];
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('source_module', selectedModuleFilter === 'all' ? activeModule : selectedModuleFilter);
+        formData.append('privacy_level', 'private');
+        
+        const response = await fetch(`${backendUrl}/api/media/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (response.ok) {
+          const uploadedFile = await response.json();
+          uploadedFiles.push(uploadedFile);
+          setUploadProgress(((i + 1) / files.length) * 100);
+        } else {
+          console.error(`Failed to upload ${file.name}`);
+        }
+      }
+      
+      // Refresh media list after upload
+      await fetchMedia();
+      
+      console.log(`Successfully uploaded ${uploadedFiles.length} files`);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    } finally {
+      setUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  // Handle upload button click
+  const handleUploadClick = () => {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.multiple = true;
+    
+    // Set accept attribute based on media type
+    if (mediaType === 'photos') {
+      fileInput.accept = 'image/jpeg,image/png,image/gif';
+    } else if (mediaType === 'documents') {
+      fileInput.accept = '.pdf,.doc,.docx,.ppt,.pptx';
+    } else if (mediaType === 'videos') {
+      fileInput.accept = 'video/mp4,video/webm,video/ogg';
+    }
+    
+    fileInput.onchange = (e) => {
+      const files = Array.from(e.target.files);
+      handleFileUpload(files);
+    };
+    
+    fileInput.click();
+  };
+
   useEffect(() => {
     fetchMedia();
   }, [mediaType, selectedModuleFilter]);
