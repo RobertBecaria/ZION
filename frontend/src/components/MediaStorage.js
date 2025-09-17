@@ -249,6 +249,19 @@ const MediaStorage = ({
         </div>
       </div>
 
+      {/* Upload Progress */}
+      {uploading && (
+        <div className="upload-progress">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+          <span className="progress-text">Загрузка файлов... {Math.round(uploadProgress)}%</span>
+        </div>
+      )}
+
       {/* Media Content */}
       <div className="media-content">
         {loading ? (
