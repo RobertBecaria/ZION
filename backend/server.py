@@ -1066,8 +1066,8 @@ async def upload_media_file(
         raise HTTPException(status_code=500, detail=f"File upload failed: {str(e)}")
 
 @api_router.get("/media/{file_id}")
-async def get_media_file(file_id: str, current_user: User = Depends(get_current_user)):
-    """Serve uploaded media file"""
+async def get_media_file(file_id: str):
+    """Serve uploaded media file - public access for image display"""
     media_file = await db.media_files.find_one({"id": file_id})
     if not media_file:
         raise HTTPException(status_code=404, detail="File not found")
