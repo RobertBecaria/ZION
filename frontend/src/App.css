@@ -1856,6 +1856,20 @@ body {
     padding: 1rem;
   }
   
+  .nav-logo {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .auth-logo {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .logo-section .platform-logo {
+    font-size: 1.25rem;
+  }
+  
   .module-navigation {
     order: 2;
     justify-content: flex-start;
