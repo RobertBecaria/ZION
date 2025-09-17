@@ -1088,6 +1088,185 @@ function Dashboard() {
                 <div className="friends-list">
                   <div className="friend-item">
                     <div className="friend-avatar"></div>
+                    <div className="friend-name">Елена Иванова</div>
+                    <div className="online-indicator"></div>
+                  </div>
+                  <div className="friend-item">
+                    <div className="friend-avatar"></div>
+                    <div className="friend-name">Дмитрий Смирнов</div>
+                    <div className="online-indicator"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Popular Topics Widget */}
+              <div className="widget topics-widget">
+                <div className="widget-header">
+                  <span>Популярное</span>
+                </div>
+                <div className="hashtags-list">
+                  <span className="hashtag">#семья</span>
+                  <span className="hashtag">#новости</span>
+                  <span className="hashtag">#события</span>
+                  <span className="hashtag">#город</span>
+                  <span className="hashtag">#работа</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* MEDIA Views - Media-specific controls */}
+          {(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') && (
+            <>
+              {/* Media Stats Widget */}
+              <div className="widget media-stats-widget">
+                <div className="widget-header">
+                  <div className="media-icon" style={{ color: currentModule.color }}>
+                    {activeView === 'media-photos' && <Image size={16} />}
+                    {activeView === 'media-documents' && <FileText size={16} />}
+                    {activeView === 'media-videos' && <Video size={16} />}
+                  </div>
+                  <span>Статистика медиа</span>
+                </div>
+                <div className="stats-grid">
+                  <div className="stat-item">
+                    <span className="stat-number">0</span>
+                    <span className="stat-label">
+                      {activeView === 'media-photos' && 'Фото'}
+                      {activeView === 'media-documents' && 'Документы'}
+                      {activeView === 'media-videos' && 'Видео'}
+                    </span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">0 MB</span>
+                    <span className="stat-label">Использовано</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">8</span>
+                    <span className="stat-label">Разделов</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-number">0</span>
+                    <span className="stat-label">Альбомов</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Module Filters Widget */}
+              <div className="widget module-filters-widget">
+                <div className="widget-header">
+                  <Filter size={16} />
+                  <span>Разделы</span>
+                </div>
+                <div className="module-filter-list">
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'all' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('all')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#6B7280' }}></div>
+                    <span>Все файлы</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'family' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('family')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#059669' }}></div>
+                    <span>Семья</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'work' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('work')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#2563EB' }}></div>
+                    <span>Работа</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'education' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('education')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#7C3AED' }}></div>
+                    <span>Образование</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'health' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('health')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#DC2626' }}></div>
+                    <span>Здоровье</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'government' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('government')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#EA580C' }}></div>
+                    <span>Госуслуги</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'business' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('business')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#CA8A04' }}></div>
+                    <span>Бизнес</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'community' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('community')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#4B5563' }}></div>
+                    <span>Сообщество</span>
+                    <span className="file-count">0</span>
+                  </button>
+                  
+                  <button 
+                    className={`module-filter-item ${selectedModuleFilter === 'personal' ? 'active' : ''}`}
+                    onClick={() => setSelectedModuleFilter('personal')}
+                  >
+                    <div className="module-color-dot" style={{ backgroundColor: '#10B981' }}></div>
+                    <span>Личное</span>
+                    <span className="file-count">0</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Actions Widget */}
+              <div className="widget media-actions-widget">
+                <div className="widget-header">
+                  <span>Быстрые действия</span>
+                </div>
+                <div className="quick-actions-list">
+                  <button className="quick-action-btn" style={{ backgroundColor: currentModule.color }}>
+                    <Upload size={16} />
+                    <span>Загрузить файлы</span>
+                  </button>
+                  <button className="quick-action-btn">
+                    <FolderPlus size={16} />
+                    <span>Создать альбом</span>
+                  </button>
+                  <button className="quick-action-btn">
+                    <Download size={16} />
+                    <span>Скачать все</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* CHAT View - Chat-specific widgets */}
+          {activeView === 'chat' && (
                     <div className="friend-info">
                       <span className="friend-name">Анна Петрова</span>
                       <span className="friend-status">В сети</span>
