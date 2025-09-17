@@ -209,7 +209,15 @@ const MediaStorage = ({
                 
                 <div className={`files-grid ${viewMode}`}>
                   {files.map((file) => (
-                    <div key={file.id} className="media-item" data-module={file.source_module}>
+                    <div 
+                      key={file.id} 
+                      className="media-item" 
+                      data-module={file.source_module}
+                      style={{ 
+                        borderColor: modules[file.source_module]?.color || '#E5E7EB',
+                        borderWidth: '2px'
+                      }}
+                    >
                       {file.file_type === 'image' ? (
                         <div className="media-preview">
                           <img 
@@ -239,12 +247,19 @@ const MediaStorage = ({
                       <div className="media-info">
                         <h4 className="filename">{file.original_filename}</h4>
                         <p className="file-meta">
-                          {formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                          <span className="module-tag" style={{ color: modules[file.source_module]?.color || '#6B7280' }}>
+                            {modules[file.source_module]?.name || 'Unknown'}
+                          </span>
+                          • {formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                       
                       <div className="media-actions">
-                        <button className="action-btn-small" title="Скачать">
+                        <button 
+                          className="action-btn-small" 
+                          title="Скачать"
+                          onClick={() => window.open(`${backendUrl}${file.file_url}`, '_blank')}
+                        >
                           <Download size={16} />
                         </button>
                         <button className="action-btn-small danger" title="Удалить">
