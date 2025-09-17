@@ -2973,16 +2973,50 @@ select:focus {
   display: flex;
   flex-direction: column;
   background: white;
-  border: 1px solid #E5E7EB;
+  border: 2px solid #E5E7EB;
   border-radius: 8px;
   overflow: hidden;
   transition: all 0.2s ease;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .media-item:hover {
-  border-color: #D1D5DB;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Module color border enhancement */
+.media-item[data-module="family"] {
+  border-color: #059669;
+}
+
+.media-item[data-module="work"] {
+  border-color: #2563EB;
+}
+
+.media-item[data-module="education"] {
+  border-color: #7C3AED;
+}
+
+.media-item[data-module="health"] {
+  border-color: #DC2626;
+}
+
+.media-item[data-module="government"] {
+  border-color: #EA580C;
+}
+
+.media-item[data-module="business"] {
+  border-color: #CA8A04;
+}
+
+.media-item[data-module="community"] {
+  border-color: #4B5563;
+}
+
+.media-item[data-module="personal"] {
+  border-color: #10B981;
 }
 
 .files-grid.list .media-item {
