@@ -546,10 +546,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "NEW MediaStorage Component Implementation"
-    - "NEW Sidebar Media Navigation" 
-    - "NEW Media Storage CSS Styling"
-    - "NEW Media Storage API Integration"
+    - "Media Storage Full-Width Layout Fix"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
