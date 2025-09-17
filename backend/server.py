@@ -1124,14 +1124,18 @@ async def get_posts(
 
 @api_router.post("/posts", response_model=PostResponse)
 async def create_post(
-    post_data: PostCreate,
-    media_file_ids: Optional[List[str]] = Form(default=[]),
+    content: str = Form(...),
+    media_file_ids: List[str] = Form(default=[]),
     current_user: User = Depends(get_current_user)
 ):
     """Create a new post with optional media attachments"""
     
+    # Handle empty list case for media_file_ids
+    if isinstance(media_file_ids, str):
+        media_file_ids = [media_file_ids] if media_file_ids else []
+    
     # Extract YouTube URLs from content
-    youtube_urls = extract_youtube_urls(post_data.content)
+    youtube_urls = extract_youtube_urls(content)
     
     # Validate media file IDs belong to current user
     valid_media_ids = []
@@ -1147,7 +1151,7 @@ async def create_post(
     # Create post
     new_post = Post(
         user_id=current_user.id,
-        content=post_data.content,
+        content=content,
         media_files=valid_media_ids,
         youtube_urls=youtube_urls
     )
