@@ -1034,12 +1034,13 @@ function Dashboard() {
                     <div className="events-panel-area">
                       <UniversalEventsPanel
                         activeGroup={activeGroup}
-                      moduleColor={currentModule.color}
-                      moduleName={currentModule.name}
-                      user={user}
-                      context={activeView}
-                    />
-                  </div>
+                        moduleColor={currentModule.color}
+                        moduleName={currentModule.name}
+                        user={user}
+                        context={activeView}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
               </>
