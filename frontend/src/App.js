@@ -943,9 +943,9 @@ function Dashboard() {
 
                 {/* Content Area with Split Layout */}
                 <div className="split-content-layout">
-                  {/* Main Content Area (70%) */}
-                  <div className="main-content-area">
-                    {/* Media Storage Views */}
+                  {/* Main Content Area */}
+                  <div className={`main-content-area ${(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? 'full-width' : ''}`}>
+                    {/* Media Storage Views - Full Width */}
                     {(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? (
                       <MediaStorage
                         mediaType={activeView === 'media-photos' ? 'photos' : 
@@ -953,6 +953,8 @@ function Dashboard() {
                         user={user}
                         activeModule={activeModule}
                         moduleColor={currentModule.color}
+                        selectedModuleFilter={selectedModuleFilter}
+                        onModuleFilterChange={setSelectedModuleFilter}
                       />
                     ) : (
                       <>
@@ -1027,10 +1029,11 @@ function Dashboard() {
                     )}
                   </div>
 
-                  {/* Events Panel (30%) - Universal Scheduled Actions */}
-                  <div className="events-panel-area">
-                    <UniversalEventsPanel
-                      activeGroup={activeGroup}
+                  {/* Events Panel (30%) - Hide when in media views */}
+                  {!(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') && (
+                    <div className="events-panel-area">
+                      <UniversalEventsPanel
+                        activeGroup={activeGroup}
                       moduleColor={currentModule.color}
                       moduleName={currentModule.name}
                       user={user}
