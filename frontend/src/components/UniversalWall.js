@@ -14,8 +14,11 @@ function UniversalWall({
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
   const [loading, setLoading] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedMediaIds, setUploadedMediaIds] = useState([]);
   const fileInputRef = useRef(null);
+  const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || process.env.REACT_APP_BACKEND_URL;
 
   // Mock posts data for now - will be replaced with API calls
   const mockPosts = [
