@@ -193,6 +193,11 @@ function UniversalWall({
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData();
         formData.append('file', file);
+        
+        // Add source module based on current context
+        const sourceModule = moduleName?.toLowerCase() || 'personal';
+        formData.append('source_module', sourceModule);
+        formData.append('privacy_level', 'module');
 
         const response = await fetch(`${backendUrl}/api/media/upload`, {
           method: 'POST',
