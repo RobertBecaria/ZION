@@ -1152,7 +1152,14 @@ function Dashboard() {
                 </div>
                 <div className="stats-grid">
                   <div className="stat-item">
-                    <span className="stat-number">0</span>
+                    <span className="stat-number">
+                      {activeView === 'media-photos' 
+                        ? Object.values(mediaStats).reduce((total, module) => total + (module.images?.length || 0), 0)
+                        : activeView === 'media-documents'
+                        ? Object.values(mediaStats).reduce((total, module) => total + (module.documents?.length || 0), 0)
+                        : Object.values(mediaStats).reduce((total, module) => total + (module.videos?.length || 0), 0)
+                      }
+                    </span>
                     <span className="stat-label">
                       {activeView === 'media-photos' && 'Фото'}
                       {activeView === 'media-documents' && 'Документы'}
@@ -1160,11 +1167,16 @@ function Dashboard() {
                     </span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-number">0 MB</span>
+                    <span className="stat-number">
+                      {Object.values(mediaStats).reduce((total, module) => {
+                        const allFiles = [...(module.images || []), ...(module.documents || []), ...(module.videos || [])];
+                        return total + allFiles.reduce((size, file) => size + (file.file_size || 0), 0);
+                      }, 0) / (1024 * 1024)}.toFixed(1)} MB
+                    </span>
                     <span className="stat-label">Использовано</span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-number">8</span>
+                    <span className="stat-number">{Object.keys(mediaStats).length}</span>
                     <span className="stat-label">Разделов</span>
                   </div>
                   <div className="stat-item">
