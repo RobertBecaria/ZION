@@ -281,6 +281,29 @@ class Token(BaseModel):
     token_type: str
     user: UserResponse
 
+class PostCreate(BaseModel):
+    content: str
+
+class PostResponse(BaseModel):
+    id: str
+    user_id: str
+    content: str
+    author: Dict[str, Any]  # User info
+    media_files: List[Dict[str, Any]] = []  # MediaFile info
+    youtube_urls: List[str] = []
+    likes_count: int
+    comments_count: int
+    is_published: bool
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+class MediaUploadResponse(BaseModel):
+    id: str
+    original_filename: str
+    file_type: str
+    file_size: int
+    file_url: str
+
 # === UTILITY FUNCTIONS ===
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
