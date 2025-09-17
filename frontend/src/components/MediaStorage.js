@@ -268,9 +268,14 @@ const MediaStorage = ({
                 : `Нет файлов в разделе "${modules[selectedModuleFilter]?.name}"`
               }
             </p>
-            <button className="upload-btn" style={{ backgroundColor: moduleColor }}>
+            <button 
+              className="upload-btn" 
+              style={{ backgroundColor: moduleColor }}
+              onClick={handleUploadClick}
+              disabled={uploading}
+            >
               <Upload size={18} />
-              Загрузить файлы
+              {uploading ? 'Загружаем файлы...' : 'Загрузить файлы'}
             </button>
           </div>
         ) : (
