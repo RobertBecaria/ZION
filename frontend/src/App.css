@@ -3267,7 +3267,7 @@ select:focus {
   flex-shrink: 0;
 }
 
-.module-filter-item span:nth-child(2) {
+.module-filter-item span:nth-child(3) {
   flex: 1;
 }
 
