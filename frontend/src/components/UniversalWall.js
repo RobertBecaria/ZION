@@ -113,6 +113,10 @@ function UniversalWall({
       const formData = new FormData();
       formData.append('content', newPost);
       
+      // Add source module based on current context
+      const sourceModule = moduleName?.toLowerCase() || 'personal';
+      formData.append('source_module', sourceModule);
+      
       // Add uploaded media file IDs
       uploadedMediaIds.forEach(id => {
         formData.append('media_file_ids', id);
