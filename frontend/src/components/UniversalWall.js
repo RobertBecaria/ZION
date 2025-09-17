@@ -69,11 +69,34 @@ function UniversalWall({
     }
   ];
 
+  // Fetch posts from API
+  const fetchPosts = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${backendUrl}/api/posts`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setPosts(data);
+      } else {
+        console.error('Failed to fetch posts');
+        // Fallback to mock data for now
+        setPosts(mockPosts);
+      }
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+      // Fallback to mock data
+      setPosts(mockPosts);
+    }
+  };
+
   useEffect(() => {
-    // For now, use mock data
-    setPosts(mockPosts);
-    // TODO: Replace with actual API call
-    // fetchPosts();
+    fetchPosts();
   }, [activeGroup]);
 
   const handlePostSubmit = async (e) => {
