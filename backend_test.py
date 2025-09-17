@@ -909,7 +909,7 @@ class ZionCityAPITester:
             },
             {
                 "content": "Short link: https://youtu.be/dQw4w9WgXcQ and embed: https://www.youtube.com/embed/dQw4w9WgXcQ",
-                "expected_urls": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
+                "expected_urls": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]  # Should deduplicate
             },
             {
                 "content": "No YouTube links here, just regular text.",
@@ -920,28 +920,47 @@ class ZionCityAPITester:
         success_count = 0
         
         for i, test_case in enumerate(test_cases):
-            post_data = {"content": test_case["content"]}
+            # Use form data for posts API
+            import requests
             
-            response = self.make_request('POST', 'posts', post_data, auth_required=True)
+            url = f"{self.base_url}/posts"
+            headers = {'Authorization': f'Bearer {self.token}'}
             
-            if response and response.status_code == 200:
-                data = response.json()
-                youtube_urls = data.get('youtube_urls', [])
+            # Send as form data with proper structure
+            form_data = {
+                'content': test_case["content"]
+            }
+            
+            try:
+                response = requests.post(url, data=form_data, headers=headers, timeout=30)
+                print(f"   Request: POST {url} -> Status: {response.status_code}")
                 
-                # Check if detected URLs match expected (allowing for duplicates to be removed)
-                expected_unique = list(set(test_case["expected_urls"]))
-                detected_unique = list(set(youtube_urls))
-                
-                urls_match = sorted(expected_unique) == sorted(detected_unique)
-                
-                if urls_match:
-                    success_count += 1
-                    self.log_test(f"YouTube URL detection test {i+1}", True, f"Detected: {len(youtube_urls)} URLs")
+                if response.status_code == 200:
+                    data = response.json()
+                    youtube_urls = data.get('youtube_urls', [])
+                    
+                    # Check if detected URLs match expected (allowing for duplicates to be removed)
+                    expected_unique = list(set(test_case["expected_urls"]))
+                    detected_unique = list(set(youtube_urls))
+                    
+                    urls_match = sorted(expected_unique) == sorted(detected_unique)
+                    
+                    if urls_match:
+                        success_count += 1
+                        self.log_test(f"YouTube URL detection test {i+1}", True, f"Detected: {len(youtube_urls)} URLs")
+                    else:
+                        self.log_test(f"YouTube URL detection test {i+1}", False, f"Expected: {expected_unique}, Got: {detected_unique}")
                 else:
-                    self.log_test(f"YouTube URL detection test {i+1}", False, f"Expected: {expected_unique}, Got: {detected_unique}")
-            else:
-                error_msg = f"Status: {response.status_code}" if response else "No response"
-                self.log_test(f"YouTube URL detection test {i+1}", False, error_msg)
+                    error_msg = f"Status: {response.status_code}"
+                    if response.status_code == 422:
+                        try:
+                            error_data = response.json()
+                            error_msg += f", Details: {error_data}"
+                        except:
+                            pass
+                    self.log_test(f"YouTube URL detection test {i+1}", False, error_msg)
+            except Exception as e:
+                self.log_test(f"YouTube URL detection test {i+1}", False, f"Request failed: {str(e)}")
         
         return success_count == len(test_cases)
 
