@@ -800,6 +800,7 @@ function Dashboard() {
       <nav className="top-nav">
         <div className="nav-content">
           <div className="logo-section">
+            <img src="/zion-logo.jpeg" alt="ZION.CITY Logo" className="nav-logo" />
             <h1 className="platform-logo">ZION.CITY</h1>
           </div>
           
