@@ -282,7 +282,7 @@ function UniversalWall({
                 <button 
                   type="button" 
                   className="post-tool-btn"
-                  onClick={handleImageUpload}
+                  onClick={handleFileInputClick}
                   title="Добавить изображение"
                 >
                   <Image size={18} />
@@ -290,6 +290,7 @@ function UniversalWall({
                 <button 
                   type="button" 
                   className="post-tool-btn"
+                  onClick={handleFileInputClick}
                   title="Добавить файл"
                 >
                   <Paperclip size={18} />
