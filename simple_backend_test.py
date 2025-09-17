@@ -5,7 +5,7 @@ import sys
 
 def test_existing_user():
     """Test the existing test user that should already be created"""
-    base_url = "https://unified-chat-wall.preview.emergentagent.com/api"
+    base_url = "https://zion-dashboard.preview.emergentagent.com/api"
     
     print("🔍 Testing existing test user login...")
     
