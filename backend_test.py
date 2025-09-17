@@ -36,19 +36,28 @@ class ZionCityAPITester:
         if details:
             print(f"   Details: {details}")
 
-    def make_request(self, method, endpoint, data=None, auth_required=False):
+    def make_request(self, method, endpoint, data=None, auth_required=False, files=None, form_data=None):
         """Make HTTP request to API"""
         url = f"{self.base_url}/{endpoint}"
-        headers = {'Content-Type': 'application/json'}
+        headers = {}
         
         if auth_required and self.token:
             headers['Authorization'] = f'Bearer {self.token}'
+        
+        # Only set Content-Type for JSON requests
+        if not files and not form_data:
+            headers['Content-Type'] = 'application/json'
         
         try:
             if method == 'GET':
                 response = requests.get(url, headers=headers, timeout=30)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=30)
+                if files:
+                    response = requests.post(url, files=files, headers=headers, timeout=30)
+                elif form_data:
+                    response = requests.post(url, data=form_data, headers=headers, timeout=30)
+                else:
+                    response = requests.post(url, json=data, headers=headers, timeout=30)
             elif method == 'PUT':
                 response = requests.put(url, json=data, headers=headers, timeout=30)
             elif method == 'DELETE':
