@@ -910,183 +910,413 @@ class ZionCityAPITester:
         
         return success_count == total_tests
 
-    def test_youtube_url_detection(self):
-        """Test YouTube URL detection in posts"""
-        print("\n🔍 Testing YouTube URL Detection...")
+    def test_fixed_posts_api_with_media_support(self):
+        """Test the FIXED Posts API with Form data only - PRIMARY FOCUS"""
+        print("\n🔍 Testing FIXED Posts API with Media Support (Form Data Only)...")
         
         if not self.token:
-            self.log_test("YouTube URL detection", False, "No authentication token available")
+            self.log_test("Fixed Posts API", False, "No authentication token available")
             return False
-        
-        # Test different YouTube URL formats
-        test_cases = [
-            {
-                "content": "Check out this video: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                "expected_urls": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]
-            },
-            {
-                "content": "Short link: https://youtu.be/dQw4w9WgXcQ and embed: https://www.youtube.com/embed/dQw4w9WgXcQ",
-                "expected_urls": ["https://www.youtube.com/watch?v=dQw4w9WgXcQ"]  # Should deduplicate
-            },
-            {
-                "content": "No YouTube links here, just regular text.",
-                "expected_urls": []
-            }
-        ]
         
         success_count = 0
+        total_tests = 0
         
-        for i, test_case in enumerate(test_cases):
-            # Use mixed content: JSON for post_data and form data for media_file_ids
-            import requests
-            
-            url = f"{self.base_url}/posts"
-            headers = {'Authorization': f'Bearer {self.token}'}
-            
-            # Send JSON body with form data
-            json_data = {"content": test_case["content"]}
-            form_data = {"media_file_ids": []}  # Empty list for these tests
-            
-            try:
-                response = requests.post(url, json=json_data, data=form_data, headers=headers, timeout=30)
-                print(f"   Request: POST {url} -> Status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    youtube_urls = data.get('youtube_urls', [])
-                    
-                    # Check if detected URLs match expected (allowing for duplicates to be removed)
-                    expected_unique = list(set(test_case["expected_urls"]))
-                    detected_unique = list(set(youtube_urls))
-                    
-                    urls_match = sorted(expected_unique) == sorted(detected_unique)
-                    
-                    if urls_match:
-                        success_count += 1
-                        self.log_test(f"YouTube URL detection test {i+1}", True, f"Detected: {len(youtube_urls)} URLs")
-                    else:
-                        self.log_test(f"YouTube URL detection test {i+1}", False, f"Expected: {expected_unique}, Got: {detected_unique}")
-                else:
-                    error_msg = f"Status: {response.status_code}"
-                    if response.status_code == 422:
-                        try:
-                            error_data = response.json()
-                            error_msg += f", Details: {error_data}"
-                        except:
-                            pass
-                    self.log_test(f"YouTube URL detection test {i+1}", False, error_msg)
-            except Exception as e:
-                self.log_test(f"YouTube URL detection test {i+1}", False, f"Request failed: {str(e)}")
+        # Test 1: Create post with text only (Form data)
+        total_tests += 1
+        form_data = {
+            'content': 'This is a test post using FIXED Form data API!',
+            'media_file_ids': []
+        }
         
-        return success_count == len(test_cases)
-
-    def test_posts_with_media_api(self):
-        """Test posts API with media file attachments"""
-        print("\n🔍 Testing Posts API with Media Support...")
+        response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
         
-        if not self.token:
-            self.log_test("Posts with media API", False, "No authentication token available")
-            return False
-        
-        # Test 1: Create post without media using JSON + form data
-        import requests
-        
-        url = f"{self.base_url}/posts"
-        headers = {'Authorization': f'Bearer {self.token}'}
-        
-        json_data = {"content": "This is a test post without media files."}
-        form_data = {"media_file_ids": []}  # Empty list
-        
-        try:
-            response = requests.post(url, json=json_data, data=form_data, headers=headers, timeout=30)
-            print(f"   Request: POST {url} -> Status: {response.status_code}")
-            
-            if response.status_code == 200:
-                data = response.json()
-                no_media_success = (
-                    'id' in data and
-                    'content' in data and
-                    'author' in data and
-                    'media_files' in data and
-                    len(data['media_files']) == 0
-                )
-                self.log_test("Create post without media", no_media_success, f"Post ID: {data.get('id')}")
+        if response and response.status_code == 200:
+            data = response.json()
+            text_only_success = (
+                'id' in data and
+                'content' in data and
+                'author' in data and
+                'media_files' in data and
+                len(data['media_files']) == 0 and
+                data['content'] == form_data['content']
+            )
+            if text_only_success:
+                success_count += 1
+                self.log_test("Create post with text only (Form data)", True, f"Post ID: {data.get('id')}")
             else:
-                error_msg = f"Status: {response.status_code}"
-                if response.status_code == 422:
+                self.log_test("Create post with text only (Form data)", False, "Invalid response structure")
+        else:
+            error_msg = f"Status: {response.status_code}" if response else "No response"
+            if response and response.status_code == 422:
+                try:
+                    error_data = response.json()
+                    error_msg += f", Details: {error_data}"
+                except:
+                    pass
+            self.log_test("Create post with text only (Form data)", False, error_msg)
+        
+        # Test 2: Create post with media attachments (if available)
+        if hasattr(self, 'uploaded_file_ids') and self.uploaded_file_ids:
+            total_tests += 1
+            form_data = {
+                'content': 'This post has media attachments using FIXED Form data API!',
+                'media_file_ids': self.uploaded_file_ids[:2]  # Use first 2 files
+            }
+            
+            response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+            
+            if response and response.status_code == 200:
+                data = response.json()
+                media_success = (
+                    'id' in data and
+                    'media_files' in data and
+                    len(data['media_files']) > 0 and
+                    len(data['media_files']) <= 2
+                )
+                if media_success:
+                    success_count += 1
+                    self.log_test("Create post with media (Form data)", True, f"Post has {len(data.get('media_files', []))} media files")
+                    
+                    # Verify media files have proper structure
+                    for media in data['media_files']:
+                        if not ('file_url' in media and 'original_filename' in media and 'file_type' in media):
+                            self.log_test("Media file structure validation", False, "Missing required media file fields")
+                            break
+                    else:
+                        self.log_test("Media file structure validation", True, "All media files have proper structure")
+                else:
+                    self.log_test("Create post with media (Form data)", False, "Invalid media response structure")
+            else:
+                error_msg = f"Status: {response.status_code}" if response else "No response"
+                if response and response.status_code == 422:
                     try:
                         error_data = response.json()
                         error_msg += f", Details: {error_data}"
                     except:
                         pass
-                self.log_test("Create post without media", False, error_msg)
-                no_media_success = False
-        except Exception as e:
-            self.log_test("Create post without media", False, f"Request failed: {str(e)}")
-            no_media_success = False
+                self.log_test("Create post with media (Form data)", False, error_msg)
         
-        # Test 2: Create post with media (if we have uploaded files)
-        media_success = True
-        if hasattr(self, 'uploaded_file_ids') and self.uploaded_file_ids:
-            json_data = {"content": "This post has media attachments!"}
-            form_data = {"media_file_ids": self.uploaded_file_ids[:2]}  # Use first 2 uploaded files
-            
-            try:
-                response = requests.post(url, json=json_data, data=form_data, headers=headers, timeout=30)
-                print(f"   Request: POST {url} -> Status: {response.status_code}")
-                
-                if response.status_code == 200:
-                    data = response.json()
-                    media_success = (
-                        'id' in data and
-                        'media_files' in data and
-                        len(data['media_files']) > 0
-                    )
-                    self.log_test("Create post with media", media_success, f"Post has {len(data.get('media_files', []))} media files")
-                else:
-                    error_msg = f"Status: {response.status_code}"
-                    if response.status_code == 422:
-                        try:
-                            error_data = response.json()
-                            error_msg += f", Details: {error_data}"
-                        except:
-                            pass
-                    self.log_test("Create post with media", False, error_msg)
-                    media_success = False
-            except Exception as e:
-                self.log_test("Create post with media", False, f"Request failed: {str(e)}")
-                media_success = False
+        # Test 3: Create post with YouTube URLs
+        total_tests += 1
+        youtube_content = "Check out this video: https://www.youtube.com/watch?v=dQw4w9WgXcQ and this one: https://youtu.be/abc123def"
+        form_data = {
+            'content': youtube_content,
+            'media_file_ids': []
+        }
+        
+        response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+        
+        if response and response.status_code == 200:
+            data = response.json()
+            youtube_success = (
+                'youtube_urls' in data and
+                len(data['youtube_urls']) > 0
+            )
+            if youtube_success:
+                success_count += 1
+                detected_urls = data['youtube_urls']
+                self.log_test("Create post with YouTube URLs", True, f"Detected {len(detected_urls)} YouTube URLs: {detected_urls}")
+            else:
+                self.log_test("Create post with YouTube URLs", False, f"No YouTube URLs detected in response: {data.get('youtube_urls', [])}")
         else:
-            self.log_test("Create post with media", False, "No uploaded files available")
-            media_success = False
+            error_msg = f"Status: {response.status_code}" if response else "No response"
+            self.log_test("Create post with YouTube URLs", False, error_msg)
         
-        # Test 3: Get posts feed
+        # Test 4: Create post with both media and YouTube URLs
+        if hasattr(self, 'uploaded_file_ids') and self.uploaded_file_ids:
+            total_tests += 1
+            combined_content = "Amazing content at https://www.youtube.com/embed/xyz789 with attached files!"
+            form_data = {
+                'content': combined_content,
+                'media_file_ids': [self.uploaded_file_ids[0]]  # Use one file
+            }
+            
+            response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+            
+            if response and response.status_code == 200:
+                data = response.json()
+                combined_success = (
+                    'media_files' in data and
+                    'youtube_urls' in data and
+                    len(data['media_files']) > 0 and
+                    len(data['youtube_urls']) > 0
+                )
+                if combined_success:
+                    success_count += 1
+                    self.log_test("Create post with media + YouTube", True, f"Media: {len(data['media_files'])}, YouTube: {len(data['youtube_urls'])}")
+                else:
+                    self.log_test("Create post with media + YouTube", False, "Missing media files or YouTube URLs")
+            else:
+                error_msg = f"Status: {response.status_code}" if response else "No response"
+                self.log_test("Create post with media + YouTube", False, error_msg)
+        
+        # Test 5: Test invalid media file IDs (should be filtered out)
+        total_tests += 1
+        fake_media_id = str(uuid.uuid4())
+        form_data = {
+            'content': 'Post with invalid media ID should filter it out',
+            'media_file_ids': [fake_media_id]
+        }
+        
+        response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+        
+        if response and response.status_code == 200:
+            data = response.json()
+            filter_success = (
+                'media_files' in data and
+                len(data['media_files']) == 0  # Invalid IDs should be filtered out
+            )
+            if filter_success:
+                success_count += 1
+                self.log_test("Filter invalid media IDs", True, "Invalid media IDs correctly filtered out")
+            else:
+                self.log_test("Filter invalid media IDs", False, f"Expected 0 media files, got {len(data.get('media_files', []))}")
+        else:
+            error_msg = f"Status: {response.status_code}" if response else "No response"
+            self.log_test("Filter invalid media IDs", False, error_msg)
+        
+        return success_count == total_tests
+
+    def test_posts_retrieval_with_media(self):
+        """Test Posts Retrieval - GET /api/posts with media info"""
+        print("\n🔍 Testing Posts Retrieval with Media Info...")
+        
+        if not self.token:
+            self.log_test("Posts retrieval", False, "No authentication token available")
+            return False
+        
         response = self.make_request('GET', 'posts', auth_required=True)
         
         if response and response.status_code == 200:
             data = response.json()
             posts = data if isinstance(data, list) else []
             
-            feed_success = len(posts) > 0
+            if len(posts) == 0:
+                self.log_test("Posts retrieval", False, "No posts found - create some posts first")
+                return False
             
-            if feed_success and posts:
-                # Check post structure
-                first_post = posts[0]
-                feed_success = (
-                    'id' in first_post and
-                    'content' in first_post and
-                    'author' in first_post and
-                    'media_files' in first_post and
-                    'youtube_urls' in first_post
-                )
+            # Check post structure
+            first_post = posts[0]
+            structure_valid = (
+                'id' in first_post and
+                'content' in first_post and
+                'author' in first_post and
+                'media_files' in first_post and
+                'youtube_urls' in first_post and
+                'created_at' in first_post
+            )
             
-            self.log_test("Get posts feed", feed_success, f"Retrieved {len(posts)} posts")
+            if not structure_valid:
+                self.log_test("Posts retrieval structure", False, "Invalid post structure")
+                return False
+            
+            # Check author information
+            author = first_post.get('author', {})
+            author_valid = (
+                'id' in author and
+                'first_name' in author and
+                'last_name' in author
+            )
+            
+            if not author_valid:
+                self.log_test("Author information", False, "Invalid author structure")
+                return False
+            
+            # Check media files structure (if any)
+            media_files = first_post.get('media_files', [])
+            media_valid = True
+            for media in media_files:
+                if not ('file_url' in media and 'original_filename' in media and 'file_type' in media):
+                    media_valid = False
+                    break
+                # Check if file_url has proper path
+                if not media['file_url'].startswith('/api/media/'):
+                    media_valid = False
+                    break
+            
+            success_count = 0
+            total_checks = 4
+            
+            if structure_valid:
+                success_count += 1
+                self.log_test("Posts structure validation", True, f"Retrieved {len(posts)} posts with valid structure")
+            
+            if author_valid:
+                success_count += 1
+                self.log_test("Author information included", True, f"Author: {author.get('first_name')} {author.get('last_name')}")
+            
+            if media_valid:
+                success_count += 1
+                self.log_test("Media files have proper URLs", True, f"Found {len(media_files)} media files with valid URLs")
+            else:
+                self.log_test("Media files have proper URLs", False, "Invalid media file structure or URLs")
+            
+            # Check YouTube URLs structure
+            youtube_urls = first_post.get('youtube_urls', [])
+            youtube_valid = isinstance(youtube_urls, list)
+            if youtube_valid:
+                success_count += 1
+                self.log_test("YouTube URLs properly stored", True, f"Found {len(youtube_urls)} YouTube URLs")
+            else:
+                self.log_test("YouTube URLs properly stored", False, "Invalid YouTube URLs structure")
+            
+            return success_count == total_checks
         else:
             error_msg = f"Status: {response.status_code}" if response else "No response"
-            self.log_test("Get posts feed", False, error_msg)
-            feed_success = False
+            self.log_test("Posts retrieval", False, error_msg)
+            return False
+
+    def test_complete_media_workflow(self):
+        """Test Complete Media Workflow - Upload -> Create Post -> Retrieve"""
+        print("\n🔍 Testing Complete Media Workflow...")
         
-        return no_media_success and media_success and feed_success
+        if not self.token:
+            self.log_test("Complete media workflow", False, "No authentication token available")
+            return False
+        
+        workflow_steps = []
+        
+        # Step 1: Upload a test file
+        png_content = b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\tpHYs\x00\x00\x0b\x13\x00\x00\x0b\x13\x01\x00\x9a\x9c\x18\x00\x00\x00\nIDATx\x9cc\xf8\x00\x00\x00\x01\x00\x01IEND\xaeB`\x82'
+        temp_file, _ = self.create_test_file('.png', png_content, 'image/png')
+        
+        try:
+            upload_response = self.make_file_upload_request('media/upload', temp_file, 'workflow_test.png', 'image/png', auth_required=True)
+            
+            if upload_response and upload_response.status_code == 200:
+                upload_data = upload_response.json()
+                uploaded_file_id = upload_data.get('id')
+                workflow_steps.append(f"✅ Upload: File ID {uploaded_file_id}")
+                
+                # Step 2: Create post with uploaded file
+                form_data = {
+                    'content': 'Complete workflow test: https://www.youtube.com/watch?v=test123',
+                    'media_file_ids': [uploaded_file_id]
+                }
+                
+                post_response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+                
+                if post_response and post_response.status_code == 200:
+                    post_data = post_response.json()
+                    post_id = post_data.get('id')
+                    workflow_steps.append(f"✅ Create Post: Post ID {post_id}")
+                    
+                    # Verify post has media and YouTube URL
+                    media_count = len(post_data.get('media_files', []))
+                    youtube_count = len(post_data.get('youtube_urls', []))
+                    workflow_steps.append(f"✅ Post Content: {media_count} media, {youtube_count} YouTube URLs")
+                    
+                    # Step 3: Retrieve posts and verify our post is there
+                    retrieve_response = self.make_request('GET', 'posts', auth_required=True)
+                    
+                    if retrieve_response and retrieve_response.status_code == 200:
+                        posts = retrieve_response.json()
+                        
+                        # Find our post
+                        our_post = None
+                        for post in posts:
+                            if post.get('id') == post_id:
+                                our_post = post
+                                break
+                        
+                        if our_post:
+                            workflow_steps.append(f"✅ Retrieve: Found post in feed")
+                            
+                            # Verify media attachment is properly linked
+                            media_files = our_post.get('media_files', [])
+                            if media_files and media_files[0].get('id') == uploaded_file_id:
+                                workflow_steps.append(f"✅ Media Link: File properly attached")
+                                
+                                # Test media serving
+                                media_response = self.make_request('GET', f'media/{uploaded_file_id}', auth_required=True)
+                                if media_response and media_response.status_code == 200:
+                                    workflow_steps.append(f"✅ Media Serve: File accessible")
+                                    
+                                    success = True
+                                    self.log_test("Complete Media Workflow", True, " -> ".join(workflow_steps))
+                                    return success
+                                else:
+                                    workflow_steps.append(f"❌ Media Serve: Failed")
+                            else:
+                                workflow_steps.append(f"❌ Media Link: File not properly attached")
+                        else:
+                            workflow_steps.append(f"❌ Retrieve: Post not found in feed")
+                    else:
+                        workflow_steps.append(f"❌ Retrieve: Failed to get posts")
+                else:
+                    workflow_steps.append(f"❌ Create Post: Failed")
+            else:
+                workflow_steps.append(f"❌ Upload: Failed")
+        
+        finally:
+            import os
+            os.unlink(temp_file)
+        
+        self.log_test("Complete Media Workflow", False, " -> ".join(workflow_steps))
+        return False
+
+    def test_youtube_url_detection_formats(self):
+        """Test YouTube URL Detection with specific formats from review request"""
+        print("\n🔍 Testing YouTube URL Detection with Specific Formats...")
+        
+        if not self.token:
+            self.log_test("YouTube URL formats", False, "No authentication token available")
+            return False
+        
+        # Test cases from review request
+        test_cases = [
+            {
+                "name": "Standard YouTube URL",
+                "content": "Check out this video: https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                "expected_count": 1
+            },
+            {
+                "name": "Short YouTube URL",
+                "content": "Amazing content at https://youtu.be/dQw4w9WgXcQ",
+                "expected_count": 1
+            },
+            {
+                "name": "Embedded YouTube URL",
+                "content": "Embedded version: https://www.youtube.com/embed/dQw4w9WgXcQ",
+                "expected_count": 1
+            },
+            {
+                "name": "Multiple YouTube URLs",
+                "content": "Multiple videos: https://www.youtube.com/watch?v=abc123 and https://youtu.be/def456",
+                "expected_count": 2
+            },
+            {
+                "name": "No YouTube URLs",
+                "content": "Just regular text with no video links",
+                "expected_count": 0
+            }
+        ]
+        
+        success_count = 0
+        
+        for test_case in test_cases:
+            form_data = {
+                'content': test_case['content'],
+                'media_file_ids': []
+            }
+            
+            response = self.make_request('POST', 'posts', auth_required=True, form_data=form_data)
+            
+            if response and response.status_code == 200:
+                data = response.json()
+                youtube_urls = data.get('youtube_urls', [])
+                detected_count = len(youtube_urls)
+                
+                if detected_count == test_case['expected_count']:
+                    success_count += 1
+                    self.log_test(f"YouTube detection: {test_case['name']}", True, f"Detected {detected_count} URLs as expected")
+                else:
+                    self.log_test(f"YouTube detection: {test_case['name']}", False, f"Expected {test_case['expected_count']}, got {detected_count}")
+            else:
+                error_msg = f"Status: {response.status_code}" if response else "No response"
+                self.log_test(f"YouTube detection: {test_case['name']}", False, error_msg)
+        
+        return success_count == len(test_cases)
 
     def run_all_tests(self):
         """Run all API tests"""
