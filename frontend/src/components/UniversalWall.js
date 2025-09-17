@@ -404,9 +404,61 @@ function UniversalWall({
 
               <div className="post-content">
                 <p>{post.content}</p>
-                {post.images && post.images.length > 0 && (
-                  <div className="post-images">
-                    {/* TODO: Display images */}
+                
+                {/* Display Media Files */}
+                {post.media_files && post.media_files.length > 0 && (
+                  <div className="post-media">
+                    {post.media_files.map((media, index) => (
+                      <div key={index} className="media-item">
+                        {media.file_type === 'image' ? (
+                          <img 
+                            src={`${backendUrl}${media.file_url}`}
+                            alt={media.original_filename}
+                            className="media-image"
+                          />
+                        ) : (
+                          <div className="media-document">
+                            <FileText size={24} />
+                            <div className="doc-info">
+                              <span className="doc-name">{media.original_filename}</span>
+                              <span className="doc-size">
+                                {(media.file_size / (1024 * 1024)).toFixed(1)}MB
+                              </span>
+                            </div>
+                            <a 
+                              href={`${backendUrl}${media.file_url}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="doc-download-btn"
+                            >
+                              Download
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Display YouTube Videos */}
+                {post.youtube_urls && post.youtube_urls.length > 0 && (
+                  <div className="post-youtube">
+                    {post.youtube_urls.map((url, index) => {
+                      const videoId = extractYouTubeId(url);
+                      return videoId ? (
+                        <div key={index} className="youtube-embed">
+                          <iframe
+                            width="100%"
+                            height="315"
+                            src={`https://www.youtube.com/embed/${videoId}`}
+                            title={`YouTube video ${index + 1}`}
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      ) : null;
+                    })}
                   </div>
                 )}
               </div>
