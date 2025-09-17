@@ -3086,6 +3086,17 @@ select:focus {
   font-size: 0.75rem;
   color: #6B7280;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.module-tag {
+  font-weight: 500;
+  padding: 0.125rem 0.25rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  font-size: 0.675rem;
 }
 
 .media-actions {
