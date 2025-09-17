@@ -979,18 +979,17 @@ class ZionCityAPITester:
             self.log_test("Posts with media API", False, "No authentication token available")
             return False
         
-        # Test 1: Create post without media using form data
+        # Test 1: Create post without media using JSON + form data
         import requests
         
         url = f"{self.base_url}/posts"
         headers = {'Authorization': f'Bearer {self.token}'}
         
-        form_data = {
-            'content': 'This is a test post without media files.'
-        }
+        json_data = {"content": "This is a test post without media files."}
+        form_data = {"media_file_ids": []}  # Empty list
         
         try:
-            response = requests.post(url, data=form_data, headers=headers, timeout=30)
+            response = requests.post(url, json=json_data, data=form_data, headers=headers, timeout=30)
             print(f"   Request: POST {url} -> Status: {response.status_code}")
             
             if response.status_code == 200:
@@ -1020,13 +1019,11 @@ class ZionCityAPITester:
         # Test 2: Create post with media (if we have uploaded files)
         media_success = True
         if hasattr(self, 'uploaded_file_ids') and self.uploaded_file_ids:
-            form_data = {
-                'content': 'This post has media attachments!',
-                'media_file_ids': self.uploaded_file_ids[:2]  # Use first 2 uploaded files
-            }
+            json_data = {"content": "This post has media attachments!"}
+            form_data = {"media_file_ids": self.uploaded_file_ids[:2]}  # Use first 2 uploaded files
             
             try:
-                response = requests.post(url, data=form_data, headers=headers, timeout=30)
+                response = requests.post(url, json=json_data, data=form_data, headers=headers, timeout=30)
                 print(f"   Request: POST {url} -> Status: {response.status_code}")
                 
                 if response.status_code == 200:
