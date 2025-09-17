@@ -105,27 +105,38 @@ function UniversalWall({
 
     setLoading(true);
     try {
-      // TODO: Replace with actual API call
-      const newPostObj = {
-        id: Date.now().toString(),
-        user_id: user.id,
-        author: {
-          id: user.id,
-          first_name: user.first_name,
-          last_name: user.last_name
-        },
-        content: newPost,
-        created_at: new Date().toISOString(),
-        likes_count: 0,
-        comments_count: 0,
-        is_liked: false,
-        images: []
-      };
+      const token = localStorage.getItem('token');
+      
+      // Create FormData for post creation
+      const formData = new FormData();
+      formData.append('content', newPost);
+      
+      // Add uploaded media file IDs
+      uploadedMediaIds.forEach(id => {
+        formData.append('media_file_ids', id);
+      });
 
-      setPosts([newPostObj, ...posts]);
-      setNewPost('');
+      const response = await fetch(`${backendUrl}/api/posts`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (response.ok) {
+        const newPostData = await response.json();
+        setPosts([newPostData, ...posts]);
+        setNewPost('');
+        setSelectedFiles([]);
+        setUploadedMediaIds([]);
+        document.querySelector('.post-form').style.display = 'none';
+      } else {
+        throw new Error('Failed to create post');
+      }
     } catch (error) {
       console.error('Error creating post:', error);
+      alert('Failed to create post. Please try again.');
     } finally {
       setLoading(false);
     }
