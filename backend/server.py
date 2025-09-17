@@ -1296,6 +1296,7 @@ async def get_posts(
 @api_router.post("/posts", response_model=PostResponse)
 async def create_post(
     content: str = Form(...),
+    source_module: str = Form(default="personal"),
     media_file_ids: List[str] = Form(default=[]),
     current_user: User = Depends(get_current_user)
 ):
@@ -1308,7 +1309,7 @@ async def create_post(
     # Extract YouTube URLs from content
     youtube_urls = extract_youtube_urls(content)
     
-    # Validate media file IDs belong to current user
+    # Validate media file IDs belong to current user and update their source_module
     valid_media_ids = []
     if media_file_ids:
         for media_id in media_file_ids:
@@ -1317,6 +1318,11 @@ async def create_post(
                 "uploaded_by": current_user.id
             })
             if media:
+                # Update media file's source_module to match the post's context
+                await db.media_files.update_one(
+                    {"id": media_id},
+                    {"$set": {"source_module": source_module}}
+                )
                 valid_media_ids.append(media_id)
     
     # Create post
