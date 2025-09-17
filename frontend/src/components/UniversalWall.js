@@ -366,7 +366,7 @@ function UniversalWall({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/jpeg,image/png,image/gif,application/pdf,.doc,.docx,.ppt,.pptx"
             multiple
             onChange={handleFileSelect}
             style={{ display: 'none' }}
