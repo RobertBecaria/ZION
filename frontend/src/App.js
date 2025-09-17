@@ -1168,10 +1168,13 @@ function Dashboard() {
                   </div>
                   <div className="stat-item">
                     <span className="stat-number">
-                      {Object.values(mediaStats).reduce((total, module) => {
-                        const allFiles = [...(module.images || []), ...(module.documents || []), ...(module.videos || [])];
-                        return total + allFiles.reduce((size, file) => size + (file.file_size || 0), 0);
-                      }, 0) / (1024 * 1024)}.toFixed(1)} MB
+                      {(() => {
+                        const totalSize = Object.values(mediaStats).reduce((total, module) => {
+                          const allFiles = [...(module.images || []), ...(module.documents || []), ...(module.videos || [])];
+                          return total + allFiles.reduce((size, file) => size + (file.file_size || 0), 0);
+                        }, 0);
+                        return (totalSize / (1024 * 1024)).toFixed(1);
+                      })()} MB
                     </span>
                     <span className="stat-label">Использовано</span>
                   </div>
