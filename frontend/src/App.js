@@ -9,7 +9,8 @@ import UniversalEventsPanel from './components/UniversalEventsPanel';
 import { 
   Clock, User, MessageCircle, Video, FileText, Settings, Search, Filter, Users,
   LogIn, UserPlus, Building2, GraduationCap, Briefcase, Shield, Eye, EyeOff,
-  ChevronRight, Calendar, Heart, MapPin, Bell
+  ChevronRight, Calendar, Heart, MapPin, Bell, Image, Grid, List, 
+  Upload, FolderPlus, Download, Trash2
 } from 'lucide-react';
 
 // Create Auth Context
