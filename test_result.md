@@ -596,6 +596,17 @@ test_plan:
         agent: "testing"
         comment: "🎉 CRITICAL BUG FIX COMPLETELY VERIFIED - PRODUCTION READY! ✅ COMPREHENSIVE TESTING COMPLETED: The media module tagging display fix is working perfectly. User reported that uploaded files appeared as 'Unknown' instead of being properly tagged with module names. TESTING RESULTS: 1) BACKEND TO FRONTEND MAPPING: Successfully implemented backendToFrontendModuleMap - 'community'→'news'(Новости), 'personal'→'journal'(Журнал), 'business'→'services'(Сервисы), 'work'→'organizations'(Организации), 'family'→'family'(Семья). 2) DISPLAY FUNCTION: getDisplayModuleInfo(backendModuleName) working perfectly - returns correct module name and color for all backend modules. 3) EXISTING FILES CHECK: Tested 7 existing files - ALL properly display correct module names (Сервисы, Журнал, Организации, Семья) - ZERO files showing 'Unknown'. 4) MODULE BADGES: Both .module-badge and .module-tag elements display proper module names with correct colors. 5) UPLOAD BUTTON COLORS: All filters show correct colors matching their modules - News=Blue, Services=Red, Organizations=Orange. 6) VISUAL VERIFICATION: Module badges show correct names, colors match filter colors, border colors around media items are correct. The critical issue where files appeared as 'Unknown' instead of showing proper module tags has been COMPLETELY RESOLVED. All module tagging display functionality is production-ready!"
 
+  - task: "Media Module Filtering and File Counts Feature"
+    implemented: true
+    working: "NA"
+    file: "components/MediaStorage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "NEW FEATURE IMPLEMENTATION: Enhanced filtering functionality where clicking on a filter shows only files tagged for that specific filter, and display file counts for each filter in the right sidebar. Implemented: 1) Enhanced Filtering Logic - Updated filteredFiles in MediaStorage to filter by both search term AND selected module filter, 2) Module File Counting - Added getModuleFileCounts() and getModuleFileCountsFromData() functions to calculate file counts per module, 3) Real-time Count Updates - MediaStorage now calls onModuleCountsUpdate callback to update parent component with current counts, 4) Simplified Count Display - Updated App.js to use simple count structure {family: 2, news: 3, journal: 1, all: 6} instead of complex nested structure, 5) Dynamic Statistics - Right sidebar now shows real file counts for each module filter. Module Filter Logic: When selectedModuleFilter === 'all' shows all files, when specific module selected shows only files where backend module maps to that frontend module using backendToFrontendModuleMap."
 agent_communication:
   - agent: "main"
     message: "Phase 2 implementation complete. Added comprehensive media upload functionality including: Backend - MediaFile and Post models, media upload endpoints with file validation (PNG/JPG/GIF/PDF/DOC/PPTX), local storage system, YouTube URL auto-detection. Frontend - Updated UniversalWall with multiple file upload, file previews, media display components for images/documents/YouTube embeds, real API integration. Ready for backend testing to verify file upload, storage, and posts API functionality."
