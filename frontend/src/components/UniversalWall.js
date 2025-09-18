@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Plus, Image, Smile, Heart, MessageCircle, Share2, 
   MoreHorizontal, User, Calendar, Clock, MapPin, Paperclip, X,
-  FileText, Upload, Edit3, Trash2, ChevronDown, ChevronUp
+  FileText, Upload, Edit3, Trash2, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight, Download, ZoomIn
 } from 'lucide-react';
 
 function UniversalWall({ 
