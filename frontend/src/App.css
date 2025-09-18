@@ -1584,16 +1584,27 @@ body {
   font-size: 0.75rem;
   text-align: center;
   padding: 0.75rem;
+  gap: 0.25rem;
 }
 
 .preview-document svg {
-  margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 
 .document-name {
   font-weight: 600;
   word-break: break-word;
   line-height: 1.2;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.document-size {
+  font-size: 0.7rem;
+  opacity: 0.9;
+  font-weight: 500;
 }
 
 .remove-file-btn {
