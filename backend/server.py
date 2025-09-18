@@ -1409,6 +1409,530 @@ async def create_post(
         updated_at=new_post.updated_at
     )
 
+# === SOCIAL FEATURES ENDPOINTS ===
+
+# Post Likes Endpoints
+@api_router.post("/posts/{post_id}/like")
+async def like_post(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Like or unlike a post"""
+    # Check if post exists
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if user already liked this post
+    existing_like = await db.post_likes.find_one({
+        "post_id": post_id,
+        "user_id": current_user.id
+    })
+    
+    if existing_like:
+        # Unlike: Remove the like
+        await db.post_likes.delete_one({
+            "post_id": post_id,
+            "user_id": current_user.id
+        })
+        # Decrement likes count
+        await db.posts.update_one(
+            {"id": post_id},
+            {"$inc": {"likes_count": -1}}
+        )
+        
+        # Create unlike notification (remove notification)
+        await db.notifications.delete_many({
+            "user_id": post["user_id"],
+            "sender_id": current_user.id,
+            "type": "like",
+            "related_post_id": post_id
+        })
+        
+        return {"liked": False, "message": "Post unliked"}
+    else:
+        # Like: Add the like
+        new_like = PostLike(
+            post_id=post_id,
+            user_id=current_user.id
+        )
+        await db.post_likes.insert_one(new_like.dict())
+        
+        # Increment likes count
+        await db.posts.update_one(
+            {"id": post_id},
+            {"$inc": {"likes_count": 1}}
+        )
+        
+        # Create notification for post author (don't notify yourself)
+        if post["user_id"] != current_user.id:
+            notification = Notification(
+                user_id=post["user_id"],
+                sender_id=current_user.id,
+                type="like",
+                title="Новый лайк",
+                message=f"{current_user.first_name} {current_user.last_name} лайкнул ваш пост",
+                related_post_id=post_id
+            )
+            await db.notifications.insert_one(notification.dict())
+        
+        return {"liked": True, "message": "Post liked"}
+
+@api_router.get("/posts/{post_id}/likes")
+async def get_post_likes(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get list of users who liked a post"""
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    likes = await db.post_likes.find({"post_id": post_id}).to_list(None)
+    
+    # Get user info for each like
+    result = []
+    for like in likes:
+        user = await get_user_by_id(like["user_id"])
+        if user:
+            result.append({
+                "id": like["id"],
+                "user": {
+                    "id": user.id,
+                    "first_name": user.first_name,
+                    "last_name": user.last_name
+                },
+                "created_at": like["created_at"]
+            })
+    
+    return result
+
+# Post Comments Endpoints
+@api_router.get("/posts/{post_id}/comments")
+async def get_post_comments(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get comments for a post"""
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Get all comments for this post, sorted by creation time
+    comments = await db.post_comments.find({
+        "post_id": post_id,
+        "is_deleted": False
+    }).sort("created_at", 1).to_list(None)
+    
+    # Build nested structure for replies
+    comments_dict = {}
+    top_level_comments = []
+    
+    for comment in comments:
+        comment.pop("_id", None)
+        
+        # Get author info
+        author = await get_user_by_id(comment["user_id"])
+        comment["author"] = {
+            "id": author.id,
+            "first_name": author.first_name,
+            "last_name": author.last_name
+        } if author else {}
+        
+        comment["replies"] = []
+        comments_dict[comment["id"]] = comment
+        
+        if comment["parent_comment_id"]:
+            # This is a reply
+            parent = comments_dict.get(comment["parent_comment_id"])
+            if parent:
+                parent["replies"].append(comment)
+        else:
+            # This is a top-level comment
+            top_level_comments.append(comment)
+    
+    return top_level_comments
+
+@api_router.post("/posts/{post_id}/comments")
+async def create_comment(
+    post_id: str,
+    content: str = Form(...),
+    parent_comment_id: Optional[str] = Form(None),
+    current_user: User = Depends(get_current_user)
+):
+    """Create a comment on a post"""
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # If replying to a comment, verify it exists
+    if parent_comment_id:
+        parent_comment = await db.post_comments.find_one({"id": parent_comment_id})
+        if not parent_comment:
+            raise HTTPException(status_code=404, detail="Parent comment not found")
+    
+    # Create comment
+    new_comment = PostComment(
+        post_id=post_id,
+        user_id=current_user.id,
+        content=content,
+        parent_comment_id=parent_comment_id
+    )
+    
+    await db.post_comments.insert_one(new_comment.dict())
+    
+    # Update comment counts
+    if parent_comment_id:
+        # Increment replies count on parent comment
+        await db.post_comments.update_one(
+            {"id": parent_comment_id},
+            {"$inc": {"replies_count": 1}}
+        )
+    else:
+        # Increment comments count on post
+        await db.posts.update_one(
+            {"id": post_id},
+            {"$inc": {"comments_count": 1}}
+        )
+    
+    # Create notification for post author or parent comment author
+    notification_user_id = post["user_id"]
+    if parent_comment_id and parent_comment:
+        notification_user_id = parent_comment["user_id"]
+    
+    # Don't notify yourself
+    if notification_user_id != current_user.id:
+        notification_type = "reply" if parent_comment_id else "comment"
+        notification_message = f"{current_user.first_name} {current_user.last_name} ответил на ваш комментарий" if parent_comment_id else f"{current_user.first_name} {current_user.last_name} прокомментировал ваш пост"
+        
+        notification = Notification(
+            user_id=notification_user_id,
+            sender_id=current_user.id,
+            type=notification_type,
+            title="Новый комментарий",
+            message=notification_message,
+            related_post_id=post_id,
+            related_comment_id=new_comment.id
+        )
+        await db.notifications.insert_one(notification.dict())
+    
+    # Return comment with author info
+    return {
+        "id": new_comment.id,
+        "post_id": new_comment.post_id,
+        "content": new_comment.content,
+        "parent_comment_id": new_comment.parent_comment_id,
+        "author": {
+            "id": current_user.id,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name
+        },
+        "likes_count": new_comment.likes_count,
+        "replies_count": new_comment.replies_count,
+        "created_at": new_comment.created_at,
+        "is_edited": new_comment.is_edited
+    }
+
+@api_router.put("/comments/{comment_id}")
+async def edit_comment(
+    comment_id: str,
+    content: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Edit a comment (only by comment author)"""
+    comment = await db.post_comments.find_one({"id": comment_id})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    if comment["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own comments")
+    
+    # Update comment
+    await db.post_comments.update_one(
+        {"id": comment_id},
+        {
+            "$set": {
+                "content": content,
+                "updated_at": datetime.now(timezone.utc),
+                "is_edited": True
+            }
+        }
+    )
+    
+    return {"message": "Comment updated successfully"}
+
+@api_router.delete("/comments/{comment_id}")
+async def delete_comment(
+    comment_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a comment (only by comment author)"""
+    comment = await db.post_comments.find_one({"id": comment_id})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    if comment["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only delete your own comments")
+    
+    # Mark comment as deleted instead of actually deleting
+    await db.post_comments.update_one(
+        {"id": comment_id},
+        {
+            "$set": {
+                "is_deleted": True,
+                "content": "[Удалено]",
+                "updated_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    # Update counts
+    if comment["parent_comment_id"]:
+        # Decrement replies count on parent comment
+        await db.post_comments.update_one(
+            {"id": comment["parent_comment_id"]},
+            {"$inc": {"replies_count": -1}}
+        )
+    else:
+        # Decrement comments count on post
+        await db.posts.update_one(
+            {"id": comment["post_id"]},
+            {"$inc": {"comments_count": -1}}
+        )
+    
+    return {"message": "Comment deleted successfully"}
+
+# Comment Likes Endpoints
+@api_router.post("/comments/{comment_id}/like")
+async def like_comment(
+    comment_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Like or unlike a comment"""
+    comment = await db.post_comments.find_one({"id": comment_id})
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+    
+    # Check if user already liked this comment
+    existing_like = await db.comment_likes.find_one({
+        "comment_id": comment_id,
+        "user_id": current_user.id
+    })
+    
+    if existing_like:
+        # Unlike
+        await db.comment_likes.delete_one({
+            "comment_id": comment_id,
+            "user_id": current_user.id
+        })
+        await db.post_comments.update_one(
+            {"id": comment_id},
+            {"$inc": {"likes_count": -1}}
+        )
+        return {"liked": False, "message": "Comment unliked"}
+    else:
+        # Like
+        new_like = CommentLike(
+            comment_id=comment_id,
+            user_id=current_user.id
+        )
+        await db.comment_likes.insert_one(new_like.dict())
+        await db.post_comments.update_one(
+            {"id": comment_id},
+            {"$inc": {"likes_count": 1}}
+        )
+        
+        # Create notification for comment author (don't notify yourself)
+        if comment["user_id"] != current_user.id:
+            notification = Notification(
+                user_id=comment["user_id"],
+                sender_id=current_user.id,
+                type="comment_like",
+                title="Лайк комментария",
+                message=f"{current_user.first_name} {current_user.last_name} лайкнул ваш комментарий",
+                related_comment_id=comment_id
+            )
+            await db.notifications.insert_one(notification.dict())
+        
+        return {"liked": True, "message": "Comment liked"}
+
+# Emoji Reactions Endpoints
+@api_router.post("/posts/{post_id}/reactions")
+async def add_reaction(
+    post_id: str,
+    emoji: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Add or change emoji reaction to a post"""
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Validate emoji (basic validation)
+    allowed_emojis = ["👍", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "🤔", "💯"]
+    if emoji not in allowed_emojis:
+        raise HTTPException(status_code=400, detail="Invalid emoji")
+    
+    # Check if user already has a reaction on this post
+    existing_reaction = await db.post_reactions.find_one({
+        "post_id": post_id,
+        "user_id": current_user.id
+    })
+    
+    if existing_reaction:
+        # Update existing reaction
+        await db.post_reactions.update_one(
+            {"post_id": post_id, "user_id": current_user.id},
+            {"$set": {"emoji": emoji, "created_at": datetime.now(timezone.utc)}}
+        )
+        message = "Reaction updated"
+    else:
+        # Create new reaction
+        new_reaction = PostReaction(
+            post_id=post_id,
+            user_id=current_user.id,
+            emoji=emoji
+        )
+        await db.post_reactions.insert_one(new_reaction.dict())
+        message = "Reaction added"
+        
+        # Create notification for post author (don't notify yourself)
+        if post["user_id"] != current_user.id:
+            notification = Notification(
+                user_id=post["user_id"],
+                sender_id=current_user.id,
+                type="reaction",
+                title="Новая реакция",
+                message=f"{current_user.first_name} {current_user.last_name} отреагировал на ваш пост: {emoji}",
+                related_post_id=post_id
+            )
+            await db.notifications.insert_one(notification.dict())
+    
+    return {"message": message, "emoji": emoji}
+
+@api_router.get("/posts/{post_id}/reactions")
+async def get_post_reactions(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get emoji reactions for a post"""
+    post = await db.posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    reactions = await db.post_reactions.find({"post_id": post_id}).to_list(None)
+    
+    # Group reactions by emoji and get user info
+    reaction_groups = {}
+    for reaction in reactions:
+        emoji = reaction["emoji"]
+        if emoji not in reaction_groups:
+            reaction_groups[emoji] = {
+                "emoji": emoji,
+                "count": 0,
+                "users": []
+            }
+        reaction_groups[emoji]["count"] += 1
+        
+        # Get user info
+        user = await get_user_by_id(reaction["user_id"])
+        if user:
+            reaction_groups[emoji]["users"].append({
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name
+            })
+    
+    return list(reaction_groups.values())
+
+@api_router.delete("/posts/{post_id}/reactions")
+async def remove_reaction(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove user's reaction from a post"""
+    result = await db.post_reactions.delete_one({
+        "post_id": post_id,
+        "user_id": current_user.id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Reaction not found")
+    
+    return {"message": "Reaction removed"}
+
+# Notifications Endpoints
+@api_router.get("/notifications")
+async def get_notifications(
+    unread_only: bool = False,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get user notifications"""
+    filter_query = {"user_id": current_user.id}
+    if unread_only:
+        filter_query["is_read"] = False
+    
+    notifications = await db.notifications.find(filter_query)\
+        .sort("created_at", -1)\
+        .limit(limit)\
+        .to_list(limit)
+    
+    # Get sender info for each notification
+    result = []
+    for notification in notifications:
+        notification.pop("_id", None)
+        
+        # Get sender info
+        sender = await get_user_by_id(notification["sender_id"])
+        notification["sender"] = {
+            "id": sender.id,
+            "first_name": sender.first_name,
+            "last_name": sender.last_name
+        } if sender else {}
+        
+        result.append(notification)
+    
+    return result
+
+@api_router.put("/notifications/{notification_id}/read")
+async def mark_notification_read(
+    notification_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Mark a notification as read"""
+    result = await db.notifications.update_one(
+        {"id": notification_id, "user_id": current_user.id},
+        {
+            "$set": {
+                "is_read": True,
+                "read_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Notification not found")
+    
+    return {"message": "Notification marked as read"}
+
+@api_router.put("/notifications/mark-all-read")
+async def mark_all_notifications_read(
+    current_user: User = Depends(get_current_user)
+):
+    """Mark all notifications as read for current user"""
+    await db.notifications.update_many(
+        {"user_id": current_user.id, "is_read": False},
+        {
+            "$set": {
+                "is_read": True,
+                "read_at": datetime.now(timezone.utc)
+            }
+        }
+    )
+    
+    return {"message": "All notifications marked as read"}
+
 # Basic status endpoints
 @api_router.get("/")
 async def root():
