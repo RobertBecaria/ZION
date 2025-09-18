@@ -174,6 +174,31 @@ const MediaStorage = ({
     return modules[frontendModule] || { name: 'Unknown', color: '#6B7280' };
   };
 
+  // Calculate file counts for each module
+  const getModuleFileCounts = () => {
+    const counts = {};
+    
+    // Initialize all modules with 0 count
+    Object.keys(modules).forEach(moduleKey => {
+      if (moduleKey !== 'all') {
+        counts[moduleKey] = 0;
+      }
+    });
+    
+    // Count files for each module
+    mediaFiles.forEach(file => {
+      const fileFrontendModule = backendToFrontendModuleMap[file.source_module] || file.source_module;
+      if (counts.hasOwnProperty(fileFrontendModule)) {
+        counts[fileFrontendModule]++;
+      }
+    });
+    
+    // Calculate total for 'all'
+    counts['all'] = Object.values(counts).reduce((sum, count) => sum + count, 0);
+    
+    return counts;
+  };
+
   // Handle upload button click
   const handleUploadClick = () => {
     const fileInput = document.createElement('input');
