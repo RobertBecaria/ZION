@@ -676,20 +676,43 @@ function UniversalWall({
                 <span className="media-actions-label">Добавить:</span>
                 <button 
                   type="button" 
-                  className={`media-btn ${selectedFiles.length > 0 ? 'has-files' : ''}`}
-                  onClick={() => fileInputRef.current?.click()}
-                  title="Добавить фото/видео/документы"
+                  className={`media-btn ${selectedFiles.some(f => f.type.startsWith('image/')) ? 'has-files' : ''}`}
+                  onClick={() => {
+                    fileInputRef.current.accept = "image/jpeg,image/png,image/gif,video/mp4,video/webm,video/ogg";
+                    fileInputRef.current?.click();
+                  }}
+                  title="Добавить фото/видео"
                 >
                   <Image size={24} />
-                  {selectedFiles.length > 0 && (
-                    <span className="file-count-badge">{selectedFiles.length}</span>
+                  {selectedFiles.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/')).length > 0 && (
+                    <span className="file-count-badge">
+                      {selectedFiles.filter(f => f.type.startsWith('image/') || f.type.startsWith('video/')).length}
+                    </span>
                   )}
                 </button>
+                
+                <button 
+                  type="button" 
+                  className={`media-btn ${selectedFiles.some(f => !f.type.startsWith('image/') && !f.type.startsWith('video/')) ? 'has-files' : ''}`}
+                  onClick={() => {
+                    fileInputRef.current.accept = "application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt";
+                    fileInputRef.current?.click();
+                  }}
+                  title="Добавить документы"
+                >
+                  <Paperclip size={24} />
+                  {selectedFiles.filter(f => !f.type.startsWith('image/') && !f.type.startsWith('video/')).length > 0 && (
+                    <span className="file-count-badge">
+                      {selectedFiles.filter(f => !f.type.startsWith('image/') && !f.type.startsWith('video/')).length}
+                    </span>
+                  )}
+                </button>
+                
                 <input
                   ref={fileInputRef}
                   type="file"
                   multiple
-                  accept="image/jpeg,image/png,image/gif,video/mp4,video/webm,video/ogg,application/pdf,.doc,.docx,.ppt,.pptx"
+                  accept="image/jpeg,image/png,image/gif,video/mp4,video/webm,video/ogg,application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
                   onChange={handleFileSelect}
                   style={{ display: 'none' }}
                 />
