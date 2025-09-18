@@ -549,7 +549,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Media Module Filtering and File Counts Feature"
+    - "Enhanced Social Features for UniversalWall Implementation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
