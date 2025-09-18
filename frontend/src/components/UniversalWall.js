@@ -1068,6 +1068,63 @@ function UniversalWall({
           ))
         )}
       </div>
+
+      {/* Image Lightbox Modal */}
+      {lightboxImage && (
+        <div className="lightbox-overlay" onClick={closeLightbox}>
+          <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
+            {/* Close Button */}
+            <button className="lightbox-close" onClick={closeLightbox}>
+              <X size={24} />
+            </button>
+
+            {/* Navigation Arrows */}
+            {lightboxImages.length > 1 && (
+              <>
+                <button 
+                  className="lightbox-nav lightbox-prev"
+                  onClick={prevImage}
+                  disabled={lightboxIndex === 0}
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button 
+                  className="lightbox-nav lightbox-next"
+                  onClick={nextImage}
+                  disabled={lightboxIndex === lightboxImages.length - 1}
+                >
+                  <ChevronRight size={32} />
+                </button>
+              </>
+            )}
+
+            {/* Main Image */}
+            <img 
+              src={lightboxImage}
+              alt="Full size image"
+              className="lightbox-image"
+            />
+
+            {/* Image Counter */}
+            {lightboxImages.length > 1 && (
+              <div className="lightbox-counter">
+                {lightboxIndex + 1} / {lightboxImages.length}
+              </div>
+            )}
+
+            {/* Download Button */}
+            <a 
+              href={lightboxImage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="lightbox-download"
+              title="Скачать изображение"
+            >
+              <Download size={20} />
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
