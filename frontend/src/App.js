@@ -1249,7 +1249,7 @@ function Dashboard() {
                     <div className="module-color-dot" style={{ backgroundColor: '#6D28D9' }}></div>
                     <span>Журнал</span>
                     <span className="file-count">
-                      {(mediaStats.journal?.images?.length || 0) + (mediaStats.journal?.documents?.length || 0) + (mediaStats.journal?.videos?.length || 0)}
+                      {mediaStats.journal || 0}
                     </span>
                   </button>
                   
