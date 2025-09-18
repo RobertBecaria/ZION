@@ -283,7 +283,7 @@ const MediaStorage = ({
           </div>
         ) : filteredFiles.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon" style={{ color: moduleColor }}>
+            <div className="empty-icon" style={{ color: getCurrentFilterColor() }}>
               {getMediaIcon(mediaType)}
             </div>
             <h3>Файлы не найдены</h3>
