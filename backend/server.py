@@ -149,6 +149,51 @@ class ScheduledAction(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
 
+class PostLike(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PostComment(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    content: str
+    parent_comment_id: Optional[str] = None  # For nested comments/replies
+    likes_count: int = 0
+    replies_count: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+    is_edited: bool = False
+    is_deleted: bool = False
+
+class CommentLike(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    comment_id: str
+    user_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class PostReaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    post_id: str
+    user_id: str
+    emoji: str  # "👍", "❤️", "😂", "😮", "😢", "😡", etc.
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class Notification(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # Who should receive the notification
+    sender_id: str  # Who triggered the notification
+    type: str  # "like", "comment", "mention", "reaction"
+    title: str
+    message: str
+    related_post_id: Optional[str] = None
+    related_comment_id: Optional[str] = None
+    is_read: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    read_at: Optional[datetime] = None
+
 class Affiliation(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
