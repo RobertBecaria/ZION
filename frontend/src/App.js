@@ -1182,8 +1182,10 @@ function Dashboard() {
                     </span>
                   </div>
                   <div className="stat-item">
-                    <span className="stat-number">{Object.keys(mediaStats).length}</span>
-                    <span className="stat-label">Разделов</span>
+                    <span className="stat-number">
+                      {Object.keys(mediaStats).filter(key => key !== 'all').length}
+                    </span>
+                    <span className="stat-label">Всего разделов</span>
                   </div>
                   <div className="stat-item">
                     <span className="stat-number">0</span>
