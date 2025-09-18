@@ -1213,9 +1213,7 @@ function Dashboard() {
                     <div className="module-color-dot" style={{ backgroundColor: '#6B7280' }}></div>
                     <span>Все</span>
                     <span className="file-count">
-                      {Object.values(mediaStats).reduce((total, module) => {
-                        return total + (module.images?.length || 0) + (module.documents?.length || 0) + (module.videos?.length || 0);
-                      }, 0)}
+                      {mediaStats.all || 0}
                     </span>
                   </button>
                   
