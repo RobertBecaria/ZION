@@ -295,7 +295,7 @@ const MediaStorage = ({
             </p>
             <button 
               className="upload-btn" 
-              style={{ backgroundColor: moduleColor }}
+              style={{ backgroundColor: getCurrentFilterColor() }}
               onClick={handleUploadClick}
               disabled={uploading}
             >
