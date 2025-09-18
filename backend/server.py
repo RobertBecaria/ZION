@@ -356,6 +356,27 @@ class PostResponse(BaseModel):
     is_published: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
+    # New social features fields
+    user_liked: bool = False  # Whether current user liked this post
+    user_reaction: Optional[str] = None  # User's emoji reaction
+    top_reactions: List[Dict[str, Any]] = []  # Top emoji reactions with counts
+
+class CommentResponse(BaseModel):
+    id: str
+    post_id: str
+    content: str
+    author: Dict[str, Any]
+    parent_comment_id: Optional[str] = None
+    likes_count: int = 0
+    replies_count: int = 0
+    replies: List["CommentResponse"] = []
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    is_edited: bool = False
+    user_liked: bool = False  # Whether current user liked this comment
+
+# Enable forward references for nested CommentResponse
+CommentResponse.model_rebuild()
 
 class MediaUploadResponse(BaseModel):
     id: str
