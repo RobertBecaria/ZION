@@ -404,8 +404,8 @@ const MediaStorage = ({
                       <div className="media-info">
                         <h4 className="filename">{file.original_filename}</h4>
                         <p className="file-meta">
-                          <span className="module-tag" style={{ color: modules[file.source_module]?.color || '#6B7280' }}>
-                            {modules[file.source_module]?.name || 'Unknown'}
+                          <span className="module-tag" style={{ color: getDisplayModuleInfo(file.source_module).color }}>
+                            {getDisplayModuleInfo(file.source_module).name}
                           </span>
                           • {formatFileSize(file.file_size)} • {new Date(file.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
                         </p>
