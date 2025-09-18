@@ -1297,7 +1297,7 @@ function Dashboard() {
                     <div className="module-color-dot" style={{ backgroundColor: '#A16207' }}></div>
                     <span>Финансы</span>
                     <span className="file-count">
-                      {(mediaStats.finance?.images?.length || 0) + (mediaStats.finance?.documents?.length || 0) + (mediaStats.finance?.videos?.length || 0)}
+                      {mediaStats.finance || 0}
                     </span>
                   </button>
                   
