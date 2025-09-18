@@ -855,11 +855,23 @@ function UniversalWall({
                     {post.media_files.map((media, index) => (
                       <div key={index} className="media-item">
                         {media.file_type === 'image' ? (
-                          <img 
-                            src={`${backendUrl}${media.file_url}`}
-                            alt={media.original_filename}
-                            className="media-image"
-                          />
+                          <div className="image-container">
+                            <img 
+                              src={`${backendUrl}${media.file_url}`}
+                              alt={media.original_filename}
+                              className="media-image clickable-image"
+                              onClick={() => {
+                                const postImages = post.media_files
+                                  .filter(m => m.file_type === 'image')
+                                  .map(m => `${backendUrl}${m.file_url}`);
+                                const imageIndex = postImages.indexOf(`${backendUrl}${media.file_url}`);
+                                openLightbox(`${backendUrl}${media.file_url}`, postImages, imageIndex);
+                              }}
+                            />
+                            <div className="image-overlay">
+                              <ZoomIn size={20} color="white" />
+                            </div>
+                          </div>
                         ) : (
                           <div className="media-document">
                             <FileText size={24} />
@@ -875,7 +887,7 @@ function UniversalWall({
                               rel="noopener noreferrer"
                               className="doc-download-btn"
                             >
-                              Download
+                              <Download size={16} />
                             </a>
                           </div>
                         )}
