@@ -544,101 +544,129 @@ function UniversalWall({
         </div>
       </div>
 
-      {/* Hidden Post Creation Form */}
-      <div className="post-form" style={{ display: 'none' }}>
-        <form onSubmit={handlePostSubmit}>
-          <div className="form-header">
-            <h4>Создать запись</h4>
-            <button 
-              type="button" 
-              className="close-btn"
-              onClick={() => document.querySelector('.post-form').style.display = 'none'}
-            >
-              <X size={20} />
-            </button>
-          </div>
-          
-          <div className="form-body">
-            <textarea
-              value={newPost}
-              onChange={(e) => setNewPost(e.target.value)}
-              placeholder="Что у Вас нового?"
-              className="post-textarea"
-              rows="3"
-            />
-            
-            {/* File Previews */}
-            {selectedFiles.length > 0 && (
-              <div className="file-previews">
-                {selectedFiles.map((file, index) => (
-                  <div key={index} className="file-preview">
-                    {file.type.startsWith('image/') ? (
-                      <img 
-                        src={URL.createObjectURL(file)} 
-                        alt="Preview" 
-                        className="preview-image"
-                      />
-                    ) : (
-                      <div className="preview-document">
-                        <FileText size={24} />
-                        <span>{file.name}</span>
-                      </div>
-                    )}
-                    <button 
-                      type="button"
-                      className="remove-file-btn"
-                      onClick={() => removeSelectedFile(index)}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-            
-            {/* Upload Progress */}
-            {uploadingFiles.length > 0 && (
-              <div className="upload-progress">
-                <p>Загружаем файлы...</p>
-                {uploadingFiles.map((filename, index) => (
-                  <div key={index} className="uploading-file">
-                    {filename}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-          
-          <div className="form-actions">
-            <div className="media-actions">
+      {/* Enhanced Post Creation Modal */}
+      <div 
+        className="modal-overlay" 
+        style={{ display: 'none' }}
+        onClick={(e) => {
+          if (e.target.classList.contains('modal-overlay')) {
+            document.querySelector('.modal-overlay').style.display = 'none';
+          }
+        }}
+      >
+        <div className="post-form">
+          <form onSubmit={handlePostSubmit}>
+            <div className="form-header">
+              <h4>Создать запись</h4>
               <button 
                 type="button" 
-                className="media-btn"
-                onClick={() => fileInputRef.current?.click()}
-                title="Добавить изображение"
+                className="close-btn"
+                onClick={() => document.querySelector('.modal-overlay').style.display = 'none'}
               >
-                <Image size={20} />
+                <X size={20} />
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept="image/jpeg,image/png,image/gif,application/pdf,.doc,.docx,.ppt,.pptx"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-              />
             </div>
             
-            <button 
-              type="submit" 
-              className="submit-btn"
-              disabled={loading || !newPost.trim()}
-              style={{ backgroundColor: moduleColor }}
-            >
-              {loading ? 'Публикуем...' : 'Опубликовать'}
-            </button>
-          </div>
-        </form>
+            <div className="form-body">
+              {/* Author Section */}
+              <div className="form-author-section">
+                <div className="form-author-avatar" style={{ backgroundColor: moduleColor }}>
+                  <User size={20} color="white" />
+                </div>
+                <div className="form-author-info">
+                  <h5>{user?.first_name} {user?.last_name}</h5>
+                  <p>Публикуется в модуле "{moduleName}"</p>
+                </div>
+              </div>
+
+              {/* Enhanced Textarea */}
+              <textarea
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+                placeholder="Что у Вас нового?"
+                className="post-textarea"
+                rows="3"
+                autoFocus
+              />
+              
+              {/* File Previews */}
+              {selectedFiles.length > 0 && (
+                <div className="file-previews">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="file-preview">
+                      {file.type.startsWith('image/') ? (
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt="Preview" 
+                          className="preview-image"
+                        />
+                      ) : (
+                        <div className="preview-document">
+                          <FileText size={32} />
+                          <div className="document-name">{file.name}</div>
+                        </div>
+                      )}
+                      <button 
+                        type="button"
+                        className="remove-file-btn"
+                        onClick={() => removeSelectedFile(index)}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Upload Progress */}
+              {uploadingFiles.length > 0 && (
+                <div className="upload-progress">
+                  <p>Загружаем файлы...</p>
+                  {uploadingFiles.map((filename, index) => (
+                    <div key={index} className="uploading-file">
+                      <div className="upload-spinner"></div>
+                      {filename}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="form-actions">
+              <div className="media-actions">
+                <span className="media-actions-label">Добавить:</span>
+                <button 
+                  type="button" 
+                  className={`media-btn ${selectedFiles.length > 0 ? 'has-files' : ''}`}
+                  onClick={() => fileInputRef.current?.click()}
+                  title="Добавить фото/видео/документы"
+                >
+                  <Image size={24} />
+                  {selectedFiles.length > 0 && (
+                    <span className="file-count-badge">{selectedFiles.length}</span>
+                  )}
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/gif,video/mp4,video/webm,video/ogg,application/pdf,.doc,.docx,.ppt,.pptx"
+                  onChange={handleFileSelect}
+                  style={{ display: 'none' }}
+                />
+              </div>
+              
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={loading || (!newPost.trim() && selectedFiles.length === 0)}
+                style={{ backgroundColor: loading ? undefined : moduleColor }}
+              >
+                {loading ? 'Публикуем...' : 'Опубликовать'}
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
       {/* Posts Feed */}
