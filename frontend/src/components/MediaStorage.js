@@ -73,11 +73,7 @@ const MediaStorage = ({
                       mediaType === 'videos' ? 'video' : null;
       
       if (fileType) params.append('media_type', fileType);
-      if (selectedModuleFilter !== 'all') {
-        // Convert frontend module to backend module for API call
-        const backendModule = frontendToBackendModuleMap[selectedModuleFilter] || selectedModuleFilter;
-        params.append('source_module', backendModule);
-      }
+      // Always fetch all files and filter on frontend to handle multiple backend modules mapping to one frontend module
       
       const response = await fetch(`${backendUrl}/api/media?${params}`, {
         headers: {
