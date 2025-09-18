@@ -405,7 +405,14 @@ function UniversalWall({
   };
 
   const showPostForm = () => {
-    document.querySelector('.post-form').style.display = 'block';
+    document.querySelector('.modal-overlay').style.display = 'flex';
+    // Focus on textarea after modal animation
+    setTimeout(() => {
+      const textarea = document.querySelector('.post-textarea');
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 100);
   };
 
   const renderComment = (comment, postId, level = 0) => (
