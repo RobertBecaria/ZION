@@ -99,7 +99,7 @@ function UniversalWall({
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
-    if (!newPost.trim() || loading) return;
+    if ((!newPost.trim() && selectedFiles.length === 0) || loading) return;
 
     setLoading(true);
     try {
@@ -107,7 +107,7 @@ function UniversalWall({
       
       // Create FormData for post creation
       const formData = new FormData();
-      formData.append('content', newPost);
+      formData.append('content', newPost.trim() || ' '); // Ensure there's some content
       
       // Add source module based on current context
       const sourceModule = moduleName?.toLowerCase() || 'personal';
@@ -129,10 +129,25 @@ function UniversalWall({
       if (response.ok) {
         const newPostData = await response.json();
         setPosts([newPostData, ...posts]);
+        
+        // Reset form state
         setNewPost('');
         setSelectedFiles([]);
         setUploadedMediaIds([]);
-        document.querySelector('.post-form').style.display = 'none';
+        
+        // Close modal with animation
+        const modal = document.querySelector('.modal-overlay');
+        modal.style.opacity = '0';
+        modal.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          modal.style.display = 'none';
+          modal.style.opacity = '1';
+          modal.style.transform = 'scale(1)';
+        }, 200);
+        
+        // Show success feedback
+        // You could add a toast notification here
+        
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
         throw new Error(`Failed to create post: ${errorData.detail || response.statusText}`);
