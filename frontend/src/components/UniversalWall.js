@@ -373,6 +373,7 @@ function UniversalWall({
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
+    // Add files to preview
     setSelectedFiles(prev => [...prev, ...files]);
     setUploadingFiles(files.map(f => f.name));
 
@@ -418,10 +419,49 @@ function UniversalWall({
       const uploadedIds = await Promise.all(uploadPromises);
       setUploadedMediaIds(prev => [...prev, ...uploadedIds]);
       setUploadingFiles([]);
+      
+      // Show success feedback
+      console.log(`Successfully uploaded ${files.length} file(s)`);
+      
     } catch (error) {
       console.error('Error uploading files:', error);
       alert(`Upload failed: ${error.message}`);
       setUploadingFiles([]);
+      
+      // Remove failed files from preview
+      setSelectedFiles(prev => prev.slice(0, -files.length));
+    }
+  };
+
+  const getFileIcon = (file) => {
+    if (file.type.startsWith('image/')) {
+      return <Image size={32} />;
+    } else if (file.type.startsWith('video/')) {
+      return <Image size={32} />; // You could add a Video icon from lucide-react
+    } else if (file.type.includes('pdf')) {
+      return <FileText size={32} color="#DC2626" />;
+    } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+      return <FileText size={32} color="#1D4ED8" />;
+    } else if (file.type.includes('powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+      return <FileText size={32} color="#DC2626" />;
+    } else if (file.type.includes('excel') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
+      return <FileText size={32} color="#059669" />;
+    } else {
+      return <FileText size={32} />;
+    }
+  };
+
+  const getFileGradient = (file) => {
+    if (file.type.includes('pdf')) {
+      return 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+    } else if (file.type.includes('word') || file.name.endsWith('.doc') || file.name.endsWith('.docx')) {
+      return 'linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%)';
+    } else if (file.type.includes('powerpoint') || file.name.endsWith('.ppt') || file.name.endsWith('.pptx')) {
+      return 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+    } else if (file.type.includes('excel') || file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
+      return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    } else {
+      return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
     }
   };
 
