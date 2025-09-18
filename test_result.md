@@ -548,8 +548,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "Media Module Filter-Specific Upload Functionality"
+  stuck_tasks:
+    - "Media Module Filter-Specific Upload Functionality"
   test_all: false
   test_priority: "high_first"
 
