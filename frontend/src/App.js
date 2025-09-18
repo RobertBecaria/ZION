@@ -1309,7 +1309,7 @@ function Dashboard() {
                     <div className="module-color-dot" style={{ backgroundColor: '#7E22CE' }}></div>
                     <span>Мероприятия</span>
                     <span className="file-count">
-                      {(mediaStats.events?.images?.length || 0) + (mediaStats.events?.documents?.length || 0) + (mediaStats.events?.videos?.length || 0)}
+                      {mediaStats.events || 0}
                     </span>
                   </button>
                 </div>
