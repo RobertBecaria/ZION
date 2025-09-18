@@ -47,6 +47,18 @@ const MediaStorage = ({
     'events': 'community'       // Events -> Community
   };
 
+  // Backend to Frontend module mapping (for display purposes)
+  const backendToFrontendModuleMap = {
+    'family': 'family',
+    'community': 'news',        // Community -> News (first mapping)
+    'personal': 'journal',      // Personal -> Journal (first mapping)
+    'business': 'services',     // Business -> Services (first mapping)
+    'work': 'organizations',    // Work -> Organizations
+    'education': 'journal',     // Education -> Journal
+    'health': 'journal',        // Health -> Journal
+    'government': 'organizations' // Government -> Organizations
+  };
+
   // Fetch media files
   const fetchMedia = async () => {
     setLoading(true);
