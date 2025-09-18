@@ -565,6 +565,18 @@ test_plan:
         agent: "testing"
         comment: "🎉 CRITICAL BUG FIX VERIFIED - MEDIA STORAGE UPLOAD BUTTONS WORKING! ✅ COMPREHENSIVE TESTING COMPLETED: 1) Header 'Загрузить' button is FUNCTIONAL and clickable in all media sections (Photos, Documents, Videos), 2) Empty state 'Загрузить файлы' button is FUNCTIONAL and clickable, 3) File type validation correctly implemented - Photos: image/jpeg,image/png,image/gif | Documents: .pdf,.doc,.docx,.ppt,.pptx | Videos: video/mp4,video/webm,video/ogg, 4) Upload state management working with uploading/uploadProgress variables, 5) handleFileUpload() function properly uploads to /api/media/upload endpoint, 6) handleUploadClick() function creates file picker with correct file type filters, 7) Button disabled states working ('Загружаем...' text during upload), 8) Backend API integration confirmed - successful file upload and retrieval tested, 9) MediaStorage component loads correctly with proper navigation, 10) Upload progress elements present in DOM structure. The reported CRITICAL BUG where upload buttons didn't work has been COMPLETELY RESOLVED. All upload functionality is now production-ready!"
 
+  - task: "Media Module Filter-Specific Upload Functionality"
+    implemented: true
+    working: false
+    file: "components/MediaStorage.js"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL MODULE MAPPING ISSUE DISCOVERED! Testing revealed that the filter-specific upload functionality has a fundamental mismatch between frontend and backend module names. ✅ WORKING COMPONENTS: 1) getCurrentFilterColor() function correctly implemented, 2) Upload button color changes work properly, 3) Progress bar color styling implemented, 4) Console logging for source_module tracking functional, 5) Backend API accepts uploads correctly. ❌ CRITICAL ISSUE: Frontend MediaStorage component uses module names ['family', 'news', 'journal', 'services', 'organizations', 'marketplace', 'finance', 'events'] but backend only accepts ['family', 'work', 'education', 'health', 'government', 'business', 'community', 'personal']. When frontend sends invalid modules like 'news', 'journal', 'services', backend defaults them to 'personal', breaking the filter-specific tagging. This explains user's report that upload buttons don't match filter colors and files don't get tagged correctly. REQUIRES IMMEDIATE FIX: Update frontend module mapping to use valid backend modules OR update backend to accept frontend module names."
+
 agent_communication:
   - agent: "main"
     message: "Phase 2 implementation complete. Added comprehensive media upload functionality including: Backend - MediaFile and Post models, media upload endpoints with file validation (PNG/JPG/GIF/PDF/DOC/PPTX), local storage system, YouTube URL auto-detection. Frontend - Updated UniversalWall with multiple file upload, file previews, media display components for images/documents/YouTube embeds, real API integration. Ready for backend testing to verify file upload, storage, and posts API functionality."
