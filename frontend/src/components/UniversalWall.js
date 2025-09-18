@@ -36,6 +36,23 @@ function UniversalWall({
   useEffect(() => {
     fetchPosts();
     fetchNotifications();
+    
+    // Add keyboard event listener for ESC key
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.querySelector('.modal-overlay');
+        if (modal && modal.style.display === 'flex') {
+          modal.style.display = 'none';
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [activeGroup]);
 
   const fetchPosts = async () => {
