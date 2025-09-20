@@ -1069,14 +1069,28 @@ function UniversalWall({
         )}
       </div>
 
-      {/* Image Lightbox Modal */}
+      {/* Enhanced Image Lightbox Modal - Meetmax Style */}
       {lightboxImage && (
         <div className="lightbox-overlay" onClick={closeLightbox}>
           <div className="lightbox-container" onClick={(e) => e.stopPropagation()}>
-            {/* Close Button */}
-            <button className="lightbox-close" onClick={closeLightbox}>
-              <X size={24} />
-            </button>
+            {/* Header with Controls */}
+            <div className="lightbox-header">
+              <h3 className="lightbox-title">Просмотр изображения</h3>
+              <div className="lightbox-controls">
+                <a 
+                  href={lightboxImage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="lightbox-download"
+                  title="Скачать изображение"
+                >
+                  <Download size={18} />
+                </a>
+                <button className="lightbox-close" onClick={closeLightbox}>
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
 
             {/* Navigation Arrows */}
             {lightboxImages.length > 1 && (
@@ -1086,14 +1100,14 @@ function UniversalWall({
                   onClick={prevImage}
                   disabled={lightboxIndex === 0}
                 >
-                  <ChevronLeft size={32} />
+                  <ChevronLeft size={24} />
                 </button>
                 <button 
                   className="lightbox-nav lightbox-next"
                   onClick={nextImage}
                   disabled={lightboxIndex === lightboxImages.length - 1}
                 >
-                  <ChevronRight size={32} />
+                  <ChevronRight size={24} />
                 </button>
               </>
             )}
@@ -1103,25 +1117,15 @@ function UniversalWall({
               src={lightboxImage}
               alt="Full size image"
               className="lightbox-image"
+              style={{ paddingTop: '60px' }} // Space for header
             />
 
             {/* Image Counter */}
             {lightboxImages.length > 1 && (
               <div className="lightbox-counter">
-                {lightboxIndex + 1} / {lightboxImages.length}
+                {lightboxIndex + 1} из {lightboxImages.length}
               </div>
             )}
-
-            {/* Download Button */}
-            <a 
-              href={lightboxImage}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="lightbox-download"
-              title="Скачать изображение"
-            >
-              <Download size={20} />
-            </a>
           </div>
         </div>
       )}
