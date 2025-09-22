@@ -27,10 +27,18 @@ function UniversalWall({
   const [showEmojiPicker, setShowEmojiPicker] = useState({});
   const [replyingTo, setReplyingTo] = useState(null);
   const [notifications, setNotifications] = useState([]);
-  const [lightboxImage, setLightboxImage] = useState(null);
-  const [lightboxImages, setLightboxImages] = useState([]);
-  const [lightboxIndex, setLightboxIndex] = useState(0);
   const fileInputRef = useRef(null);
+  
+  // Use the shared lightbox hook
+  const {
+    lightboxImage,
+    lightboxImages,
+    lightboxIndex,
+    openLightbox,
+    closeLightbox,
+    nextImage,
+    prevImage
+  } = useLightbox();
   
   // Get backend URL properly
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
