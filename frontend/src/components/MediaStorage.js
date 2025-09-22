@@ -458,12 +458,27 @@ const MediaStorage = ({
                       }}
                     >
                       {file.file_type === 'image' ? (
-                        <div className="media-preview">
+                        <div 
+                          className="media-preview image-container"
+                          onClick={() => {
+                            // Get all images from current view for navigation
+                            const allImages = filteredFiles
+                              .filter(f => f.file_type === 'image')
+                              .map(f => `${backendUrl}${f.file_url}`);
+                            const currentImageUrl = `${backendUrl}${file.file_url}`;
+                            const imageIndex = allImages.indexOf(currentImageUrl);
+                            openLightbox(currentImageUrl, allImages, imageIndex);
+                          }}
+                        >
                           <img 
                             src={`${backendUrl}${file.file_url}`} 
                             alt={file.original_filename}
                             loading="lazy"
+                            className="clickable-image"
                           />
+                          <div className="image-overlay">
+                            <ZoomIn size={20} color="white" />
+                          </div>
                           <div 
                             className="module-badge" 
                             style={{ backgroundColor: getDisplayModuleInfo(file.source_module).color }}
