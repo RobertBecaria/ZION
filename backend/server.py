@@ -614,6 +614,56 @@ async def create_auto_family_groups(user_id: str):
     
     return [family_group.id, relatives_group.id]
 
+async def get_user_family_connections(user_id: str) -> List[str]:
+    """Get all family member user IDs for a given user"""
+    family_memberships = await db.family_members.find({"user_id": user_id, "is_active": True}).to_list(100)
+    
+    connected_users = set()
+    
+    for membership in family_memberships:
+        # Get all other members of the same family
+        family_members = await db.family_members.find({
+            "family_id": membership["family_id"], 
+            "is_active": True
+        }).to_list(100)
+        
+        for member in family_members:
+            connected_users.add(member["user_id"])
+    
+    return list(connected_users)
+
+async def get_user_organization_connections(user_id: str) -> List[str]:
+    """Get all organization colleague user IDs for a given user"""
+    user_affiliations = await db.user_affiliations.find({"user_id": user_id, "is_active": True}).to_list(100)
+    
+    connected_users = set()
+    
+    for affiliation in user_affiliations:
+        # Get all other users in the same organization
+        org_members = await db.user_affiliations.find({
+            "affiliation_id": affiliation["affiliation_id"],
+            "is_active": True
+        }).to_list(100)
+        
+        for member in org_members:
+            connected_users.add(member["user_id"])
+    
+    return list(connected_users)
+
+async def get_module_connections(user_id: str, module: str) -> List[str]:
+    """Get connected user IDs based on module type"""
+    if module == "family":
+        return await get_user_family_connections(user_id)
+    elif module == "organizations":
+        return await get_user_organization_connections(user_id)
+    elif module in ["news", "journal", "services", "marketplace", "finance", "events"]:
+        # For other modules, use a combination of family and organization connections
+        family_connections = await get_user_family_connections(user_id)
+        org_connections = await get_user_organization_connections(user_id)
+        return list(set(family_connections + org_connections))
+    else:
+        return [user_id]  # Only user's own posts for unknown modules
+
 async def get_user_chat_groups(user_id: str):
     """Get all chat groups where user is a member"""
     memberships = await db.chat_group_members.find({"user_id": user_id, "is_active": True}).to_list(100)
