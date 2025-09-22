@@ -1038,6 +1038,7 @@ function Dashboard() {
                                 activeGroup={activeGroup}
                                 moduleColor={currentModule.color}
                                 moduleName={currentModule.name}
+                                activeModule={activeModule}
                                 user={user}
                               />
                             ) : (
