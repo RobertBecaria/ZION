@@ -158,7 +158,7 @@ class SectionSpecificWallTester:
             self.log_test("Test posts creation", False, "Missing user tokens")
             return False
         
-        # Create family posts
+        # Create family posts (both from same user for testing)
         family_posts = [
             {
                 "content": "Family dinner tonight at 7 PM! Everyone welcome.",
@@ -170,7 +170,7 @@ class SectionSpecificWallTester:
                 "content": "Happy birthday to our wonderful family member!",
                 "source_module": "family", 
                 "target_audience": "module",
-                "user_token": self.family_member_token
+                "user_token": self.family_member_token  # Same as self.token
             }
         ]
         
