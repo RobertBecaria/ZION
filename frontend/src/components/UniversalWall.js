@@ -5,6 +5,8 @@ import {
   FileText, Upload, Edit3, Trash2, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Download, ZoomIn
 } from 'lucide-react';
+import { useLightbox } from '../hooks/useLightbox';
+import LightboxModal from './LightboxModal';
 
 function UniversalWall({ 
   activeGroup, 
