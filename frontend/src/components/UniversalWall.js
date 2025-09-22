@@ -161,18 +161,13 @@ function UniversalWall({
       if (response.ok) {
         const newPostData = await response.json();
         
-        // Only add the new post to current state if it belongs to the current module
-        if (newPostData.source_module === activeModule) {
-          setPosts([newPostData, ...posts]);
-        }
-        
-        // Alternative approach: Always refetch posts to ensure consistency
-        // fetchPosts();
-        
         // Reset form state
         setNewPost('');
         setSelectedFiles([]);
         setUploadedMediaIds([]);
+        
+        // Always refetch posts to ensure module consistency
+        fetchPosts();
         
         // Close modal with animation
         const modal = document.querySelector('.modal-overlay');
