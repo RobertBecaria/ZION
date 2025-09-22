@@ -12,7 +12,8 @@ function UniversalWall({
   activeGroup, 
   moduleColor = "#059669",
   moduleName = "Family",
-  user 
+  user,
+  activeModule = 'family'  // New prop for current module
 }) {
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
