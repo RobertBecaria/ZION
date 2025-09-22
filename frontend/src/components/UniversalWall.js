@@ -51,21 +51,12 @@ function UniversalWall({
     fetchPosts();
     fetchNotifications();
     
-    // Add keyboard event listeners
+    // Add keyboard event listeners for modal
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         const modal = document.querySelector('.modal-overlay');
         if (modal && modal.style.display === 'flex') {
           modal.style.display = 'none';
-        }
-        if (lightboxImage) {
-          closeLightbox();
-        }
-      } else if (lightboxImage) {
-        if (e.key === 'ArrowRight') {
-          nextImage();
-        } else if (e.key === 'ArrowLeft') {
-          prevImage();
         }
       }
     };
@@ -76,7 +67,7 @@ function UniversalWall({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeGroup, lightboxImage, lightboxIndex, lightboxImages]);
+  }, [activeGroup]);
 
   const fetchPosts = async () => {
     try {
