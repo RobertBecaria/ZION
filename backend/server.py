@@ -94,6 +94,8 @@ class Post(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     content: str
+    source_module: str = "family"  # Module where post was created
+    target_audience: str = "module"  # "module", "public", "private"
     media_files: List[str] = []  # List of MediaFile IDs
     youtube_urls: List[str] = []  # Extracted YouTube URLs
     likes_count: int = 0
