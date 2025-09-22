@@ -528,6 +528,16 @@ const MediaStorage = ({
           </div>
         )}
       </div>
+      
+      {/* Lightbox Modal */}
+      <LightboxModal
+        lightboxImage={lightboxImage}
+        lightboxImages={lightboxImages}
+        lightboxIndex={lightboxIndex}
+        closeLightbox={closeLightbox}
+        nextImage={nextImage}
+        prevImage={prevImage}
+      />
     </div>
   );
 };
