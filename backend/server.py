@@ -345,6 +345,8 @@ class Token(BaseModel):
 
 class PostCreate(BaseModel):
     content: str
+    source_module: str = "family"  # Module where post is being created
+    target_audience: str = "module"  # Audience for the post
 
 class PostResponse(BaseModel):
     id: str
