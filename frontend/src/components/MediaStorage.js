@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Image, FileText, Video, Filter, Grid, List, Upload, 
-  FolderPlus, Download, Trash2, Search, Calendar
+  FolderPlus, Download, Trash2, Search, Calendar, ZoomIn
 } from 'lucide-react';
+import { useLightbox } from '../hooks/useLightbox';
+import LightboxModal from './LightboxModal';
 
 const MediaStorage = ({ 
   mediaType = 'photos', // 'photos', 'documents', 'videos'
