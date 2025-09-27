@@ -11,6 +11,8 @@ import FamilyProfileCreation from './components/FamilyProfileCreation';
 import FamilyProfilePage from './components/FamilyProfilePage';
 import FamilyProfileList from './components/FamilyProfileList';
 import FamilyPostComposer from './components/FamilyPostComposer';
+import FamilyInvitationModal from './components/FamilyInvitationModal';
+import InvitationManager from './components/InvitationManager';
 import { 
   Clock, User, MessageCircle, Video, FileText, Settings, Search, Filter, Users,
   LogIn, UserPlus, Building2, GraduationCap, Briefcase, Shield, Eye, EyeOff,
