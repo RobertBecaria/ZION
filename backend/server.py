@@ -1446,6 +1446,264 @@ async def get_user_family_ids(user_id: str) -> List[str]:
     }).to_list(100)
     return [membership["family_id"] for membership in family_memberships]
 
+# === FAMILY POSTS API ENDPOINTS ===
+
+@api_router.post("/family-profiles/{family_id}/posts", response_model=FamilyPostResponse)
+async def create_family_post(
+    family_id: str,
+    post_data: FamilyPostCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a family post"""
+    # Check if user is family member
+    membership = await db.family_members.find_one({
+        "family_id": family_id,
+        "user_id": current_user.id,
+        "is_active": True,
+        "invitation_accepted": True
+    })
+    
+    if not membership:
+        raise HTTPException(status_code=403, detail="Only family members can post")
+    
+    # Check permissions based on role and post privacy
+    user_role = FamilyRole(membership["family_role"])
+    
+    # Children can only create family-only posts, adults can approve them for public later
+    if user_role == FamilyRole.CHILD and post_data.privacy_level == FamilyPostPrivacy.PUBLIC:
+        post_data.privacy_level = FamilyPostPrivacy.FAMILY_ONLY
+    
+    # Only admins can create admin-only posts
+    if post_data.privacy_level == FamilyPostPrivacy.ADMIN_ONLY and user_role not in [FamilyRole.CREATOR, FamilyRole.ADMIN]:
+        raise HTTPException(status_code=403, detail="Only family admins can create admin-only posts")
+    
+    # Create family post
+    family_post = FamilyPost(
+        **post_data.dict(),
+        family_id=family_id,
+        posted_by_user_id=current_user.id
+    )
+    
+    await db.family_posts.insert_one(family_post.dict())
+    
+    # Prepare response
+    family = await db.family_profiles.find_one({"id": family_id})
+    post_response = FamilyPostResponse(
+        **family_post.dict(),
+        author={
+            "id": current_user.id,
+            "first_name": current_user.first_name,
+            "last_name": current_user.last_name,
+            "avatar_url": current_user.avatar_url
+        },
+        family={
+            "id": family["id"],
+            "family_name": family["family_name"],
+            "family_surname": family.get("family_surname")
+        }
+    )
+    
+    return post_response
+
+@api_router.get("/family-profiles/{family_id}/posts")
+async def get_family_posts(
+    family_id: str,
+    current_user: User = Depends(get_current_user),
+    privacy_level: Optional[str] = None,
+    content_type: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0
+):
+    """Get family posts with privacy filtering"""
+    # Check access permissions
+    membership = await db.family_members.find_one({
+        "family_id": family_id,
+        "user_id": current_user.id,
+        "is_active": True,
+        "invitation_accepted": True
+    })
+    
+    subscription = None
+    if not membership:
+        subscription = await db.family_subscriptions.find_one({
+            "subscriber_family_id": {"$in": await get_user_family_ids(current_user.id)},
+            "target_family_id": family_id,
+            "is_active": True,
+            "status": "ACTIVE"
+        })
+    
+    if not membership and not subscription:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Build query based on user permissions
+    query = {"family_id": family_id, "is_published": True}
+    
+    if subscription and not membership:
+        # External subscribers can only see public posts
+        query["privacy_level"] = FamilyPostPrivacy.PUBLIC.value
+    elif membership:
+        user_role = FamilyRole(membership["family_role"])
+        if user_role in [FamilyRole.CREATOR, FamilyRole.ADMIN]:
+            # Admins can see all posts
+            pass
+        else:
+            # Regular members can't see admin-only posts
+            query["privacy_level"] = {"$ne": FamilyPostPrivacy.ADMIN_ONLY.value}
+    
+    # Add optional filters
+    if privacy_level:
+        query["privacy_level"] = privacy_level
+    if content_type:
+        query["content_type"] = content_type
+    
+    # Get posts
+    posts = await db.family_posts.find(query).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich with author and family data
+    post_responses = []
+    for post in posts:
+        author = await db.users.find_one({"id": post["posted_by_user_id"]})
+        family = await db.family_profiles.find_one({"id": family_id})
+        
+        if author and family:
+            post_response = FamilyPostResponse(
+                **post,
+                author={
+                    "id": author["id"],
+                    "first_name": author["first_name"],
+                    "last_name": author["last_name"],
+                    "avatar_url": author.get("avatar_url")
+                },
+                family={
+                    "id": family["id"],
+                    "family_name": family["family_name"],
+                    "family_surname": family.get("family_surname")
+                }
+            )
+            post_responses.append(post_response)
+    
+    return {"family_posts": post_responses, "total": len(post_responses)}
+
+@api_router.put("/family-posts/{post_id}/approve")
+async def approve_child_post(
+    post_id: str,
+    make_public: bool = True,
+    current_user: User = Depends(get_current_user)
+):
+    """Approve child's post and optionally make it public (parent/admin only)"""
+    post = await db.family_posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if user is admin in the family
+    membership = await db.family_members.find_one({
+        "family_id": post["family_id"],
+        "user_id": current_user.id,
+        "family_role": {"$in": [FamilyRole.CREATOR.value, FamilyRole.ADMIN.value]},
+        "is_active": True
+    })
+    
+    if not membership:
+        raise HTTPException(status_code=403, detail="Only family admins can approve posts")
+    
+    # Update post privacy if requested
+    update_data = {"is_child_post_approved": True}
+    if make_public:
+        update_data["privacy_level"] = FamilyPostPrivacy.PUBLIC.value
+    
+    await db.family_posts.update_one(
+        {"id": post_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Post approved successfully"}
+
+# === FAMILY SUBSCRIPTION API ENDPOINTS ===
+
+@api_router.post("/family-profiles/{family_id}/subscribe")
+async def subscribe_to_family(
+    family_id: str,
+    subscription_data: FamilySubscriptionInvite,
+    current_user: User = Depends(get_current_user)
+):
+    """Send subscription request to another family"""
+    # Check if target family exists
+    target_family = await db.family_profiles.find_one({"id": family_id})
+    if not target_family:
+        raise HTTPException(status_code=404, detail="Family profile not found")
+    
+    # Check if family is private and user has invitation access
+    if target_family["is_private"]:
+        # TODO: Implement invitation-based access logic
+        # For now, allow if user is connected through existing invitations
+        pass
+    
+    # Get user's family IDs
+    user_family_ids = await get_user_family_ids(current_user.id)
+    if not user_family_ids:
+        raise HTTPException(status_code=400, detail="You must be a member of a family to subscribe to others")
+    
+    # Use user's first family for subscription (could be enhanced to let user choose)
+    subscriber_family_id = user_family_ids[0]
+    
+    # Check if subscription already exists
+    existing_subscription = await db.family_subscriptions.find_one({
+        "subscriber_family_id": subscriber_family_id,
+        "target_family_id": family_id,
+        "is_active": True
+    })
+    
+    if existing_subscription:
+        raise HTTPException(status_code=400, detail="Already subscribed to this family")
+    
+    # Create subscription
+    subscription = FamilySubscription(
+        subscriber_family_id=subscriber_family_id,
+        target_family_id=family_id,
+        invited_by_user_id=current_user.id,
+        subscription_level=subscription_data.subscription_level
+    )
+    
+    await db.family_subscriptions.insert_one(subscription.dict())
+    
+    return {"message": "Successfully subscribed to family", "subscription_id": subscription.id}
+
+@api_router.get("/family-profiles/{family_id}/subscribers")
+async def get_family_subscribers(
+    family_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get families subscribed to this family (admin only)"""
+    # Check if user is admin
+    membership = await db.family_members.find_one({
+        "family_id": family_id,
+        "user_id": current_user.id,
+        "family_role": {"$in": [FamilyRole.CREATOR.value, FamilyRole.ADMIN.value]},
+        "is_active": True
+    })
+    
+    if not membership:
+        raise HTTPException(status_code=403, detail="Only family admins can view subscribers")
+    
+    # Get subscriptions
+    subscriptions = await db.family_subscriptions.find({
+        "target_family_id": family_id,
+        "is_active": True,
+        "status": "ACTIVE"
+    }).to_list(100)
+    
+    subscribers = []
+    for sub in subscriptions:
+        subscriber_family = await db.family_profiles.find_one({"id": sub["subscriber_family_id"]})
+        if subscriber_family:
+            subscribers.append({
+                "family": subscriber_family,
+                "subscription_level": sub["subscription_level"],
+                "subscribed_at": sub["subscribed_at"]
+            })
+    
+    return {"subscribers": subscribers}
+
 # Chat Groups Management Endpoints
 @api_router.get("/chat-groups")
 async def get_user_chat_groups_endpoint(current_user: User = Depends(get_current_user)):
