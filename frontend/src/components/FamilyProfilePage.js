@@ -4,7 +4,7 @@ import {
   Heart, Image, FileText, Trophy, Briefcase, Camera, Share2, Edit3
 } from 'lucide-react';
 
-const FamilyProfilePage = ({ familyId, currentUser, onBack }) => {
+const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) => {
   const [familyProfile, setFamilyProfile] = useState(null);
   const [familyMembers, setFamilyMembers] = useState([]);
   const [familyPosts, setFamilyPosts] = useState([]);
