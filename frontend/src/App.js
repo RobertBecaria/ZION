@@ -1461,7 +1461,7 @@ function Dashboard() {
           )}
 
           {/* FAMILY PROFILE Views - Family-specific controls */}
-          {(activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view') && (
+          {(activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations') && (
             <>
               {/* Family Profile Stats Widget */}
               <div className="widget family-stats-widget">
