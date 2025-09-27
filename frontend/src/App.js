@@ -1052,9 +1052,34 @@ function Dashboard() {
                 {/* Content Area with Split Layout */}
                 <div className="split-content-layout">
                   {/* Main Content Area */}
-                  <div className={`main-content-area ${(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? 'full-width' : ''}`}>
-                    {/* Media Storage Views - Full Width */}
-                    {(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? (
+                  <div className={`main-content-area ${(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view') ? 'full-width' : ''}`}>
+                    
+                    {/* Family Profile Views - Full Width */}
+                    {activeView === 'family-profiles' ? (
+                      <FamilyProfileList
+                        onCreateFamily={() => setActiveView('family-create')}
+                        onViewFamily={(familyId) => {
+                          setSelectedFamilyId(familyId);
+                          setActiveView('family-view');
+                        }}
+                        onManageFamily={(familyId) => {
+                          setSelectedFamilyId(familyId);
+                          setActiveView('family-manage');
+                        }}
+                      />
+                    ) : activeView === 'family-create' ? (
+                      <FamilyProfileCreation
+                        onBack={() => setActiveView('family-profiles')}
+                        onFamilyCreated={() => setActiveView('family-profiles')}
+                      />
+                    ) : activeView === 'family-view' ? (
+                      <FamilyProfilePage
+                        familyId={selectedFamilyId}
+                        currentUser={user}
+                        onBack={() => setActiveView('family-profiles')}
+                      />
+                    ) : /* Media Storage Views - Full Width */
+                    (activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? (
                       <MediaStorage
                         mediaType={activeView === 'media-photos' ? 'photos' : 
                                    activeView === 'media-documents' ? 'documents' : 'videos'}
