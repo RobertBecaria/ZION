@@ -1065,7 +1065,7 @@ async def create_family(
     family_member = FamilyMember(
         family_id=new_family.id,
         user_id=current_user.id,
-        family_role="ADMIN"
+        family_role=FamilyRole.CREATOR
     )
     await db.family_members.insert_one(family_member.dict())
     
