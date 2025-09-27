@@ -1,73 +1,71 @@
 <analysis>
-The AI engineer successfully extended the ZION.CITY platform by first implementing a comprehensive social features suite. This involved adding , , , and  models to the FastAPI backend (), alongside new API endpoints for these interactions. The  model was updated to reflect user's like status and comments count. On the frontend,  was refactored to integrate these new backend capabilities, including nested comments, emoji support, and real-time updates, complemented by extensive CSS styling in .
+The AI engineer successfully enhanced the ZION.CITY platform, initially by implementing social features (likes, comments, reactions) and an image lightbox. A user-reported bug regarding the lightbox's modal display was fixed by adjusting click handlers and CSS. This led to a refactor into a shared  hook and  component, ensuring universal image lightbox functionality across  and .
 
-Following this, a significant UI/UX enhancement addressed a user-reported misalignment in the post input box. The AI refined the CSS for the post composer, transforming it into a cleaner, more functional popup modal with improved file attachment features, including distinct buttons for images/videos and documents, and intelligent file type previews.
-
-Finally, an interactive image lightbox, inspired by a Meetmax reference, was implemented. This feature allows users to click on post images to view them full-screen with navigation, download, and keyboard controls. Debugging revealed the lightbox functionality was correct but untested due to the absence of image-containing posts, which the AI communicated to the user for validation.
+Next, section-specific content for the  was implemented, starting with the Family section. This involved backend filtering, frontend updates, and module-aware post creation. A persistent bug where Family posts disappeared was addressed through multiple debugging cycles, revealing issues with frontend state management (fixed by refetching posts), session expiration, and a critical CSS layout error in . The final complex bug involved Robert Becaria's family posts with media not showing, which was ultimately traced to missing family connections, old post metadata, and a malformed MongoDB query that required careful re-testing and credential resets. All issues were confirmed resolved by the user.
 </analysis>
 
 <product_requirements>
-The ZION.CITY platform aims to be a comprehensive digital ecosystem for community management in the Kherson region. Initial requirements included user authentication, role-based access, and a Master Shell UI. Recent work focused on robust media handling, enabling users to upload images (PNG, JPG, GIF) and documents (PDF, DOC, PPTX) to  posts, supporting multiple files and YouTube embeds, with local server storage and size limits (10MB images, 50MB documents). A Медиа Хранилище (Media Storage) module was implemented for auto-indexing, displaying media with module-specific color coding/tags, and offering dynamic filtering by module with real-time file counts.
+The ZION.CITY platform aims to be a comprehensive digital ecosystem for community management in the Kherson region. Core features include user authentication, role-based access, and a Master Shell UI. Media handling was implemented for  posts, supporting image (PNG, JPG, GIF) and document (PDF, DOC, PPTX) uploads, multiple files, YouTube embeds, local storage, and size limits (10MB images, 50MB documents). A Медиа Хранилище (Media Storage) module auto-indexes and displays media with module-specific tags and dynamic filtering.
 
-Subsequently, the user requested Enhanced Social Features for UniversalWall including:
+Recent enhancements focused on Enhanced Social Features for UniversalWall:
 1.  Comments with nested replies and editing capabilities.
 2.  Likes and comments visibility adhering to original post's privacy settings.
-3.  Emoji support in posts and comments (6 default, with an option to open a window for more).
+3.  Emoji support in posts and comments.
 4.  A document attachment button in the post input box.
-5.  An image lightbox/modal that opens when a user clicks on a picture in a post, allowing full-size viewing with navigation and download options, later refined to match a Meetmax style.
+5.  An interactive image lightbox/modal (Meetmax-style) for full-size viewing, navigation, and download.
+Further, the Universal Wall should display content strictly related to the active section (e.g., Family section only shows family posts, visible according to permissions based on connections). This was prioritized for the Family section first, with content creation also isolated by section.
 </product_requirements>
 
 <key_technical_concepts>
 -   **FastAPI**: Python backend for API, file serving, and MongoDB interactions.
 -   **React**: JavaScript frontend for dynamic UI.
--   **MongoDB**: NoSQL database for flexible data storage.
--   **JWT**: Secure authentication.
--   **Tailwind CSS & Custom CSS**: Styling, responsive design, module color-coding, modal animations.
+-   **MongoDB**: NoSQL database for flexible data storage using UUIDs.
+-   **JWT**: Secure authentication for API calls.
+-   **Custom CSS**: Extensive styling for components, modals, and responsive design.
 -   ** & **: Backend file handling.
 -   ****: Icon library for UI elements.
--   **Context-Aware Rendering**: Dynamic UI based on view/module.
--   **Form Data Handling**: File uploads via .
--   **UUIDs**: Used for database IDs for JSON serialization.
+-   **React Hooks/Context**: For shared state management (e.g., ).
 </key_technical_concepts>
 
 <code_architecture>
 
 -   :
-    -   **Importance**: Core FastAPI application, handles authentication, posts, and media. Now also manages social interactions.
+    -   **Importance**: Core FastAPI application for posts, auth, media, and social interactions.
     -   **Changes Made**:
-        -   **New Models**: Introduced , , ,  Pydantic models to manage social interactions.
-        -   **New Endpoints**: Added API routes for liking/unliking posts, creating/retrieving/updating/deleting comments, and adding reactions.
-        -   **Model Enhancements**:  model updated to include fields like , , , and a list of  models.
-        -   **Endpoint Logic**: Modified  and  to fetch and include social interaction data.
+        -   **Social Features**: Added , , ,  models and API endpoints.  model updated for social data.
+        -   **Module Filtering**: Modified  to filter by  and user connections ().
+        -   **Post Creation**: Updated  to store  and .
+        -   **Helper Functions**: Added  and  for fetching related users.
+        -   **Bug Fixes**: Addressed  comparison errors and ensured MongoDB  operator was correctly formatted. Updated old posts with missing module metadata.
+-   : Python dependencies.
 -   :
-    -   **Importance**: Python dependencies.
-    -   **Changes Made**: Previously added . No new changes mentioned in this trajectory.
--   :
-    -   **Importance**: Main frontend application shell, managing global state and routing.
-    -   **Changes Made**: No direct changes in this trajectory, but it orchestrates the rendering of components like  which have seen significant updates.
+    -   **Importance**: Main application shell.
+    -   **Changes Made**: Passes  prop to  based on current route for module-specific content display.
 -   :
     -   **Importance**: Global styling.
     -   **Changes Made**:
-        -   **Social Features Styling**: Added extensive CSS for likes, comments, reactions, and notification UI elements.
-        -   **Post Composer Fixes**: Refined styles for , , and related elements to fix alignment, spacing, and create a cleaner modal-style post input box.
-        -   **Document Attachment Styling**: Added specific styles for the new document attachment button, file type badges, and gradient previews.
-        -   **Image Lightbox Styling**: Introduced styles for the image lightbox modal, including overlay, header, navigation controls, download/close buttons, animations, and responsiveness, matching a Meetmax-inspired design.
+        -   Extensive styling for social features and post composer.
+        -   **Lightbox Styling**: Added styles for the Meetmax-inspired lightbox modal.
+        -   **Layout Fix**: Added  class with  to resolve spacing issues that pushed posts down.
+        -   Added styles for media storage images (hover effects).
 -   :
-    -   **Importance**: Social feed and post creation component. Now central to social interactions and media viewing.
+    -   **Importance**: Social feed and post creation.
     -   **Changes Made**:
-        -   **Social Features Integration**: Implemented logic for displaying likes, comments (including nested replies), and reactions, interacting with the new backend API endpoints. Added state for managing these interactions.
-        -   **Post Composer Enhancement**: Transformed the post creation input into a modal, enhancing its UI, functionality, and responsiveness.
-        -   **File Attachment**: Added a separate document attachment button with distinct file type handling, icons, and gradient previews for various document types.
-        -   **Image Lightbox**: Implemented an interactive image lightbox modal. This includes:
-            -    function to display clicked images in full size.
-            -   State management (, , ).
-            -   Navigation (prev/next image, keyboard support for ESC and arrow keys).
-            -   Download and close buttons.
-            -   Display of image counter.
-            -   Integration with the post's media display to make images clickable.
+        -   Integrated  hook and  component. Removed old, isolated lightbox logic.
+        -    now sends  to the backend.
+        -    now includes  in new posts and *refetches* posts after creation for consistency (bug fix).
+        -    dependencies updated to react to  changes.
+        -   Click handler for images moved to parent container for lightbox activation (bug fix).
+-   : **NEW FILE**
+    -   **Importance**: Provides reusable lightbox state management and logic.
+    -   **Summary**: Encapsulates , ,  states, , , ,  functions, and keyboard event listeners.
+-   : **NEW FILE**
+    -   **Importance**: Renders the universal lightbox UI.
+    -   **Summary**: Displays the full-screen image, navigation, download, and close buttons with blurred background.
 -   :
-    -   **Importance**: Stores the system logo image.
-    -   **Changes Made**: No new changes mentioned in this trajectory.
+    -   **Importance**: Manages and displays user media.
+    -   **Changes Made**: Integrated  hook and  component to enable full-screen image viewing for all images within the storage.
+-   : System logo image.
 </code_architecture>
 
 <pending_tasks>
@@ -76,17 +74,20 @@ Subsequently, the user requested Enhanced Social Features for UniversalWall incl
 -   Verification System (organization/government verification, badge system).
 -   Advanced Data Synchronization (conflict resolution, real-time propagation, audit trails).
 -   Media storage to Journal section for sharing across platforms.
--   Enhanced features for  (e.g., social interactions like likes/comments) - *partially implemented, but emoji is pending*.
+-   Emoji support in posts and comments (6 default, with an option to open a window for more).
 </pending_tasks>
 
 <current_work>
-The ZION.CITY application has significantly expanded its social and media interaction capabilities. The  now supports robust social features, including a fully functional backend for likes, comments (with nested replies), and reactions, integrated with the frontend. Users can now engage with posts in a dynamic way, with privacy settings inherited from the original post.
+The ZION.CITY application has significantly matured with robust social features and a comprehensive media viewing experience. The  now contextually displays posts based on the active module (e.g., Family, Organizations), with an initial focus on the Family section. This includes backend filtering that leverages user connections and module-aware post creation. A universal, Meetmax-style image lightbox has been refactored into a reusable hook and component, integrated into both the  and  modules, allowing users to click on any image for full-screen viewing, navigation, and download.
 
-The post creation experience has been modernized. The previous off input box has been transformed into a clean, functional, and responsive popup modal. This modal features separate, visually distinct buttons for attaching images/videos and documents, each with smart file type detection and enhanced file previews using color-coded badges and gradients. File size display for documents is also supported.
+Most recently, several critical bugs were resolved:
+1.  **Posts Disappearing on Module Switch**: Fixed by ensuring the frontend refetches module-specific posts after creation, preventing a mix of posts from different modules in the state.
+2.  **Family Posts Not Showing (Layout Issue)**: Resolved a CSS bug where the  container was missing essential  and  rules, causing posts to be pushed far down the page and appear invisible until scrolling.
+3.  **Robert Becaria Family Posts with Media Not Appearing**: This complex issue was resolved by correcting Robert's family connections in the database, updating old posts with necessary  and  metadata, and confirming proper MongoDB query construction after authentication issues.
 
-Most recently, an interactive image lightbox has been implemented for posts. Clicking on an image in a post now opens a full-screen, Meetmax-style modal with a blurred background, clear header (title, download, close buttons), and navigation controls (arrows, keyboard support). This provides an improved viewing experience for images. However, testing for this feature revealed that while the code is correct, there are currently no posts with images in the application to fully demonstrate and validate its functionality to the user. The AI engineer has removed debug code and advised the user on how to test it by creating a post with an image.
+The application now ensures that posts in the Family section appear correctly with images, are isolated to relevant users, and can be viewed universally via the lightbox. The user has confirmed that all reported issues are resolved.
 </current_work>
 
 <optional_next_step>
-Create a test post with an image to demonstrate the image lightbox functionality for the user.
+None. The last task was concluded and confirmed by the user.
 </optional_next_step>
