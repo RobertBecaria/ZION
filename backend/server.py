@@ -447,6 +447,119 @@ class ChatGroupCreate(BaseModel):
     color_code: str = "#059669"
     member_ids: List[str] = []
 
+# === FAMILY PROFILE INPUT/OUTPUT MODELS ===
+
+class FamilyProfileCreate(BaseModel):
+    family_name: str
+    family_surname: Optional[str] = None
+    description: Optional[str] = None
+    public_bio: Optional[str] = None
+    primary_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    established_date: Optional[datetime] = None
+    is_private: bool = True
+    allow_public_discovery: bool = False
+
+class FamilyProfileUpdate(BaseModel):
+    family_name: Optional[str] = None
+    family_surname: Optional[str] = None
+    description: Optional[str] = None
+    public_bio: Optional[str] = None
+    primary_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    established_date: Optional[datetime] = None
+    family_photo_url: Optional[str] = None
+    is_private: Optional[bool] = None
+    allow_public_discovery: Optional[bool] = None
+
+class FamilyMemberInvite(BaseModel):
+    invited_user_email: str
+    invitation_type: str = "MEMBER"  # "MEMBER", "ADMIN"
+    relationship_to_family: Optional[str] = None
+    message: Optional[str] = None
+
+class FamilySubscriptionInvite(BaseModel):
+    target_family_id: str
+    subscription_level: str = "BASIC"
+    message: Optional[str] = None
+
+class FamilyPostCreate(BaseModel):
+    title: Optional[str] = None
+    content: str
+    content_type: FamilyContentType = FamilyContentType.ANNOUNCEMENT
+    privacy_level: FamilyPostPrivacy = FamilyPostPrivacy.PUBLIC
+    target_audience: str = "SUBSCRIBERS"
+    media_file_ids: List[str] = []
+    youtube_urls: List[str] = []
+    is_pinned: bool = False
+
+class FamilyProfileResponse(BaseModel):
+    id: str
+    family_name: str
+    family_surname: Optional[str]
+    description: Optional[str]
+    public_bio: Optional[str]
+    primary_address: Optional[str]
+    city: Optional[str]
+    state: Optional[str]
+    country: Optional[str]
+    established_date: Optional[datetime]
+    family_photo_url: Optional[str]
+    is_private: bool
+    allow_public_discovery: bool
+    member_count: int
+    children_count: int
+    creator_id: str
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    
+    # Additional fields for response
+    is_user_member: Optional[bool] = False
+    user_role: Optional[FamilyRole] = None
+    subscription_status: Optional[str] = None  # For external families
+
+class FamilyMemberResponse(BaseModel):
+    id: str
+    user_id: str
+    family_role: FamilyRole
+    relationship_to_family: Optional[str]
+    is_primary_resident: bool
+    invitation_accepted: bool
+    joined_at: datetime
+    
+    # User details
+    user_first_name: str
+    user_last_name: str
+    user_avatar_url: Optional[str]
+
+class FamilyPostResponse(BaseModel):
+    id: str
+    family_id: str
+    title: Optional[str]
+    content: str
+    content_type: FamilyContentType
+    privacy_level: FamilyPostPrivacy
+    target_audience: str
+    media_files: List[str]
+    youtube_urls: List[str]
+    original_child_post_id: Optional[str]
+    is_child_post_approved: bool
+    likes_count: int
+    comments_count: int
+    is_published: bool
+    is_pinned: bool
+    created_at: datetime
+    updated_at: Optional[datetime]
+    
+    # Author details
+    author: Dict[str, Any]
+    family: Dict[str, Any]
+
 class ChatMessageCreate(BaseModel):
     group_id: str
     content: str
