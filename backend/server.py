@@ -262,6 +262,125 @@ class FamilyMember(BaseModel):
     joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     is_active: bool = True
 
+# === FAMILY PROFILE SYSTEM MODELS ===
+
+class FamilyRole(str, Enum):
+    CREATOR = "CREATOR"        # Original creator
+    ADMIN = "ADMIN"           # Spouses and co-admins
+    ADULT_MEMBER = "ADULT_MEMBER"    # Adult family members
+    CHILD = "CHILD"           # Children in the family
+
+class FamilyContentType(str, Enum):
+    ANNOUNCEMENT = "ANNOUNCEMENT"      # Family announcements & news
+    PHOTO_ALBUM = "PHOTO_ALBUM"      # Family photo albums
+    EVENT = "EVENT"                   # Family events/reunions
+    MILESTONE = "MILESTONE"           # Family milestones (births, marriages, etc.)
+    BUSINESS_UPDATE = "BUSINESS_UPDATE"  # Family business updates
+
+class FamilyPostPrivacy(str, Enum):
+    PUBLIC = "PUBLIC"         # Visible to all subscribed families
+    FAMILY_ONLY = "FAMILY_ONLY"  # Visible only to family members
+    ADMIN_ONLY = "ADMIN_ONLY"     # Visible only to family admins
+
+class FamilyProfile(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_name: str  # e.g., "The Johnson Family"
+    family_surname: Optional[str] = None  # Primary family surname
+    description: Optional[str] = None  # Family bio/description
+    public_bio: Optional[str] = None  # Public facing bio for subscribers
+    
+    # Address & Location (household definition)
+    primary_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    
+    # Family Information
+    established_date: Optional[datetime] = None  # When family was established
+    family_photo_url: Optional[str] = None  # Family cover photo
+    
+    # Privacy & Access Settings
+    is_private: bool = True  # Invite-only by default
+    allow_public_discovery: bool = False  # Can be found in search
+    
+    # Statistics
+    member_count: int = 1
+    children_count: int = 0
+    
+    # Metadata
+    creator_id: str  # User who created the family profile
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class FamilyInvitation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_id: str
+    invited_by_user_id: str  # Who sent the invitation
+    invited_user_email: str  # Email of person being invited
+    invited_user_id: Optional[str] = None  # If user already exists in system
+    
+    # Invitation details
+    invitation_type: str = "MEMBER"  # "MEMBER", "ADMIN"
+    relationship_to_family: Optional[str] = None
+    message: Optional[str] = None  # Personal message with invitation
+    
+    # Status tracking
+    status: str = "PENDING"  # "PENDING", "ACCEPTED", "DECLINED", "EXPIRED"
+    sent_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    responded_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+    
+    is_active: bool = True
+
+class FamilySubscription(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    subscriber_family_id: str  # Family that is subscribing
+    target_family_id: str     # Family being subscribed to
+    invited_by_user_id: str   # User who sent the subscription invite
+    
+    # Subscription details
+    subscription_level: str = "BASIC"  # "BASIC", "CLOSE_FAMILY", "EXTENDED_FAMILY"
+    can_see_public_content: bool = True
+    can_see_family_events: bool = False
+    
+    # Status
+    status: str = "ACTIVE"  # "ACTIVE", "PAUSED", "BLOCKED"
+    subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class FamilyPost(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_id: str
+    posted_by_user_id: str  # Family member who posted
+    
+    # Content
+    title: Optional[str] = None
+    content: str
+    content_type: FamilyContentType = FamilyContentType.ANNOUNCEMENT
+    
+    # Privacy & Audience
+    privacy_level: FamilyPostPrivacy = FamilyPostPrivacy.PUBLIC
+    target_audience: str = "SUBSCRIBERS"  # "SUBSCRIBERS", "FAMILY_ONLY", "SPECIFIC_FAMILIES"
+    
+    # Media & Attachments
+    media_files: List[str] = []  # MediaFile IDs
+    youtube_urls: List[str] = []
+    
+    # Child post handling (for when parents post on behalf of children)
+    original_child_post_id: Optional[str] = None  # If this was originally a child's private post
+    is_child_post_approved: bool = True  # Parents can approve child posts for public viewing
+    
+    # Engagement
+    likes_count: int = 0
+    comments_count: int = 0
+    
+    # Metadata
+    is_published: bool = True
+    is_pinned: bool = False  # Pin important family announcements
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
 # === INPUT/OUTPUT MODELS ===
 
 class UserRegistration(BaseModel):
