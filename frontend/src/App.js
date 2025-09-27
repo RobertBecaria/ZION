@@ -692,6 +692,8 @@ function Dashboard() {
   // Family Profile States
   const [selectedFamilyId, setSelectedFamilyId] = useState(null);
   const [showFamilyPostComposer, setShowFamilyPostComposer] = useState(false);
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  const [selectedFamilyForInvitation, setSelectedFamilyForInvitation] = useState(null);
   
   const { user, logout } = useAuth();
 
