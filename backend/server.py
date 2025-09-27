@@ -1046,7 +1046,7 @@ async def get_user_affiliations_endpoint(current_user: User = Depends(get_curren
     return {"affiliations": affiliations}
 
 # Family Management Endpoints
-@api_router.post("/families", response_model=Family)
+@api_router.post("/families", response_model=FamilyProfile)
 async def create_family(
     family_name: str,
     description: Optional[str] = None,
