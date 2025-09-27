@@ -924,6 +924,29 @@ function Dashboard() {
             <button className="profile-btn secondary">
               Моя Лента
             </button>
+            
+            {/* Family Profile Buttons - Prominently placed */}
+            <button 
+              className={`profile-btn ${activeView === 'family-profiles' ? 'primary' : 'secondary'}`}
+              style={{ 
+                backgroundColor: activeView === 'family-profiles' ? '#42B883' : undefined,
+                color: activeView === 'family-profiles' ? 'white' : undefined
+              }}
+              onClick={() => setActiveView('family-profiles')}
+            >
+              👥 Мои Семьи
+            </button>
+            
+            <button 
+              className={`profile-btn ${activeView === 'family-create' ? 'primary' : 'secondary'}`}
+              style={{ 
+                backgroundColor: activeView === 'family-create' ? '#42B883' : undefined,
+                color: activeView === 'family-create' ? 'white' : undefined
+              }}
+              onClick={() => setActiveView('family-create')}
+            >
+              ➕ Создать Семью
+            </button>
           </div>
 
           <nav className="sidebar-nav">
