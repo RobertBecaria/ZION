@@ -655,7 +655,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User Login Investigation for 30new18@gmail.com - COMPLETED"
+    - "Family Invitation System Frontend Testing - COMPLETED"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
