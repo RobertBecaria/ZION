@@ -477,7 +477,7 @@ class FamilyProfileUpdate(BaseModel):
     allow_public_discovery: Optional[bool] = None
 
 class FamilyMemberInvite(BaseModel):
-    invited_user_email: str
+    invited_user_email: EmailStr
     invitation_type: str = "MEMBER"  # "MEMBER", "ADMIN"
     relationship_to_family: Optional[str] = None
     message: Optional[str] = None
