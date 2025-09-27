@@ -854,8 +854,13 @@ async def create_auto_family_groups(user_id: str):
     return [family_group.id, relatives_group.id]
 
 async def get_user_family_connections(user_id: str) -> List[str]:
-    """Get all family member user IDs for a given user"""
-    family_memberships = await db.family_members.find({"user_id": user_id, "is_active": True}).to_list(100)
+    """Get all family member user IDs for a given user (supports both old families and new family profiles)"""
+    # Get family memberships (works for both old families and new family profiles)
+    family_memberships = await db.family_members.find({
+        "user_id": user_id, 
+        "is_active": True,
+        "invitation_accepted": True  # Only include accepted invitations
+    }).to_list(100)
     
     connected_users = set()
     
@@ -863,11 +868,31 @@ async def get_user_family_connections(user_id: str) -> List[str]:
         # Get all other members of the same family
         family_members = await db.family_members.find({
             "family_id": membership["family_id"], 
-            "is_active": True
+            "is_active": True,
+            "invitation_accepted": True
         }).to_list(100)
         
         for member in family_members:
             connected_users.add(member["user_id"])
+        
+        # Also get users from subscribed families (for family profile system)
+        user_family_ids = [membership["family_id"]]
+        subscriptions = await db.family_subscriptions.find({
+            "subscriber_family_id": {"$in": user_family_ids},
+            "is_active": True,
+            "status": "ACTIVE"
+        }).to_list(100)
+        
+        for sub in subscriptions:
+            # Get members of subscribed family
+            subscribed_family_members = await db.family_members.find({
+                "family_id": sub["target_family_id"],
+                "is_active": True,
+                "invitation_accepted": True
+            }).to_list(100)
+            
+            for member in subscribed_family_members:
+                connected_users.add(member["user_id"])
     
     return list(connected_users)
 
