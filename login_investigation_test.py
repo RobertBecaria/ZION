@@ -89,7 +89,7 @@ class LoginInvestigationTester:
         print(f"\n🔍 Searching for user '{email}' in database...")
         
         db = self.connect_to_mongodb()
-        if not db:
+        if db is None:
             self.log_test("Database connection", False, "Could not connect to MongoDB")
             return None
         
