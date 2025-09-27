@@ -917,14 +917,25 @@ async def get_user_organization_connections(user_id: str) -> List[str]:
 async def get_module_connections(user_id: str, module: str) -> List[str]:
     """Get connected user IDs based on module type"""
     if module == "family":
-        return await get_user_family_connections(user_id)
+        family_connections = await get_user_family_connections(user_id)
+        # Always include the user's own ID so they can see their own posts
+        connected_users = set(family_connections)
+        connected_users.add(user_id)
+        return list(connected_users)
     elif module == "organizations":
-        return await get_user_organization_connections(user_id)
+        org_connections = await get_user_organization_connections(user_id)
+        # Always include the user's own ID so they can see their own posts
+        connected_users = set(org_connections)
+        connected_users.add(user_id)
+        return list(connected_users)
     elif module in ["news", "journal", "services", "marketplace", "finance", "events"]:
         # For other modules, use a combination of family and organization connections
         family_connections = await get_user_family_connections(user_id)
         org_connections = await get_user_organization_connections(user_id)
-        return list(set(family_connections + org_connections))
+        connected_users = set(family_connections + org_connections)
+        # Always include the user's own ID so they can see their own posts
+        connected_users.add(user_id)
+        return list(connected_users)
     else:
         return [user_id]  # Only user's own posts for unknown modules
 
