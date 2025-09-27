@@ -36,8 +36,8 @@ class FamilyInvitationSystemTester:
         if details:
             print(f"   Details: {details}")
 
-    def make_request(self, method, endpoint, data=None, auth_required=False, token=None):
-        """Make HTTP request to API"""
+    def make_request(self, method, endpoint, data=None, auth_required=False, token=None, retries=2):
+        """Make HTTP request to API with retry logic"""
         url = f"{self.base_url}/{endpoint}"
         headers = {'Content-Type': 'application/json'}
         
@@ -46,29 +46,35 @@ class FamilyInvitationSystemTester:
             if auth_token:
                 headers['Authorization'] = f'Bearer {auth_token}'
         
-        try:
-            if method == 'GET':
-                response = requests.get(url, headers=headers, timeout=30)
-            elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers, timeout=30)
-            elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers, timeout=30)
-            elif method == 'DELETE':
-                response = requests.delete(url, headers=headers, timeout=30)
-            
-            print(f"   Request: {method} {url} -> Status: {response.status_code}")
-            
-            if response.status_code == 422:
-                try:
-                    error_data = response.json()
-                    print(f"   422 Error Details: {error_data}")
-                except:
-                    print(f"   422 Error Text: {response.text}")
-            
-            return response
-        except requests.exceptions.RequestException as e:
-            print(f"❌ Network error for {method} {url}: {str(e)}")
-            return None
+        for attempt in range(retries + 1):
+            try:
+                if method == 'GET':
+                    response = requests.get(url, headers=headers, timeout=15)
+                elif method == 'POST':
+                    response = requests.post(url, json=data, headers=headers, timeout=15)
+                elif method == 'PUT':
+                    response = requests.put(url, json=data, headers=headers, timeout=15)
+                elif method == 'DELETE':
+                    response = requests.delete(url, headers=headers, timeout=15)
+                
+                print(f"   Request: {method} {url} -> Status: {response.status_code}")
+                
+                if response.status_code == 422:
+                    try:
+                        error_data = response.json()
+                        print(f"   422 Error Details: {error_data}")
+                    except:
+                        print(f"   422 Error Text: {response.text}")
+                
+                return response
+            except requests.exceptions.RequestException as e:
+                if attempt < retries:
+                    print(f"   Retry {attempt + 1}/{retries} for {method} {url}: {str(e)}")
+                    import time
+                    time.sleep(1)
+                else:
+                    print(f"❌ Network error for {method} {url} after {retries + 1} attempts: {str(e)}")
+                    return None
 
     def test_user_authentication(self):
         """Test authentication for both test users"""
