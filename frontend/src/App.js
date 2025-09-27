@@ -686,6 +686,11 @@ function Dashboard() {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeView, setActiveView] = useState('wall'); // 'wall' or 'chat'
+  
+  // Family Profile States
+  const [selectedFamilyId, setSelectedFamilyId] = useState(null);
+  const [showFamilyPostComposer, setShowFamilyPostComposer] = useState(false);
+  
   const { user, logout } = useAuth();
 
   // Check if user needs onboarding (no affiliations)
