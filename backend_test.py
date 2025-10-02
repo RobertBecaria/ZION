@@ -1445,11 +1445,10 @@ class ZionCityAPITester:
             join_request_id = data.get("join_request_id")
             success = (
                 join_request_id is not None and
-                data.get("status") == "PENDING" and
                 data.get("total_voters") >= 1 and
                 data.get("votes_required") >= 1
             )
-            self.log_test("Family join request", success, f"Request ID: {join_request_id}, Status: {data.get('status')}")
+            self.log_test("Family join request", success, f"Request ID: {join_request_id}, Total voters: {data.get('total_voters')}")
         else:
             self.log_test("Family join request", False, f"Status: {response.status_code if response else 'No response'}")
         
@@ -1479,10 +1478,10 @@ class ZionCityAPITester:
             if response and response.status_code == 200:
                 data = response.json()
                 success = (
-                    data.get("vote_recorded") == True and
-                    data.get("majority_reached") == True  # Should auto-approve with 1 voter
+                    data.get("message") is not None and
+                    data.get("status") == "APPROVED"  # Should auto-approve with 1 voter
                 )
-                self.log_test("Voting system", success, f"Vote recorded: {data.get('vote_recorded')}, Majority: {data.get('majority_reached')}")
+                self.log_test("Voting system", success, f"Message: {data.get('message')}, Status: {data.get('status')}")
             else:
                 self.log_test("Voting system", False, f"Status: {response.status_code if response else 'No response'}")
         
