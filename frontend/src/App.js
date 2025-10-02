@@ -818,6 +818,17 @@ function Dashboard() {
     fetchChatGroups(); // Refresh groups after creation
   };
 
+  const handleProfileComplete = (data) => {
+    setShowProfileCompletionModal(false);
+    // Update user data (would need to refetch user or update context)
+    window.location.reload(); // Simple refresh to get updated user data
+  };
+
+  const handleUpdateUser = (updatedUserData) => {
+    // Update user context with new data
+    // This would be handled by your auth context
+  };
+
   if (showOnboarding) {
     return <OnboardingWizard onComplete={() => setShowOnboarding(false)} />;
   }
