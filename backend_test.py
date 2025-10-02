@@ -1334,6 +1334,13 @@ class ZionCityAPITester:
             self.test_user_login()
             self.test_get_user_profile()
             
+            # Phase 4: NEW FAMILY SYSTEM TESTS (NODE & SUPER NODE ARCHITECTURE)
+            print("\n🔥 PHASE 4: NEW FAMILY SYSTEM TESTS - NODE & SUPER NODE ARCHITECTURE")
+            print("=" * 60)
+            
+            # Test the complete new family system workflow
+            self.test_new_family_system_comprehensive()
+            
             # Phase 1: Universal Chat Foundation Tests
             print("\n🔥 PHASE 1: UNIVERSAL CHAT FOUNDATION TESTS")
             print("=" * 60)
