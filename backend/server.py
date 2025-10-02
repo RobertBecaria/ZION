@@ -635,6 +635,216 @@ class CommentResponse(BaseModel):
 # Enable forward references for nested CommentResponse
 CommentResponse.model_rebuild()
 
+# === NEW FAMILY SYSTEM MODELS (NODE & SUPER NODE ARCHITECTURE) ===
+
+class MarriageStatus(str, Enum):
+    SINGLE = "SINGLE"
+    MARRIED = "MARRIED"
+    DIVORCED = "DIVORCED"
+    WIDOWED = "WIDOWED"
+
+class NodeType(str, Enum):
+    NODE = "NODE"  # Nuclear family unit
+    SUPER_NODE = "SUPER_NODE"  # Household with multiple families
+
+class FamilyUnitRole(str, Enum):
+    HEAD = "HEAD"  # Family unit head (creator)
+    SPOUSE = "SPOUSE"  # Married spouse
+    CHILD = "CHILD"  # Children
+    PARENT = "PARENT"  # Parents living with family
+
+class PostVisibility(str, Enum):
+    FAMILY_ONLY = "FAMILY_ONLY"  # Only my family unit sees
+    HOUSEHOLD_ONLY = "HOUSEHOLD_ONLY"  # All families in my household see
+    PUBLIC = "PUBLIC"  # Everyone in my connections sees
+
+class JoinRequestStatus(str, Enum):
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    EXPIRED = "EXPIRED"
+
+class VoteChoice(str, Enum):
+    APPROVE = "APPROVE"
+    REJECT = "REJECT"
+
+class AddressModel(BaseModel):
+    """Structured address for matching"""
+    street: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    postal_code: Optional[str] = None
+
+class FamilyUnit(BaseModel):
+    """Nuclear family unit - NODE"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_name: str
+    family_surname: str
+    
+    # Address (stored as flat fields for MongoDB)
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    
+    # Node Information
+    node_type: NodeType = NodeType.NODE
+    parent_household_id: Optional[str] = None
+    
+    # Creator & Metadata
+    creator_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    # Statistics
+    member_count: int = 1
+    is_active: bool = True
+    
+    def get_matching_key(self) -> str:
+        """Generate matching key for intelligent search"""
+        return f"{self.address_street}|{self.address_city}|{self.address_country}|{self.family_surname}".lower()
+
+class FamilyUnitMember(BaseModel):
+    """Junction table linking users to family units"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_unit_id: str
+    user_id: str
+    role: FamilyUnitRole
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class HouseholdProfile(BaseModel):
+    """Household containing multiple family units - SUPER NODE"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    household_name: str
+    
+    # Shared Address
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    
+    # Node Information
+    node_type: NodeType = NodeType.SUPER_NODE
+    member_family_unit_ids: List[str] = []
+    
+    # Creator & Metadata
+    creator_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    is_active: bool = True
+
+class Vote(BaseModel):
+    """Individual vote on join request"""
+    user_id: str
+    family_unit_id: str
+    vote: VoteChoice
+    voted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class FamilyJoinRequest(BaseModel):
+    """Request to join a family/household with voting system"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    requesting_user_id: str
+    requesting_family_unit_id: Optional[str] = None
+    target_family_unit_id: Optional[str] = None
+    target_household_id: Optional[str] = None
+    request_type: str = "JOIN_HOUSEHOLD"
+    message: Optional[str] = None
+    
+    # Voting System
+    votes: List[Dict[str, Any]] = []  # Using Dict instead of Vote for MongoDB compatibility
+    total_voters: int
+    votes_required: int
+    
+    # Status
+    status: JoinRequestStatus = JoinRequestStatus.PENDING
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc) + timedelta(days=7))
+    resolved_at: Optional[datetime] = None
+    is_active: bool = True
+
+class FamilyUnitPost(BaseModel):
+    """Posts created on behalf of family unit"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    family_unit_id: str
+    posted_by_user_id: str
+    content: str
+    media_files: List[str] = []
+    visibility: PostVisibility = PostVisibility.FAMILY_ONLY
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+    is_published: bool = True
+
+# === NEW FAMILY SYSTEM REQUEST/RESPONSE MODELS ===
+
+class ProfileCompletionRequest(BaseModel):
+    """Complete user profile for family system"""
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    marriage_status: MarriageStatus
+    spouse_name: Optional[str] = None
+    spouse_phone: Optional[str] = None
+
+class MatchingFamilyResult(BaseModel):
+    """Result from intelligent family matching"""
+    family_unit_id: str
+    family_name: str
+    family_surname: str
+    address: AddressModel
+    member_count: int
+    match_score: int
+
+class FamilyUnitCreateRequest(BaseModel):
+    """Create new family unit"""
+    family_name: str
+    family_surname: str
+
+class JoinRequestCreateRequest(BaseModel):
+    """Request to join existing family/household"""
+    target_family_unit_id: Optional[str] = None
+    target_household_id: Optional[str] = None
+    message: Optional[str] = None
+
+class VoteRequest(BaseModel):
+    """Vote on join request"""
+    vote: VoteChoice
+
+class FamilyUnitPostCreateRequest(BaseModel):
+    """Create post on behalf of family"""
+    content: str
+    visibility: PostVisibility = PostVisibility.FAMILY_ONLY
+    media_files: List[str] = []
+
+class FamilyUnitResponse(BaseModel):
+    """Response model for family unit"""
+    id: str
+    family_name: str
+    family_surname: str
+    address: AddressModel
+    node_type: NodeType
+    parent_household_id: Optional[str]
+    member_count: int
+    is_user_member: bool = False
+    user_role: Optional[FamilyUnitRole] = None
+    created_at: datetime
+
+class HouseholdResponse(BaseModel):
+    """Response model for household"""
+    id: str
+    household_name: str
+    address: AddressModel
+    member_family_units: List[FamilyUnitResponse]
+    created_at: datetime
+
+# === END NEW FAMILY SYSTEM MODELS ===
+
 class MediaUploadResponse(BaseModel):
     id: str
     original_filename: str
