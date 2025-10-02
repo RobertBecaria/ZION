@@ -686,11 +686,8 @@ function Dashboard() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeView, setActiveView] = useState('wall'); // 'wall' or 'chat'
   
-  // Family Profile States
-  const [selectedFamilyId, setSelectedFamilyId] = useState(null);
-  const [showFamilyPostComposer, setShowFamilyPostComposer] = useState(false);
-  const [showInvitationModal, setShowInvitationModal] = useState(false);
-  const [selectedFamilyForInvitation, setSelectedFamilyForInvitation] = useState(null);
+  // NEW FAMILY SYSTEM STATES
+  const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
   
   const { user, logout } = useAuth();
 
