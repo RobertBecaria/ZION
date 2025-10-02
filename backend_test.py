@@ -1548,6 +1548,8 @@ class ZionCityAPITester:
             self.log_test("Error handling - incomplete profile", success, f"Status: {response.status_code if response else 'No response'}")
             
             self.token = temp_token
+        else:
+            self.log_test("Error handling - incomplete profile", False, "Could not create third user for testing")
         
         # Test 13: Try to vote twice (should fail)
         print("\n1️⃣4️⃣ Testing Double Vote Prevention...")
@@ -1556,6 +1558,8 @@ class ZionCityAPITester:
             response = self.make_request('POST', f'family-join-requests/{join_request_id}/vote', vote_data, auth_required=True)
             success = response and response.status_code == 400  # Should fail
             self.log_test("Double vote prevention", success, f"Status: {response.status_code if response else 'No response'}")
+        else:
+            self.log_test("Double vote prevention", False, "No join request ID available for testing")
         
         print("\n✅ New Family System Comprehensive Testing Complete!")
 
