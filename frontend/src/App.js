@@ -1657,20 +1657,12 @@ function Dashboard() {
         </aside>
       </div>
 
-      {/* Family Invitation Modal */}
-      {showInvitationModal && selectedFamilyForInvitation && (
-        <FamilyInvitationModal
-          isOpen={showInvitationModal}
-          onClose={() => {
-            setShowInvitationModal(false);
-            setSelectedFamilyForInvitation(null);
-          }}
-          familyId={selectedFamilyForInvitation.id}
-          familyName={selectedFamilyForInvitation.name}
-          currentUserRole="CREATOR" // TODO: Get actual user role from family
-          onInvitationSent={() => {
-            // Refresh invitations if needed
-          }}
+      {/* Profile Completion Modal */}
+      {showProfileCompletionModal && user && (
+        <ProfileCompletionModal
+          user={user}
+          onClose={() => setShowProfileCompletionModal(false)}
+          onComplete={handleProfileComplete}
         />
       )}
     </div>
