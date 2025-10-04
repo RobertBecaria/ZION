@@ -1716,11 +1716,13 @@ function App() {
   const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
   
   return (
-    <AuthProvider>
-      <div className="App">
-        <AuthWrapper authMode={authMode} setAuthMode={setAuthMode} />
-      </div>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <div className="App">
+          <AuthWrapper authMode={authMode} setAuthMode={setAuthMode} />
+        </div>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
