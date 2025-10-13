@@ -161,7 +161,7 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
     <div className="max-w-4xl mx-auto">
       {/* Family Cover Section */}
       <div className="relative">
-        <div className="h-48 bg-gradient-to-r from-green-400 to-green-600 rounded-t-xl"></div>
+        <div className="h-48 bg-gradient-to-r from-green-500 to-green-700 rounded-t-xl" style={{ background: 'linear-gradient(135deg, #30A67E 0%, #4CAF50 100%)' }}></div>
         
         {/* Family Photo */}
         <div className="absolute -bottom-16 left-8">
