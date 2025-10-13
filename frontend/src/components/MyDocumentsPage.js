@@ -22,10 +22,32 @@ const MyDocumentsPage = () => {
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   const documentTypes = [
-    { value: 'PASSPORT', label: 'Паспорт (Внутренний)', icon: '🛂' },
-    { value: 'TRAVELING_PASSPORT', label: 'Загранпаспорт', icon: '🛫' },
-    { value: 'DRIVERS_LICENSE', label: 'Водительское Удостоверение', icon: '🚗' }
+    { value: 'PASSPORT', label: 'Паспорт (Внутренний)', icon: '🛂', color: '#DC2626' },
+    { value: 'TRAVELING_PASSPORT', label: 'Загранпаспорт', icon: '🛫', color: '#2563EB' },
+    { value: 'DRIVERS_LICENSE', label: 'Водительское Удостоверение', icon: '🚗', color: '#059669' }
   ];
+
+  // Helper function to get file type icon
+  const getFileIcon = (file) => {
+    if (file.type.startsWith('image/')) {
+      return <ImageIcon size={24} color="#059669" />;
+    } else if (file.type.includes('pdf')) {
+      return <FileText size={24} color="#DC2626" />;
+    } else {
+      return <File size={24} color="#6B7280" />;
+    }
+  };
+
+  // Helper function to get file gradient background
+  const getFileGradient = (type) => {
+    if (type.includes('pdf')) {
+      return 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)';
+    } else if (type.startsWith('image/')) {
+      return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+    } else {
+      return 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)';
+    }
+  };
 
   useEffect(() => {
     fetchDocuments();
