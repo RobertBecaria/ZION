@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { FileText, Plus, Edit2, Trash2, Upload, Save, X, Flag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { FileText, Plus, Edit2, Trash2, Upload, Save, X, Flag, File, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
 
 const MyDocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
@@ -13,6 +13,11 @@ const MyDocumentsPage = () => {
     document_data: {}
   });
   const [uploadingFile, setUploadingFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+  const fileInputRef = useRef(null);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
