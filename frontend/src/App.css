@@ -7145,6 +7145,7 @@ select:focus {
 
 .modal-content {
   position: relative;
+  z-index: 1001;
   background: white;
   border-radius: 12px;
   width: 100%;
