@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Plus, Calendar, Clock, Users, Settings, 
-  AlertCircle, MapPin, CheckCircle, UserPlus, Heart
+  AlertCircle, MapPin, CheckCircle, UserPlus, Heart,
+  MessageCircle, Share2, ThumbsUp
 } from 'lucide-react';
 
 function UniversalEventsPanel({ 
   activeGroup, 
-  moduleColor = "#059669",
+  moduleColor = "#30A67E", // Updated to match Family design
   moduleName = "Family",
   user,
   context = "wall" // "wall" or "chat"
 }) {
   const [scheduledActions, setScheduledActions] = useState([]);
   const [showActionForm, setShowActionForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('upcoming'); // 'upcoming' or 'all'
   const [actionForm, setActionForm] = useState({
     title: '',
     description: '',
