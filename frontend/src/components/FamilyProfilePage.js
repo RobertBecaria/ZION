@@ -237,14 +237,14 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
 
           <div className="mt-6 md:mt-0 flex space-x-3">
             {!isUserMember && (
-              <button className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center space-x-2">
+              <button className="px-6 py-3 text-white rounded-lg hover:opacity-90 flex items-center space-x-2" style={{ background: '#4CAF50' }}>
                 <UserPlus className="w-5 h-5" />
                 <span>Подписаться</span>
               </button>
             )}
             
             {isUserMember && (
-              <button className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center space-x-2">
+              <button className="px-6 py-3 text-white rounded-lg hover:opacity-90 flex items-center space-x-2" style={{ background: '#4CAF50' }}>
                 <Edit3 className="w-5 h-5" />
                 <span>Создать пост</span>
               </button>
