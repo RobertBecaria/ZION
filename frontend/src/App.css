@@ -6821,10 +6821,23 @@ select:focus {
 
 .my-info-page,
 .my-documents-page {
-  padding: 32px 40px;
+  padding: 32px 48px;
   width: 100%;
   height: 100%;
   overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1400px) {
+  .my-documents-page {
+    padding: 24px 32px;
+  }
+}
+
+@media (max-width: 768px) {
+  .my-documents-page {
+    padding: 16px;
+  }
 }
 
 .page-header {
