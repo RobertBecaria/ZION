@@ -263,9 +263,10 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
                 onClick={() => setActiveTab(tab)}
                 className={`py-3 px-1 border-b-2 font-medium text-sm ${
                   activeTab === tab
-                    ? 'border-green-500 text-green-600'
+                    ? 'border-green-600 text-green-700'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
+                style={activeTab === tab ? { borderColor: '#4CAF50', color: '#1A5E3B' } : {}}
               >
                 {tab === 'timeline' && 'Лента'}
                 {tab === 'members' && 'Члены семьи'}
