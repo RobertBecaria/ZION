@@ -256,6 +256,10 @@ class User(BaseModel):
     spouse_name: Optional[str] = None
     spouse_phone: Optional[str] = None
     profile_completed: bool = False
+    
+    # MY INFO MODULE FIELDS
+    name_alias: Optional[str] = None  # Display name (vs legal first_name/last_name)
+    additional_user_data: Dict[str, Any] = {}  # Extensible field for future user data
 
 # === FAMILY PROFILE SYSTEM MODELS ===
 
