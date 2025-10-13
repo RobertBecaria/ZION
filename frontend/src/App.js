@@ -877,10 +877,29 @@ function Dashboard() {
     fetchChatGroups(); // Refresh groups after creation
   };
 
-  const handleProfileComplete = (data) => {
+  const handleProfileComplete = async (data) => {
     setShowProfileCompletionModal(false);
-    // Update user data (would need to refetch user or update context)
-    window.location.reload(); // Simple refresh to get updated user data
+    
+    // Refetch user data to get updated profile_completed flag
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        // Update user in context (assuming there's a method to do this)
+        // For now, just reload to refresh user data
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Error fetching updated user:', error);
+      // Fallback to reload
+      window.location.reload();
+    }
   };
 
   const handleUpdateUser = (updatedUserData) => {
