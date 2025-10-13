@@ -121,29 +121,163 @@ const MyDocumentsPage = () => {
     }
   };
 
+  // Enhanced upload with chunked upload support
   const handleUploadScan = async (documentId, file) => {
     try {
+      // Validate file
+      const validation = validateFile(file);
+      if (!validation.isValid) {
+        setUploadError(validation.error);
+        setTimeout(() => setUploadError(null), 5000);
+        return;
+      }
+
       setUploadingFile(documentId);
+      setUploadError(null);
+      setUploadProgress({ [documentId]: 0 });
+
       const token = localStorage.getItem('zion_token');
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', file);
+      
+      // Use chunked upload for large files
+      if (file.size > 5 * 1024 * 1024) { // Files > 5MB
+        await chunkedUpload(documentId, file, token);
+      } else {
+        await simpleUpload(documentId, file, token);
+      }
+
+      // Success - refresh documents
+      await fetchDocuments();
+      setSelectedFile(null);
+      setFilePreview(null);
+      
+    } catch (error) {
+      console.error('Error uploading scan:', error);
+      setUploadError(error.message || 'Ошибка загрузки файла');
+      setTimeout(() => setUploadError(null), 5000);
+    } finally {
+      setUploadingFile(null);
+      setUploadProgress({});
+    }
+  };
+
+  // Simple upload for smaller files
+  const simpleUpload = async (documentId, file, token) => {
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+
+    const response = await fetch(`${BACKEND_URL}/api/my-documents/${documentId}/upload-scan`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+      body: formDataUpload
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Upload failed' }));
+      throw new Error(error.detail || 'Upload failed');
+    }
+
+    setUploadProgress({ [documentId]: 100 });
+  };
+
+  // Chunked upload for larger files
+  const chunkedUpload = async (documentId, file, token) => {
+    const chunkSize = 1 * 1024 * 1024; // 1MB chunks
+    const totalChunks = Math.ceil(file.size / chunkSize);
+    
+    for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+      const start = chunkIndex * chunkSize;
+      const end = Math.min(start + chunkSize, file.size);
+      const chunk = file.slice(start, end);
+
+      const formData = new FormData();
+      formData.append('file', chunk);
+      formData.append('chunk_index', chunkIndex);
+      formData.append('total_chunks', totalChunks);
+      formData.append('original_filename', file.name);
 
       const response = await fetch(`${BACKEND_URL}/api/my-documents/${documentId}/upload-scan`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
-        body: formDataUpload
+        body: formData
       });
 
-      if (response.ok) {
-        await fetchDocuments();
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Chunk upload failed' }));
+        throw new Error(error.detail || `Chunk ${chunkIndex + 1} upload failed`);
       }
-    } catch (error) {
-      console.error('Error uploading scan:', error);
-    } finally {
-      setUploadingFile(null);
+
+      // Update progress
+      const progress = Math.round(((chunkIndex + 1) / totalChunks) * 100);
+      setUploadProgress({ [documentId]: progress });
     }
+  };
+
+  // Validate file type and size
+  const validateFile = (file) => {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = [
+      'application/pdf',
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp'
+    ];
+
+    if (!file) {
+      return { isValid: false, error: 'Файл не выбран' };
+    }
+
+    if (file.size > MAX_SIZE) {
+      return { 
+        isValid: false, 
+        error: `Файл слишком большой. Максимальный размер: ${MAX_SIZE / (1024 * 1024)}MB` 
+      };
+    }
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return { 
+        isValid: false, 
+        error: 'Неподдерживаемый тип файла. Разрешены: PDF, JPG, PNG, GIF, WEBP' 
+      };
+    }
+
+    return { isValid: true };
+  };
+
+  // Handle file selection with preview
+  const handleFileSelect = (documentId, event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Validate file
+    const validation = validateFile(file);
+    if (!validation.isValid) {
+      setUploadError(validation.error);
+      setTimeout(() => setUploadError(null), 5000);
+      return;
+    }
+
+    setSelectedFile({ documentId, file });
+    setUploadError(null);
+
+    // Generate preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
+    }
+
+    // Auto-upload
+    handleUploadScan(documentId, file);
   };
 
   const resetForm = () => {
