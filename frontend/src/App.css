@@ -1148,13 +1148,15 @@ body {
 }
 
 .main-content-area {
-  flex: 0 0 68%;
+  flex: 0 0 72%;
   min-width: 0;
+  max-width: 72%;
 }
 
 .events-panel-area {
-  flex: 0 0 32%;
+  flex: 0 0 28%;
   min-width: 0;
+  max-width: 28%;
 }
 
 /* ============================================
