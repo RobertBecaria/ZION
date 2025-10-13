@@ -666,11 +666,11 @@ body {
 .main-container {
   display: flex;
   flex: 1;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
   width: 100%;
-  gap: 1.25rem;
-  padding: 1.25rem;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
   min-height: calc(100vh - 80px);
   align-items: flex-start;
 }
