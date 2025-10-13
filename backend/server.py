@@ -845,6 +845,108 @@ class HouseholdResponse(BaseModel):
 
 # === END NEW FAMILY SYSTEM MODELS ===
 
+# === MY INFO MODULE MODELS ===
+
+class DocumentType(str, Enum):
+    """Types of legal documents"""
+    PASSPORT = "PASSPORT"  # Internal passport
+    TRAVELING_PASSPORT = "TRAVELING_PASSPORT"  # International passport
+    DRIVERS_LICENSE = "DRIVERS_LICENSE"  # Driver's license
+    
+class UserDocument(BaseModel):
+    """User legal documents (passports, driver's license, etc.)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    document_type: DocumentType
+    
+    # Common fields
+    country: str  # Country that issued the document
+    document_number: Optional[str] = None
+    
+    # Document-specific data stored as flexible dict for extensibility
+    # Examples:
+    # - PASSPORT: {"series": "45 24", "issued_by": "...", "issue_date": "...", "department_code": "..."}
+    # - TRAVELING_PASSPORT: {"first_name": "...", "last_name": "...", "issue_date": "...", "expiry_date": "..."}
+    # - DRIVERS_LICENSE: {"license_number": "...", "issue_date": "...", "expires": "...", "categories": "..."}
+    document_data: Dict[str, Any] = {}
+    
+    # Scan file reference (using existing media system)
+    scan_file_id: Optional[str] = None  # Reference to MediaFile
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class UserDocumentCreate(BaseModel):
+    """Request to create a new document"""
+    document_type: DocumentType
+    country: str
+    document_number: Optional[str] = None
+    document_data: Dict[str, Any] = {}
+
+class UserDocumentUpdate(BaseModel):
+    """Request to update an existing document"""
+    country: Optional[str] = None
+    document_number: Optional[str] = None
+    document_data: Optional[Dict[str, Any]] = None
+
+class UserDocumentResponse(BaseModel):
+    """Response model for user document"""
+    id: str
+    document_type: DocumentType
+    country: str
+    document_number: Optional[str]
+    document_data: Dict[str, Any]
+    scan_file_id: Optional[str]
+    scan_file_url: Optional[str]  # Full URL to scan if available
+    created_at: datetime
+    updated_at: datetime
+
+class MyInfoUpdate(BaseModel):
+    """Update MY INFO data (name alias, additional fields)"""
+    name_alias: Optional[str] = None  # Display name (vs legal name)
+    additional_user_data: Optional[Dict[str, Any]] = None  # Future extensibility
+    
+class MyInfoResponse(BaseModel):
+    """Complete MY INFO response"""
+    id: str
+    email: str
+    
+    # Name fields
+    first_name: str
+    last_name: str
+    middle_name: Optional[str]
+    name_alias: Optional[str]  # Display name
+    
+    # Personal info
+    phone: Optional[str]
+    date_of_birth: Optional[datetime]
+    
+    # Address
+    address_street: Optional[str]
+    address_city: Optional[str]
+    address_state: Optional[str]
+    address_country: Optional[str]
+    address_postal_code: Optional[str]
+    
+    # Marriage info
+    marriage_status: Optional[str]
+    spouse_name: Optional[str]
+    spouse_phone: Optional[str]
+    
+    # Profile status
+    profile_completed: bool
+    
+    # Extensibility
+    additional_user_data: Dict[str, Any]
+    
+    # Metadata
+    created_at: datetime
+    updated_at: datetime
+
+# === END MY INFO MODULE MODELS ===
+
 class MediaUploadResponse(BaseModel):
     id: str
     original_filename: str
