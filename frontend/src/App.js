@@ -1277,66 +1277,17 @@ function Dashboard() {
                     )}
                   </div>
 
-                  {/* Right Sidebar - Events Panel or MY INFO Gadgets */}
-                  {!(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations') && (
+                  {/* Right Sidebar - Events Panel */}
+                  {!(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations' || activeView === 'my-info' || activeView === 'my-documents') && (
                     <div className="events-panel-area">
-                      {/* MY INFO Pages - Show Info Gadgets */}
-                      {(activeView === 'my-info' || activeView === 'my-documents') ? (
-                        <div className="info-gadgets-sidebar">
-                          {/* Info Gadget for MY INFO */}
-                          {activeView === 'my-info' && (
-                            <div className="info-gadget">
-                              <div className="gadget-icon">ℹ️</div>
-                              <div className="gadget-title">О Профиле</div>
-                              <div className="gadget-content">
-                                <p>
-                                  <strong>Централизованные данные</strong><br/>
-                                  Эта страница показывает все ваши персональные данные в одном месте.
-                                </p>
-                                <p>
-                                  <strong>Изменение данных</strong><br/>
-                                  Для обновления адреса и семейного положения используйте модуль <strong>Семья</strong>.
-                                </p>
-                                <p>
-                                  <strong>Использование</strong><br/>
-                                  Ваши данные используются в 8 разделах платформы для персонализации функций.
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                          
-                          {/* Info Gadget for MY DOCUMENTS */}
-                          {activeView === 'my-documents' && (
-                            <div className="info-gadget">
-                              <div className="gadget-icon">🔒</div>
-                              <div className="gadget-title">Конфиденциальность</div>
-                              <div className="gadget-content">
-                                <p>
-                                  <strong>Защита данных</strong><br/>
-                                  Все ваши документы надежно зашифрованы и видны только вам.
-                                </p>
-                                <p>
-                                  <strong>Приватность сканов</strong><br/>
-                                  Скан-копии документов отображаются только в разделе "МОИ ДОКУМЕНТЫ" и не появляются в галерее фотографий.
-                                </p>
-                                <p>
-                                  <strong>Контроль доступа</strong><br/>
-                                  Только вы можете просматривать и управлять своими документами.
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        /* Regular Events Panel for other views */
-                        <UniversalEventsPanel
-                          activeGroup={activeGroup}
-                          moduleColor={currentModule.color}
-                          moduleName={currentModule.name}
-                          user={user}
-                          context={activeView}
-                        />
-                      )}
+                      {/* Regular Events Panel for other views */}
+                      <UniversalEventsPanel
+                        activeGroup={activeGroup}
+                        moduleColor={currentModule.color}
+                        moduleName={currentModule.name}
+                        user={user}
+                        context={activeView}
+                      />
                     </div>
                   )}
                 </div>
