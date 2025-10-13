@@ -3804,22 +3804,22 @@ select:focus {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   overflow-y: auto;
-  max-height: 500px;
+  max-height: 600px;
 }
 
 .event-card {
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .event-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
 }
 
 .event-card.completed {
@@ -3828,43 +3828,43 @@ select:focus {
 
 /* Event Card Header (Gradient with Icon) */
 .event-card-header {
-  padding: 24px;
+  padding: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 120px;
+  min-height: 140px;
 }
 
 .event-icon-large {
   color: white;
-  font-size: 48px;
+  font-size: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .event-icon-large svg {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   stroke-width: 1.5;
 }
 
 /* Event Card Content */
 .event-card-content {
-  padding: 20px;
+  padding: 24px;
 }
 
 .event-time {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: #9E9E9E;
-  font-size: 13px;
+  font-size: 14px;
   margin-bottom: 12px;
 }
 
 .event-title {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
   color: #1A5E3B;
   margin: 0 0 12px 0;
@@ -3872,27 +3872,27 @@ select:focus {
 }
 
 .event-description {
-  font-size: 15px;
+  font-size: 16px;
   color: #4A4A4A;
   line-height: 1.6;
-  margin: 0 0 16px 0;
+  margin: 0 0 20px 0;
 }
 
 .event-meta-info {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
   border-bottom: 1px solid #F3F4F6;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: #65676B;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* Event Actions (Like, Comment, Share, Join) */
