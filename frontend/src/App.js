@@ -1069,7 +1069,32 @@ function Dashboard() {
               </a>
             </div>
 
-
+            {/* MY INFO Module */}
+            <div className="nav-group">
+              <div className="nav-group-label">МОЯ ИНФОРМАЦИЯ</div>
+              <a 
+                href="#" 
+                className={`nav-item ${activeView === 'my-info' ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView('my-info');
+                }}
+              >
+                <User size={20} />
+                <span>Профиль</span>
+              </a>
+              <a 
+                href="#" 
+                className={`nav-item ${activeView === 'my-documents' ? 'active' : ''}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveView('my-documents');
+                }}
+              >
+                <FileText size={20} />
+                <span>Документы</span>
+              </a>
+            </div>
             
             <a href="#" className="nav-item">
               <Settings size={20} />
