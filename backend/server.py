@@ -1511,7 +1511,15 @@ async def get_current_user_profile(current_user: User = Depends(get_current_user
         is_verified=current_user.is_verified,
         privacy_settings=current_user.privacy_settings,
         created_at=current_user.created_at,
-        affiliations=affiliations
+        affiliations=affiliations,
+        # Family system fields
+        address_street=current_user.address_street,
+        address_city=current_user.address_city,
+        address_state=current_user.address_state,
+        address_country=current_user.address_country,
+        address_postal_code=current_user.address_postal_code,
+        marriage_status=current_user.marriage_status,
+        profile_completed=current_user.profile_completed
     )
 
 @api_router.post("/onboarding")
