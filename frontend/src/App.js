@@ -730,6 +730,7 @@ function Dashboard() {
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeView, setActiveView] = useState('wall'); // 'wall' or 'chat'
+  const [notifications, setNotifications] = useState([]); // For header notifications badge
   
   // NEW FAMILY SYSTEM STATES
   const [showProfileCompletionModal, setShowProfileCompletionModal] = useState(false);
