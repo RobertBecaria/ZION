@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useLightbox } from '../hooks/useLightbox';
 import LightboxModal from './LightboxModal';
+import { triggerConfetti, toast } from '../utils/animations';
 
 const MediaStorage = ({ 
   mediaType = 'photos', // 'photos', 'documents', 'videos'
