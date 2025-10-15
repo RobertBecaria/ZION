@@ -631,15 +631,51 @@ body {
    MAIN DASHBOARD LAYOUT
 ============================================ */
 
-/* Top Navigation - Clean & Modern */
+/* Top Navigation - Enhanced with Dynamic Module Colors */
 .top-nav {
   background: white;
-  border-bottom: 1px solid #E4E6EA;
+  border-bottom: 2px solid #E4E6EA;
   padding: 0.75rem 0;
   position: sticky;
   top: 0;
   z-index: 100;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated gradient background overlay */
+.top-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    currentColor 0%, 
+    transparent 50%, 
+    currentColor 100%);
+  opacity: 0.08;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+/* Accent border at bottom */
+.top-nav::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    currentColor 0%, 
+    transparent 50%, 
+    currentColor 100%);
+  opacity: 0.4;
+  transition: all 0.5s ease;
 }
 
 .nav-content {
@@ -650,6 +686,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .logo-section {
@@ -662,46 +700,113 @@ body {
   width: 36px;
   height: 36px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  filter: grayscale(0);
+}
+
+/* Logo tints with module color on hover */
+.nav-logo:hover {
+  transform: scale(1.05) rotate(3deg);
+  filter: drop-shadow(0 4px 8px currentColor);
 }
 
 .logo-section .platform-logo {
   font-size: 1.5rem;
-  font-weight: 800;
-  color: #1877F2;
+  font-weight: var(--font-weight-extrabold);
   margin: 0;
   letter-spacing: -0.02em;
+  background: linear-gradient(135deg, currentColor 0%, currentColor 60%, rgba(0, 0, 0, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transition: all 0.5s ease;
 }
 
 .module-navigation {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
   flex: 1;
   justify-content: center;
 }
 
+/* Enhanced module buttons with color theming */
 .nav-module {
   background: none;
   border: none;
-  padding: 0.75rem 1.25rem;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
-  color: #65676B;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--gray-600);
   position: relative;
+  overflow: hidden;
+}
+
+/* Shimmer effect on hover */
+.nav-module::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-module:hover::before {
+  left: 100%;
 }
 
 .nav-module:hover {
-  background: #F0F2F5;
-  color: #1C1E21;
+  background: linear-gradient(135deg, currentColor 0.12, currentColor 0.08);
+  color: var(--gray-900);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Active module with full color + glow effect */
+.nav-module.active {
+  color: white;
+  background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
+  box-shadow: 0 4px 16px currentColor,
+              0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Pulse animation for active module */
+@keyframes module-pulse {
+  0%, 100% {
+    box-shadow: 0 4px 16px currentColor,
+                0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 0 6px 24px currentColor,
+                0 4px 12px rgba(0, 0, 0, 0.15);
+  }
 }
 
 .nav-module.active {
-  color: white;
-  background: #1877F2;
+  animation: module-pulse 2s ease-in-out infinite;
+}
+
+/* Underline indicator for active */
+.nav-module.active::after {
+  content: '';
+  position: absolute;
+  bottom: -0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
 }
 
 .user-section {
@@ -715,9 +820,12 @@ body {
   flex-direction: column;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: #F0F2F5;
-  border-radius: 8px;
+  background: linear-gradient(135deg, currentColor 0.08, transparent);
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid currentColor;
+  border-opacity: 0.1;
   transition: all 0.2s ease;
   border: 1px solid #E4E6EA;
 }
