@@ -914,8 +914,10 @@ function Dashboard() {
     year: 'numeric'
   });
 
+  // Enhanced sidebar tint with vibrant module colors
   const sidebarTintStyle = {
-    background: `linear-gradient(135deg, ${currentModule.color}05 0%, ${currentModule.color}02 100%)`,
+    background: `linear-gradient(135deg, ${currentModule.color}15 0%, ${currentModule.color}08 50%, ${currentModule.color}12 100%)`,
+    borderColor: `${currentModule.color}20`,
   };
 
   const getUserAffiliationsByType = (type) => {
