@@ -900,7 +900,6 @@ body {
 .profile-card:hover .profile-avatar {
   transform: scale(1.05) rotate(5deg);
 }
-}
 
 .profile-info {
   flex: 1;
