@@ -161,8 +161,27 @@ const MediaStorage = ({
       await fetchMedia();
       
       console.log(`Successfully uploaded ${uploadedFiles.length} files`);
+      
+      // 🎉 Trigger confetti celebration for successful uploads!
+      if (uploadedFiles.length > 0) {
+        triggerConfetti(document.body, {
+          particleCount: uploadedFiles.length * 15, // More files = more confetti!
+          colors: ['#10B981', '#059669', '#34D399', '#3B82F6', '#F59E0B', '#EC4899']
+        });
+        
+        // Show success toast
+        const fileType = mediaType === 'photos' ? 'фото' : 
+                        mediaType === 'videos' ? 'видео' : 'файлов';
+        toast.success(
+          `Успешно загружено ${uploadedFiles.length} ${fileType}!`, 
+          'Отлично!',
+          { duration: 4000 }
+        );
+      }
     } catch (error) {
       console.error('Error uploading files:', error);
+      // Show error toast
+      toast.error('Ошибка при загрузке файлов', 'Ошибка');
     } finally {
       setUploading(false);
       setUploadProgress(0);
