@@ -928,8 +928,8 @@ function Dashboard() {
 
   return (
     <div className="app">
-      {/* Top Navigation Bar */}
-      <nav className="top-nav">
+      {/* Top Navigation Bar with Dynamic Module Colors */}
+      <nav className="top-nav" style={{ color: currentModule.color }}>
         <div className="nav-content">
           <div className="logo-section">
             <img src="/zion-logo.jpeg" alt="ZION.CITY Logo" className="nav-logo" />
@@ -943,7 +943,9 @@ function Dashboard() {
                 className={`nav-module ${activeModule === module.key ? 'active' : ''}`}
                 onClick={() => setActiveModule(module.key)}
                 style={{
-                  backgroundColor: activeModule === module.key ? module.color : undefined
+                  color: activeModule === module.key ? 'white' : module.color,
+                  backgroundColor: activeModule === module.key ? module.color : undefined,
+                  borderColor: `${module.color}20`
                 }}
               >
                 {module.name}
