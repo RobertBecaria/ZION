@@ -173,6 +173,17 @@ const MyDocumentsPage = () => {
       setSelectedFile(null);
       setFilePreview(null);
       
+      // 🎉 Trigger confetti celebration!
+      triggerConfetti(document.body, {
+        particleCount: 60,
+        colors: ['#10B981', '#059669', '#34D399', '#F59E0B', '#FBBF24']
+      });
+      
+      // Show success toast
+      toast.success('Документ успешно загружен!', 'Готово', {
+        duration: 4000
+      });
+      
     } catch (error) {
       console.error('Error uploading scan:', error);
       setUploadError(error.message || 'Ошибка загрузки файла');
