@@ -771,12 +771,11 @@ body {
 
 /* Active module with full color + glow effect */
 .nav-module.active {
-  color: white;
-  background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
-  box-shadow: 0 4px 16px currentColor,
-              0 2px 8px rgba(0, 0, 0, 0.1);
+  color: white !important;
   transform: translateY(-2px);
   font-weight: var(--font-weight-bold);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+              0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* Pulse animation for active module */
