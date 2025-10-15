@@ -1143,14 +1143,6 @@ body {
   color: var(--gray-500);
   font-weight: var(--font-weight-normal);
 }
-  border-color: #1877F2;
-  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.1);
-}
-
-.search-input::placeholder {
-  color: var(--gray-500);
-  font-weight: var(--font-weight-normal);
-}
 
 /* Filter Widget - Modern Button Design */
 .filter-row {
