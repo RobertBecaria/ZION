@@ -943,12 +943,15 @@ body {
 .left-sidebar {
   width: 280px;
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   padding: 1.5rem;
-  height: fit-content;
+  min-height: calc(100vh - 62px);
   position: sticky;
-  top: 100px;
+  top: 62px;
   border: 1px solid #E4E6EA;
+  border-top: none;
+  border-left: none;
+  border-bottom: none;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.3s ease;
   flex-shrink: 0;
