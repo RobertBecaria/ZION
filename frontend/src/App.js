@@ -1351,6 +1351,29 @@ function Dashboard() {
                   <span className="hashtag">#работа</span>
                 </div>
               </div>
+
+              {/* User Affiliations Widget - For WALL view */}
+              {user.affiliations && user.affiliations.length > 0 && (
+                <div className="widget affiliations-widget">
+                  <div className="widget-header">
+                    <Briefcase size={16} />
+                    <span>Мои Роли</span>
+                  </div>
+                  <div className="affiliations-list">
+                    {user.affiliations.slice(0, 5).map((affiliation) => (
+                      <div key={affiliation.id} className="affiliation-item">
+                        <div className="affiliation-icon" style={{ backgroundColor: currentModule.color }}>
+                          <Building size={14} color="white" />
+                        </div>
+                        <div className="affiliation-info">
+                          <span className="affiliation-name">{affiliation.affiliation.name}</span>
+                          <span className="affiliation-role">{affiliation.user_role_in_org}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
 
