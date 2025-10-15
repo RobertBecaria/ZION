@@ -180,8 +180,17 @@ function UniversalWall({
           modal.style.transform = 'scale(1)';
         }, 200);
         
-        // Show success feedback
-        // You could add a toast notification here
+        // 🎉 Show success feedback with confetti!
+        triggerConfetti(document.body, {
+          particleCount: 40,
+          colors: ['#10B981', '#3B82F6', '#F59E0B', '#EC4899', '#8B5CF6']
+        });
+        
+        toast.success(
+          'Ваш пост успешно опубликован!',
+          'Успех!',
+          { duration: 3500 }
+        );
         
       } else {
         const errorData = await response.json().catch(() => ({ detail: 'Unknown error' }));
