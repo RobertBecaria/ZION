@@ -1674,7 +1674,10 @@ function Dashboard() {
                   </button>
                   <button 
                     className="quick-action-btn"
-                    onClick={() => setShowFamilyPostComposer(true)}
+                    onClick={() => {
+                      // TODO: Open family post composer
+                      console.log('Family post clicked');
+                    }}
                   >
                     <MessageCircle size={16} />
                     <span>Семейный пост</span>
