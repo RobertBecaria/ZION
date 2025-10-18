@@ -2183,6 +2183,61 @@ body {
   transform: none;
 }
 
+/* Form Footer - Visibility Selector + Submit Button */
+.form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem 1.25rem 1.5rem;
+  border-top: 1px solid #E4E6EA;
+  margin-top: 1rem;
+}
+
+.visibility-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.visibility-label {
+  font-size: 0.9rem;
+  color: #65676B;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.visibility-dropdown {
+  flex: 1;
+  max-width: 250px;
+  padding: 0.5rem 0.875rem;
+  border: 2px solid #E4E6EA;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #1C1E21;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.visibility-dropdown:hover {
+  border-color: currentColor;
+  background: #F7F8FA;
+}
+
+.visibility-dropdown:focus {
+  border-color: currentColor;
+  box-shadow: 0 0 0 3px rgba(66, 184, 131, 0.1);
+}
+
+.visibility-dropdown option {
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
 /* File Upload Indicator */
 .file-count-badge {
   position: absolute;
