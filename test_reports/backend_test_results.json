@@ -1,65 +1,65 @@
 {
   "total_tests": 9,
-  "passed_tests": 2,
-  "failed_tests": 7,
-  "success_rate": 22.22222222222222,
+  "passed_tests": 6,
+  "failed_tests": 3,
+  "success_rate": 66.66666666666666,
   "test_results": [
     {
       "test_name": "API Endpoints Connectivity",
       "success": false,
       "details": "",
-      "timestamp": "2025-10-18T12:00:07.132824"
+      "timestamp": "2025-10-18T12:02:01.445595"
     },
     {
       "test_name": "User Registration",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:00:07.451608"
+      "timestamp": "2025-10-18T12:02:01.714830"
     },
     {
       "test_name": "Create Family Profile",
-      "success": false,
-      "details": "Response: {'raw_response': 'Internal Server Error', 'status_code': 500, 'expected_status': 200}",
-      "timestamp": "2025-10-18T12:00:07.504325"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-18T12:02:01.753797"
     },
     {
       "test_name": "Family Basic Info Update",
-      "success": false,
-      "details": "No family_id available",
-      "timestamp": "2025-10-18T12:00:07.504340"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-18T12:02:01.797586"
     },
     {
       "test_name": "User Search",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:00:07.547207"
+      "timestamp": "2025-10-18T12:02:01.960917"
     },
     {
       "test_name": "Get Family Members",
-      "success": false,
-      "details": "No family_id available",
-      "timestamp": "2025-10-18T12:00:07.547222"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-18T12:02:02.001651"
     },
     {
-      "test_name": "Add Family Member",
+      "test_name": "Add Family Member (Error Handling)",
       "success": false,
-      "details": "No family_id available",
-      "timestamp": "2025-10-18T12:00:07.547226"
+      "details": "Unexpected response: {'detail': '404: User not found', 'status_code': 500, 'expected_status': 400}",
+      "timestamp": "2025-10-18T12:02:02.044852"
     },
     {
       "test_name": "Family Privacy Update",
-      "success": false,
-      "details": "No family_id available",
-      "timestamp": "2025-10-18T12:00:07.547234"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-18T12:02:02.082404"
     },
     {
       "test_name": "Family Delete",
       "success": false,
-      "details": "No family_id available",
-      "timestamp": "2025-10-18T12:00:07.547238"
+      "details": "Response: {'detail': '403: Only family creator can delete the family', 'status_code': 500, 'expected_status': 200}",
+      "timestamp": "2025-10-18T12:02:02.120982"
     }
   ],
-  "test_user_email": "test_family_120007@example.com",
-  "family_id": null,
-  "user_id": "c0d75ffa-4832-4a85-847d-8f138fde221d"
+  "test_user_email": "test_family_120201@example.com",
+  "family_id": "46bf439e-6795-4787-a812-47000e58fccd",
+  "user_id": "bb235b59-faaa-4015-9276-b720bd621a5b"
 }
