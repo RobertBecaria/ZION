@@ -15,7 +15,8 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
   });
 
   // Members State
-  const [members, setMembers] = useState(family?.members || []);
+  const [members, setMembers] = useState([]);
+  const [loadingMembers, setLoadingMembers] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
