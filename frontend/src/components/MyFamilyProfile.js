@@ -129,11 +129,18 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
       <div className="profile-header" style={{ '--module-color': moduleColor }}>
         {/* Banner */}
         <div className="profile-banner">
-          <div className="banner-image" style={{ background: `linear-gradient(135deg, ${moduleColor}20 0%, ${moduleColor}40 100%)` }}>
+          <div className="banner-image" style={{ 
+            background: family.banner_url 
+              ? `url(${family.banner_url}) center/cover` 
+              : `linear-gradient(135deg, ${moduleColor}20 0%, ${moduleColor}40 100%)`
+          }}>
             {/* Banner upload button */}
-            <button className="banner-upload-btn" title="Изменить баннер">
-              <Camera size={20} />
-            </button>
+            <ProfileImageUpload
+              type="banner"
+              currentImage={family.banner_url}
+              onUploadComplete={handleBannerUpload}
+              moduleColor={moduleColor}
+            />
           </div>
         </div>
 
