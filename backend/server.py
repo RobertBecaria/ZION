@@ -1767,10 +1767,18 @@ async def get_user_family_profiles(current_user: User = Depends(get_current_user
     for membership in family_memberships:
         family = await db.family_profiles.find_one({"id": membership["family_id"]})
         if family:
-            family_response = FamilyProfileResponse(**family)
-            family_response.is_user_member = True
-            family_response.user_role = FamilyRole(membership["family_role"])
-            families.append(family_response)
+            # Remove MongoDB's _id field before creating response
+            family_dict = {k: v for k, v in family.items() if k != '_id'}
+            
+            try:
+                family_response = FamilyProfileResponse(**family_dict)
+                family_response.is_user_member = True
+                family_response.user_role = FamilyRole(membership["family_role"])
+                families.append(family_response)
+            except Exception as e:
+                print(f"Error creating family response: {str(e)}")
+                print(f"Family data keys: {family_dict.keys()}")
+                continue
     
     return {"family_profiles": families}
 
