@@ -1980,6 +1980,52 @@ async def search_users(
         print(f"User search error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.get("/family/{family_id}/members")
+async def get_family_members_list(
+    family_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get list of family members with user info"""
+    try:
+        # Check if user is member/admin
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a family member")
+        
+        # Get all family members
+        members = await db.family_members.find({
+            "family_id": family_id,
+            "is_active": True
+        }).to_list(100)
+        
+        # Enrich with user data
+        member_list = []
+        for member in members:
+            user = await db.users.find_one({"id": member["user_id"]})
+            if user:
+                member_list.append({
+                    "id": member["id"],
+                    "user_id": member["user_id"],
+                    "name": user.get("name", ""),
+                    "surname": user.get("surname", ""),
+                    "email": user.get("email", ""),
+                    "relationship": member.get("relationship", "member"),
+                    "family_role": member.get("family_role", "MEMBER"),
+                    "is_creator": member.get("is_creator", False),
+                    "joined_at": member.get("joined_at")
+                })
+        
+        return {"success": True, "members": member_list}
+        
+    except Exception as e:
+        print(f"Get members error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/family/{family_id}/members")
 async def add_family_member(
     family_id: str,
