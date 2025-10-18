@@ -1332,12 +1332,34 @@ function Dashboard() {
                     ) : (
                       <>
                         {activeModule === 'family' && (
-                          <ErrorBoundary>
-                            <FamilyTriggerFlow
-                              user={user}
-                              onUpdateUser={handleUpdateUser}
-                            />
-                          </ErrorBoundary>
+                          <>
+                            {(activeView === 'wall' || activeView === 'feed') ? (
+                              <>
+                                <ErrorBoundary>
+                                  <FamilyTriggerFlow
+                                    user={user}
+                                    onUpdateUser={handleUpdateUser}
+                                  />
+                                </ErrorBoundary>
+                                <UniversalWall
+                                  activeGroup={activeGroup}
+                                  moduleColor={currentModule.color}
+                                  moduleName={currentModule.name}
+                                  activeModule={activeModule}
+                                  user={user}
+                                />
+                              </>
+                            ) : (
+                              <UniversalChatLayout
+                                activeGroup={activeGroup}
+                                chatGroups={chatGroups}
+                                onGroupSelect={handleGroupSelect}
+                                moduleColor={currentModule.color}
+                                onCreateGroup={handleCreateGroup}
+                                user={user}
+                              />
+                            )}
+                          </>
                         )}
 
                         {activeModule === 'organizations' && (
