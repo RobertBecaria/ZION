@@ -521,14 +521,17 @@ function UniversalWall({
   };
 
   const showPostForm = () => {
-    document.querySelector('.modal-overlay').style.display = 'flex';
-    // Focus on textarea after modal animation
-    setTimeout(() => {
-      const textarea = document.querySelector('.post-textarea');
-      if (textarea) {
-        textarea.focus();
-      }
-    }, 100);
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+      modal.style.display = 'flex';
+      // Focus on textarea after modal animation
+      setTimeout(() => {
+        const textarea = document.querySelector('.post-textarea');
+        if (textarea) {
+          textarea.focus();
+        }
+      }, 100);
+    }
   };
 
   const renderComment = (comment, postId, level = 0) => (
