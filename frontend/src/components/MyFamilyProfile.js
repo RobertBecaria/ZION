@@ -10,6 +10,60 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const [family, setFamily] = useState(familyData || null);
   const [loading, setLoading] = useState(true);
 
+  const handleBannerUpload = async (base64Image) => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/family-profiles/${family.id}/banner`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ banner_image: base64Image })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setFamily({ ...family, banner_url: base64Image });
+        alert('✅ Баннер обновлен!');
+      } else {
+        throw new Error('Failed to upload banner');
+      }
+    } catch (error) {
+      console.error('Banner upload error:', error);
+      throw error;
+    }
+  };
+
+  const handleAvatarUpload = async (base64Image) => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      const response = await fetch(`${backendUrl}/api/family-profiles/${family.id}/avatar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ avatar_image: base64Image })
+      });
+
+      if (response.ok) {
+        // Update local state
+        setFamily({ ...family, family_photo_url: base64Image });
+        alert('✅ Аватар обновлен!');
+      } else {
+        throw new Error('Failed to upload avatar');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     // Load family data if not provided
     if (!familyData) {
