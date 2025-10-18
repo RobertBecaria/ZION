@@ -10549,3 +10549,283 @@ select:focus {
   }
 }
 
+/* ============================================
+   HOUSEHOLD SECTION
+============================================ */
+
+.household-section {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin: 2rem 0;
+  border: 1px solid #E4E6EA;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.household-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.household-header .header-icon {
+  flex-shrink: 0;
+}
+
+.household-header h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1C1E21;
+  margin: 0 0 0.5rem 0;
+}
+
+.household-description {
+  color: #65676B;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 1rem 0 1.5rem 0;
+  max-width: 700px;
+}
+
+.household-address {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #65676B;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+}
+
+.create-household-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--module-color, #059669);
+  color: white;
+  border: none;
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+}
+
+.create-household-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.household-form {
+  margin-top: 1.5rem;
+}
+
+.household-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.household-form .form-group label {
+  display: block;
+  font-weight: 600;
+  color: #1C1E21;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.household-form .form-group input,
+.household-form .form-group select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #E4E6EA;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.household-form .form-group input:focus,
+.household-form .form-group select:focus {
+  outline: none;
+  border-color: var(--module-color, #059669);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E4E6EA;
+}
+
+.cancel-btn {
+  padding: 0.875rem 1.5rem;
+  border: 2px solid #E4E6EA;
+  background: white;
+  color: #65676B;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: #F7F8FA;
+  border-color: #CED0D4;
+}
+
+.submit-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background: var(--module-color, #059669);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.household-members {
+  margin-top: 2rem;
+}
+
+.members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.members-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1C1E21;
+  margin: 0;
+}
+
+.add-member-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: 2px solid var(--module-color, #059669);
+  color: var(--module-color, #059669);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-member-btn:hover {
+  background: var(--module-color, #059669);
+  color: white;
+}
+
+.member-search-box {
+  background: #F7F8FA;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: white;
+  border: 2px solid #E4E6EA;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper:focus-within {
+  border-color: var(--module-color, #059669);
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  background: transparent;
+}
+
+.search-input-wrapper button {
+  background: none;
+  border: none;
+  color: #65676B;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.search-input-wrapper button:hover {
+  background: #F0F2F5;
+  color: #1C1E21;
+}
+
+.search-results-list {
+  margin-top: 1rem;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #E4E6EA;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 2rem;
+  color: #65676B;
+  font-size: 1rem;
+}
+
+.creator-badge {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .household-section {
+    padding: 1.5rem;
+  }
+  
+  .household-header {
+    flex-direction: column;
+  }
+}
+
