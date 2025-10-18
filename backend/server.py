@@ -750,6 +750,43 @@ class HouseholdProfile(BaseModel):
     
     is_active: bool = True
 
+class HouseholdMember(BaseModel):
+    """Individual member of a household"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    household_id: str
+    user_id: Optional[str] = None  # Linked user account
+    name: str
+    surname: Optional[str] = None
+    relationship: str = "member"  # roommate, tenant, family_member, other
+    is_creator: bool = False
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class HouseholdCreateRequest(BaseModel):
+    """Request to create a household"""
+    household_name: str
+    address_street: str
+    address_city: str
+    address_state: Optional[str] = None
+    address_country: str
+    address_postal_code: Optional[str] = None
+    members: List[dict] = []  # Initial members
+
+class HouseholdResponse(BaseModel):
+    """Response model for household"""
+    id: str
+    household_name: str
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    creator_id: str
+    member_count: int = 0
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool = True
+
 class Vote(BaseModel):
     """Individual vote on join request"""
     user_id: str
