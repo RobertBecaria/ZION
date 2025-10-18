@@ -448,7 +448,9 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
             {/* Current Members List */}
             <div className="members-list-section">
               <h3>Текущие члены ({members.length})</h3>
-              {members.length === 0 ? (
+              {loadingMembers ? (
+                <div className="searching-indicator">Загрузка...</div>
+              ) : members.length === 0 ? (
                 <div className="empty-members">
                   <Users size={48} color="#9ca3af" />
                   <p>Пока нет членов семьи</p>
@@ -462,19 +464,33 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
                           {member.name?.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div className="member-name">{member.name} {member.surname}</div>
-                          <div className="member-relationship">{member.relationship}</div>
+                          <div className="member-name">
+                            {member.name} {member.surname}
+                            {member.is_creator && <span style={{ 
+                              marginLeft: '0.5rem', 
+                              fontSize: '0.75rem', 
+                              color: moduleColor,
+                              fontWeight: 'bold'
+                            }}>• Создатель</span>}
+                          </div>
+                          <div className="member-relationship">
+                            {member.relationship || member.family_role}
+                          </div>
                         </div>
                       </div>
-                      <button 
-                        className="remove-member-btn"
-                        onClick={() => removeMember(member.id)}
-                        title="Удалить из семьи"
-                      >
-                        <X size={16} />
-                      </button>
+                      {!member.is_creator && (
+                        <button 
+                          className="remove-member-btn"
+                          onClick={() => removeMember(member.id)}
+                          title="Удалить из семьи"
+                        >
+                          <X size={16} />
+                        </button>
+                      )}
                     </div>
                   ))}
+                </div>
+              )}
                 </div>
               )}
             </div>
