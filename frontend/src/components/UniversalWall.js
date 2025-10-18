@@ -521,7 +521,7 @@ function UniversalWall({
   };
 
   const showPostForm = () => {
-    const modal = document.querySelector('.modal-overlay');
+    const modal = document.querySelector('.post-composer-modal');
     if (modal) {
       modal.style.display = 'flex';
       // Focus on textarea after modal animation
