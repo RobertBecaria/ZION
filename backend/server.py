@@ -1693,7 +1693,7 @@ async def create_family_with_members(
         
         # Create family profile
         new_family = {
-            "id": str(uuid4()),
+            "id": str(uuid.uuid4()),
             "name": family_name,
             "surname": surname,
             "description": description,
@@ -1713,7 +1713,7 @@ async def create_family_with_members(
         # Add family members
         for member in members:
             family_member = {
-                "id": str(uuid4()),
+                "id": str(uuid.uuid4()),
                 "family_id": new_family["id"],
                 "user_id": member.get("user_id", current_user.id),  # Use current_user.id if no user_id
                 "family_role": member.get("role", "PARENT"),
