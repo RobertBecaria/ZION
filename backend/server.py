@@ -1893,6 +1893,285 @@ async def update_family_avatar(
         print(f"Avatar upload error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# NEW: Settings Management Endpoints
+
+@api_router.put("/family/{family_id}/update")
+async def update_family_basic_info(
+    family_id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update family basic information (name, description, location)"""
+    try:
+        # Check if user is member/admin
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a family member")
+        
+        # Prepare update data
+        update_fields = {}
+        if "family_name" in data:
+            update_fields["family_name"] = data["family_name"]
+        if "description" in data:
+            update_fields["description"] = data["description"]
+            update_fields["public_bio"] = data["description"]
+        if "city" in data:
+            update_fields["city"] = data["city"]
+        if "location" in data:
+            update_fields["primary_address"] = data["location"]
+        
+        update_fields["updated_at"] = datetime.now(timezone.utc)
+        
+        result = await db.family_profiles.update_one(
+            {"id": family_id},
+            {"$set": update_fields}
+        )
+        
+        if result.modified_count > 0:
+            # Fetch updated family
+            updated_family = await db.family_profiles.find_one({"id": family_id})
+            family_dict = {k: v for k, v in updated_family.items() if k != '_id'}
+            return {"success": True, "family": family_dict, "message": "Family updated"}
+        else:
+            raise HTTPException(status_code=404, detail="Family not found")
+            
+    except Exception as e:
+        print(f"Update family error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/users/search")
+async def search_users(
+    query: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Search for users by name or email"""
+    try:
+        if len(query) < 2:
+            return {"users": []}
+        
+        # Search in users collection
+        users = await db.users.find({
+            "$or": [
+                {"name": {"$regex": query, "$options": "i"}},
+                {"surname": {"$regex": query, "$options": "i"}},
+                {"email": {"$regex": query, "$options": "i"}}
+            ]
+        }).limit(10).to_list(10)
+        
+        # Format user data
+        user_results = []
+        for user in users:
+            if user["id"] != current_user.id:  # Don't include current user
+                user_results.append({
+                    "id": user["id"],
+                    "name": user.get("name", ""),
+                    "surname": user.get("surname", ""),
+                    "email": user.get("email", "")
+                })
+        
+        return {"users": user_results}
+        
+    except Exception as e:
+        print(f"User search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/family/{family_id}/members")
+async def add_family_member(
+    family_id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a member to the family"""
+    try:
+        # Check if user is member/admin
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a family member")
+        
+        # Get user data
+        user_id = data.get("user_id")
+        relationship = data.get("relationship", "other")
+        
+        # Check if user exists
+        member_user = await db.users.find_one({"id": user_id})
+        if not member_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if already a member
+        existing_member = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": user_id,
+            "is_active": True
+        })
+        
+        if existing_member:
+            raise HTTPException(status_code=400, detail="User is already a family member")
+        
+        # Add member
+        new_member = {
+            "id": str(uuid.uuid4()),
+            "family_id": family_id,
+            "user_id": user_id,
+            "family_role": "MEMBER",
+            "relationship": relationship,
+            "is_creator": False,
+            "is_active": True,
+            "invitation_accepted": True,
+            "joined_at": datetime.now(timezone.utc)
+        }
+        
+        await db.family_members.insert_one(new_member)
+        
+        # Update family member count
+        await db.family_profiles.update_one(
+            {"id": family_id},
+            {"$inc": {"member_count": 1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
+        )
+        
+        # Return member with user info
+        member_response = {
+            "id": new_member["id"],
+            "name": member_user.get("name", ""),
+            "surname": member_user.get("surname", ""),
+            "relationship": relationship
+        }
+        
+        return {"success": True, "member": member_response}
+        
+    except Exception as e:
+        print(f"Add member error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/family/{family_id}/members/{member_id}")
+async def remove_family_member(
+    family_id: str,
+    member_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove a member from the family"""
+    try:
+        # Check if user is member/admin
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a family member")
+        
+        # Remove member
+        result = await db.family_members.update_one(
+            {"id": member_id, "family_id": family_id},
+            {"$set": {"is_active": False}}
+        )
+        
+        if result.modified_count > 0:
+            # Update family member count
+            await db.family_profiles.update_one(
+                {"id": family_id},
+                {"$inc": {"member_count": -1}, "$set": {"updated_at": datetime.now(timezone.utc)}}
+            )
+            return {"success": True, "message": "Member removed"}
+        else:
+            raise HTTPException(status_code=404, detail="Member not found")
+            
+    except Exception as e:
+        print(f"Remove member error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/family/{family_id}/privacy")
+async def update_family_privacy_settings(
+    family_id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update family privacy settings"""
+    try:
+        # Check if user is member/admin
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a family member")
+        
+        # Prepare privacy settings update
+        privacy_fields = {}
+        if "is_private" in data:
+            privacy_fields["is_private"] = data["is_private"]
+        if "allow_public_discovery" in data:
+            privacy_fields["allow_public_discovery"] = data["allow_public_discovery"]
+        if "who_can_see_posts" in data:
+            privacy_fields["who_can_see_posts"] = data["who_can_see_posts"]
+        if "who_can_comment" in data:
+            privacy_fields["who_can_comment"] = data["who_can_comment"]
+        if "profile_searchability" in data:
+            privacy_fields["profile_searchability"] = data["profile_searchability"]
+        
+        privacy_fields["updated_at"] = datetime.now(timezone.utc)
+        
+        result = await db.family_profiles.update_one(
+            {"id": family_id},
+            {"$set": privacy_fields}
+        )
+        
+        if result.modified_count > 0:
+            # Fetch updated family
+            updated_family = await db.family_profiles.find_one({"id": family_id})
+            family_dict = {k: v for k, v in updated_family.items() if k != '_id'}
+            return {"success": True, "family": family_dict, "message": "Privacy settings updated"}
+        else:
+            raise HTTPException(status_code=404, detail="Family not found")
+            
+    except Exception as e:
+        print(f"Update privacy error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/family/{family_id}")
+async def delete_family(
+    family_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete family profile (creator only)"""
+    try:
+        # Check if user is creator
+        membership = await db.family_members.find_one({
+            "family_id": family_id,
+            "user_id": current_user.id,
+            "is_creator": True,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Only family creator can delete the family")
+        
+        # Delete family and related data
+        await db.family_profiles.delete_one({"id": family_id})
+        await db.family_members.delete_many({"family_id": family_id})
+        await db.family_posts.delete_many({"family_id": family_id})
+        await db.family_invitations.delete_many({"family_id": family_id})
+        
+        return {"success": True, "message": "Family deleted successfully"}
+        
+    except Exception as e:
+        print(f"Delete family error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# END: Settings Management Endpoints
+
 @api_router.put("/family-profiles/{family_id}")
 async def update_family_profile(
     family_id: str,
