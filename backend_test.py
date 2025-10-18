@@ -92,25 +92,22 @@ class FamilySettingsAPITester:
         """Test creating a family profile"""
         if not self.family_id:
             family_data = {
-                "name": "Test Family Settings",
-                "surname": "TestFamily",
+                "family_name": "Test Family Settings",
+                "family_surname": "TestFamily",
                 "description": "Family created for testing settings functionality",
-                "privacy_level": "PRIVATE",
-                "members": [
-                    {
-                        "first_name": "Test",
-                        "last_name": "Family",
-                        "role": "PARENT",
-                        "is_creator": True,
-                        "user_id": self.user_id
-                    }
-                ]
+                "privacy_settings": {
+                    "is_private": True,
+                    "allow_public_discovery": False,
+                    "who_can_see_posts": "family",
+                    "who_can_comment": "family",
+                    "profile_searchability": "users_only"
+                }
             }
             
-            success, response = self.make_request("POST", "family/create-with-members", family_data, 200)
+            success, response = self.make_request("POST", "family-profiles", family_data, 200)
             
-            if success and response.get("success") and response.get("family"):
-                self.family_id = response["family"]["id"]
+            if success and response.get("id"):
+                self.family_id = response["id"]
                 self.log_test("Create Family Profile", True)
                 return True
             else:
