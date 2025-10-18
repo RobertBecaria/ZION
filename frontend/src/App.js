@@ -1336,7 +1336,7 @@ function Dashboard() {
 
                         {activeModule === 'organizations' && (
                           <>
-                            {activeView === 'wall' ? (
+                            {(activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
                                 moduleColor={currentModule.color}
