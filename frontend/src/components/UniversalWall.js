@@ -689,7 +689,7 @@ function UniversalWall({
                 type="button" 
                 className="close-btn"
                 onClick={() => {
-                  const modal = document.querySelector('.modal-overlay');
+                  const modal = document.querySelector('.post-composer-modal');
                   if (modal) modal.style.display = 'none';
                 }}
               >
