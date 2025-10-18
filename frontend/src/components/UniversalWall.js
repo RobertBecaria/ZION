@@ -684,7 +684,10 @@ function UniversalWall({
               <button 
                 type="button" 
                 className="close-btn"
-                onClick={() => document.querySelector('.modal-overlay').style.display = 'none'}
+                onClick={() => {
+                  const modal = document.querySelector('.modal-overlay');
+                  if (modal) modal.style.display = 'none';
+                }}
               >
                 <X size={20} />
               </button>
