@@ -1328,7 +1328,7 @@ function Dashboard() {
                       />
                     ) : /* MY INFO Module Views */
                     activeView === 'my-info' ? (
-                      <MyInfoPage />
+                      <MyInfoPage user={user} moduleColor={currentModule.color} />
                     ) : activeView === 'my-documents' ? (
                       <MyDocumentsPage />
                     ) : (
