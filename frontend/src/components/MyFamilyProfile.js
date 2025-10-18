@@ -259,47 +259,27 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
 
       {/* Content Area */}
       <div className="profile-content">
-        <div className="profile-content-main">
-          {activeTab === 'wall' && (
-            <UniversalWall
-              moduleColor={moduleColor}
-              moduleName={family.family_name || family.name}
-              activeModule="family"
-              user={user}
-            />
-          )}
-
-          {activeTab === 'chat' && (
-            <UniversalChatLayout
-              moduleColor={moduleColor}
-              user={user}
-            />
-          )}
-
-          {activeTab === 'calendar' && (
-            <div className="calendar-placeholder">
-              <Calendar size={48} color="#9ca3af" />
-              <h3>Календарь семьи</h3>
-              <p>Скоро здесь появится календарь событий</p>
-            </div>
-          )}
-        </div>
-
-        {/* EventPlanner on the right - only for Wall view */}
         {activeTab === 'wall' && (
-          <div className="profile-content-sidebar">
-            <div className="events-panel-wrapper">
-              {/* Events Panel Component would go here */}
-              <div className="widget">
-                <div className="widget-header">
-                  <Calendar size={16} />
-                  <span>События семьи</span>
-                </div>
-                <div style={{ padding: '1rem', textAlign: 'center', color: '#65676B' }}>
-                  <p>Нет запланированных событий</p>
-                </div>
-              </div>
-            </div>
+          <UniversalWall
+            moduleColor={moduleColor}
+            moduleName={family.family_name || family.name}
+            activeModule="family"
+            user={user}
+          />
+        )}
+
+        {activeTab === 'chat' && (
+          <UniversalChatLayout
+            moduleColor={moduleColor}
+            user={user}
+          />
+        )}
+
+        {activeTab === 'calendar' && (
+          <div className="calendar-placeholder">
+            <Calendar size={48} color="#9ca3af" />
+            <h3>Календарь семьи</h3>
+            <p>Скоро здесь появится календарь событий</p>
           </div>
         )}
       </div>
