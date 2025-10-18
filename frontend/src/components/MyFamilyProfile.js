@@ -56,9 +56,14 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   if (!family) {
     return (
       <div className="profile-empty">
-        <Users size={48} color="#9ca3af" />
-        <h3>Семья не найдена</h3>
-        <p>Создайте свою семью, чтобы начать!</p>
+        <FamilyStatusForm 
+          user={user}
+          moduleColor={moduleColor}
+          onFamilyCreated={(newFamily) => {
+            setFamily(newFamily);
+            setLoading(false);
+          }}
+        />
       </div>
     );
   }
