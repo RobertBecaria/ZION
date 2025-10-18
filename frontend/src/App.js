@@ -1060,8 +1060,8 @@ function Dashboard() {
               📰 Моя Лента
             </button>
             
-            {/* Family Section - Only when in Family module AND user has a family */}
-            {activeModule === 'family' && userFamily && !loadingFamily && (
+            {/* Family Section - Only when in Family module */}
+            {activeModule === 'family' && (
               <>
                 <div className="sidebar-divider"></div>
                 
