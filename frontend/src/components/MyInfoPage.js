@@ -300,6 +300,9 @@ const MyInfoPage = ({ user, moduleColor = '#059669' }) => {
         </div>
       </div>
 
+      {/* Household Section */}
+      <HouseholdSection user={user} moduleColor={moduleColor} />
+
     </div>
   );
 };
