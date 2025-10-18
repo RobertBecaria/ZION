@@ -4,11 +4,13 @@ import UniversalWall from './UniversalWall';
 import UniversalChatLayout from './UniversalChatLayout';
 import FamilyStatusForm from './FamilyStatusForm';
 import ProfileImageUpload from './ProfileImageUpload';
+import FamilySettingsPage from './FamilySettingsPage';
 
 function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const [activeTab, setActiveTab] = useState('wall'); // 'wall' | 'chat' | 'calendar'
   const [family, setFamily] = useState(familyData || null);
   const [loading, setLoading] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleBannerUpload = async (base64Image) => {
     try {
