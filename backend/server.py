@@ -1674,6 +1674,73 @@ async def create_family_profile(
     
     return FamilyProfileResponse(**response_data)
 
+@api_router.post("/family/create-with-members")
+async def create_family_with_members(
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new family profile with members (from FamilyStatusForm)"""
+    try:
+        # Extract data
+        family_name = data.get("name")
+        surname = data.get("surname", "")
+        description = data.get("description", "")
+        privacy_level = data.get("privacy_level", "PRIVATE")
+        members = data.get("members", [])
+        
+        if not family_name:
+            raise HTTPException(status_code=400, detail="Family name is required")
+        
+        # Create family profile
+        new_family = {
+            "id": str(uuid4()),
+            "name": family_name,
+            "surname": surname,
+            "description": description,
+            "type": "NODE",
+            "privacy_level": privacy_level,
+            "created_by": current_user.id,
+            "created_at": datetime.now(timezone.utc),
+            "is_active": True,
+            "member_count": len(members),
+            "posts_count": 0,
+            "followers_count": 0,
+            "events_count": 0
+        }
+        
+        await db.family_profiles.insert_one(new_family)
+        
+        # Add family members
+        for member in members:
+            family_member = {
+                "id": str(uuid4()),
+                "family_id": new_family["id"],
+                "user_id": member.get("user_id", current_user.id),  # Use current_user.id if no user_id
+                "family_role": member.get("role", "PARENT"),
+                "is_creator": member.get("is_creator", False),
+                "is_active": True,
+                "invitation_accepted": True,
+                "joined_at": datetime.now(timezone.utc)
+            }
+            
+            # Store additional info for non-registered members
+            if not member.get("user_id"):
+                family_member["first_name"] = member.get("first_name", "")
+                family_member["last_name"] = member.get("last_name", "")
+                family_member["date_of_birth"] = member.get("date_of_birth")
+            
+            await db.family_members.insert_one(family_member)
+        
+        return {
+            "success": True,
+            "family": new_family,
+            "message": "Family profile created successfully"
+        }
+        
+    except Exception as e:
+        print(f"Error creating family: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/family-profiles")
 async def get_user_family_profiles(current_user: User = Depends(get_current_user)):
     """Get family profiles where user is a member"""
