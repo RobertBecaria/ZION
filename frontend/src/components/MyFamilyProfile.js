@@ -101,7 +101,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
 
             {/* Family Name & Info */}
             <div className="profile-details">
-              <h1 className="profile-name">{family.name}</h1>
+              <h1 className="profile-name">{family.family_name || family.name}</h1>
               
               <div className="profile-meta">
                 <div className="meta-item">
@@ -109,10 +109,10 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
                   <span>{family.member_count || 0} членов</span>
                 </div>
                 
-                {family.location && (
+                {(family.city || family.location) && (
                   <div className="meta-item">
                     <MapPin size={16} />
-                    <span>{family.location}</span>
+                    <span>{family.city || family.location}</span>
                   </div>
                 )}
                 
