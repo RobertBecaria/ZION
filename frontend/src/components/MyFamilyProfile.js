@@ -197,7 +197,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
         {activeTab === 'wall' && (
           <UniversalWall
             moduleColor={moduleColor}
-            moduleName={family.name}
+            moduleName={family.family_name || family.name}
             activeModule="family"
             user={user}
           />
