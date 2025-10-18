@@ -62,7 +62,7 @@ function UniversalWall({
     // Add keyboard event listeners for modal
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        const modal = document.querySelector('.modal-overlay');
+        const modal = document.querySelector('.post-composer-modal');
         if (modal && modal.style.display === 'flex') {
           modal.style.display = 'none';
         }
