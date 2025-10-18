@@ -151,14 +151,16 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
       });
 
       if (response.ok) {
-        setMembers(members.filter(m => m.id !== memberId));
+        // Reload members list from server
+        await loadFamilyMembers();
         showMessage('Член семьи удален', 'success');
       } else {
-        throw new Error('Failed to remove member');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to remove member');
       }
     } catch (error) {
       console.error('Error removing member:', error);
-      showMessage('Ошибка удаления члена семьи', 'error');
+      showMessage(error.message || 'Ошибка удаления члена семьи', 'error');
     }
   };
 
