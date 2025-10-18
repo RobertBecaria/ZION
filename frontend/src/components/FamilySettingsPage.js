@@ -118,17 +118,18 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setMembers([...members, data.member]);
+        // Reload members list from server
+        await loadFamilyMembers();
         setSearchQuery('');
         setSearchResults([]);
         showMessage('Член семьи добавлен', 'success');
       } else {
-        throw new Error('Failed to add member');
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to add member');
       }
     } catch (error) {
       console.error('Error adding member:', error);
-      showMessage('Ошибка добавления члена семьи', 'error');
+      showMessage(error.message || 'Ошибка добавления члена семьи', 'error');
     }
   };
 
