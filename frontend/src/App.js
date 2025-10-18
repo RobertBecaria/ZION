@@ -1333,23 +1333,25 @@ function Dashboard() {
                       <>
                         {activeModule === 'family' && (
                           <>
+                            {/* Feed and Wall views - show UniversalWall only */}
                             {(activeView === 'wall' || activeView === 'feed') ? (
-                              <>
-                                <ErrorBoundary>
-                                  <FamilyTriggerFlow
-                                    user={user}
-                                    onUpdateUser={handleUpdateUser}
-                                  />
-                                </ErrorBoundary>
-                                <UniversalWall
-                                  activeGroup={activeGroup}
-                                  moduleColor={currentModule.color}
-                                  moduleName={currentModule.name}
-                                  activeModule={activeModule}
+                              <UniversalWall
+                                activeGroup={activeGroup}
+                                moduleColor={currentModule.color}
+                                moduleName={currentModule.name}
+                                activeModule={activeModule}
+                                user={user}
+                              />
+                            ) : activeView === 'my-family-profile' || activeView === 'family-public-view' ? (
+                              /* Family Profile views - show FamilyTriggerFlow */
+                              <ErrorBoundary>
+                                <FamilyTriggerFlow
                                   user={user}
+                                  onUpdateUser={handleUpdateUser}
                                 />
-                              </>
+                              </ErrorBoundary>
                             ) : (
+                              /* Chat view */
                               <UniversalChatLayout
                                 activeGroup={activeGroup}
                                 chatGroups={chatGroups}
