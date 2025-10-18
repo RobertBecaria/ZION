@@ -1001,47 +1001,52 @@ function Dashboard() {
               </div>
             </div>
             
-            <button className="profile-btn primary" style={{ backgroundColor: currentModule.color }}>
-              Мой Профиль
-            </button>
-            
-            <button className="profile-btn secondary">
-              Моя Лента
-            </button>
-            
-            {/* Family Profile Buttons - Prominently placed */}
             <button 
-              className={`profile-btn ${activeView === 'family-profiles' ? 'primary' : 'secondary'}`}
-              style={{ 
-                backgroundColor: activeView === 'family-profiles' ? '#42B883' : undefined,
-                color: activeView === 'family-profiles' ? 'white' : undefined
-              }}
-              onClick={() => setActiveView('family-profiles')}
+              className={`profile-btn ${activeView === 'my-profile' ? 'primary' : 'secondary'}`}
+              style={{ backgroundColor: activeView === 'my-profile' ? currentModule.color : undefined }}
+              onClick={() => setActiveView('my-profile')}
             >
-              👥 Мои Семьи
+              👤 Мой Профиль
             </button>
             
             <button 
-              className={`profile-btn ${activeView === 'family-create' ? 'primary' : 'secondary'}`}
-              style={{ 
-                backgroundColor: activeView === 'family-create' ? '#42B883' : undefined,
-                color: activeView === 'family-create' ? 'white' : undefined
-              }}
-              onClick={() => setActiveView('family-create')}
+              className={`profile-btn ${activeView === 'feed' ? 'primary' : 'secondary'}`}
+              style={{ backgroundColor: activeView === 'feed' ? currentModule.color : undefined }}
+              onClick={() => setActiveView('feed')}
             >
-              ➕ Создать Семью
+              📰 Моя Лента
             </button>
             
-            <button 
-              className={`profile-btn ${activeView === 'family-invitations' ? 'primary' : 'secondary'}`}
-              style={{ 
-                backgroundColor: activeView === 'family-invitations' ? '#42B883' : undefined,
-                color: activeView === 'family-invitations' ? 'white' : undefined
-              }}
-              onClick={() => setActiveView('family-invitations')}
-            >
-              📧 Приглашения
-            </button>
+            {/* Family Section - Only when in Family module */}
+            {activeModule.id === 'family' && (
+              <>
+                <div className="sidebar-divider"></div>
+                
+                <button 
+                  className={`profile-btn ${activeView === 'my-family-profile' ? 'primary' : 'secondary'}`}
+                  style={{ 
+                    backgroundColor: activeView === 'my-family-profile' ? '#059669' : undefined,
+                    color: activeView === 'my-family-profile' ? 'white' : undefined
+                  }}
+                  onClick={() => setActiveView('my-family-profile')}
+                >
+                  👨‍👩‍👧‍👦 МОЯ СЕМЬЯ
+                </button>
+                
+                <button 
+                  className={`profile-btn secondary view-toggle`}
+                  style={{ 
+                    fontSize: '0.9rem',
+                    paddingLeft: '2rem'
+                  }}
+                  onClick={() => setActiveView('family-public-view')}
+                >
+                  👁️ Публичный вид
+                </button>
+                
+                <div className="sidebar-divider"></div>
+              </>
+            )}
           </div>
 
           <nav className="sidebar-nav">
