@@ -749,16 +749,17 @@ function Dashboard() {
       
       try {
         const token = localStorage.getItem('zion_token');
-        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/family/my-families`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/family-profiles`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
         
         if (response.ok) {
-          const families = await response.json();
+          const data = await response.json();
+          const families = data.family_profiles || [];
           // Find primary family (where user is creator or first family)
-          const primaryFamily = families.find(f => f.members?.some(m => m.user_id === user.id && m.is_creator)) || families[0];
+          const primaryFamily = families.find(f => f.user_role === 'PARENT' || f.is_user_member) || families[0];
           setUserFamily(primaryFamily);
         }
       } catch (error) {
