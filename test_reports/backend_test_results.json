@@ -1,65 +1,65 @@
 {
   "total_tests": 9,
-  "passed_tests": 6,
-  "failed_tests": 3,
-  "success_rate": 66.66666666666666,
+  "passed_tests": 7,
+  "failed_tests": 2,
+  "success_rate": 77.77777777777779,
   "test_results": [
     {
       "test_name": "API Endpoints Connectivity",
       "success": false,
       "details": "",
-      "timestamp": "2025-10-18T12:02:01.445595"
+      "timestamp": "2025-10-18T12:02:31.428127"
     },
     {
       "test_name": "User Registration",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:01.714830"
+      "timestamp": "2025-10-18T12:02:31.700739"
     },
     {
       "test_name": "Create Family Profile",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:01.753797"
+      "timestamp": "2025-10-18T12:02:31.780046"
     },
     {
       "test_name": "Family Basic Info Update",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:01.797586"
+      "timestamp": "2025-10-18T12:02:31.822959"
     },
     {
       "test_name": "User Search",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:01.960917"
+      "timestamp": "2025-10-18T12:02:31.863538"
     },
     {
       "test_name": "Get Family Members",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:02.001651"
+      "timestamp": "2025-10-18T12:02:31.905112"
     },
     {
       "test_name": "Add Family Member (Error Handling)",
       "success": false,
-      "details": "Unexpected response: {'detail': '404: User not found', 'status_code': 500, 'expected_status': 400}",
-      "timestamp": "2025-10-18T12:02:02.044852"
+      "details": "Unexpected response: {'detail': '404: User not found'}",
+      "timestamp": "2025-10-18T12:02:31.943465"
     },
     {
       "test_name": "Family Privacy Update",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-18T12:02:02.082404"
+      "timestamp": "2025-10-18T12:02:31.980295"
     },
     {
-      "test_name": "Family Delete",
-      "success": false,
-      "details": "Response: {'detail': '403: Only family creator can delete the family', 'status_code': 500, 'expected_status': 200}",
-      "timestamp": "2025-10-18T12:02:02.120982"
+      "test_name": "Family Delete (Permission Check)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-18T12:02:32.022911"
     }
   ],
-  "test_user_email": "test_family_120201@example.com",
-  "family_id": "46bf439e-6795-4787-a812-47000e58fccd",
-  "user_id": "bb235b59-faaa-4015-9276-b720bd621a5b"
+  "test_user_email": "test_family_120231@example.com",
+  "family_id": "e7a68194-84b3-4505-99db-e750ef91f7ab",
+  "user_id": "eeb13658-b0f3-4c06-b61c-8e4a19465277"
 }
