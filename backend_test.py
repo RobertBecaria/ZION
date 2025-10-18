@@ -6,22 +6,22 @@ import json
 from datetime import datetime
 import uuid
 
-class ZionCityAPITester:
-    def __init__(self, base_url="https://profile-nucleus.preview.emergentagent.com/api"):
+class FamilySettingsAPITester:
+    def __init__(self, base_url="https://profile-nucleus.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
-        self.custom_group_id = None
+        self.family_id = None
         self.tests_run = 0
         self.tests_passed = 0
-        self.test_user_email = f"test_user_{datetime.now().strftime('%Y%m%d_%H%M%S')}@example.com"
+        self.test_user_email = f"test_family_{datetime.now().strftime('%H%M%S')}@example.com"
         self.test_user_data = {
             "email": self.test_user_email,
-            "password": "testpass123",
-            "first_name": "Тест",
-            "last_name": "Пользователь", 
-            "middle_name": "Тестович",
-            "phone": "+38067123456"
+            "password": "TestPass123!",
+            "first_name": "Test",
+            "last_name": "Family", 
+            "middle_name": "Settings",
+            "phone": "+1234567890"
         }
 
     def log_test(self, name, success, details=""):
