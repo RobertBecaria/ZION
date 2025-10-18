@@ -9159,6 +9159,7 @@ select:focus {
   align-items: center;
   justify-content: center;
   color: #1C1E21;
+  z-index: 20;
 }
 
 .banner-upload-btn:hover {
