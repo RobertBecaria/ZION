@@ -77,12 +77,26 @@ function UniversalWall({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [activeGroup, activeModule]); // Re-fetch posts when activeModule changes
+  }, [activeGroup, activeModule, familyFilter]); // Re-fetch posts when filter changes
 
   const fetchPosts = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${backendUrl}/api/posts?module=${activeModule}`, {
+      
+      // Build URL with filter parameters
+      let url = `${backendUrl}/api/posts?module=${activeModule}`;
+      
+      // Add family filter if in family module
+      if (activeModule === 'family' && familyFilter) {
+        if (familyFilter === 'my-family' && userFamilyId) {
+          url += `&family_id=${userFamilyId}`;
+        } else if (familyFilter === 'subscribed') {
+          url += `&filter=subscribed`;
+        }
+        // 'all' doesn't need extra parameters
+      }
+      
+      const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
