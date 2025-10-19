@@ -1257,15 +1257,17 @@ function Dashboard() {
               </div>
               
               <div className="content-body">
-                {/* Content Navigation */}
-                <ContentNavigation
-                  activeView={activeView}
-                  onViewChange={setActiveView}
-                  moduleColor={currentModule.color}
-                  moduleName={currentModule.name}
-                  showCalendar={showCalendar}
-                  onCalendarToggle={() => setShowCalendar(!showCalendar)}
-                />
+                {/* Content Navigation - Hide for special views that have their own navigation */}
+                {!['my-family-profile', 'family-public-view', 'my-info', 'my-documents', 'media-photos', 'media-documents', 'media-videos'].includes(activeView) && (
+                  <ContentNavigation
+                    activeView={activeView}
+                    onViewChange={setActiveView}
+                    moduleColor={currentModule.color}
+                    moduleName={currentModule.name}
+                    showCalendar={showCalendar}
+                    onCalendarToggle={() => setShowCalendar(!showCalendar)}
+                  />
+                )}
 
                 {/* Content Area with Split Layout */}
                 <div className="split-content-layout">
