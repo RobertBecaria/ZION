@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 class FamilySettingsAPITester:
-    def __init__(self, base_url="https://profile-nucleus.preview.emergentagent.com"):
+    def __init__(self, base_url="https://household-manager-6.preview.emergentagent.com"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
