@@ -1064,7 +1064,7 @@ function Dashboard() {
             </button>
             
             {/* Family Section - Only when in Family module */}
-            {activeModule === 'family' && (
+            {activeModule === 'family' && userFamily && (
               <>
                 <div className="sidebar-divider"></div>
                 
@@ -1080,10 +1080,12 @@ function Dashboard() {
                 </button>
                 
                 <button 
-                  className={`profile-btn secondary view-toggle`}
+                  className={`profile-btn ${activeView === 'family-public-view' ? 'primary' : 'secondary'} view-toggle`}
                   style={{ 
                     fontSize: '0.9rem',
-                    paddingLeft: '2rem'
+                    paddingLeft: '2rem',
+                    backgroundColor: activeView === 'family-public-view' ? '#059669' : undefined,
+                    color: activeView === 'family-public-view' ? 'white' : undefined
                   }}
                   onClick={() => setActiveView('family-public-view')}
                 >
