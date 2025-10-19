@@ -1074,10 +1074,7 @@ function Dashboard() {
                     backgroundColor: activeView === 'my-family-profile' ? '#059669' : undefined,
                     color: activeView === 'my-family-profile' ? 'white' : undefined
                   }}
-                  onClick={() => {
-                    console.log('[DEBUG] МОЯ СЕМЬЯ button clicked, setting activeView to my-family-profile');
-                    setActiveView('my-family-profile');
-                  }}
+                  onClick={() => setActiveView('my-family-profile')}
                 >
                   👨‍👩‍👧‍👦 МОЯ СЕМЬЯ
                 </button>
