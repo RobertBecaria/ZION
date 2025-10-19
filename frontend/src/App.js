@@ -1486,6 +1486,29 @@ function Dashboard() {
                 </div>
               )}
 
+              {/* Public View Button - Only in Family Module & When user has family */}
+              {activeModule === 'family' && userFamily && (
+                <div className="widget public-view-widget">
+                  <div className="widget-header">
+                    <Eye size={16} />
+                    <span>Публичный просмотр</span>
+                  </div>
+                  <button 
+                    className="public-view-button"
+                    onClick={() => setActiveView('family-public-view')}
+                    style={{ 
+                      backgroundColor: activeView === 'family-public-view' ? currentModule.color : 'white',
+                      color: activeView === 'family-public-view' ? 'white' : currentModule.color,
+                      borderColor: currentModule.color
+                    }}
+                  >
+                    <Eye size={18} />
+                    Как видят другие
+                  </button>
+                  <p className="widget-hint">Посмотрите, как ваша семья отображается для других пользователей</p>
+                </div>
+              )}
+
               {/* Quick Filters Widget */}
               <div className="widget filters-widget">
                 <div className="widget-header">
