@@ -2647,10 +2647,14 @@ async def get_public_family_profile(
             for post in family_posts:
                 # Get author info
                 author = await db.users.find_one({"id": post["user_id"]})
+                post_created_at = post.get("created_at")
+                if isinstance(post_created_at, datetime):
+                    post_created_at = post_created_at.isoformat()
+                
                 posts.append({
                     "id": post["id"],
                     "content": post["content"],
-                    "created_at": post["created_at"],
+                    "created_at": post_created_at,
                     "author_name": author.get("name", "") if author else "",
                     "like_count": post.get("like_count", 0),
                     "comment_count": post.get("comment_count", 0)
