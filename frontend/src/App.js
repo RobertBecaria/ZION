@@ -1079,19 +1079,6 @@ function Dashboard() {
                   👨‍👩‍👧‍👦 МОЯ СЕМЬЯ
                 </button>
                 
-                <button 
-                  className={`profile-btn ${activeView === 'family-public-view' ? 'primary' : 'secondary'} view-toggle`}
-                  style={{ 
-                    fontSize: '0.9rem',
-                    paddingLeft: '2rem',
-                    backgroundColor: activeView === 'family-public-view' ? '#059669' : undefined,
-                    color: activeView === 'family-public-view' ? 'white' : undefined
-                  }}
-                  onClick={() => setActiveView('family-public-view')}
-                >
-                  👁️ Публичный вид
-                </button>
-                
                 <div className="sidebar-divider"></div>
               </>
             )}
