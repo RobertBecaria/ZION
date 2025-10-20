@@ -962,7 +962,11 @@ function Dashboard() {
   };
 
   if (showOnboarding) {
-    return <OnboardingWizard onComplete={() => setShowOnboarding(false)} />;
+    return <OnboardingWizard onComplete={() => {
+      // Mark onboarding as completed for this user
+      localStorage.setItem(`onboarding_completed_${user.id}`, 'true');
+      setShowOnboarding(false);
+    }} />;
   }
 
   const modules = [
