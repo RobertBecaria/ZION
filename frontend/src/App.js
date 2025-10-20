@@ -2048,6 +2048,19 @@ function Dashboard() {
           onComplete={handleProfileComplete}
         />
       )}
+
+      {/* Gender Update Modal */}
+      {showGenderModal && user && (
+        <GenderUpdateModal
+          isOpen={showGenderModal}
+          onClose={() => setShowGenderModal(false)}
+          onUpdate={async (gender) => {
+            // Refresh user profile to get updated gender
+            await refreshProfile();
+            setShowGenderModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }
