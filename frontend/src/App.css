@@ -9238,14 +9238,29 @@ select:focus {
   min-height: 100vh;
 }
 
-/* Profile Header */
+/* Profile Header - Enhanced with Depth */
 .profile-header {
   background: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 
+    0 1px 3px rgba(0, 0, 0, 0.02),
+    0 4px 12px rgba(0, 0, 0, 0.04);
   position: relative;
+  overflow: hidden;
 }
 
-/* Profile Banner */
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(248, 249, 250, 0.5) 0%, transparent 100%);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Profile Banner - Enhanced with Overlay */
 .profile-banner {
   height: 280px;
   position: relative;
@@ -9261,6 +9276,23 @@ select:focus {
   align-items: center;
   justify-content: center;
   position: relative;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.banner-image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, 
+    rgba(0, 0, 0, 0) 0%, 
+    rgba(0, 0, 0, 0.02) 50%,
+    rgba(0, 0, 0, 0.08) 100%
+  );
+  pointer-events: none;
+}
+
+.profile-banner:hover .banner-image {
+  transform: scale(1.02);
 }
 
 .banner-upload-btn {
@@ -9268,12 +9300,15 @@ select:focus {
   bottom: 1rem;
   right: 1rem;
   background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border: none;
-  padding: 0.75rem;
+  padding: 0.875rem;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -9282,8 +9317,11 @@ select:focus {
 }
 
 .banner-upload-btn:hover {
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(5deg);
   background: white;
+  box-shadow: 
+    0 6px 20px rgba(0, 0, 0, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 /* Profile Info Section */
