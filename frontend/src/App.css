@@ -12061,11 +12061,21 @@ select:focus {
   font-weight: 600;
   color: #1C1E21;
   font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 250px;
+  transition: color 0.2s ease;
+}
+
+.author-name:hover {
+  color: #667eea;
 }
 
 .post-date {
   color: #65676B;
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 .post-content {
