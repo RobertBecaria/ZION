@@ -227,6 +227,11 @@ class PrivacySettings(BaseModel):
     profile_visible_to_public: bool = True
     family_visible_to_friends: bool = True
 
+class Gender(str, Enum):
+    MALE = "MALE"
+    FEMALE = "FEMALE"
+    IT = "IT"  # AI Agents, Smart Devices, IoT
+
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
