@@ -245,17 +245,6 @@ class Gender(str, Enum):
     FEMALE = "FEMALE"
     IT = "IT"  # AI Agents, Smart Devices, IoT
 
-class PostVisibility(str, Enum):
-    PUBLIC = "PUBLIC"                      # Everyone can see
-    FAMILY_ONLY = "FAMILY_ONLY"           # All family members
-    HOUSEHOLD_ONLY = "HOUSEHOLD_ONLY"     # Same household members
-    FATHERS_ONLY = "FATHERS_ONLY"         # Male parents only
-    MOTHERS_ONLY = "MOTHERS_ONLY"         # Female parents only
-    CHILDREN_ONLY = "CHILDREN_ONLY"       # Children only
-    PARENTS_ONLY = "PARENTS_ONLY"         # All parents (fathers + mothers)
-    EXTENDED_FAMILY_ONLY = "EXTENDED_FAMILY_ONLY"  # Extended family members
-    ONLY_ME = "ONLY_ME"                   # Creator only
-
 class User(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     email: EmailStr
