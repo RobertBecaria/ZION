@@ -1462,7 +1462,8 @@ async def register_user(user_data: UserRegistration):
         last_name=user_data.last_name,
         middle_name=user_data.middle_name,
         phone=user_data.phone,
-        date_of_birth=user_data.date_of_birth
+        date_of_birth=user_data.date_of_birth,
+        gender=user_data.gender  # NEW: Save gender
     )
     
     await db.users.insert_one(new_user.dict())
