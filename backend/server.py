@@ -3899,14 +3899,22 @@ async def create_post(
     content: str = Form(...),
     source_module: str = Form(default="family"),  # Default to family module
     target_audience: str = Form(default="module"),  # Default to module audience
+    visibility: str = Form(default="FAMILY_ONLY"),  # NEW: Role-based visibility
+    family_id: str = Form(default=None),  # NEW: Family ID for the post
     media_file_ids: List[str] = Form(default=[]),
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new post with optional media attachments"""
+    """Create a new post with optional media attachments and role-based visibility"""
     
     # Handle empty list case for media_file_ids
     if isinstance(media_file_ids, str):
         media_file_ids = [media_file_ids] if media_file_ids else []
+    
+    # Validate visibility enum
+    try:
+        visibility_enum = PostVisibility(visibility)
+    except ValueError:
+        visibility_enum = PostVisibility.FAMILY_ONLY
     
     # Extract YouTube URLs from content
     youtube_urls = extract_youtube_urls(content)
@@ -3927,12 +3935,14 @@ async def create_post(
                 )
                 valid_media_ids.append(media_id)
     
-    # Create post with module information
+    # Create post with module information and visibility
     new_post = Post(
         user_id=current_user.id,
         content=content,
         source_module=source_module,
         target_audience=target_audience,
+        visibility=visibility_enum,
+        family_id=family_id,
         media_files=valid_media_ids,
         youtube_urls=youtube_urls
     )
