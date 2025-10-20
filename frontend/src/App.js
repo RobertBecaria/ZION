@@ -476,11 +476,24 @@ function OnboardingWizard({ onComplete }) {
 
   const handleComplete = async () => {
     setLoading(true);
-    const result = await completeOnboarding(onboardingData);
-    if (result.success) {
+    try {
+      const result = await completeOnboarding(onboardingData);
+      if (result.success) {
+        // Successfully saved onboarding data
+        onComplete();
+      } else {
+        // Error saving, but still allow user to proceed
+        console.error('Onboarding error:', result.error);
+        alert(`Не удалось сохранить данные: ${result.error}. Вы все равно можете продолжить.`);
+        onComplete(); // Allow user to proceed anyway
+      }
+    } catch (error) {
+      console.error('Onboarding exception:', error);
+      // Even if there's an error, allow user to proceed
       onComplete();
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const renderStep = () => {
