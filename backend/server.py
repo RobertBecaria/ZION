@@ -432,6 +432,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     middle_name: Optional[str]
+    gender: Optional[Gender] = None  # NEW: Include gender in response
     role: UserRole
     is_active: bool
     is_verified: bool
