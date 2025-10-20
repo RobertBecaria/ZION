@@ -1,30 +1,40 @@
 <analysis>
-The AI engineer successfully implemented several core features for the ZION.CITY application's Family module, focusing on building out the Universal Profile System. The work began with a plan for a Family Profile Settings Page, which was developed with a full-page UI, granular privacy controls, and member management (linking to existing users). This involved creating new frontend components (), updating navigation in , adding CSS, and implementing a comprehensive suite of backend APIs for updating profile info, managing members, and privacy settings in .
+The trajectory details significant progress on the ZION.CITY application, primarily focusing on family profile features, privacy, and post filtering. Initially, the AI engineer addressed a complex UI issue where the Публичный просмотр (Public View) button in the  was not appearing contextually. This involved extensive debugging in  to correctly link  states with conditional rendering, resolving conflicts with  and ensuring the button's visibility when МОЯ СЕМЬЯ was selected.
 
-Following this, the engineer implemented the Family Filter Logic, enabling posts to be filtered by All Families, My Family, and Subscribed Families by updating , , and . The Household Section was then developed, including new backend models, API endpoints, a frontend component (), and its integration into .
+Following this, the AI engineer successfully fixed a critical backend error preventing the public family profile from loading, caused by MongoDB ObjectId and  serialization issues in the  endpoint within . A  helper function was introduced for robust data conversion.
 
-Most recently, the Public Profile View was implemented with a dedicated backend endpoint and a  component. Initial issues with loading due to uncreated families were resolved. The user then requested moving the Public View button from the left sidebar to the right sidebar (World Zone), which was the last completed task. Throughout, issues like onboarding blocking full testing and minor backend API errors were noted.
+Currently, the team is implementing a Gender System as the first phase of Role-Based Post Filtering. The backend has been updated in  to include a  enum (, , ), add gender fields to  and  models, modify user-related endpoints, and create a  endpoint. Frontend work included creating , styling it in , and integrating it into  to prompt users to set their gender. The second phase, role-based post filtering logic, is partially implemented on the backend in , including  enum and  helper.
 </analysis>
 
 <product_requirements>
-The ZION.CITY platform aims for a Universal Profile System built upon a Family Profile System with automated creation, intelligent matching, and a hierarchical structure. Core UI requirements include a  (Left Sidebar) with Мой Профиль, Моя Лента, МОЯ СЕМЬЯ, and Публичный вид семьи (though the last was moved to ). The  (Right Sidebar) needs contextual navigation like Поиск Семей and filtering.
+The ZION.CITY platform aims to be a comprehensive digital ecosystem with a Universal Profile System built on a Family Profile System, supporting intelligent matching and hierarchical structures. Key UI elements include a  (Left Sidebar) and  (Right Sidebar) with contextual navigation.
 
-Features developed so far include:
-*   A  (full-page, with Basic Info, Members Management linking to existing users, and granular Privacy Settings: Who can see posts?, Who can comment?, Profile searchability).
-*   A  for posts (All, My, Subscribed Families).
-*   A  section for individuals at the same address, integrated into .
-*   A  for families, respecting privacy settings. This view's button was moved from the Left Sidebar to the Right Sidebar's World Zone.
-*   Post Composer privacy buttons were replaced with a compact dropdown. Banner/avatar uploads are also implemented.
+So far, the following features have been implemented or refined:
+*   **Family Profile Settings Page**: Full-page management for basic info, members, and granular privacy settings.
+*   **Family Filter Logic**: Initial framework for filtering posts by All, My, and Subscribed Families.
+*   **Household Section**: Integrated into  for users residing at the same address.
+*   **Public Profile View**: A public-facing view of the family profile, respecting privacy settings. The access button for this view was moved from the Left Sidebar to the Right Sidebar's World Zone and made context-aware, appearing only when the МОЯ СЕМЬЯ section is active.
+*   **Post Composer**: Includes privacy options. Banner/avatar uploads are also supported.
+*   **Gender System**: Implemented backend ( enum,  model updates,  updates,  endpoint) and frontend (,  integration) to allow users to specify gender (MALE, FEMALE, IT for AI). This is a foundational step for role-based post filtering.
+*   **Role-Based Post Filtering**: Backend logic initiated to filter posts based on visibility (Public, Family Only, Household Only, Only Me, GENDER_MALE, GENDER_FEMALE, GENDER_IT) and user's relationship role/gender within the family.
 </product_requirements>
 
 <key_technical_concepts>
--   **Backend**: FastAPI (Python REST APIs), Pydantic (data validation, models), MongoDB (NoSQL, UUID primary keys), JWT (authentication), timezone-aware datetime.
--   **Frontend**: React 18+ (functional components, hooks, Context API), Tailwind CSS (utility-first), custom CSS, yarn (package management).
--   **Architecture**: Monolithic codebase, / sidebars, Universal Components (, , etc.).
--   **UI/UX**: Dynamic CSS theming, responsive design, image uploads (base64).
+-   **Backend**: FastAPI (Python REST APIs), Pydantic (data validation), MongoDB (NoSQL, UUIDs), JWT (authentication),  handling,  for constrained choices.
+-   **Frontend**: React 18+ (functional components, hooks, Context API), Tailwind CSS (utility-first), custom CSS, yarn install v1.22.22
+info No lockfile found.
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Building fresh packages...
+success Saved lockfile.
+Done in 0.09s. (package management).
+-   **Architecture**: / sidebars, Universal Components, context-aware UI, Smart Adaptive Design.
+-   **Data Handling**: Base64 for images, robust JSON serialization (especially for  and ).
 </key_technical_concepts>
 
 <code_architecture>
+
 /app
 ├── backend/
 │   ├── server.py
@@ -37,6 +47,7 @@ Features developed so far include:
         ├── components/
         │   ├── FamilySettingsPage.js
         │   ├── FamilyStatusForm.js
+        │   ├── GenderUpdateModal.js (New File)
         │   ├── HouseholdSection.js
         │   ├── MyFamilyProfile.js
         │   ├── MyInfoPage.js
@@ -49,91 +60,71 @@ Features developed so far include:
             └── animations.js
 
 -   **backend/server.py**
-    -   **Importance**: Central FastAPI application for all API endpoints, Pydantic models for data validation, and database interactions.
+    -   **Importance**: Central FastAPI application for all API endpoints, Pydantic models, and database interactions.
     -   **Changes Made**:
-        -   Expanded Pydantic models for , , , , , .
-        -   Added new API endpoints for : , , , , , .
-        -   Modified  to accept  query parameter for filtering posts.
-        -   Added new API endpoints for : , , , , .
-        -   Added  for fetching public family profile data.
-        -   Ensured  import.
+        -   **Gender System**:
+            -   Added  with , ,  values (initially misplaced, then moved before  model).
+            -   Added  to , , and  models.
+            -   Modified  to accept and save .
+            -   Modified  to return .
+            -   Added new Pydantic model  and  endpoint to allow users to update their gender.
+        -   **Public Family Profile**:
+            -   Refined  endpoint to correctly handle MongoDB  and  serialization using a  helper function, converting them to strings and ISO 8601 format respectively.
+        -   **Role-Based Post Filtering**:
+            -   Added  (PUBLIC, FAMILY_ONLY, HOUSEHOLD_ONLY, ONLY_ME, GENDER_MALE, GENDER_FEMALE, GENDER_IT) before the  model.
+            -   Added  and  to the  model.
+            -   Created  helper function to determine if a user can view a post based on its , , , and the 's ID and .
+            -   Updated  to filter posts using the  helper.
+            -   Updated  to accept  as a parameter.
+            -   Updated  model to include  and .
 
 -   **frontend/src/App.js**
-    -   **Importance**: Main application entry point, handles global state, authentication, routing, and overall layout (Left Sidebar, Content Area, Right Sidebar).
+    -   **Importance**: Main application entry point, handles global state, authentication, routing, and overall layout.
     -   **Changes Made**:
-        -   Integrated  by adding navigation and routing.
-        -   Added  state and passed it to  components, connecting it to the .
-        -   Updated  to receive  and  props.
-        -   Integrated , initially with a button in the Left Sidebar, then moved this button/widget to the Right Sidebar ().
-        -   Refined conditional rendering for МОЯ СЕМЬЯ and Публичный вид семьи based on  existence and .
-        -   Removed the Публичный вид семьи button from the Left Sidebar.
+        -   **Public Profile Button**:
+            -   Implemented context-aware rendering for the Публичный просмотр (Public View) button in the Right Sidebar ().
+            -   Corrected the conditional rendering logic: initially, it was inside  which prevented it from showing when . The button's rendering logic was moved outside this block.
+            -   Adjusted  to be conditionally rendered, hidden when  to prevent it from overriding the  state.
+            -   Added  state and a  to trigger the modal if  is missing.
+            -   Integrated the  component.
+            -   Added a  function to update the user's gender and close the modal.
+            -   Removed various debug  statements.
 
 -   **frontend/src/App.css**
-    -   **Importance**: Global styles and utility classes using Tailwind CSS, along with custom styles for specific components and module theming.
-    -   **Changes Made**:
-        -   Added styles for  (general layout, tab navigation, form elements).
-        -   Added styles for  (card layout, member list).
-        -   Added styles for  (banner, avatar, privacy indicators).
-        -   Added styles for  to accommodate its new placement in the Right Sidebar.
+    -   **Importance**: Global styles and utility classes using Tailwind CSS.
+    -   **Changes Made**: Added specific styles for , , and  to style the new gender update modal.
 
--   **frontend/src/components/FamilySettingsPage.js** (New File)
-    -   **Importance**: Component for managing family profile settings, including basic info, members, privacy, and delete options.
-    -   **Changes Made**: Initial creation with tabbed interface (Basic Info, Members, Privacy, Danger Zone). Implemented fetching and displaying existing members, and logic for adding/removing members. Corrected JSX syntax errors.
+-   **frontend/src/components/GenderUpdateModal.js** (New File)
+    -   **Importance**: A modal component to prompt users to select their gender, which is a required field for role-based post filtering.
+    -   **Changes Made**: Initial creation. It includes UI for gender selection (Male, Female, IT) and handles updating the backend  API and refreshing user state.
 
--   **frontend/src/components/FamilyStatusForm.js**
-    -   **Importance**: Form for creating a new family profile and adding initial members.
-    -   **Changes Made**: No new changes within this trajectory.
-
--   **frontend/src/components/HouseholdSection.js** (New File)
-    -   **Importance**: Component to display and manage the user's household, including creation and member listing.
-    -   **Changes Made**: Initial creation with UI for creating a household and displaying household members. Integrated into .
-
--   **frontend/src/components/MyFamilyProfile.js**
-    -   **Importance**: Displays the user's detailed family profile, including header, banner, avatar, and content tabs.
-    -   **Changes Made**: Added Настройки (Settings) button to the header. Updated to correctly display  if no family is found. Fixed JSX syntax issues related to previous layout changes (which were rolled back).
-
--   **frontend/src/components/MyInfoPage.js**
-    -   **Importance**: Displays the user's personal information.
-    -   **Changes Made**: Integrated the  component, rendering it after the Marriage Information section. Now accepts  and  props.
-
--   **frontend/src/components/ProfileImageUpload.js**
-    -   **Importance**: Reusable modal for uploading profile and banner images.
-    -   **Changes Made**: No new changes within this trajectory.
-
--   **frontend/src/components/PublicFamilyProfile.js** (New File)
-    -   **Importance**: Component to display how the family profile appears to others, respecting privacy settings.
-    -   **Changes Made**: Initial creation with UI for a public view of the family profile. Added logic to handle cases where  might be missing.
-
--   **frontend/src/components/UniversalWall.js**
-    -   **Importance**: Universal social feed component.
-    -   **Changes Made**:
-        -   Removed internal  state, now accepting it as a prop.
-        -   Updated  to use the  prop for API calls.
-        -   Post Composer privacy dropdown () was implemented in a prior step, but its integration with the family filter is key here.
-
--   **frontend/src/utils/animations.js**
-    -   **Importance**: Centralizes animation helper functions.
-    -   **Changes Made**: No new changes within this trajectory.
+-   **frontend/src/components/PublicFamilyProfile.js**
+    -   **Importance**: Component to display how the family profile appears to others.
+    -   **Changes Made**: No direct changes in this trajectory, but its functionality now relies on the corrected backend endpoint in . The component now successfully displays public family profile data.
 </code_architecture>
 
 <pending_tasks>
--   Implement actual filtering logic for the Family Filter widget (backend logic is in place, but complex filtering based on subscriptions/visibility might need refinement).
--   Expand the Universal Profile System to Work and School modules.
--   Profile Management: Complete the settings/management page for basic info and danger zone actions.
--   Further refine layout and alignment issues as deferred by the user.
+-   **Frontend for Role-Based Post Filtering**:
+    -   Implement filters in the Post Composer dropdown based on  (Public, Family Only, Household Only, Only Me, Gender-Male, Gender-Female, Gender-IT).
+    -   Add  filters to the  sidebar widget.
+-   **General**:
+    -   Expand the Universal Profile System to Work and School modules.
+    -   Complete the profile management settings page for basic info and danger zone actions.
+    -   Further refine layout and alignment issues as deferred by the user.
 </pending_tasks>
 
 <current_work>
-Immediately before this summary request, the AI engineer was implementing the Public Profile View feature. This involved:
-1.  Creating a backend API endpoint () in .
-2.  Developing a new frontend component, , and its associated CSS.
-3.  Integrating this view into  with a navigation button, initially placed in the Left Sidebar.
+Immediately before this summary request, the AI engineer completed the backend implementation for **Phase 2: Role-Based Post Filtering**. This involved:
+1.  Defining the  enum in  with options like , , , , , , and .
+2.  Adding  and  fields to the  and  models.
+3.  Creating a  helper function that applies complex logic to determine if a  can view a  based on its  settings and the user's relationship/gender.
+4.  Updating the  endpoint to use this helper function to filter results, and updating  to accept the  parameter.
 
-During testing, the user reported that the public profile wasn't loading, which was diagnosed as a prerequisite of needing to first create a family. After the user confirmed a family was created, they requested to move the Публичный вид семьи (Public Profile View) button from the Left Sidebar () to the Right Sidebar ().
+During this process, a  ( not defined) was encountered because the enum was placed *after* the  model that used it. This was successfully resolved by moving the  enum definition to occur *before* the  model in  and removing a duplicate definition.
 
-The engineer successfully executed this move by removing the button from the Left Sidebar and adding a new  to the Right Sidebar in , along with corresponding CSS adjustments in . The backend and frontend services were restarted and verified as running. The current state is that the Public View button should now appear in the Right Sidebar, and the public profile should load correctly given a family has been created.
+The backend services were restarted and are currently running without errors. The last communication from the AI engineer was a check on user login credentials, implying a readiness to test the backend changes or proceed with frontend work related to post filtering.
 </current_work>
 
 <optional_next_step>
-Verify the visual placement and functional behavior of the Public Profile View button in the Right Sidebar, ensuring it correctly loads the public family profile.
+Verify user login, then proceed with implementing the frontend for role-based post filtering in the Post Composer.
 </optional_next_step>
