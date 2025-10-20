@@ -33,8 +33,8 @@ function UniversalWall({
   const [notifications, setNotifications] = useState([]);
   const fileInputRef = useRef(null);
   
-  // Post Privacy/Visibility State
-  const [postVisibility, setPostVisibility] = useState('module'); // 'module' | 'friends' | 'public'
+  // Post Privacy/Visibility State - matches backend PostVisibility enum
+  const [postVisibility, setPostVisibility] = useState('FAMILY_ONLY'); // Default to FAMILY_ONLY
   
   // Use the shared lightbox hook
   const {
