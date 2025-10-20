@@ -241,6 +241,7 @@ class User(BaseModel):
     last_name: str
     middle_name: Optional[str] = None
     date_of_birth: Optional[datetime] = None
+    gender: Optional[Gender] = None  # NEW: MALE, FEMALE, IT
     avatar_url: Optional[str] = None
     role: UserRole = UserRole.ADULT
     is_active: bool = True
