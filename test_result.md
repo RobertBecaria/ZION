@@ -357,7 +357,6 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Unified Stacked Filter Widget - Phase 2"
     - "Post Composer Visibility Dropdown - Phase 1"
   stuck_tasks: []
   test_all: false
