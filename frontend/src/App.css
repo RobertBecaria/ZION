@@ -12923,3 +12923,223 @@ select:focus {
   }
 }
 
+/* ============================================
+   LARGE DESKTOP ENHANCEMENTS (1400px+)
+   ============================================ */
+
+@media (min-width: 1400px) {
+  /* Slightly wider content area for better readability */
+  .main-content {
+    max-width: 800px;
+  }
+
+  /* Better spacing in layout */
+  .dashboard-container {
+    gap: 2rem;
+  }
+
+  /* Larger widgets for better visibility */
+  .widget {
+    padding: 1.5rem;
+  }
+
+  .widget-header {
+    margin-bottom: 1.25rem;
+  }
+
+  /* Post cards with more breathing room */
+  .post-item {
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Larger profile sections */
+  .profile-banner {
+    height: 320px;
+  }
+
+  .profile-avatar {
+    width: 180px;
+    height: 180px;
+  }
+
+  /* Better filter widget spacing */
+  .unified-filter-widget .filter-item {
+    padding: 1rem 1.25rem;
+  }
+}
+
+/* ============================================
+   DESKTOP OPTIMIZATION (1200px+)
+   ============================================ */
+
+@media (min-width: 1200px) {
+  /* Ensure proper content width */
+  .content-area {
+    max-width: calc(100vw - 540px); /* Account for both sidebars */
+  }
+
+  /* Better hover effects on desktop */
+  .interactive-element {
+    cursor: pointer;
+  }
+
+  /* Show more details on larger screens */
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* ============================================
+   FOCUS VISIBLE IMPROVEMENTS
+   ============================================ */
+
+/* Only show focus rings for keyboard navigation */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid #1877F2;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom focus for buttons */
+button:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible {
+  outline: 3px solid #1877F2;
+  outline-offset: 3px;
+}
+
+/* Custom focus for inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 0 0 4px rgba(24, 119, 242, 0.2),
+    0 4px 12px rgba(24, 119, 242, 0.1);
+}
+
+/* ============================================
+   INTERACTION CONSISTENCY
+   ============================================ */
+
+/* All clickable elements should show pointer cursor */
+button,
+a,
+[role="button"],
+[onclick],
+.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Prevent text selection on UI elements */
+.ui-element,
+.widget-header,
+.nav-item,
+.filter-item {
+  user-select: none;
+}
+
+/* Allow text selection in content areas */
+.post-content,
+.comment-text,
+.message-content {
+  user-select: text;
+}
+
+/* ============================================
+   SCROLLBAR ENHANCEMENTS
+   ============================================ */
+
+/* Better scrollbar for webkit browsers */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(240, 242, 245, 0.5);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.4) 0%, 
+    rgba(118, 75, 162, 0.4) 100%
+  );
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, 
+    rgba(102, 126, 234, 0.6) 0%, 
+    rgba(118, 75, 162, 0.6) 100%
+  );
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+  .no-print,
+  .left-sidebar,
+  .right-sidebar,
+  .top-nav,
+  .widget,
+  button,
+  .post-actions {
+    display: none !important;
+  }
+
+  .main-content {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .post-item {
+    page-break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  /* Increase border visibility */
+  .widget,
+  .post-item,
+  .filter-item {
+    border-width: 2px;
+    border-color: #000;
+  }
+
+  /* Increase text contrast */
+  body {
+    color: #000;
+    background: #fff;
+  }
+
+  /* Make buttons more visible */
+  .btn-primary {
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+  }
+}
+
