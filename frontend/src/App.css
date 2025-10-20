@@ -11537,60 +11537,118 @@ select:focus {
 
 .gender-modal {
   background: white;
-  border-radius: 16px;
-  padding: 2rem;
-  max-width: 600px;
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  max-width: 640px;
   width: 90%;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 25px 70px rgba(0, 0, 0, 0.15),
+    0 8px 20px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: modalEnter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(228, 230, 234, 0.3);
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .gender-modal .modal-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .gender-modal .modal-header h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 2rem;
+  font-weight: 800;
   color: #050505;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #1C1E21 0%, #4B5563 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .gender-modal .modal-subtitle {
   color: #65676B;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  line-height: 1.5;
 }
 
 .gender-options {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
 }
 
 .gender-option {
   display: flex;
   align-items: center;
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 2px solid #E4E6EB;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(135deg, rgba(248, 249, 250, 0.3) 0%, transparent 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.gender-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.gender-option:hover::before {
+  left: 100%;
 }
 
 .gender-option:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.04);
+  border-color: #D0D3D9;
 }
 
 .gender-option.selected {
   border-width: 2px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.12),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+  transform: translateY(-2px);
 }
 
 .gender-icon {
   flex-shrink: 0;
-  margin-right: 1rem;
+  margin-right: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+}
+
+.gender-option:hover .gender-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.gender-option.selected .gender-icon {
+  transform: scale(1.15);
 }
 
 .gender-info {
@@ -11598,71 +11656,114 @@ select:focus {
 }
 
 .gender-info h3 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.375rem;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
 }
 
 .gender-info p {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: #65676B;
   margin: 0;
+  line-height: 1.4;
 }
 
 .gender-radio {
   flex-shrink: 0;
-  margin-left: 1rem;
+  margin-left: 1.25rem;
 }
 
 .radio-outer {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border: 2px solid #BCC0C4;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gender-option.selected .radio-outer {
+  border-width: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .radio-inner {
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
+  animation: radioFill 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes radioFill {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 .gender-modal .modal-actions {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .gender-modal .btn-primary {
   width: 100%;
-  padding: 0.875rem;
+  padding: 1rem;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1.05rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.gender-modal .btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.gender-modal .btn-primary:hover::before {
+  left: 100%;
 }
 
 .gender-modal .btn-primary:not(:disabled):hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 
+    0 8px 20px rgba(5, 150, 105, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.gender-modal .btn-primary:not(:disabled):active {
+  transform: translateY(0) scale(0.99);
 }
 
 .gender-modal .modal-note {
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: #65676B;
   text-align: center;
-  line-height: 1.5;
-  background: #F0F2F5;
-  padding: 1rem;
-  border-radius: 8px;
+  line-height: 1.6;
+  background: linear-gradient(135deg, rgba(240, 242, 245, 0.8) 0%, rgba(248, 249, 250, 1) 100%);
+  padding: 1.25rem;
+  border-radius: var(--radius-md);
   margin: 0;
+  border: 1px solid rgba(228, 230, 234, 0.5);
 }
 
 .gender-modal .modal-note strong {
   color: #050505;
+  font-weight: 600;
 }
 
 /* ============================================
