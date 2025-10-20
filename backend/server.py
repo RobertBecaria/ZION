@@ -420,6 +420,7 @@ class UserRegistration(BaseModel):
     middle_name: Optional[str] = None
     phone: Optional[str] = None
     date_of_birth: Optional[datetime] = None
+    gender: Optional[Gender] = None  # NEW: Gender selection
 
 class UserLogin(BaseModel):
     email: EmailStr
