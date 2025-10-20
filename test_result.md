@@ -357,10 +357,8 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Post Composer Visibility Dropdown - Phase 1"
-    - "Unified Stacked Filter Widget - Phase 2"
-  stuck_tasks: 
-    - "Role-Based Post Filtering System - Runtime Testing Blocked by Onboarding"
+    - "Onboarding Flow Fix - Session Persistence Testing"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
