@@ -3972,6 +3972,8 @@ async def create_post(
         content=new_post.content,
         source_module=new_post.source_module,
         target_audience=new_post.target_audience,
+        visibility=new_post.visibility.value,  # NEW
+        family_id=new_post.family_id,  # NEW
         author=author_info,
         media_files=media_files,
         youtube_urls=new_post.youtube_urls,
