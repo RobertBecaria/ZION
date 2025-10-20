@@ -821,10 +821,16 @@ function Dashboard() {
     }
   }, [user]);
 
-  // Check if user needs onboarding (no affiliations)
+  // Check if user needs onboarding (no affiliations and not yet completed)
   useEffect(() => {
-    if (user && (!user.affiliations || user.affiliations.length === 0)) {
-      setShowOnboarding(true);
+    if (user) {
+      const onboardingCompleted = localStorage.getItem(`onboarding_completed_${user.id}`);
+      
+      if (!onboardingCompleted && (!user.affiliations || user.affiliations.length === 0)) {
+        setShowOnboarding(true);
+      } else {
+        setShowOnboarding(false);
+      }
     }
   }, [user]);
 
