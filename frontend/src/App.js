@@ -1352,7 +1352,7 @@ function Dashboard() {
                                 moduleName={currentModule.name}
                                 activeModule={activeModule}
                                 user={user}
-                                familyFilter={activeModule === 'family' ? familyFilter : null}
+                                activeFilters={activeFilters}
                                 userFamilyId={userFamily?.id}
                               />
                             ) : activeView === 'my-family-profile' ? (
