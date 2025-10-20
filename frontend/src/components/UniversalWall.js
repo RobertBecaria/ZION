@@ -832,7 +832,7 @@ function UniversalWall({
             </div>
             
             <div className="form-footer">
-              {/* Visibility Dropdown */}
+              {/* Visibility Dropdown - Role-Based Post Filtering */}
               <div className="visibility-selector">
                 <label htmlFor="post-visibility" className="visibility-label">
                   Кому показать?
@@ -847,9 +847,13 @@ function UniversalWall({
                     accentColor: moduleColor
                   }}
                 >
-                  <option value="module">🔒 Только {moduleName}</option>
-                  <option value="friends">👥 Друзья {moduleName}</option>
-                  <option value="public">🌍 Публично</option>
+                  <option value="FAMILY_ONLY">🔒 Только моя семья</option>
+                  <option value="HOUSEHOLD_ONLY">🏠 Только домохозяйство</option>
+                  <option value="PUBLIC">🌍 Публично</option>
+                  <option value="ONLY_ME">👤 Только я</option>
+                  <option value="GENDER_MALE">♂️ Только мужчины</option>
+                  <option value="GENDER_FEMALE">♀️ Только женщины</option>
+                  <option value="GENDER_IT">🤖 Только IT/AI</option>
                 </select>
               </div>
               
