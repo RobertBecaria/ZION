@@ -735,7 +735,7 @@ function Dashboard() {
   const [activeView, setActiveView] = useState('wall'); // 'wall' or 'chat'
   const [notifications, setNotifications] = useState([]); // For header notifications badge
   const [userFamily, setUserFamily] = useState(null); // User's primary family
-  const [familyFilter, setFamilyFilter] = useState('all'); // 'all', 'my-family', 'subscribed'
+  const [activeFilters, setActiveFilters] = useState([]); // Unified stacked filters array
   const [loadingFamily, setLoadingFamily] = useState(true);
   
   // NEW FAMILY SYSTEM STATES
