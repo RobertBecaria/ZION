@@ -16,6 +16,7 @@ import GenderUpdateModal from './components/GenderUpdateModal';
 // MY INFO MODULE COMPONENTS
 import MyInfoPage from './components/MyInfoPage';
 import MyDocumentsPage from './components/MyDocumentsPage';
+import FamilySetupPage from './components/FamilySetupPage';
 import { 
   Clock, User, MessageCircle, Video, FileText, Settings, Search, Filter, Users,
   LogIn, UserPlus, Building2, GraduationCap, Briefcase, Shield, Eye, EyeOff,
