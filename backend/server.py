@@ -1019,6 +1019,7 @@ class MyInfoResponse(BaseModel):
     # Personal info
     phone: Optional[str]
     date_of_birth: Optional[datetime]
+    profile_picture: Optional[str] = None  # Base64 image
     
     # Address
     address_street: Optional[str]
