@@ -42,6 +42,34 @@ const FamilySetupPage = ({ user, onBack, onComplete }) => {
       setCurrentStep(2);
     }
   }, [isProfileCompleted]);
+  
+  // Gender-aware marriage status options
+  const getMarriageStatusOptions = () => {
+    const gender = user?.gender;
+    
+    if (gender === 'MALE') {
+      return [
+        { value: 'SINGLE', label: 'Не женат' },
+        { value: 'MARRIED', label: 'Женат' },
+        { value: 'DIVORCED', label: 'Разведён' },
+        { value: 'WIDOWED', label: 'Вдовец' }
+      ];
+    } else if (gender === 'FEMALE') {
+      return [
+        { value: 'SINGLE', label: 'Не замужем' },
+        { value: 'MARRIED', label: 'Замужем' },
+        { value: 'DIVORCED', label: 'Разведена' },
+        { value: 'WIDOWED', label: 'Вдова' }
+      ];
+    } else {
+      return [
+        { value: 'SINGLE', label: 'Холост / Не замужем' },
+        { value: 'MARRIED', label: 'Женат / Замужем' },
+        { value: 'DIVORCED', label: 'Разведён/Разведена' },
+        { value: 'WIDOWED', label: 'Вдовец / Вдова' }
+      ];
+    }
+  };
 
   const handleProfileChange = (e) => {
     const { name, value } = e.target;
