@@ -5232,6 +5232,7 @@ async def update_my_info(
         name_alias=updated_user.name_alias,
         phone=updated_user.phone,
         date_of_birth=updated_user.date_of_birth,
+        profile_picture=updated_user.profile_picture,
         address_street=updated_user.address_street,
         address_city=updated_user.address_city,
         address_state=updated_user.address_state,
