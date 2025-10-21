@@ -820,26 +820,8 @@ function Dashboard() {
     loadUserFamily();
   }, [user, activeModule]);
 
-  // Check if user needs to complete profile for family system
-  useEffect(() => {
-    if (user && activeModule === 'family') {
-      // Only show modal if profile is explicitly not completed
-      // Check if profile_completed is false or undefined, AND if required fields are missing
-      const hasAddress = user.address_street && user.address_city && user.address_country;
-      const hasMarriageStatus = user.marriage_status;
-      
-      // Show modal only if profile_completed is explicitly false AND missing required data
-      if (user.profile_completed === false && (!hasAddress || !hasMarriageStatus)) {
-        setShowProfileCompletionModal(true);
-      } else {
-        // If data exists, ensure modal is closed
-        setShowProfileCompletionModal(false);
-      }
-    } else {
-      // Close modal when not in family module
-      setShowProfileCompletionModal(false);
-    }
-  }, [user, activeModule]);
+  // Removed automatic profile completion modal - user will access via МОЯ СЕМЬЯ button
+  // Family profile creation now happens on-demand when clicking МОЯ СЕМЬЯ
 
   // Check if user needs to set gender (only ask once)
   useEffect(() => {
