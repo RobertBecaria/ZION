@@ -1130,8 +1130,8 @@ function Dashboard() {
               📰 Моя Лента
             </button>
             
-            {/* Family Section - Only when in Family module */}
-            {activeModule === 'family' && userFamily && (
+            {/* Family Section - Always visible in Family module */}
+            {activeModule === 'family' && (
               <>
                 <div className="sidebar-divider"></div>
                 
