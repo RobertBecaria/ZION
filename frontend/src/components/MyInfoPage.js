@@ -315,6 +315,20 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
       ];
     }
   };
+  
+  const getSpouseLabel = () => {
+    const gender = myInfo?.gender;
+    if (gender === 'MALE') return 'Супруга';
+    if (gender === 'FEMALE') return 'Супруг';
+    return 'Супруг(а)';
+  };
+  
+  const getSpousePhoneLabel = () => {
+    const gender = myInfo?.gender;
+    if (gender === 'MALE') return 'Телефон супруги';
+    if (gender === 'FEMALE') return 'Телефон супруга';
+    return 'Телефон супруга(и)';
+  };
 
   if (loading) {
     return (
