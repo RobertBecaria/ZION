@@ -256,6 +256,7 @@ class User(BaseModel):
     date_of_birth: Optional[datetime] = None
     gender: Optional[Gender] = None  # NEW: MALE, FEMALE, IT
     avatar_url: Optional[str] = None
+    profile_picture: Optional[str] = None  # Base64 encoded profile photo
     role: UserRole = UserRole.ADULT
     is_active: bool = True
     is_verified: bool = False
