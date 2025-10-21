@@ -298,23 +298,125 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
             <ImageIcon size={20} />
             Фото профиля
           </h2>
-          <button 
-            className="btn-icon" 
-            onClick={() => setShowProfilePicture(!showProfilePicture)}
-          >
-            {showProfilePicture ? <X size={18} /> : <Edit2 size={18} />}
-            {showProfilePicture ? 'Закрыть' : 'Изменить'}
-          </button>
         </div>
         
-        {showProfilePicture && (
-          <div className="profile-picture-upload">
-            <ProfileImageUpload 
-              user={myInfo}
-              onUploadSuccess={fetchMyInfo}
-            />
+        <div className="profile-picture-section">
+          <div className="profile-picture-preview">
+            {myInfo.profile_picture ? (
+              <img src={myInfo.profile_picture} alt="Profile" className="profile-pic" />
+            ) : (
+              <div className="profile-pic-placeholder">
+                <User size={48} />
+              </div>
+            )}
           </div>
-        )}
+          
+          <div className="profile-picture-actions">
+            <input
+              type="file"
+              id="profile-pic-input"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                  setError('Пожалуйста, выберите изображение');
+                  return;
+                }
+                
+                // Validate file size (10MB)
+                if (file.size > 10 * 1024 * 1024) {
+                  setError('Размер файла не должен превышать 10MB');
+                  return;
+                }
+                
+                // Convert to base64
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                  try {
+                    setSaving(true);
+                    setError('');
+                    const token = localStorage.getItem('zion_token');
+                    
+                    const response = await fetch(`${BACKEND_URL}/api/users/profile-picture`, {
+                      method: 'PUT',
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        profile_picture: event.target.result
+                      })
+                    });
+                    
+                    if (response.ok) {
+                      await fetchMyInfo();
+                      setSuccess('Фото профиля обновлено');
+                      setTimeout(() => setSuccess(''), 3000);
+                    } else {
+                      setError('Не удалось загрузить фото');
+                    }
+                  } catch (error) {
+                    console.error('Error uploading:', error);
+                    setError('Ошибка при загрузке фото');
+                  } finally {
+                    setSaving(false);
+                  }
+                };
+                reader.readAsDataURL(file);
+              }}
+            />
+            <button 
+              className="btn-primary"
+              onClick={() => document.getElementById('profile-pic-input').click()}
+              disabled={saving}
+            >
+              <Upload size={18} />
+              {saving ? 'Загрузка...' : 'Загрузить фото'}
+            </button>
+            
+            {myInfo.profile_picture && (
+              <button 
+                className="btn-secondary"
+                onClick={async () => {
+                  if (!window.confirm('Удалить фото профиля?')) return;
+                  
+                  try {
+                    setSaving(true);
+                    const token = localStorage.getItem('zion_token');
+                    
+                    const response = await fetch(`${BACKEND_URL}/api/users/profile-picture`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`
+                      }
+                    });
+                    
+                    if (response.ok) {
+                      await fetchMyInfo();
+                      setSuccess('Фото профиля удалено');
+                      setTimeout(() => setSuccess(''), 3000);
+                    }
+                  } catch (error) {
+                    console.error('Error deleting:', error);
+                    setError('Ошибка при удалении фото');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                disabled={saving}
+              >
+                <X size={18} />
+                Удалить
+              </button>
+            )}
+            
+            <p className="hint">PNG, JPG, GIF до 10MB</p>
+          </div>
+        </div>
       </div>
 
       {/* Basic Information Section */}
