@@ -792,7 +792,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
             (editingSection !== 'marriage' && myInfo.marriage_status === 'MARRIED')) && (
             <>
               <div className="info-item">
-                <label>Супруг(а)</label>
+                <label>{getSpouseLabel()}</label>
                 {editingSection === 'marriage' ? (
                   <input
                     type="text"
@@ -806,7 +806,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               </div>
 
               <div className="info-item">
-                <label>Телефон супруга(и)</label>
+                <label>{getSpousePhoneLabel()}</label>
                 {editingSection === 'marriage' ? (
                   <input
                     type="tel"
