@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, MapPin, Phone, Calendar, Heart, Edit2, Save, X, Lock, AlertTriangle, Upload, Mail, Image as ImageIcon } from 'lucide-react';
 import HouseholdSection from './HouseholdSection';
-import ProfileImageUpload from './ProfileImageUpload';
 
 const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   const [myInfo, setMyInfo] = useState(null);
