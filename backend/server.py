@@ -1603,6 +1603,130 @@ async def update_user_gender(
     
     return {"message": "Gender updated successfully", "gender": gender_data.gender.value}
 
+@api_router.put("/auth/change-password")
+async def change_password(
+    password_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Change user password"""
+    current_password = password_data.get("current_password")
+    new_password = password_data.get("new_password")
+    
+    if not current_password or not new_password:
+        raise HTTPException(status_code=400, detail="Текущий и новый пароль обязательны")
+    
+    # Verify current password
+    user_doc = await db.users.find_one({"id": current_user.id})
+    if not user_doc or not verify_password(current_password, user_doc.get("hashed_password")):
+        raise HTTPException(status_code=400, detail="Неверный текущий пароль")
+    
+    # Hash and update new password
+    hashed_password = get_password_hash(new_password)
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": {
+            "hashed_password": hashed_password,
+            "updated_at": datetime.now(timezone.utc)
+        }}
+    )
+    
+    return {"message": "Пароль успешно изменен"}
+
+@api_router.delete("/auth/delete-account")
+async def delete_account(
+    current_user: User = Depends(get_current_user)
+):
+    """Delete user account permanently"""
+    
+    # Find user's family profile where they are the creator
+    family_profile = await db.family_profiles.find_one({
+        "created_by": current_user.id,
+        "is_deleted": {"$ne": True}
+    })
+    
+    if family_profile:
+        # Get all adult members of the family (excluding the current user)
+        family_members = await db.family_members.find({
+            "family_id": family_profile["id"],
+            "user_id": {"$ne": current_user.id},
+            "is_deleted": {"$ne": True}
+        }).to_list(None)
+        
+        # Filter adult members (you can adjust age logic as needed)
+        adult_members = []
+        for member in family_members:
+            user = await db.users.find_one({"id": member["user_id"]})
+            if user:
+                # Consider anyone 18+ as adult
+                if user.get("date_of_birth"):
+                    from datetime import date
+                    birth_date = user["date_of_birth"]
+                    if isinstance(birth_date, str):
+                        birth_date = datetime.fromisoformat(birth_date).date()
+                    age = (date.today() - birth_date).days / 365.25
+                    if age >= 18:
+                        adult_members.append(user)
+                else:
+                    # If no birth date, assume adult
+                    adult_members.append(user)
+        
+        # Mark the original family profile as deleted
+        await db.family_profiles.update_one(
+            {"id": family_profile["id"]},
+            {"$set": {
+                "is_deleted": True,
+                "deleted_at": datetime.now(timezone.utc),
+                "deleted_by": current_user.id
+            }}
+        )
+        
+        # Create new family profiles for each adult member
+        for adult_user in adult_members:
+            new_family_id = str(uuid4())
+            new_family = {
+                "id": new_family_id,
+                "family_name": f"Семья {adult_user.get('last_name', '')}",
+                "family_surname": adult_user.get("last_name", ""),
+                "description": f"Автоматически созданный профиль после удаления семьи {family_profile.get('family_name', '')}",
+                "created_by": adult_user["id"],
+                "created_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc),
+                "is_private": True,
+                "is_deleted": False
+            }
+            await db.family_profiles.insert_one(new_family)
+            
+            # Add the user as a member of their new family
+            new_member = {
+                "id": str(uuid4()),
+                "family_id": new_family_id,
+                "user_id": adult_user["id"],
+                "role": "PARENT",
+                "joined_at": datetime.now(timezone.utc),
+                "is_deleted": False
+            }
+            await db.family_members.insert_one(new_member)
+            
+            # TODO: Send notification to the user about new family profile
+            # This would require a notification system to be implemented
+    
+    # Delete user's posts, comments, etc.
+    await db.posts.update_many(
+        {"author_id": current_user.id},
+        {"$set": {"is_deleted": True, "deleted_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Remove user from all family memberships
+    await db.family_members.update_many(
+        {"user_id": current_user.id},
+        {"$set": {"is_deleted": True, "left_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Delete user account
+    await db.users.delete_one({"id": current_user.id})
+    
+    return {"message": "Аккаунт успешно удален"}
+
 @api_router.post("/onboarding")
 async def complete_onboarding(
     onboarding_data: OnboardingData,
