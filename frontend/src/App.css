@@ -229,6 +229,7 @@ body {
 .form-group input,
 .form-group select,
 .form-group textarea {
+  width: 100%;
   padding: 0.875rem 1.125rem;
   border: 2px solid #E4E6EA;
   border-radius: var(--radius-md);
@@ -237,6 +238,7 @@ body {
   background: linear-gradient(135deg, rgba(248, 249, 250, 0.5) 0%, white 100%);
   color: #1C1E21;
   font-weight: 500;
+  box-sizing: border-box;
 }
 
 .form-group input:hover,
