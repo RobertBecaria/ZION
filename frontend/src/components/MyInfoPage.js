@@ -18,7 +18,6 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
-  const [showProfilePicture, setShowProfilePicture] = useState(false);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
