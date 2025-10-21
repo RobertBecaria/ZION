@@ -13754,7 +13754,7 @@ a,
 .profile-info-enhanced {
   text-align: center;
   width: 100%;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 }
 
 .profile-name {
