@@ -2119,15 +2119,6 @@ function Dashboard() {
         </aside>
       </div>
 
-      {/* Profile Completion Modal */}
-      {showProfileCompletionModal && user && (
-        <ProfileCompletionModal
-          user={user}
-          onClose={() => setShowProfileCompletionModal(false)}
-          onComplete={handleProfileComplete}
-        />
-      )}
-
       {/* Gender Update Modal */}
       {showGenderModal && user && (
         <GenderUpdateModal
