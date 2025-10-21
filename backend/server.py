@@ -1021,6 +1021,7 @@ class MyInfoResponse(BaseModel):
     phone: Optional[str]
     date_of_birth: Optional[datetime]
     profile_picture: Optional[str] = None  # Base64 image
+    gender: Optional[str] = None  # MALE, FEMALE, IT
     
     # Address
     address_street: Optional[str]
