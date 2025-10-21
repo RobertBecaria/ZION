@@ -5147,6 +5147,7 @@ async def get_my_info(current_user: User = Depends(get_current_user)):
         phone=current_user.phone,
         date_of_birth=current_user.date_of_birth,
         profile_picture=current_user.profile_picture,
+        gender=current_user.gender.value if current_user.gender else None,
         address_street=current_user.address_street,
         address_city=current_user.address_city,
         address_state=current_user.address_state,
