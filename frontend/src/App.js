@@ -1075,15 +1075,50 @@ function Dashboard() {
             <h3>Личный кабинет</h3>
           </div>
           
-          {/* User Profile Section */}
+          {/* User Profile Section - Professional Design */}
           <div className="user-profile-section">
-            <div className="profile-card">
-              <div className="profile-avatar" style={{ backgroundColor: currentModule.color }}>
-                <User size={32} color="white" />
+            <div className="profile-card-enhanced">
+              {/* Profile Avatar with Image or Fallback */}
+              <div className="profile-avatar-large">
+                {user.profile_picture ? (
+                  <img 
+                    src={user.profile_picture} 
+                    alt={`${user.first_name} ${user.last_name}`}
+                    className="avatar-image"
+                  />
+                ) : (
+                  <div className="avatar-placeholder" style={{ backgroundColor: currentModule.color }}>
+                    <User size={40} color="white" />
+                  </div>
+                )}
+                <div className="status-indicator online"></div>
               </div>
-              <div className="profile-info">
-                <h4>{user.first_name} {user.last_name}</h4>
-                <p>@{user.email.split('@')[0]}</p>
+              
+              {/* Profile Info */}
+              <div className="profile-info-enhanced">
+                <h4 className="profile-name">
+                  {user.first_name} {user.last_name}
+                </h4>
+                {user.name_alias && (
+                  <p className="profile-alias">{user.name_alias}</p>
+                )}
+                <p className="profile-email">@{user.email.split('@')[0]}</p>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="profile-stats-mini">
+                <div className="stat-item">
+                  <span className="stat-number">0</span>
+                  <span className="stat-label">Постов</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">0</span>
+                  <span className="stat-label">Друзей</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-number">0</span>
+                  <span className="stat-label">Подписок</span>
+                </div>
               </div>
             </div>
             
