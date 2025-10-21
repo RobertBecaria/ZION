@@ -1100,11 +1100,8 @@ function Dashboard() {
               {/* Profile Info */}
               <div className="profile-info-enhanced">
                 <h4 className="profile-name">
-                  {user.first_name} {user.last_name}
+                  {user.name_alias || `${user.first_name} ${user.last_name}`}
                 </h4>
-                {user.name_alias && (
-                  <p className="profile-alias">{user.name_alias}</p>
-                )}
                 <p className="profile-email">@{user.email.split('@')[0]}</p>
               </div>
             </div>
