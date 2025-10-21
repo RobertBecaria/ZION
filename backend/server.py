@@ -5128,8 +5128,47 @@ async def update_my_info(
     """Update MY INFO data"""
     update_data = {}
     
+    # Name fields
+    if info_update.first_name is not None:
+        update_data["first_name"] = info_update.first_name
+    if info_update.last_name is not None:
+        update_data["last_name"] = info_update.last_name
+    if info_update.middle_name is not None:
+        update_data["middle_name"] = info_update.middle_name
     if info_update.name_alias is not None:
         update_data["name_alias"] = info_update.name_alias
+    
+    # Contact info
+    if info_update.email is not None:
+        # Check if email is already in use by another user
+        existing_user = await db.users.find_one({"email": info_update.email, "id": {"$ne": current_user.id}})
+        if existing_user:
+            raise HTTPException(status_code=400, detail="Этот email уже используется другим пользователем")
+        update_data["email"] = info_update.email
+    if info_update.phone is not None:
+        update_data["phone"] = info_update.phone
+    if info_update.date_of_birth is not None:
+        update_data["date_of_birth"] = info_update.date_of_birth
+    
+    # Address fields
+    if info_update.address_street is not None:
+        update_data["address_street"] = info_update.address_street
+    if info_update.address_city is not None:
+        update_data["address_city"] = info_update.address_city
+    if info_update.address_state is not None:
+        update_data["address_state"] = info_update.address_state
+    if info_update.address_country is not None:
+        update_data["address_country"] = info_update.address_country
+    if info_update.address_postal_code is not None:
+        update_data["address_postal_code"] = info_update.address_postal_code
+    
+    # Marriage info
+    if info_update.marriage_status is not None:
+        update_data["marriage_status"] = info_update.marriage_status
+    if info_update.spouse_name is not None:
+        update_data["spouse_name"] = info_update.spouse_name
+    if info_update.spouse_phone is not None:
+        update_data["spouse_phone"] = info_update.spouse_phone
     
     if info_update.additional_user_data is not None:
         # Merge with existing additional_user_data
