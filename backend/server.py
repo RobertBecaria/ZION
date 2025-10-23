@@ -4305,7 +4305,8 @@ async def get_post_comments(
         comment["author"] = {
             "id": author.id,
             "first_name": author.first_name,
-            "last_name": author.last_name
+            "last_name": author.last_name,
+            "profile_picture": author.profile_picture
         } if author else {}
         
         comment["replies"] = []
