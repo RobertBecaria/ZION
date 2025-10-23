@@ -77,16 +77,15 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   useEffect(() => {
     // Load family data if not provided
     if (!familyData) {
+      setLoading(true);
       loadFamilyData();
       return;
     }
     
-    // Update family if it's different from current familyData
-    if (!family || family.id !== familyData.id) {
-      setFamily(familyData);
-    }
+    // Update local family state from prop if different
+    setFamily(familyData);
     setLoading(false);
-  }, [familyData?.id, family?.id]); // Depend on both IDs
+  }, [familyData]); // React to familyData changes
 
   const loadFamilyData = async () => {
     try {
