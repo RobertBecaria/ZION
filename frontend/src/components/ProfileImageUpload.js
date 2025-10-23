@@ -107,7 +107,15 @@ function ProfileImageUpload({
               <h3>
                 {type === 'banner' ? 'Загрузить баннер' : 'Загрузить аватар'}
               </h3>
-              <button className="close-btn" onClick={handleCancel}>
+              <button 
+                className="close-btn" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCancel();
+                }}
+                type="button"
+              >
                 <X size={20} />
               </button>
             </div>
