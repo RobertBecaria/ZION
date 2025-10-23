@@ -76,17 +76,18 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   };
 
   useEffect(() => {
-    // Load family data if not provided
-    if (!familyData) {
-      setLoading(true);
-      loadFamilyData();
-      return;
+    // Only run once on mount or when family ID changes
+    if (!initializedRef.current || (familyData && family && familyData.id !== family.id)) {
+      if (!familyData) {
+        setLoading(true);
+        loadFamilyData();
+      } else {
+        setFamily(familyData);
+        setLoading(false);
+      }
+      initializedRef.current = true;
     }
-    
-    // Update local family state from prop if different
-    setFamily(familyData);
-    setLoading(false);
-  }, [familyData]); // React to familyData changes
+  }, [familyData?.id]); // Only depend on family ID
 
   const loadFamilyData = async () => {
     try {
