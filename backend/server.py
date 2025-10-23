@@ -561,6 +561,7 @@ class FamilyProfileResponse(BaseModel):
     country: Optional[str]
     established_date: Optional[datetime]
     family_photo_url: Optional[str]
+    banner_url: Optional[str]
     is_private: bool
     allow_public_discovery: bool
     member_count: int
