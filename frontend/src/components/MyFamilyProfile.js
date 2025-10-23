@@ -78,10 +78,12 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
     // Load family data if not provided OR if familyData.id changed
     if (!familyData) {
       loadFamilyData();
-    } else if (!family || family.id !== familyData.id) {
-      // Only update if it's a different family
-      setFamily(familyData);
-      setLoading(false);
+    } else {
+      // Update family if it's different, always stop loading
+      if (!family || family.id !== familyData.id) {
+        setFamily(familyData);
+      }
+      setLoading(false); // Always set loading to false when familyData exists
     }
   }, [familyData?.id]); // Only re-run if family ID changes
 
