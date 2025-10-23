@@ -686,9 +686,23 @@ function UniversalWall({
       <div className="wall-header">
         <div className="post-composer">
           <div className="post-input-placeholder" onClick={showPostForm}>
-            <div className="composer-avatar" style={{ backgroundColor: moduleColor }}>
-              <User size={20} color="white" />
-            </div>
+            {user?.profile_picture ? (
+              <img 
+                src={user.profile_picture} 
+                alt="Avatar" 
+                className="composer-avatar"
+                style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover' 
+                }}
+              />
+            ) : (
+              <div className="composer-avatar" style={{ backgroundColor: moduleColor }}>
+                <User size={20} color="white" />
+              </div>
+            )}
             <div className="composer-placeholder">
               Что у Вас нового?
             </div>
