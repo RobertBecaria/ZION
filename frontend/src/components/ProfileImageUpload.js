@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Camera, X, Upload, Loader } from 'lucide-react';
 
-function ProfileImageUpload({ 
+const ProfileImageUpload = React.memo(function ProfileImageUpload({ 
   type = 'avatar', // 'avatar' or 'banner'
   currentImage = null,
   onUploadComplete,
