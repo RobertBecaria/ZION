@@ -111,7 +111,7 @@ const ProfileImageUpload = React.memo(function ProfileImageUpload({
             </button>
           </div>
 
-            <div className="modal-body">
+          <div className="modal-body">
               {!preview ? (
                 <div 
                   className="upload-area" 
