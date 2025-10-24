@@ -95,21 +95,21 @@ const ProfileImageUpload = React.memo(function ProfileImageUpload({
     <div className="image-upload-modal-overlay" onClick={handleOverlayClick}>
       <div className="image-upload-modal" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-              <h3>
-                {type === 'banner' ? 'Загрузить баннер' : 'Загрузить аватар'}
-              </h3>
-              <button 
-                className="close-btn" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleCancel();
-                }}
-                type="button"
-              >
-                <X size={20} />
-              </button>
-            </div>
+            <h3>
+              {type === 'banner' ? 'Загрузить баннер' : 'Загрузить аватар'}
+            </h3>
+            <button 
+              className="close-btn" 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleCancel();
+              }}
+              type="button"
+            >
+              <X size={20} />
+            </button>
+          </div>
 
             <div className="modal-body">
               {!preview ? (
