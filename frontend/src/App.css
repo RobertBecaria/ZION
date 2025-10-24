@@ -9943,38 +9943,31 @@ select:focus {
   /* transform: scale(1.02); - REMOVED */
 }
 
+/* Banner Upload Button - Rewritten from scratch for stability */
 .banner-upload-btn {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: none;
-  padding: 0.875rem;
+  width: 44px;
+  height: 44px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 1px 3px rgba(0, 0, 0, 0.1);
-  /* Fixed: Transition only visual properties, not 'all' */
-  transition:
-    background 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1C1E21;
+  color: #059669;
   z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  /* No transitions - instant response */
 }
 
 .banner-upload-btn:hover {
-  background: white;
-  box-shadow: 
-    0 6px 20px rgba(0, 0, 0, 0.2),
-    0 2px 4px rgba(0, 0, 0, 0.12);
-  transform: translateY(-1px);
+  background: #059669;
+  color: white;
+  border-color: #059669;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
 /* Profile Info Section */
