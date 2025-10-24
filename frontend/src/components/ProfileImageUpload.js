@@ -191,7 +191,22 @@ function ProfileImageUpload({
             </div>
           </div>
         </div>
-      )}
+      </div>
+  ) : null;
+
+  return (
+    <>
+      <button
+        className={type === 'banner' ? 'banner-upload-btn' : 'avatar-upload-btn'}
+        onClick={handleOpenModal}
+        title={type === 'banner' ? 'Изменить баннер' : 'Изменить аватар'}
+        type="button"
+      >
+        <Camera size={type === 'banner' ? 20 : 16} />
+      </button>
+
+      {/* Render modal via portal to document.body to prevent parent re-render issues */}
+      {modalContent && createPortal(modalContent, document.body)}
     </>
   );
 }
