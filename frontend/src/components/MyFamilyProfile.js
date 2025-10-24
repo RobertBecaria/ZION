@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapPin, Users, Calendar, Settings, Share2, Camera } from 'lucide-react';
 import UniversalWall from './UniversalWall';
 import UniversalChatLayout from './UniversalChatLayout';
