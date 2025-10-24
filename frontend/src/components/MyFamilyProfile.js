@@ -13,7 +13,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const [showSettings, setShowSettings] = useState(false);
   const initializedRef = useRef(false);
 
-  const handleBannerUpload = async (base64Image) => {
+  const handleBannerUpload = useCallback(async (base64Image) => {
     try {
       const token = localStorage.getItem('zion_token');
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -33,7 +33,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
 
       if (response.ok) {
         // Update local state
-        setFamily({ ...family, banner_url: base64Image });
+        setFamily(prev => ({ ...prev, banner_url: base64Image }));
         alert('✅ Баннер обновлен!');
       } else {
         throw new Error('Failed to upload banner');
@@ -42,9 +42,9 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
       console.error('Banner upload error:', error);
       throw error;
     }
-  };
+  }, [family?.id]);
 
-  const handleAvatarUpload = async (base64Image) => {
+  const handleAvatarUpload = useCallback(async (base64Image) => {
     try {
       const token = localStorage.getItem('zion_token');
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -64,7 +64,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
 
       if (response.ok) {
         // Update local state
-        setFamily({ ...family, family_photo_url: base64Image });
+        setFamily(prev => ({ ...prev, family_photo_url: base64Image }));
         alert('✅ Аватар обновлен!');
       } else {
         throw new Error('Failed to upload avatar');
@@ -73,7 +73,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
       console.error('Avatar upload error:', error);
       throw error;
     }
-  };
+  }, [family?.id]);
 
   useEffect(() => {
     // Only run once on mount or when family ID changes
