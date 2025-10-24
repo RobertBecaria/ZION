@@ -9938,8 +9938,9 @@ select:focus {
   pointer-events: none;
 }
 
+/* Removed transform to prevent banner upload button jumpiness */
 .profile-banner:hover .banner-image {
-  transform: scale(1.02);
+  /* transform: scale(1.02); - REMOVED */
 }
 
 .banner-upload-btn {
