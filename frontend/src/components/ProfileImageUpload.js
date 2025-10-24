@@ -193,9 +193,14 @@ function ProfileImageUpload({
       {/* Upload button */}
       <button
         className={type === 'banner' ? 'banner-upload-btn' : 'avatar-upload-btn'}
-        onClick={openModal}
+        onClick={(e) => {
+          console.log(`[ProfileImageUpload] Button clicked for ${type}`, e.target);
+          e.stopPropagation();
+          openModal();
+        }}
         title={type === 'banner' ? 'Изменить баннер' : 'Изменить аватар'}
         type="button"
+        style={{ pointerEvents: 'auto' }}
       >
         <Camera size={type === 'banner' ? 20 : 16} />
       </button>
