@@ -23,7 +23,7 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
     address_street: '',
     address_city: '',
     address_state: '',
-    address_country: 'Ukraine',
+    address_country: 'Россия',
     address_postal_code: '',
     is_private: false,
     allow_public_discovery: true,
