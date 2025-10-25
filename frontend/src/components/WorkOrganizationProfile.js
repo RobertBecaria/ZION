@@ -55,7 +55,25 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     }
   }, [organizationId]);
 
-  if (!organization) {
+  // Check if current user is admin
+  const currentUserMembership = members.find(m => m.user_id === organization?.user_id);
+  const isAdmin = organization?.user_is_admin || false;
+  const canInvite = organization?.user_can_invite || false;
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-orange-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Загрузка профиля организации...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error or not found state
+  if (error || !organization) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 flex items-center justify-center">
         <div className="text-center">
