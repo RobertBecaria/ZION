@@ -5838,8 +5838,12 @@ async def get_user_work_organizations(
         
         organizations = []
         for membership in memberships:
+            # Try both id fields since model has alias
             org = await db.work_organizations.find_one({
-                "id": membership["organization_id"],
+                "$or": [
+                    {"id": membership["organization_id"]},
+                    {"organization_id": membership["organization_id"]}
+                ],
                 "is_active": True
             })
             
