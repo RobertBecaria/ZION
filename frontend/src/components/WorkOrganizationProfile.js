@@ -95,6 +95,13 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
   // Get current user membership data from organization object
   const currentUserRole = organization.user_role;
 
+  const handleInviteSuccess = () => {
+    // Reload members after successful invitation
+    setShowInviteModal(false);
+    // Reload organization data to get updated member count
+    window.location.reload(); // Simple approach for now
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
       {/* Header Section */}
