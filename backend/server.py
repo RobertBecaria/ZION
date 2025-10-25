@@ -7017,6 +7017,7 @@ async def create_work_post(
         
         # Create post
         post_id = str(uuid.uuid4())
+        now = datetime.now(timezone.utc)
         post = {
             "id": post_id,
             "organization_id": organization_id,
@@ -7026,16 +7027,28 @@ async def create_work_post(
             "content": content,
             "likes_count": 0,
             "comments_count": 0,
-            "created_at": datetime.now(timezone.utc),
-            "updated_at": datetime.now(timezone.utc)
+            "created_at": now,
+            "updated_at": now
         }
         
         await db.work_posts.insert_one(post)
         
+        # Return serializable response
         return {
             "message": "Post created successfully",
             "post_id": post_id,
-            "post": post
+            "post": {
+                "id": post_id,
+                "organization_id": organization_id,
+                "author_id": current_user.id,
+                "author_name": f"{current_user.first_name} {current_user.last_name}",
+                "author_email": current_user.email,
+                "content": content,
+                "likes_count": 0,
+                "comments_count": 0,
+                "created_at": now.isoformat(),
+                "updated_at": now.isoformat()
+            }
         }
         
     except HTTPException:
