@@ -6661,7 +6661,7 @@ async def request_join_organization(
             raise HTTPException(status_code=400, detail="You already have a pending request for this organization")
         
         # Create join request
-        request_id = str(uuid4())
+        request_id = str(uuid.uuid4())
         join_request = {
             "id": request_id,
             "organization_id": organization_id,
