@@ -547,6 +547,28 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
               <div className="mt-8 pt-8 border-t-2 border-red-200">
                 <h3 className="text-lg font-semibold text-red-900 mb-4">Опасная зона</h3>
                 
+                {/* Transfer Ownership (only for owner) */}
+                {organization?.creator_id === currentUserId && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-4">
+                    <div className="flex items-start gap-3">
+                      <Crown className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-orange-900">Передать владение</h4>
+                        <p className="text-sm text-orange-700 mt-1">
+                          Вы можете передать полный контроль над организацией другому администратору.
+                        </p>
+                        <button
+                          onClick={() => setShowTransferOwnership(true)}
+                          className="mt-3 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-medium transition-all duration-200 flex items-center gap-2"
+                        >
+                          <Crown className="w-4 h-4" />
+                          Передать владение
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
                   <div className="flex items-start gap-3">
                     <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
