@@ -317,7 +317,8 @@ function RegistrationForm({ onSwitchToLogin }) {
     first_name: '',
     last_name: '',
     middle_name: '',
-    phone: ''
+    phone: '',
+    gender: '' // NEW: MALE, FEMALE, or empty
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
