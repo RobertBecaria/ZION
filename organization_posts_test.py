@@ -131,6 +131,61 @@ class OrganizationPostsAPITester:
             self.log_test(f"User Login ({user_type})", False, f"Response: {response}")
             return False
 
+    def test_create_organization(self, user_type="owner"):
+        """Test creating an organization (owner only)"""
+        org_data = {
+            "name": f"Test Organization {datetime.now().strftime('%H%M%S')}",
+            "organization_type": "COMPANY",
+            "description": "Test organization for posts permission testing",
+            "industry": "Technology",
+            "organization_size": "11-50",
+            "website": "https://testorg.com",
+            "address_city": "Test City",
+            "address_country": "Test Country",
+            "creator_role": "CEO",
+            "creator_department": "Management"
+        }
+        
+        success, response = self.make_request("POST", "work/organizations", org_data, 200, user_type)
+        
+        if success and "organization" in response:
+            self.organization_id = response["organization"]["id"]
+            self.log_test(f"Create Organization ({user_type})", True, f"Created org: {self.organization_id}")
+            return True
+        else:
+            self.log_test(f"Create Organization ({user_type})", False, f"Response: {response}")
+            return False
+
+    def test_add_organization_member(self, member_user_type, role="EMPLOYEE", can_post=True):
+        """Test adding a member to the organization"""
+        if not self.organization_id:
+            self.log_test(f"Add Member ({member_user_type})", False, "No organization_id available")
+            return False
+        
+        member_data = {
+            "user_email": self.test_users[member_user_type]["email"],
+            "role": role,
+            "department": "Engineering",
+            "job_title": f"Test {role}",
+            "can_invite": role in ["CEO", "MANAGER"],
+            "is_admin": role in ["CEO", "MANAGER"]
+        }
+        
+        success, response = self.make_request(
+            "POST", 
+            f"work/organizations/{self.organization_id}/members", 
+            member_data, 
+            200, 
+            "owner"  # Owner adds members
+        )
+        
+        if success:
+            self.log_test(f"Add Member ({member_user_type})", True, f"Added as {role}")
+            return True
+        else:
+            self.log_test(f"Add Member ({member_user_type})", False, f"Response: {response}")
+            return False
+
     def test_get_user_organizations(self, user_type):
         """Test getting user's organizations"""
         success, response = self.make_request("GET", "work/organizations", None, 200, user_type)
@@ -139,7 +194,8 @@ class OrganizationPostsAPITester:
             organizations = response["organizations"]
             if organizations:
                 # Use the first organization for testing
-                self.organization_id = organizations[0]["id"]
+                if not self.organization_id:
+                    self.organization_id = organizations[0]["id"]
                 self.log_test(f"Get Organizations ({user_type})", True, f"Found {len(organizations)} organizations")
                 return True
             else:
