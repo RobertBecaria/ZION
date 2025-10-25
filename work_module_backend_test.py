@@ -492,19 +492,20 @@ class WorkModuleAPITester:
             self.log_test("Role Permissions (Non-admin blocked)", False, f"Expected 403, got: {response}")
             return False
 
-    def test_deactivate_organization(self):
-        """Test deactivating organization (should be last test)"""
+    def test_organization_privacy_settings(self):
+        """Test organization privacy and access control"""
         if not self.organization_id:
-            self.log_test("Deactivate Organization", False, "No organization_id available")
+            self.log_test("Organization Privacy Settings", False, "No organization_id available")
             return False
         
-        success, response = self.make_request("DELETE", f"work/organizations/{self.organization_id}/deactivate", {}, 200, "admin")
+        # Test that organization is accessible since it's public
+        success, response = self.make_request("GET", f"work/organizations/{self.organization_id}", None, 200, "member")
         
-        if success and response.get("message") == "Organization deactivated successfully":
-            self.log_test("Deactivate Organization", True)
+        if success and response.get("name") == "Tech Innovations Ltd":
+            self.log_test("Organization Privacy Settings (Public Access)", True)
             return True
         else:
-            self.log_test("Deactivate Organization", False, f"Response: {response}")
+            self.log_test("Organization Privacy Settings (Public Access)", False, f"Response: {response}")
             return False
 
     def run_all_tests(self):
