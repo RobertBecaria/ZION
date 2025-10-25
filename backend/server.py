@@ -7009,7 +7009,7 @@ async def create_work_post(
             )
         
         # Check if user has permission to post
-        if not membership.get("permissions", {}).get("can_post", False):
+        if not membership.get("can_post", False):
             raise HTTPException(
                 status_code=403,
                 detail="You don't have permission to post"
