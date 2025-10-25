@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Building2, Briefcase, Users } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
-const WorkTriggerFlow = () => {
-  const navigate = useNavigate();
+const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
   const [view, setView] = useState('landing'); // 'landing', 'choice'
 
   const handleGetStarted = () => {
