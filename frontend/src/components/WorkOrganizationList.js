@@ -194,7 +194,7 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
             </button>
 
             <button
-              onClick={() => navigate('/work/organizations/feed')}
+              onClick={() => onExploreFeed && onExploreFeed()}
               className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-500 transition-all duration-200 hover:scale-105 group"
             >
               <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-500 transition-colors duration-200">
