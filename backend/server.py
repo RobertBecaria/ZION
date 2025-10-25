@@ -6058,8 +6058,13 @@ async def get_work_organization_members(
             user = await db.users.find_one({"id": member["user_id"]})
             
             if user:
+                # Handle field mapping for member
+                member_data = member.copy()
+                if "member_id" in member_data:
+                    member_data["id"] = member_data.pop("member_id")
+                
                 member_response = WorkMemberResponse(
-                    **member,
+                    **member_data,
                     user_first_name=user["first_name"],
                     user_last_name=user["last_name"],
                     user_email=user["email"],
