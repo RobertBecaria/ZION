@@ -5696,6 +5696,406 @@ async def upload_document_scan(
 
 # === END MY INFO MODULE API ENDPOINTS ===
 
+# === WORK ORGANIZATION SYSTEM API ENDPOINTS ===
+
+@api_router.post("/work/organizations/search")
+async def search_work_organizations(
+    search_data: WorkOrganizationSearch,
+    current_user: User = Depends(get_current_user)
+):
+    """Search for existing work organizations by name"""
+    try:
+        # Build search query
+        search_query = {
+            "name": {"$regex": search_data.query, "$options": "i"},
+            "is_active": True
+        }
+        
+        if search_data.organization_type:
+            search_query["organization_type"] = search_data.organization_type.value
+        
+        # Find matching organizations
+        organizations = await db.work_organizations.find(search_query).limit(10).to_list(10)
+        
+        results = []
+        for org in organizations:
+            # Check if user is already a member
+            membership = await db.work_members.find_one({
+                "organization_id": org["id"],
+                "user_id": current_user.id,
+                "is_active": True
+            })
+            
+            results.append({
+                "id": org["id"],
+                "name": org["name"],
+                "organization_type": org["organization_type"],
+                "industry": org.get("industry"),
+                "member_count": org.get("member_count", 0),
+                "logo_url": org.get("logo_url"),
+                "is_member": membership is not None
+            })
+        
+        return {"organizations": results, "count": len(results)}
+        
+    except Exception as e:
+        print(f"Organization search error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations", response_model=WorkOrganizationResponse)
+async def create_work_organization(
+    org_data: WorkOrganizationCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new work organization"""
+    try:
+        # Check if organization with same name already exists
+        existing = await db.work_organizations.find_one({
+            "name": {"$regex": f"^{re.escape(org_data.name)}$", "$options": "i"},
+            "is_active": True
+        })
+        
+        if existing:
+            raise HTTPException(
+                status_code=400,
+                detail="An organization with this name already exists"
+            )
+        
+        # Create organization
+        organization = WorkOrganization(
+            name=org_data.name,
+            organization_type=org_data.organization_type,
+            description=org_data.description,
+            industry=org_data.industry,
+            organization_size=org_data.organization_size,
+            founded_year=org_data.founded_year,
+            website=org_data.website,
+            official_email=org_data.official_email,
+            address_street=org_data.address_street,
+            address_city=org_data.address_city,
+            address_state=org_data.address_state,
+            address_country=org_data.address_country,
+            address_postal_code=org_data.address_postal_code,
+            is_private=org_data.is_private,
+            allow_public_discovery=org_data.allow_public_discovery,
+            creator_id=current_user.id
+        )
+        
+        # Insert organization
+        org_dict = organization.model_dump(by_alias=True)
+        await db.work_organizations.insert_one(org_dict)
+        
+        # Add creator as first member with admin privileges
+        member = WorkMember(
+            organization_id=organization.id,
+            user_id=current_user.id,
+            role=org_data.creator_role,
+            custom_role_name=org_data.custom_role_name if org_data.creator_role == WorkRole.CUSTOM else None,
+            department=org_data.creator_department,
+            team=org_data.creator_team,
+            job_title=org_data.creator_job_title,
+            can_invite=True,
+            is_admin=True
+        )
+        
+        member_dict = member.model_dump(by_alias=True)
+        await db.work_members.insert_one(member_dict)
+        
+        # Return response with user membership details
+        return WorkOrganizationResponse(
+            **org_dict,
+            user_role=org_data.creator_role,
+            user_custom_role_name=org_data.custom_role_name,
+            user_department=org_data.creator_department,
+            user_team=org_data.creator_team,
+            user_is_admin=True
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Create organization error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations")
+async def get_user_work_organizations(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all work organizations where user is a member"""
+    try:
+        # Get user's memberships
+        memberships = await db.work_members.find({
+            "user_id": current_user.id,
+            "is_active": True
+        }).to_list(100)
+        
+        organizations = []
+        for membership in memberships:
+            org = await db.work_organizations.find_one({
+                "id": membership["organization_id"],
+                "is_active": True
+            })
+            
+            if org:
+                org_response = WorkOrganizationResponse(
+                    **org,
+                    user_role=WorkRole(membership["role"]),
+                    user_custom_role_name=membership.get("custom_role_name"),
+                    user_department=membership.get("department"),
+                    user_team=membership.get("team"),
+                    user_is_admin=membership.get("is_admin", False)
+                )
+                organizations.append(org_response)
+        
+        return {"organizations": organizations, "count": len(organizations)}
+        
+    except Exception as e:
+        print(f"Get organizations error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}", response_model=WorkOrganizationResponse)
+async def get_work_organization(
+    organization_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get specific work organization details"""
+    try:
+        org = await db.work_organizations.find_one({
+            "id": organization_id,
+            "is_active": True
+        })
+        
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+        
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        # If organization is private and user is not a member, deny access
+        if org.get("is_private", False) and not membership:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied. This organization is private."
+            )
+        
+        # Build response with user's membership details
+        response_data = WorkOrganizationResponse(**org)
+        
+        if membership:
+            response_data.user_role = WorkRole(membership["role"])
+            response_data.user_custom_role_name = membership.get("custom_role_name")
+            response_data.user_department = membership.get("department")
+            response_data.user_team = membership.get("team")
+            response_data.user_is_admin = membership.get("is_admin", False)
+        
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Get organization error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/members")
+async def add_work_member(
+    organization_id: str,
+    member_data: WorkMemberAdd,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a new member to work organization"""
+    try:
+        # Check if organization exists
+        org = await db.work_organizations.find_one({
+            "id": organization_id,
+            "is_active": True
+        })
+        
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+        
+        # Check if current user has permission to add members
+        current_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not current_membership or not current_membership.get("can_invite", False):
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to add members"
+            )
+        
+        # Find user by email
+        target_user = await db.users.find_one({"email": member_data.user_email})
+        
+        if not target_user:
+            raise HTTPException(
+                status_code=404,
+                detail="User not found with this email"
+            )
+        
+        # Check if user is already a member
+        existing_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": target_user["id"],
+            "is_active": True
+        })
+        
+        if existing_membership:
+            raise HTTPException(
+                status_code=400,
+                detail="User is already a member of this organization"
+            )
+        
+        # Create new member
+        member = WorkMember(
+            organization_id=organization_id,
+            user_id=target_user["id"],
+            role=member_data.role,
+            custom_role_name=member_data.custom_role_name if member_data.role == WorkRole.CUSTOM else None,
+            department=member_data.department,
+            team=member_data.team,
+            job_title=member_data.job_title,
+            can_invite=member_data.can_invite,
+            is_admin=member_data.is_admin
+        )
+        
+        member_dict = member.model_dump(by_alias=True)
+        await db.work_members.insert_one(member_dict)
+        
+        # Update organization member count
+        await db.work_organizations.update_one(
+            {"id": organization_id},
+            {"$inc": {"member_count": 1}}
+        )
+        
+        return {
+            "message": "Member added successfully",
+            "member_id": member.id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Add member error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/members")
+async def get_work_organization_members(
+    organization_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all members of a work organization"""
+    try:
+        # Check if organization exists
+        org = await db.work_organizations.find_one({
+            "id": organization_id,
+            "is_active": True
+        })
+        
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+        
+        # Check if user is a member (for private organizations)
+        if org.get("is_private", False):
+            membership = await db.work_members.find_one({
+                "organization_id": organization_id,
+                "user_id": current_user.id,
+                "is_active": True
+            })
+            
+            if not membership:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Access denied"
+                )
+        
+        # Get all members
+        members = await db.work_members.find({
+            "organization_id": organization_id,
+            "is_active": True
+        }).to_list(1000)
+        
+        # Enrich with user details
+        member_responses = []
+        for member in members:
+            user = await db.users.find_one({"id": member["user_id"]})
+            
+            if user:
+                member_response = WorkMemberResponse(
+                    **member,
+                    user_first_name=user["first_name"],
+                    user_last_name=user["last_name"],
+                    user_email=user["email"],
+                    user_avatar_url=user.get("avatar_url") or user.get("profile_picture")
+                )
+                member_responses.append(member_response)
+        
+        # Group by department
+        departments = {}
+        for member in member_responses:
+            dept = member.department or "No Department"
+            if dept not in departments:
+                departments[dept] = []
+            departments[dept].append(member)
+        
+        return {
+            "members": member_responses,
+            "count": len(member_responses),
+            "departments": departments
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Get members error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/work/organizations/{organization_id}")
+async def update_work_organization(
+    organization_id: str,
+    update_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update work organization details (admin only)"""
+    try:
+        # Check if user is admin
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership or not membership.get("is_admin", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Only admins can update organization details"
+            )
+        
+        # Update organization
+        update_dict = {k: v for k, v in update_data.items() if v is not None}
+        update_dict["updated_at"] = datetime.now(timezone.utc)
+        
+        await db.work_organizations.update_one(
+            {"id": organization_id},
+            {"$set": update_dict}
+        )
+        
+        return {"message": "Organization updated successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Update organization error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# === END WORK ORGANIZATION SYSTEM API ENDPOINTS ===
+
 # Basic status endpoints
 @api_router.get("/")
 async def root():
