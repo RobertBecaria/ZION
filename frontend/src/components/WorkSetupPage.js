@@ -65,7 +65,7 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6">
         <div className="max-w-4xl mx-auto">
           <button
-            onClick={() => navigate(-1)}
+            onClick={onBack}
             className="mb-6 text-gray-600 hover:text-gray-900 flex items-center gap-2 transition-colors duration-200"
           >
             ← Back
