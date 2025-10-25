@@ -6228,6 +6228,332 @@ async def leave_work_organization(
         print(f"Leave organization error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.delete("/work/organizations/{organization_id}/members/{user_id}")
+async def remove_work_organization_member(
+    organization_id: str,
+    user_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove a member from organization (admin only)"""
+    try:
+        # Check if current user is admin
+        admin_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not admin_membership or not admin_membership.get("is_admin", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Only admins can remove members"
+            )
+        
+        # Cannot remove yourself this way (use leave endpoint instead)
+        if user_id == current_user.id:
+            raise HTTPException(
+                status_code=400,
+                detail="Use the leave endpoint to remove yourself"
+            )
+        
+        # Find the member to remove
+        member = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": user_id,
+            "is_active": True
+        })
+        
+        if not member:
+            raise HTTPException(
+                status_code=404,
+                detail="Member not found"
+            )
+        
+        # Get organization to check creator
+        org = await db.work_organizations.find_one({
+            "$or": [
+                {"id": organization_id},
+                {"organization_id": organization_id}
+            ]
+        })
+        
+        # Cannot remove the organization creator/owner
+        if org and org.get("creator_id") == user_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot remove the organization owner. Transfer ownership first."
+            )
+        
+        # Remove the member (soft delete)
+        await db.work_members.update_one(
+            {"_id": member["_id"]},
+            {
+                "$set": {
+                    "is_active": False,
+                    "removed_at": datetime.now(timezone.utc),
+                    "removed_by": current_user.id
+                }
+            }
+        )
+        
+        # Update organization member count
+        await db.work_organizations.update_one(
+            {"$or": [{"id": organization_id}, {"organization_id": organization_id}]},
+            {"$inc": {"member_count": -1}}
+        )
+        
+        # Send notification to removed member
+        removed_user = await db.users.find_one({"id": user_id})
+        if removed_user:
+            notification = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "type": "work_member_removed",
+                "title": "Вы удалены из организации",
+                "message": f"Вы были удалены из организации {org.get('name', 'Unknown')}",
+                "data": {
+                    "organization_id": organization_id,
+                    "organization_name": org.get("name"),
+                    "removed_by": current_user.id
+                },
+                "is_read": False,
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.notifications.insert_one(notification)
+        
+        return {
+            "message": "Member removed successfully",
+            "user_id": user_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Remove member error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/work/organizations/{organization_id}/members/{user_id}/role")
+async def update_work_member_role(
+    organization_id: str,
+    user_id: str,
+    update_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a member's role or admin status (admin only)"""
+    try:
+        # Check if current user is admin
+        admin_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not admin_membership or not admin_membership.get("is_admin", False):
+            raise HTTPException(
+                status_code=403,
+                detail="Only admins can update member roles"
+            )
+        
+        # Find the member to update
+        member = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": user_id,
+            "is_active": True
+        })
+        
+        if not member:
+            raise HTTPException(
+                status_code=404,
+                detail="Member not found"
+            )
+        
+        # Get organization to check creator
+        org = await db.work_organizations.find_one({
+            "$or": [
+                {"id": organization_id},
+                {"organization_id": organization_id}
+            ]
+        })
+        
+        # Cannot change role of organization owner (only ownership transfer can do that)
+        if org and org.get("creator_id") == user_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot change the owner's role. Use transfer ownership instead."
+            )
+        
+        # Build update dict
+        update_dict = {}
+        if "is_admin" in update_data:
+            update_dict["is_admin"] = update_data["is_admin"]
+        if "role" in update_data:
+            update_dict["role"] = update_data["role"]
+        if "job_title" in update_data:
+            update_dict["job_title"] = update_data["job_title"]
+        if "department" in update_data:
+            update_dict["department"] = update_data["department"]
+        if "team" in update_data:
+            update_dict["team"] = update_data["team"]
+        if "can_post" in update_data:
+            update_dict["can_post"] = update_data["can_post"]
+        if "can_invite" in update_data:
+            update_dict["can_invite"] = update_data["can_invite"]
+        
+        if not update_dict:
+            raise HTTPException(status_code=400, detail="No valid fields to update")
+        
+        # Update the member
+        await db.work_members.update_one(
+            {"_id": member["_id"]},
+            {"$set": update_dict}
+        )
+        
+        # Send notification to member about role change
+        target_user = await db.users.find_one({"id": user_id})
+        if target_user and ("is_admin" in update_data or "role" in update_data):
+            role_text = "администратором" if update_data.get("is_admin") else "членом"
+            notification = {
+                "id": str(uuid.uuid4()),
+                "user_id": user_id,
+                "type": "work_role_updated",
+                "title": "Ваша роль изменена",
+                "message": f"Ваша роль в организации {org.get('name', 'Unknown')} была изменена на {role_text}",
+                "data": {
+                    "organization_id": organization_id,
+                    "organization_name": org.get("name"),
+                    "new_role": update_data.get("role"),
+                    "is_admin": update_data.get("is_admin"),
+                    "updated_by": current_user.id
+                },
+                "is_read": False,
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.notifications.insert_one(notification)
+        
+        return {
+            "message": "Member role updated successfully",
+            "user_id": user_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Update member role error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/transfer-ownership")
+async def transfer_organization_ownership(
+    organization_id: str,
+    data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Transfer organization ownership to another admin (owner only)"""
+    try:
+        new_owner_id = data.get("new_owner_id")
+        
+        if not new_owner_id:
+            raise HTTPException(status_code=400, detail="new_owner_id is required")
+        
+        # Get organization
+        org = await db.work_organizations.find_one({
+            "$or": [
+                {"id": organization_id},
+                {"organization_id": organization_id}
+            ]
+        })
+        
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+        
+        # Check if current user is the owner
+        if org.get("creator_id") != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the organization owner can transfer ownership"
+            )
+        
+        # Cannot transfer to yourself
+        if new_owner_id == current_user.id:
+            raise HTTPException(
+                status_code=400,
+                detail="You are already the owner"
+            )
+        
+        # Check if new owner is a member and preferably an admin
+        new_owner_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": new_owner_id,
+            "is_active": True
+        })
+        
+        if not new_owner_membership:
+            raise HTTPException(
+                status_code=404,
+                detail="New owner must be a member of the organization"
+            )
+        
+        # Update organization creator
+        await db.work_organizations.update_one(
+            {"_id": org["_id"]},
+            {
+                "$set": {
+                    "creator_id": new_owner_id,
+                    "updated_at": datetime.now(timezone.utc)
+                }
+            }
+        )
+        
+        # Make new owner an admin if not already
+        if not new_owner_membership.get("is_admin", False):
+            await db.work_members.update_one(
+                {"_id": new_owner_membership["_id"]},
+                {"$set": {"is_admin": True}}
+            )
+        
+        # Old owner remains as admin
+        old_owner_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if old_owner_membership and not old_owner_membership.get("is_admin", False):
+            await db.work_members.update_one(
+                {"_id": old_owner_membership["_id"]},
+                {"$set": {"is_admin": True}}
+            )
+        
+        # Send notification to new owner
+        new_owner = await db.users.find_one({"id": new_owner_id})
+        if new_owner:
+            notification = {
+                "id": str(uuid.uuid4()),
+                "user_id": new_owner_id,
+                "type": "work_ownership_transferred",
+                "title": "Вы теперь владелец организации",
+                "message": f"Владение организацией {org.get('name', 'Unknown')} передано вам",
+                "data": {
+                    "organization_id": organization_id,
+                    "organization_name": org.get("name"),
+                    "previous_owner": current_user.id
+                },
+                "is_read": False,
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.notifications.insert_one(notification)
+        
+        return {
+            "message": "Ownership transferred successfully",
+            "new_owner_id": new_owner_id,
+            "organization_id": organization_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Transfer ownership error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/work/organizations/{organization_id}/join")
 async def join_work_organization(
     organization_id: str,
