@@ -73,7 +73,7 @@ const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
               className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
               <Building2 className="w-5 h-5" />
-              Get Started
+              Начать
             </button>
           </div>
         </div>
