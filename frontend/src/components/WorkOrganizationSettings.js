@@ -677,6 +677,21 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
           </div>
         </div>
       )}
+
+      {/* Transfer Ownership Modal */}
+      {showTransferOwnership && (
+        <WorkTransferOwnershipModal
+          organizationId={organizationId}
+          organizationName={organization?.name}
+          currentOwnerId={currentUserId}
+          onClose={() => setShowTransferOwnership(false)}
+          onSuccess={() => {
+            setShowTransferOwnership(false);
+            loadOrganization();
+            onSuccess && onSuccess();
+          }}
+        />
+      )}
     </div>
   );
 };
