@@ -36,7 +36,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
           <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-600">Organization not found</p>
           <button
-            onClick={() => navigate('/work/organizations')}
+            onClick={onBack}
             className="mt-4 text-orange-600 hover:text-orange-700 font-semibold"
           >
             ← Back to Organizations
