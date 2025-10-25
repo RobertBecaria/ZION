@@ -1,0 +1,29 @@
+{
+  "total_tests": 3,
+  "passed_tests": 0,
+  "failed_tests": 3,
+  "success_rate": 0.0,
+  "test_results": [
+    {
+      "test_name": "User Login (owner)",
+      "success": false,
+      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
+      "timestamp": "2025-10-25T19:27:58.981464"
+    },
+    {
+      "test_name": "User Login (admin)",
+      "success": false,
+      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
+      "timestamp": "2025-10-25T19:27:59.022557"
+    },
+    {
+      "test_name": "User Login (member)",
+      "success": false,
+      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
+      "timestamp": "2025-10-25T19:27:59.064372"
+    }
+  ],
+  "organization_id": null,
+  "user_ids": {},
+  "focus": "Organization posts permission fix verification"
+}
