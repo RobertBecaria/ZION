@@ -7016,7 +7016,7 @@ async def create_work_post(
             )
         
         # Create post
-        post_id = str(uuid4())
+        post_id = str(uuid.uuid4())
         post = {
             "id": post_id,
             "organization_id": organization_id,
