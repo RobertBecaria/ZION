@@ -119,8 +119,9 @@ class WorkModuleAPITester:
 
     def test_create_organization(self):
         """Test creating a work organization"""
+        timestamp = datetime.now().strftime('%H%M%S')
         org_data = {
-            "name": "Tech Innovations Ltd",
+            "name": f"Tech Innovations Ltd {timestamp}",
             "organization_type": "COMPANY",
             "description": "Leading technology innovation company specializing in digital transformation",
             "industry": "Technology",
