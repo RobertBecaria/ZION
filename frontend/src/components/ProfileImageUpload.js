@@ -194,17 +194,10 @@ function ProfileImageUpload({
       <button
         className={type === 'banner' ? 'banner-upload-btn' : 'avatar-upload-btn'}
         onClick={(e) => {
-          console.log(`[ProfileImageUpload] Button clicked for ${type}`, e);
-          console.log('[ProfileImageUpload] Event target:', e.target);
-          console.log('[ProfileImageUpload] Event currentTarget:', e.currentTarget);
           e.stopPropagation();
           e.preventDefault();
           openModal();
         }}
-        onMouseEnter={() => console.log(`[ProfileImageUpload] Mouse enter ${type} button`)}
-        onMouseLeave={() => console.log(`[ProfileImageUpload] Mouse leave ${type} button`)}
-        onMouseDown={(e) => console.log(`[ProfileImageUpload] Mouse down ${type}`, e.button)}
-        onMouseUp={(e) => console.log(`[ProfileImageUpload] Mouse up ${type}`, e.button)}
         title={type === 'banner' ? 'Изменить баннер' : 'Изменить аватар'}
         type="button"
         style={{ 
