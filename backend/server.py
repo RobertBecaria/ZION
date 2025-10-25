@@ -5802,8 +5802,12 @@ async def create_work_organization(
         await db.work_members.insert_one(member_dict)
         
         # Return response with user membership details
+        response_data = org_dict.copy()
+        if "organization_id" in response_data:
+            response_data["id"] = response_data.pop("organization_id")
+        
         return WorkOrganizationResponse(
-            **org_dict,
+            **response_data,
             user_role=org_data.creator_role,
             user_custom_role_name=org_data.custom_role_name,
             user_department=org_data.creator_department,
