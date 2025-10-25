@@ -5471,6 +5471,8 @@ async def update_my_info(
         update_data["phone"] = info_update.phone
     if info_update.date_of_birth is not None:
         update_data["date_of_birth"] = info_update.date_of_birth
+    if info_update.gender is not None:
+        update_data["gender"] = info_update.gender  # NEW: Update gender
     
     # Address fields
     if info_update.address_street is not None:
