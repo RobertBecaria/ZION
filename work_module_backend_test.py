@@ -459,7 +459,7 @@ class WorkModuleAPITester:
             print(f"  ✓ Post created: {post_id}")
         
         # Get organization posts
-        success, response = self.make_request("GET", f"work/organizations/{self.organization_id}/posts", None, 200, "admin")
+        success, response = self.make_request("GET", f"work/organizations/{self.organization_id}/posts", None, 200, "owner")
         
         if success and "posts" in response and len(response["posts"]) > 0:
             self.log_test("Organization Posts (Create & Retrieve)", True)
