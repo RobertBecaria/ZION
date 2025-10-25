@@ -181,7 +181,7 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
           <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
           <div className="grid md:grid-cols-2 gap-4">
             <button
-              onClick={() => navigate('/work/setup?mode=join')}
+              onClick={() => onJoinOrg && onJoinOrg()}
               className="flex items-center gap-4 p-4 rounded-xl border-2 border-gray-200 hover:border-orange-500 transition-all duration-200 hover:scale-105 group"
             >
               <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center group-hover:bg-orange-500 transition-colors duration-200">
