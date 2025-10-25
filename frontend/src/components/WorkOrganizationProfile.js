@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import { Building2, Users, MapPin, Globe, Mail, Calendar, Settings, UserPlus, Edit, Share2, Briefcase, ChevronRight, Crown } from 'lucide-react';
 import { mockOrganizations, getOrganizationMembers, getMembersByDepartment, getOrganizationPosts } from '../mock-work';
-import UniversalWall from './UniversalWall';
-import ContentNavigation from './ContentNavigation';
 
-const WorkOrganizationProfile = () => {
-  const { organizationId } = useParams();
-  const navigate = useNavigate();
+const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSettings }) => {
   const [organization, setOrganization] = useState(null);
   const [members, setMembers] = useState([]);
   const [membersByDept, setMembersByDept] = useState({});
