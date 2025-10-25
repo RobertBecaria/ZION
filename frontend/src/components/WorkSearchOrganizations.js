@@ -133,31 +133,68 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   };
 
   const handleJoinOrganization = async (orgId, isPrivate) => {
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    const token = localStorage.getItem('zion_token');
+
     if (isPrivate) {
       // Request to join private organization
       setRequestingOrgId(orgId);
       
-      // TODO: Replace with actual API call
-      setTimeout(() => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/work/organizations/${orgId}/request-join`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: '' })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to send request');
+        }
+
         // Update the org in results to show pending request
         setSearchResults(prev => prev.map(org => 
           org.id === orgId ? { ...org, user_has_pending_request: true } : org
         ));
+      } catch (error) {
+        console.error('Request join error:', error);
+        alert(error.message);
+      } finally {
         setRequestingOrgId(null);
-      }, 1000);
+      }
     } else {
       // Join public organization instantly
       setJoiningOrgId(orgId);
       
-      // TODO: Replace with actual API call
-      setTimeout(() => {
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/work/organizations/${orgId}/join`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.detail || 'Failed to join organization');
+        }
+
         // Update the org in results to show membership
         setSearchResults(prev => prev.map(org => 
           org.id === orgId ? { ...org, user_is_member: true } : org
         ));
-        setJoiningOrgId(null);
+        
         onJoinSuccess && onJoinSuccess(orgId);
-      }, 1000);
+      } catch (error) {
+        console.error('Join error:', error);
+        alert(error.message);
+      } finally {
+        setJoiningOrgId(null);
+      }
     }
   };
 
