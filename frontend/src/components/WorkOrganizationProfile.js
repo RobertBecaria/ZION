@@ -13,6 +13,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
 
   useEffect(() => {
