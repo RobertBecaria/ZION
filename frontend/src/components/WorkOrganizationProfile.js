@@ -78,22 +78,20 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
       <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white p-6 flex items-center justify-center">
         <div className="text-center">
           <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600">Organization not found</p>
+          <p className="text-gray-600">{error || 'Организация не найдена'}</p>
           <button
             onClick={onBack}
             className="mt-4 text-orange-600 hover:text-orange-700 font-semibold"
           >
-            ← Back to Organizations
+            ← Назад к организациям
           </button>
         </div>
       </div>
     );
   }
 
-  // Check if current user is admin
-  const currentUserMembership = members.find(m => m.user_id === currentUserId);
-  const isAdmin = currentUserMembership?.is_admin || false;
-  const canInvite = currentUserMembership?.can_invite || false;
+  // Get current user membership data from organization object
+  const currentUserRole = organization.user_role;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-white">
