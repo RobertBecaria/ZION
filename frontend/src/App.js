@@ -1471,7 +1471,20 @@ function Dashboard() {
 
                         {activeModule === 'organizations' && (
                           <>
-                            {(activeView === 'wall' || activeView === 'feed') ? (
+                            {/* MY WORK View */}
+                            {activeView === 'my-work' ? (
+                              <ErrorBoundary>
+                                <WorkOrganizationList />
+                              </ErrorBoundary>
+                            ) : activeView === 'work-setup' ? (
+                              <ErrorBoundary>
+                                <WorkSetupPage />
+                              </ErrorBoundary>
+                            ) : activeView === 'work-trigger' ? (
+                              <ErrorBoundary>
+                                <WorkTriggerFlow />
+                              </ErrorBoundary>
+                            ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
                                 moduleColor={currentModule.color}
