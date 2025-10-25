@@ -425,6 +425,142 @@ class FamilyPost(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: Optional[datetime] = None
 
+# === WORK ORGANIZATION SYSTEM MODELS ===
+
+class WorkRole(str, Enum):
+    CEO = "CEO"
+    CTO = "CTO"
+    CFO = "CFO"
+    COO = "COO"
+    FOUNDER = "FOUNDER"
+    CO_FOUNDER = "CO_FOUNDER"
+    PRESIDENT = "PRESIDENT"
+    VICE_PRESIDENT = "VICE_PRESIDENT"
+    DIRECTOR = "DIRECTOR"
+    MANAGER = "MANAGER"
+    SENIOR_MANAGER = "SENIOR_MANAGER"
+    TEAM_LEAD = "TEAM_LEAD"
+    EMPLOYEE = "EMPLOYEE"
+    SENIOR_EMPLOYEE = "SENIOR_EMPLOYEE"
+    CONTRACTOR = "CONTRACTOR"
+    INTERN = "INTERN"
+    CONSULTANT = "CONSULTANT"
+    CUSTOM = "CUSTOM"
+
+class OrganizationType(str, Enum):
+    COMPANY = "COMPANY"
+    STARTUP = "STARTUP"
+    NGO = "NGO"
+    NON_PROFIT = "NON_PROFIT"
+    GOVERNMENT = "GOVERNMENT"
+    EDUCATIONAL = "EDUCATIONAL"
+    HEALTHCARE = "HEALTHCARE"
+    OTHER = "OTHER"
+
+class OrganizationSize(str, Enum):
+    SIZE_1_10 = "1-10"
+    SIZE_11_50 = "11-50"
+    SIZE_51_200 = "51-200"
+    SIZE_201_500 = "201-500"
+    SIZE_500_PLUS = "500+"
+
+class WorkOrganization(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="organization_id")
+    name: str
+    organization_type: OrganizationType = OrganizationType.COMPANY
+    
+    # Organization Details
+    description: Optional[str] = None
+    industry: Optional[str] = None
+    organization_size: Optional[OrganizationSize] = None
+    founded_year: Optional[int] = None
+    
+    # Contact & Location
+    website: Optional[str] = None
+    official_email: Optional[str] = None
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    
+    # Branding
+    logo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    
+    # Privacy Settings
+    is_private: bool = False  # Public by default
+    allow_public_discovery: bool = True
+    
+    # Statistics
+    member_count: int = 1
+    
+    # Metadata
+    creator_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+    class Config:
+        populate_by_name = True
+
+class WorkMember(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="member_id")
+    organization_id: str
+    user_id: str
+    
+    # Position Details
+    role: WorkRole = WorkRole.EMPLOYEE
+    custom_role_name: Optional[str] = None  # If role is CUSTOM
+    department: Optional[str] = None  # Sales, Engineering, HR, Marketing, etc.
+    team: Optional[str] = None  # Specific team within department
+    
+    # Employment Details
+    job_title: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    is_current: bool = True
+    
+    # Permissions
+    can_post: bool = True
+    can_invite: bool = False  # Only managers and above
+    is_admin: bool = False
+    
+    # Status
+    status: str = "ACTIVE"  # ACTIVE, INACTIVE, LEFT
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+    class Config:
+        populate_by_name = True
+
+class WorkPost(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    posted_by_user_id: str
+    
+    # Content
+    title: Optional[str] = None
+    content: str
+    
+    # Privacy
+    privacy_level: str = "PUBLIC"  # PUBLIC, ORGANIZATION_ONLY, DEPARTMENT_ONLY
+    target_department: Optional[str] = None  # If department-specific
+    
+    # Media
+    media_files: List[str] = []
+    youtube_urls: List[str] = []
+    
+    # Engagement
+    likes_count: int = 0
+    comments_count: int = 0
+    
+    # Metadata
+    is_published: bool = True
+    is_pinned: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
 # === INPUT/OUTPUT MODELS ===
 
 class UserRegistration(BaseModel):
