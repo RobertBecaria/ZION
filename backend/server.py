@@ -6590,7 +6590,7 @@ async def join_work_organization(
         
         # Create new membership
         new_member = {
-            "id": str(uuid4()),
+            "id": str(uuid.uuid4()),
             "organization_id": organization_id,
             "user_id": current_user.id,
             "role": "Member",
