@@ -7189,7 +7189,7 @@ async def toggle_post_like(
         else:
             # Like - add the like
             like = {
-                "id": str(uuid4()),
+                "id": str(uuid.uuid4()),
                 "post_id": post_id,
                 "user_id": current_user.id,
                 "created_at": datetime.now(timezone.utc)
