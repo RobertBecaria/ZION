@@ -6605,6 +6605,61 @@ async def cancel_join_request(
 
 # === WORK ORGANIZATION POSTS API ENDPOINTS ===
 
+@api_router.get("/work/posts/feed")
+async def get_work_feed(
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get posts feed from all organizations user is a member of"""
+    try:
+        # Get all organizations user is a member of
+        memberships = await db.work_members.find({
+            "user_id": current_user.id,
+            "is_active": True
+        }).to_list(length=None)
+        
+        org_ids = [m["organization_id"] for m in memberships]
+        
+        if not org_ids:
+            return {"posts": [], "count": 0}
+        
+        # Get posts from all these organizations
+        posts = await db.work_posts.find({
+            "organization_id": {"$in": org_ids}
+        }).sort("created_at", -1).limit(limit).to_list(length=limit)
+        
+        # For each post, add organization info and check if user liked it
+        for post in posts:
+            post.pop("_id", None)
+            
+            # Get organization info
+            org = await db.work_organizations.find_one({
+                "$or": [
+                    {"id": post["organization_id"]},
+                    {"organization_id": post["organization_id"]}
+                ]
+            })
+            
+            if org:
+                post["organization_name"] = org.get("name", "Unknown")
+                post["organization_logo"] = org.get("logo_url", "")
+            else:
+                post["organization_name"] = "Unknown Organization"
+                post["organization_logo"] = ""
+            
+            # Check if user liked this post
+            like = await db.work_post_likes.find_one({
+                "post_id": post["id"],
+                "user_id": current_user.id
+            })
+            post["user_has_liked"] = like is not None
+        
+        return {"posts": posts, "count": len(posts)}
+        
+    except Exception as e:
+        print(f"Get feed error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/work/organizations/{organization_id}/posts")
 async def create_work_post(
     organization_id: str,
