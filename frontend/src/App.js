@@ -1491,10 +1491,36 @@ function Dashboard() {
                                     setActiveView('work-setup');
                                   }}
                                   onJoinOrg={() => {
-                                    setWorkSetupMode('search');
-                                    setActiveView('work-setup');
+                                    setActiveView('work-search');
+                                  }}
+                                  onViewRequests={() => {
+                                    setActiveView('work-requests');
                                   }}
                                   onExploreFeed={() => setActiveView('feed')}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'work-search' ? (
+                              <ErrorBoundary>
+                                <WorkSearchOrganizations
+                                  onBack={() => setActiveView('my-work')}
+                                  onViewProfile={(orgId) => {
+                                    setSelectedOrganizationId(orgId);
+                                    setActiveView('work-org-profile');
+                                  }}
+                                  onJoinSuccess={(orgId) => {
+                                    setSelectedOrganizationId(orgId);
+                                    setActiveView('work-org-profile');
+                                  }}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'work-requests' ? (
+                              <ErrorBoundary>
+                                <WorkJoinRequests
+                                  onBack={() => setActiveView('my-work')}
+                                  onViewProfile={(orgId) => {
+                                    setSelectedOrganizationId(orgId);
+                                    setActiveView('work-org-profile');
+                                  }}
                                 />
                               </ErrorBoundary>
                             ) : activeView === 'work-setup' ? (
@@ -1517,8 +1543,7 @@ function Dashboard() {
                                     setActiveView('work-setup');
                                   }}
                                   onJoinOrg={() => {
-                                    setWorkSetupMode('search');
-                                    setActiveView('work-setup');
+                                    setActiveView('work-search');
                                   }}
                                 />
                               </ErrorBoundary>
