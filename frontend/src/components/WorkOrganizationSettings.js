@@ -529,6 +529,31 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
                   <div className="text-sm text-gray-600">Организация будет отображаться в результатах поиска</div>
                 </div>
               </label>
+
+              {/* Danger Zone */}
+              <div className="mt-8 pt-8 border-t-2 border-red-200">
+                <h3 className="text-lg font-semibold text-red-900 mb-4">Опасная зона</h3>
+                
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="font-semibold text-red-900">Покинуть организацию</h4>
+                      <p className="text-sm text-red-700 mt-1">
+                        После выхода вы потеряете доступ ко всему контенту организации и чатам. Это действие нельзя отменить.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setShowLeaveConfirm(true)}
+                  className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold transition-all duration-200 flex items-center gap-2"
+                >
+                  <LogOut className="w-5 h-5" />
+                  Покинуть компанию
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -563,6 +588,60 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
           </button>
         </div>
       </div>
+
+      {/* Leave Confirmation Dialog */}
+      {showLeaveConfirm && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[60]">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="p-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-red-500" />
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-900 text-center mb-2">
+                Покинуть организацию?
+              </h3>
+              
+              <p className="text-gray-600 text-center mb-6">
+                Вы уверены, что хотите покинуть "{organization?.name}"? Это действие нельзя отменить, и вам придется запросить новое приглашение для возврата.
+              </p>
+
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-3 mb-4">
+                  <p className="text-sm text-red-700">{error}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowLeaveConfirm(false)}
+                  disabled={leaving}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-semibold text-gray-700"
+                >
+                  Отмена
+                </button>
+                <button
+                  onClick={handleLeaveOrganization}
+                  disabled={leaving}
+                  className="flex-1 px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all duration-200 font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {leaving ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      Выход...
+                    </>
+                  ) : (
+                    <>
+                      <LogOut className="w-5 h-5" />
+                      Покинуть
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
