@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Building2, Globe, Mail, MapPin, Image, AlertCircle, Check, Upload, Trash2 } from 'lucide-react';
+import { X, Save, Building2, Globe, Mail, MapPin, Image, AlertCircle, Check, Upload, Trash2, LogOut } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
 
-const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess }) => {
+const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveOrganization }) => {
   const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
