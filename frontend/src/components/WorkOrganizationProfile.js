@@ -488,6 +488,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
           organizationId={organizationId}
           onClose={() => setShowSettingsModal(false)}
           onSuccess={handleSettingsSuccess}
+          onLeaveOrganization={onBack}
         />
       )}
     </div>
