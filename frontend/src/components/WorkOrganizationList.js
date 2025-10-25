@@ -38,14 +38,14 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  onClick={() => navigate('/work/setup?mode=create')}
+                  onClick={handleCreateNew}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors duration-200 font-semibold"
                 >
                   <Plus className="w-5 h-5" />
                   Create Organization
                 </button>
                 <button
-                  onClick={() => navigate('/work/setup?mode=join')}
+                  onClick={() => onJoinOrg && onJoinOrg()}
                   className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-orange-600 border-2 border-orange-500 rounded-xl hover:bg-orange-50 transition-colors duration-200 font-semibold"
                 >
                   <Users className="w-5 h-5" />
