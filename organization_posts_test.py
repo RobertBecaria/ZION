@@ -148,8 +148,8 @@ class OrganizationPostsAPITester:
         
         success, response = self.make_request("POST", "work/organizations", org_data, 200, user_type)
         
-        if success and "organization" in response:
-            self.organization_id = response["organization"]["id"]
+        if success and "id" in response:
+            self.organization_id = response["id"]
             self.log_test(f"Create Organization ({user_type})", True, f"Created org: {self.organization_id}")
             return True
         else:
