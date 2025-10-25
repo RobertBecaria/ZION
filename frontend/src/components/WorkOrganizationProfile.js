@@ -10,6 +10,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
   const [activeTab, setActiveTab] = useState('about'); // 'about', 'members', 'posts'
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showInviteModal, setShowInviteModal] = useState(false);
 
   useEffect(() => {
     const loadOrganizationData = async () => {
