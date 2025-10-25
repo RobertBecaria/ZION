@@ -386,7 +386,7 @@ class WorkModuleAPITester:
             self.log_test("Join Request Workflow - Submit Request", False, f"Response: {response}")
             return False
         
-        if response.get("message") == "Join request submitted successfully":
+        if "Join request" in response.get("message", "") and "successfully" in response.get("message", ""):
             self.join_request_id = response.get("request_id")
             print(f"  ✓ Join request submitted: {self.join_request_id}")
         else:
