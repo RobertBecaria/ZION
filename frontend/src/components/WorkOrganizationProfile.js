@@ -8,7 +8,6 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
   const [membersByDept, setMembersByDept] = useState({});
   const [posts, setPosts] = useState([]);
   const [activeTab, setActiveTab] = useState('about'); // 'about', 'members', 'posts'
-  const [showInviteModal, setShowInviteModal] = useState(false);
   const currentUserId = 'user-1'; // Mock current user
 
   useEffect(() => {
