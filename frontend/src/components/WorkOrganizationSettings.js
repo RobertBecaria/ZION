@@ -10,6 +10,9 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
   const [success, setSuccess] = useState(false);
   const [activeSection, setActiveSection] = useState('basic'); // 'basic', 'contact', 'media', 'privacy'
   
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  
   const [formData, setFormData] = useState({
     name: '',
     organization_type: 'COMPANY',
