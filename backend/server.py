@@ -749,6 +749,137 @@ class FamilyPostResponse(BaseModel):
     author: Dict[str, Any]
     family: Dict[str, Any]
 
+# === WORK ORGANIZATION INPUT/OUTPUT MODELS ===
+
+class WorkOrganizationSearch(BaseModel):
+    query: str  # Organization name to search
+    organization_type: Optional[OrganizationType] = None
+
+class WorkOrganizationCreate(BaseModel):
+    # Basic Info
+    name: str
+    organization_type: OrganizationType = OrganizationType.COMPANY
+    
+    # Organization Details
+    description: Optional[str] = None
+    industry: Optional[str] = None
+    organization_size: Optional[OrganizationSize] = None
+    founded_year: Optional[int] = None
+    
+    # Contact & Location
+    website: Optional[str] = None
+    official_email: Optional[str] = None
+    address_street: Optional[str] = None
+    address_city: Optional[str] = None
+    address_state: Optional[str] = None
+    address_country: Optional[str] = None
+    address_postal_code: Optional[str] = None
+    
+    # Privacy
+    is_private: bool = False
+    allow_public_discovery: bool = True
+    
+    # Creator's Role & Position (for initial member)
+    creator_role: WorkRole = WorkRole.EMPLOYEE
+    custom_role_name: Optional[str] = None
+    creator_department: Optional[str] = None
+    creator_team: Optional[str] = None
+    creator_job_title: Optional[str] = None
+
+class WorkOrganizationResponse(BaseModel):
+    id: str
+    name: str
+    organization_type: OrganizationType
+    description: Optional[str]
+    industry: Optional[str]
+    organization_size: Optional[OrganizationSize]
+    founded_year: Optional[int]
+    website: Optional[str]
+    official_email: Optional[str]
+    address_street: Optional[str]
+    address_city: Optional[str]
+    address_state: Optional[str]
+    address_country: Optional[str]
+    address_postal_code: Optional[str]
+    logo_url: Optional[str]
+    banner_url: Optional[str]
+    is_private: bool
+    allow_public_discovery: bool
+    member_count: int
+    creator_id: str
+    created_at: datetime
+    updated_at: datetime
+    is_active: bool
+    
+    # User's membership details (if member)
+    user_role: Optional[WorkRole] = None
+    user_custom_role_name: Optional[str] = None
+    user_department: Optional[str] = None
+    user_team: Optional[str] = None
+    user_is_admin: bool = False
+
+class WorkMemberAdd(BaseModel):
+    user_email: str
+    role: WorkRole = WorkRole.EMPLOYEE
+    custom_role_name: Optional[str] = None
+    department: Optional[str] = None
+    team: Optional[str] = None
+    job_title: Optional[str] = None
+    can_invite: bool = False
+    is_admin: bool = False
+
+class WorkMemberResponse(BaseModel):
+    id: str
+    organization_id: str
+    user_id: str
+    role: WorkRole
+    custom_role_name: Optional[str]
+    department: Optional[str]
+    team: Optional[str]
+    job_title: Optional[str]
+    start_date: Optional[datetime]
+    is_current: bool
+    can_post: bool
+    can_invite: bool
+    is_admin: bool
+    status: str
+    joined_at: datetime
+    
+    # User details
+    user_first_name: str
+    user_last_name: str
+    user_email: str
+    user_avatar_url: Optional[str]
+
+class WorkPostCreate(BaseModel):
+    title: Optional[str] = None
+    content: str
+    privacy_level: str = "PUBLIC"
+    target_department: Optional[str] = None
+    media_file_ids: List[str] = []
+    youtube_urls: List[str] = []
+    is_pinned: bool = False
+
+class WorkPostResponse(BaseModel):
+    id: str
+    organization_id: str
+    title: Optional[str]
+    content: str
+    privacy_level: str
+    target_department: Optional[str]
+    media_files: List[str]
+    youtube_urls: List[str]
+    likes_count: int
+    comments_count: int
+    is_published: bool
+    is_pinned: bool
+    created_at: datetime
+    updated_at: Optional[datetime]
+    
+    # Author details
+    author: Dict[str, Any]
+    organization: Dict[str, Any]
+
 class ChatMessageCreate(BaseModel):
     group_id: str
     content: str
