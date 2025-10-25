@@ -384,7 +384,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
                         key={member.id}
                         member={member}
                         organizationId={organizationId}
-                        isCurrentUser={member.user_id === organization.creator_id}
+                        isCurrentUser={member.user_id === currentUserId}
                         onUpdate={handleMemberUpdate}
                         onRemove={handleMemberRemove}
                       />
