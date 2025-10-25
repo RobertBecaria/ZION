@@ -2268,8 +2268,13 @@ function Dashboard() {
       {showGenderModal && user && (
         <GenderUpdateModal
           isOpen={showGenderModal}
-          onClose={() => setShowGenderModal(false)}
+          onClose={() => {
+            // User closed without selecting - don't mark as asked, so they'll see it again next time
+            setShowGenderModal(false);
+          }}
           onUpdate={async (gender) => {
+            // User successfully selected gender - mark as asked so we don't show again
+            localStorage.setItem(`gender_asked_${user.id}`, 'true');
             // Refresh user profile to get updated gender
             await refreshProfile();
             setShowGenderModal(false);
