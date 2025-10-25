@@ -5703,40 +5703,73 @@ async def upload_document_scan(
 
 @api_router.post("/work/organizations/search")
 async def search_work_organizations(
-    search_data: WorkOrganizationSearch,
+    search_data: dict,
     current_user: User = Depends(get_current_user)
 ):
-    """Search for existing work organizations by name"""
+    """Search for existing work organizations with filters"""
     try:
         # Build search query
-        search_query = {
-            "name": {"$regex": search_data.query, "$options": "i"},
-            "is_active": True
-        }
+        search_query = {"allow_public_discovery": True}
         
-        if search_data.organization_type:
-            search_query["organization_type"] = search_data.organization_type.value
+        # Name search
+        if search_data.get("query"):
+            search_query["$or"] = [
+                {"name": {"$regex": search_data["query"], "$options": "i"}},
+                {"description": {"$regex": search_data["query"], "$options": "i"}}
+            ]
+        
+        # Filters
+        if search_data.get("industry"):
+            search_query["industry"] = search_data["industry"]
+        
+        if search_data.get("city"):
+            search_query["address_city"] = {"$regex": search_data["city"], "$options": "i"}
+        
+        if search_data.get("organization_type"):
+            search_query["organization_type"] = search_data["organization_type"]
         
         # Find matching organizations
-        organizations = await db.work_organizations.find(search_query).limit(10).to_list(10)
+        organizations = await db.work_organizations.find(search_query).limit(50).to_list(50)
         
         results = []
         for org in organizations:
+            org_id = org.get("id") or org.get("organization_id")
+            
             # Check if user is already a member
             membership = await db.work_members.find_one({
-                "organization_id": org["id"],
+                "organization_id": org_id,
                 "user_id": current_user.id,
                 "is_active": True
             })
             
+            # Check if user has pending request
+            pending_request = await db.work_join_requests.find_one({
+                "organization_id": org_id,
+                "user_id": current_user.id,
+                "status": "pending"
+            })
+            
+            # Count members
+            member_count = await db.work_members.count_documents({
+                "organization_id": org_id,
+                "is_active": True
+            })
+            
             results.append({
-                "id": org["id"],
+                "id": org_id,
                 "name": org["name"],
-                "organization_type": org["organization_type"],
+                "organization_type": org.get("organization_type", "COMPANY"),
+                "description": org.get("description", ""),
                 "industry": org.get("industry"),
-                "member_count": org.get("member_count", 0),
+                "organization_size": org.get("organization_size"),
+                "address_city": org.get("address_city"),
+                "address_country": org.get("address_country"),
+                "is_private": org.get("is_private", False),
+                "member_count": member_count,
                 "logo_url": org.get("logo_url"),
-                "is_member": membership is not None
+                "banner_url": org.get("banner_url"),
+                "user_is_member": membership is not None,
+                "user_has_pending_request": pending_request is not None
             })
         
         return {"organizations": results, "count": len(results)}
