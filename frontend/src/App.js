@@ -1478,15 +1478,61 @@ function Dashboard() {
                             {/* MY WORK View */}
                             {activeView === 'my-work' ? (
                               <ErrorBoundary>
-                                <WorkOrganizationList />
+                                <WorkOrganizationList
+                                  onOrgClick={(orgId) => {
+                                    setSelectedOrganizationId(orgId);
+                                    setActiveView('work-org-profile');
+                                  }}
+                                  onCreateNew={() => {
+                                    setWorkSetupMode('choice');
+                                    setActiveView('work-setup');
+                                  }}
+                                  onJoinOrg={() => {
+                                    setWorkSetupMode('search');
+                                    setActiveView('work-setup');
+                                  }}
+                                  onExploreFeed={() => setActiveView('feed')}
+                                />
                               </ErrorBoundary>
                             ) : activeView === 'work-setup' ? (
                               <ErrorBoundary>
-                                <WorkSetupPage />
+                                <WorkSetupPage
+                                  initialMode={workSetupMode}
+                                  onBack={() => setActiveView('my-work')}
+                                  onComplete={() => setActiveView('my-work')}
+                                  onJoinRequest={(orgId) => {
+                                    setSelectedOrganizationId(orgId);
+                                    setActiveView('my-work');
+                                  }}
+                                />
                               </ErrorBoundary>
                             ) : activeView === 'work-trigger' ? (
                               <ErrorBoundary>
-                                <WorkTriggerFlow />
+                                <WorkTriggerFlow
+                                  onCreateOrg={() => {
+                                    setWorkSetupMode('create');
+                                    setActiveView('work-setup');
+                                  }}
+                                  onJoinOrg={() => {
+                                    setWorkSetupMode('search');
+                                    setActiveView('work-setup');
+                                  }}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'work-org-profile' ? (
+                              <ErrorBoundary>
+                                <WorkOrganizationProfile
+                                  organizationId={selectedOrganizationId}
+                                  onBack={() => setActiveView('my-work')}
+                                  onInviteMember={(orgId, orgName) => {
+                                    // TODO: Open invite modal
+                                    alert(`Invite members to ${orgName} (Coming soon)`);
+                                  }}
+                                  onSettings={(orgId) => {
+                                    // TODO: Navigate to settings
+                                    alert('Organization settings (Coming soon)');
+                                  }}
+                                />
                               </ErrorBoundary>
                             ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
