@@ -9,6 +9,8 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
   const [searchResults, setSearchResults] = useState([]);
   const [selectedOrgType, setSelectedOrgType] = useState('');
   const [step, setStep] = useState(1); // For multi-step creation
+  const [searching, setSearching] = useState(false);
+  const [creating, setCreating] = useState(false);
   
   // Organization form data
   const [formData, setFormData] = useState({
