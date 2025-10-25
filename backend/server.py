@@ -7233,7 +7233,7 @@ async def add_post_comment(
             raise HTTPException(status_code=404, detail="Post not found")
         
         # Create comment
-        comment_id = str(uuid4())
+        comment_id = str(uuid.uuid4())
         comment = {
             "id": comment_id,
             "post_id": post_id,
