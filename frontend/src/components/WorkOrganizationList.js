@@ -13,11 +13,11 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
   }, []);
 
   const handleOrgClick = (orgId) => {
-    navigate(`/work/organization/${orgId}`);
+    onOrgClick && onOrgClick(orgId);
   };
 
   const handleCreateNew = () => {
-    navigate('/work/setup?mode=create');
+    onCreateNew && onCreateNew();
   };
 
   if (organizations.length === 0) {
