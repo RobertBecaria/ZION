@@ -1,122 +1,122 @@
 {
   "module": "WORK",
   "total_tests": 17,
-  "passed_tests": 2,
-  "failed_tests": 15,
-  "success_rate": 11.76470588235294,
+  "passed_tests": 16,
+  "failed_tests": 1,
+  "success_rate": 94.11764705882352,
   "test_results": [
     {
       "test_name": "User Registrations (All 3 Users)",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-25T19:21:30.206955"
+      "timestamp": "2025-10-25T19:22:27.080754"
     },
     {
       "test_name": "Create Organization",
-      "success": false,
-      "details": "Response: {'detail': 'An organization with this name already exists', 'status_code': 400, 'expected_status': 200}",
-      "timestamp": "2025-10-25T19:21:30.747751"
+      "success": true,
+      "details": "Organization ID: 65fd13ef-40b8-47d3-beee-8c84aa302066",
+      "timestamp": "2025-10-25T19:22:27.620353"
     },
     {
       "test_name": "Get User Organizations",
-      "success": false,
-      "details": "Response: {'organizations': [], 'count': 0}",
-      "timestamp": "2025-10-25T19:21:31.290896"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:28.158207"
     },
     {
       "test_name": "Get Organization Details",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:31.791003"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:28.701613"
     },
     {
       "test_name": "Update Organization",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:32.291107"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:29.304890"
     },
     {
       "test_name": "Add Admin Member",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:32.791215"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:29.844162"
     },
     {
       "test_name": "Add Employee Member",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:33.291318"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:30.388213"
     },
     {
       "test_name": "Get Organization Members",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:33.791425"
+      "success": true,
+      "details": "Found 3 members",
+      "timestamp": "2025-10-25T19:22:30.927291"
     },
     {
-      "test_name": "Update Member Role",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:34.291525"
+      "test_name": "Update Member Role (EMPLOYEE \u2192 CLIENT)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:31.481006"
     },
     {
       "test_name": "Remove Member",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:34.791625"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:32.020176"
     },
     {
-      "test_name": "Transfer Ownership",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:35.291725"
+      "test_name": "Transfer Ownership (Owner \u2192 Admin)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:32.560111"
     },
     {
-      "test_name": "Join Request Workflow",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:35.791828"
+      "test_name": "Join Request Workflow (Complete)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:33.173984"
     },
     {
       "test_name": "Leave Organization",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:36.291940"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:33.710610"
     },
     {
-      "test_name": "Organization Posts",
+      "test_name": "Organization Posts - Create Post",
       "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:36.792044"
+      "details": "Response: {'detail': [{'type': 'missing', 'loc': ['query', 'content'], 'msg': 'Field required', 'input': None, 'url': 'https://errors.pydantic.dev/2.11/v/missing'}], 'status_code': 422, 'expected_status': 200}",
+      "timestamp": "2025-10-25T19:22:34.252828"
     },
     {
       "test_name": "Search Organizations",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-25T19:21:37.348622"
+      "timestamp": "2025-10-25T19:22:34.796416"
     },
     {
-      "test_name": "Role Permissions",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:37.848730"
+      "test_name": "Role Permissions (Non-admin blocked)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:35.333725"
     },
     {
-      "test_name": "Organization Privacy Settings",
-      "success": false,
-      "details": "No organization_id available",
-      "timestamp": "2025-10-25T19:21:38.348835"
+      "test_name": "Organization Privacy Settings (Public Access)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:22:35.870280"
     }
   ],
   "test_users": {
-    "owner": "owner_192129@techinnovations.com",
-    "admin": "admin_192129@techinnovations.com",
-    "member": "member_192129@techinnovations.com"
+    "owner": "owner_192226@techinnovations.com",
+    "admin": "admin_192226@techinnovations.com",
+    "member": "member_192226@techinnovations.com"
   },
-  "organization_id": null,
+  "organization_id": "65fd13ef-40b8-47d3-beee-8c84aa302066",
   "user_ids": {
-    "owner": "1a1355b7-d67b-4a78-82ff-fb5905698d3c",
-    "admin": "15953ec1-d09f-4193-811d-93963dba0977",
-    "member": "a9d9b285-a37b-4bae-bad1-09d82c30f45d"
+    "owner": "19bdd794-a554-4605-96c0-41a6fbe444b0",
+    "admin": "b4d46b97-99c8-4490-b56f-fb85e0b7318f",
+    "member": "2b2be7c7-2c51-4402-9782-5fef51af790b"
   }
 }
