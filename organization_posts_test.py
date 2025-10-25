@@ -211,17 +211,17 @@ class OrganizationPostsAPITester:
             self.log_test(f"Create Organization Post ({user_type})", False, "No organization_id available")
             return False
         
-        post_data = {
-            "content": f"Test post from {user_type} user - {datetime.now().isoformat()}"
-        }
+        # Content as query parameter
+        content = f"Test post from {user_type} user - {datetime.now().isoformat()}"
+        endpoint = f"work/organizations/{self.organization_id}/posts?content={content}"
         
         # This should work for users with can_post: true after the fix
         expected_status = 200 if self.test_users[user_type]["expected_can_post"] else 403
         
         success, response = self.make_request(
             "POST", 
-            f"work/organizations/{self.organization_id}/posts", 
-            post_data, 
+            endpoint, 
+            None,  # No JSON body needed
             expected_status, 
             user_type
         )
