@@ -39,9 +39,9 @@ const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
               <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
                 <Building2 className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Create Organizations</h3>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Создавайте Организации</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Set up your company or startup profile with detailed information and branding.
+                Настройте профиль вашей компании или стартапа с подробной информацией и брендингом.
               </p>
             </div>
 
@@ -49,9 +49,9 @@ const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
               <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
                 <Users className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Team Management</h3>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Управление Командой</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Invite colleagues, assign roles, organize by departments and teams.
+                Приглашайте коллег, назначайте роли, организуйте по отделам и командам.
               </p>
             </div>
 
@@ -59,9 +59,9 @@ const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
               <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mb-4">
                 <Briefcase className="w-6 h-6 text-orange-600" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Professional Network</h3>
+              <h3 className="font-semibold text-gray-900 mb-2 text-lg">Профессиональная Сеть</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
-                Share updates, collaborate on projects, and stay connected with your team.
+                Делитесь обновлениями, работайте над проектами и оставайтесь на связи с командой.
               </p>
             </div>
           </div>
