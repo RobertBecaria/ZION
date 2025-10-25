@@ -428,6 +428,16 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
           </div>
         )}
       </div>
+
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <WorkInviteMemberModal
+          organizationId={organizationId}
+          organizationName={organization.name}
+          onClose={() => setShowInviteModal(false)}
+          onSuccess={handleInviteSuccess}
+        />
+      )}
     </div>
   );
 };
