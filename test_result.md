@@ -451,8 +451,9 @@ frontend:
 
 test_plan:
   current_focus:
-    - "Onboarding Flow Fix - Session Persistence Testing"
-  stuck_tasks: []
+    - "WORK Module Backend Testing - COMPLETED"
+  stuck_tasks: 
+    - "Organization Posts Permission Bug - Backend Fix Required"
   test_all: false
   test_priority: "high_first"
 
