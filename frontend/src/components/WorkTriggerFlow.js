@@ -126,13 +126,13 @@ const WorkTriggerFlow = ({ onCreateOrg, onJoinOrg }) => {
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                Join Organization
+                Присоединиться к Организации
               </h3>
               <p className="text-gray-600 leading-relaxed mb-4">
-                Search for and join existing organizations. Ideal for employees and team members.
+                Найдите и присоединитесь к существующим организациям. Идеально для сотрудников и членов команды.
               </p>
               <div className="flex items-center text-orange-600 font-semibold group-hover:gap-3 transition-all duration-300">
-                <span>Join Now</span>
+                <span>Присоединиться</span>
                 <span className="ml-2 group-hover:ml-0">→</span>
               </div>
             </button>
