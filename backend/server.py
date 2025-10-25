@@ -6603,6 +6603,320 @@ async def cancel_join_request(
         print(f"Cancel request error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# === WORK ORGANIZATION POSTS API ENDPOINTS ===
+
+@api_router.post("/work/organizations/{organization_id}/posts")
+async def create_work_post(
+    organization_id: str,
+    content: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a post on organization wall (members only)"""
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership:
+            raise HTTPException(
+                status_code=403,
+                detail="Only members can post to the organization wall"
+            )
+        
+        # Check if user has permission to post
+        if not membership.get("permissions", {}).get("can_post", False):
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to post"
+            )
+        
+        # Create post
+        post_id = str(uuid4())
+        post = {
+            "id": post_id,
+            "organization_id": organization_id,
+            "author_id": current_user.id,
+            "author_name": f"{current_user.first_name} {current_user.last_name}",
+            "author_email": current_user.email,
+            "content": content,
+            "likes_count": 0,
+            "comments_count": 0,
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+        
+        await db.work_posts.insert_one(post)
+        
+        return {
+            "message": "Post created successfully",
+            "post_id": post_id,
+            "post": post
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Create post error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/posts")
+async def get_work_posts(
+    organization_id: str,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get posts from organization wall"""
+    try:
+        # Check if user is a member or if org is public
+        org = await db.work_organizations.find_one({
+            "$or": [
+                {"id": organization_id},
+                {"organization_id": organization_id}
+            ]
+        })
+        
+        if not org:
+            raise HTTPException(status_code=404, detail="Organization not found")
+        
+        # If private, check membership
+        if org.get("is_private", False):
+            membership = await db.work_members.find_one({
+                "organization_id": organization_id,
+                "user_id": current_user.id,
+                "is_active": True
+            })
+            
+            if not membership:
+                raise HTTPException(
+                    status_code=403,
+                    detail="Only members can view posts from private organizations"
+                )
+        
+        # Get posts
+        posts = await db.work_posts.find({
+            "organization_id": organization_id
+        }).sort("created_at", -1).limit(limit).to_list(length=limit)
+        
+        # For each post, check if current user has liked it
+        for post in posts:
+            post.pop("_id", None)
+            
+            # Check if user liked this post
+            like = await db.work_post_likes.find_one({
+                "post_id": post["id"],
+                "user_id": current_user.id
+            })
+            post["user_has_liked"] = like is not None
+        
+        return {"posts": posts, "count": len(posts)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Get posts error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/work/posts/{post_id}")
+async def delete_work_post(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a post (author or admin only)"""
+    try:
+        # Get the post
+        post = await db.work_posts.find_one({"id": post_id})
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Check if user is author
+        is_author = post["author_id"] == current_user.id
+        
+        # Check if user is admin of the organization
+        membership = await db.work_members.find_one({
+            "organization_id": post["organization_id"],
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        
+        is_admin = membership and membership.get("is_admin", False)
+        
+        if not is_author and not is_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Only the author or admin can delete this post"
+            )
+        
+        # Delete the post
+        await db.work_posts.delete_one({"id": post_id})
+        
+        # Delete associated likes
+        await db.work_post_likes.delete_many({"post_id": post_id})
+        
+        # Delete associated comments
+        await db.work_post_comments.delete_many({"post_id": post_id})
+        
+        return {"message": "Post deleted successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Delete post error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/posts/{post_id}/like")
+async def toggle_post_like(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Like or unlike a post"""
+    try:
+        # Check if post exists
+        post = await db.work_posts.find_one({"id": post_id})
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Check if user already liked the post
+        existing_like = await db.work_post_likes.find_one({
+            "post_id": post_id,
+            "user_id": current_user.id
+        })
+        
+        if existing_like:
+            # Unlike - remove the like
+            await db.work_post_likes.delete_one({"_id": existing_like["_id"]})
+            
+            # Decrement likes count
+            await db.work_posts.update_one(
+                {"id": post_id},
+                {"$inc": {"likes_count": -1}}
+            )
+            
+            # Get updated count
+            updated_post = await db.work_posts.find_one({"id": post_id})
+            
+            return {
+                "message": "Post unliked",
+                "liked": False,
+                "likes_count": updated_post["likes_count"]
+            }
+        else:
+            # Like - add the like
+            like = {
+                "id": str(uuid4()),
+                "post_id": post_id,
+                "user_id": current_user.id,
+                "created_at": datetime.now(timezone.utc)
+            }
+            
+            await db.work_post_likes.insert_one(like)
+            
+            # Increment likes count
+            await db.work_posts.update_one(
+                {"id": post_id},
+                {"$inc": {"likes_count": 1}}
+            )
+            
+            # Get updated count
+            updated_post = await db.work_posts.find_one({"id": post_id})
+            
+            return {
+                "message": "Post liked",
+                "liked": True,
+                "likes_count": updated_post["likes_count"]
+            }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Toggle like error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/posts/{post_id}/comment")
+async def add_post_comment(
+    post_id: str,
+    content: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a comment to a post"""
+    try:
+        # Check if post exists
+        post = await db.work_posts.find_one({"id": post_id})
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Create comment
+        comment_id = str(uuid4())
+        comment = {
+            "id": comment_id,
+            "post_id": post_id,
+            "author_id": current_user.id,
+            "author_name": f"{current_user.first_name} {current_user.last_name}",
+            "author_email": current_user.email,
+            "content": content,
+            "created_at": datetime.now(timezone.utc)
+        }
+        
+        await db.work_post_comments.insert_one(comment)
+        
+        # Increment comments count
+        await db.work_posts.update_one(
+            {"id": post_id},
+            {"$inc": {"comments_count": 1}}
+        )
+        
+        # Get updated count
+        updated_post = await db.work_posts.find_one({"id": post_id})
+        
+        return {
+            "message": "Comment added successfully",
+            "comment_id": comment_id,
+            "comments_count": updated_post["comments_count"],
+            "comment": comment
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Add comment error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/posts/{post_id}/comments")
+async def get_post_comments(
+    post_id: str,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get comments for a post"""
+    try:
+        # Check if post exists
+        post = await db.work_posts.find_one({"id": post_id})
+        
+        if not post:
+            raise HTTPException(status_code=404, detail="Post not found")
+        
+        # Get comments
+        comments = await db.work_post_comments.find({
+            "post_id": post_id
+        }).sort("created_at", 1).limit(limit).to_list(length=limit)
+        
+        # Clean up MongoDB _id
+        for comment in comments:
+            comment.pop("_id", None)
+        
+        return {"comments": comments, "count": len(comments)}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Get comments error: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # === END WORK ORGANIZATION SYSTEM API ENDPOINTS ===
 
 # Basic status endpoints
