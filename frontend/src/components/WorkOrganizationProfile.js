@@ -465,57 +465,12 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
         )}
 
         {activeTab === 'posts' && (
-          <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Organization Posts</h2>
-            {posts.length > 0 ? (
-              <div className="space-y-6">
-                {posts.map(post => (
-                  <div key={post.id} className="border-b border-gray-200 pb-6 last:border-0">
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={post.author_avatar}
-                        alt={post.author_name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-gray-900">{post.author_name}</h3>
-                            <p className="text-sm text-gray-600">{post.author_role}</p>
-                          </div>
-                          <span className="text-sm text-gray-500">
-                            {new Date(post.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-gray-700 mb-4">{post.content}</p>
-                        {post.media_urls && post.media_urls.length > 0 && (
-                          <div className="grid grid-cols-2 gap-2 mb-4">
-                            {post.media_urls.map((url, idx) => (
-                              <img
-                                key={idx}
-                                src={url}
-                                alt="Post media"
-                                className="w-full h-48 object-cover rounded-lg"
-                              />
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex gap-4 text-sm text-gray-600">
-                          <span>{post.likes_count} likes</span>
-                          <span>{post.comments_count} comments</span>
-                          <span>{post.shares_count} shares</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-gray-600">No posts yet</p>
-              </div>
-            )}
-          </div>
+          <WorkPostFeed
+            organizationId={organizationId}
+            currentUserId={currentUserId}
+            isAdmin={isAdmin}
+            canPost={organization?.user_can_post !== false}
+          />
         )}
 
         {activeTab === 'requests' && isAdmin && (
