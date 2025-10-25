@@ -38,6 +38,16 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
 
   useEffect(() => {
     loadOrganization();
+    // Get current user ID from token
+    const token = localStorage.getItem('zion_token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.sub);
+      } catch (e) {
+        console.error('Error parsing token:', e);
+      }
+    }
   }, [organizationId]);
 
   const loadOrganization = async () => {
