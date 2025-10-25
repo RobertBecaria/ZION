@@ -1,29 +1,39 @@
 {
-  "total_tests": 3,
-  "passed_tests": 0,
-  "failed_tests": 3,
-  "success_rate": 0.0,
+  "total_tests": 4,
+  "passed_tests": 3,
+  "failed_tests": 1,
+  "success_rate": 75.0,
   "test_results": [
     {
-      "test_name": "User Login (owner)",
-      "success": false,
-      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
-      "timestamp": "2025-10-25T19:27:58.981464"
+      "test_name": "User Registration (owner)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:29:03.258157"
     },
     {
-      "test_name": "User Login (admin)",
-      "success": false,
-      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
-      "timestamp": "2025-10-25T19:27:59.022557"
+      "test_name": "User Registration (admin)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:29:03.529099"
     },
     {
-      "test_name": "User Login (member)",
+      "test_name": "User Registration (member)",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-25T19:29:03.835113"
+    },
+    {
+      "test_name": "Create Organization (owner)",
       "success": false,
-      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
-      "timestamp": "2025-10-25T19:27:59.064372"
+      "details": "Response: {'id': 'e578abf6-139c-441a-b22e-d028f3d469d3', 'name': 'Test Organization 192903', 'organization_type': 'COMPANY', 'description': 'Test organization for posts permission testing', 'industry': 'Technology', 'organization_size': '11-50', 'founded_year': None, 'website': 'https://testorg.com', 'official_email': None, 'address_street': None, 'address_city': 'Test City', 'address_state': None, 'address_country': 'Test Country', 'address_postal_code': None, 'logo_url': None, 'banner_url': None, 'is_private': False, 'allow_public_discovery': True, 'member_count': 1, 'creator_id': 'dafaffa5-ade5-4faf-a41a-08bbf319f388', 'created_at': '2025-10-25T19:29:03.872503Z', 'updated_at': '2025-10-25T19:29:03.872505Z', 'is_active': True, 'user_role': 'CEO', 'user_custom_role_name': None, 'user_department': 'Management', 'user_team': None, 'user_job_title': None, 'user_is_admin': True, 'user_can_invite': False, 'user_can_post': True}",
+      "timestamp": "2025-10-25T19:29:03.876571"
     }
   ],
   "organization_id": null,
-  "user_ids": {},
+  "user_ids": {
+    "owner": "dafaffa5-ade5-4faf-a41a-08bbf319f388",
+    "admin": "3ad8ccf1-75a2-4be3-bcb7-40548b46cea8",
+    "member": "5566823e-21e5-4abf-b50b-cce6983b4eff"
+  },
   "focus": "Organization posts permission fix verification"
 }
