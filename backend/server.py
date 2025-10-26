@@ -8133,6 +8133,267 @@ async def react_to_announcement(
 
 # ===== END DEPARTMENTS & ANNOUNCEMENTS ENDPOINTS =====
 
+# ===== ORGANIZATION FOLLOW ENDPOINTS =====
+
+@api_router.post("/organizations/{organization_id}/follow")
+async def follow_organization(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Follow an organization."""
+    try:
+        # Check if organization exists
+        organization = await db.work_organizations.find_one({"id": organization_id})
+        if not organization:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        # Check if already following
+        existing_follow = await db.organization_follows.find_one({
+            "organization_id": organization_id,
+            "follower_id": current_user["id"]
+        })
+        
+        if existing_follow:
+            raise HTTPException(status_code=400, detail="Вы уже подписаны на эту организацию")
+        
+        # Create follow
+        follow = OrganizationFollow(
+            organization_id=organization_id,
+            follower_id=current_user["id"]
+        )
+        
+        await db.organization_follows.insert_one(follow.dict())
+        
+        return {"success": True, "message": "Вы подписались на организацию"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/organizations/{organization_id}/follow")
+async def unfollow_organization(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Unfollow an organization."""
+    try:
+        # Delete follow
+        result = await db.organization_follows.delete_one({
+            "organization_id": organization_id,
+            "follower_id": current_user["id"]
+        })
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="Вы не подписаны на эту организацию")
+        
+        return {"success": True, "message": "Вы отписались от организации"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/organizations/{organization_id}/follow/status")
+async def get_follow_status(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Check if user is following an organization."""
+    try:
+        follow = await db.organization_follows.find_one({
+            "organization_id": organization_id,
+            "follower_id": current_user["id"]
+        })
+        
+        return {
+            "success": True,
+            "is_following": follow is not None
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/organizations/{organization_id}/followers")
+async def get_organization_followers(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get list of followers for an organization."""
+    try:
+        # Check if organization exists
+        organization = await db.work_organizations.find_one({"id": organization_id})
+        if not organization:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        # Get followers
+        followers_cursor = db.organization_follows.find({"organization_id": organization_id})
+        followers = await followers_cursor.to_list(length=None)
+        
+        # Enrich with user details
+        result = []
+        for follow in followers:
+            user = await db.users.find_one({"id": follow["follower_id"]})
+            if user:
+                result.append({
+                    "user_id": user["id"],
+                    "user_name": f"{user.get('first_name', '')} {user.get('last_name', '')}",
+                    "user_avatar": user.get("avatar_url"),
+                    "followed_at": follow["followed_at"]
+                })
+        
+        return {
+            "success": True,
+            "data": result,
+            "count": len(result)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== ENHANCED JOIN REQUEST WITH NOTIFICATIONS =====
+
+@api_router.post("/organizations/{organization_id}/join-request")
+async def create_join_request_with_notification(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Send a join request to an organization and notify admins."""
+    try:
+        # Check if organization exists
+        organization = await db.work_organizations.find_one({"id": organization_id})
+        if not organization:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        # Check if already a member
+        existing_member = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"]
+        })
+        
+        if existing_member:
+            raise HTTPException(status_code=400, detail="Вы уже являетесь членом этой организации")
+        
+        # Check if already has pending request
+        existing_request = await db.work_join_requests.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "PENDING"
+        })
+        
+        if existing_request:
+            raise HTTPException(status_code=400, detail="Вы уже отправили запрос на вступление")
+        
+        # Create join request
+        join_request = {
+            "id": str(uuid.uuid4()),
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "PENDING",
+            "message": "",
+            "created_at": datetime.now(timezone.utc),
+            "updated_at": datetime.now(timezone.utc)
+        }
+        
+        await db.work_join_requests.insert_one(join_request)
+        
+        # Create notifications for organization admins
+        # Find all OWNER and ADMIN members
+        admin_members_cursor = db.work_members.find({
+            "organization_id": organization_id,
+            "role": {"$in": ["OWNER", "ADMIN"]},
+            "status": "ACTIVE"
+        })
+        admin_members = await admin_members_cursor.to_list(length=None)
+        
+        # Create notification for each admin
+        for admin in admin_members:
+            notification = {
+                "id": str(uuid.uuid4()),
+                "user_id": admin["user_id"],
+                "type": "ORGANIZATION_JOIN_REQUEST",
+                "title": "Новый запрос на вступление",
+                "message": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')} хочет присоединиться к организации {organization.get('name', '')}",
+                "data": {
+                    "organization_id": organization_id,
+                    "organization_name": organization.get("name"),
+                    "request_id": join_request["id"],
+                    "requester_id": current_user["id"],
+                    "requester_name": f"{current_user.get('first_name', '')} {current_user.get('last_name', '')}"
+                },
+                "is_read": False,
+                "created_at": datetime.now(timezone.utc)
+            }
+            await db.notifications.insert_one(notification)
+        
+        return {
+            "success": True,
+            "message": "Запрос на вступление отправлен",
+            "data": join_request
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/organizations/{organization_id}/public")
+async def get_organization_public_profile(
+    organization_id: str
+):
+    """Get public profile of an organization (no auth required)."""
+    try:
+        # Get organization
+        organization = await db.work_organizations.find_one({"id": organization_id})
+        if not organization:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        # Get member count
+        member_count = await db.work_members.count_documents({
+            "organization_id": organization_id,
+            "status": "ACTIVE"
+        })
+        
+        # Get follower count
+        follower_count = await db.organization_follows.count_documents({
+            "organization_id": organization_id
+        })
+        
+        # Get department count
+        department_count = await db.departments.count_documents({
+            "organization_id": organization_id
+        })
+        
+        # Build public profile
+        public_profile = {
+            "id": organization["id"],
+            "name": organization.get("name"),
+            "description": organization.get("description"),
+            "organization_type": organization.get("organization_type"),
+            "industry": organization.get("industry"),
+            "founded_year": organization.get("founded_year"),
+            "logo_url": organization.get("logo_url"),
+            "banner_url": organization.get("banner_url"),
+            "location": organization.get("location"),
+            "website": organization.get("website"),
+            "member_count": member_count,
+            "follower_count": follower_count,
+            "department_count": department_count,
+            "is_public": organization.get("is_public", True),
+            "created_at": organization.get("created_at")
+        }
+        
+        return {"success": True, "data": public_profile}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== END ORGANIZATION FOLLOW & JOIN REQUEST ENDPOINTS =====
+
 @api_router.get("/health")
 async def health_check():
     return {
