@@ -122,8 +122,9 @@ class WorkMemberSettingsAPITester:
 
     def test_create_organization(self):
         """Test creating a work organization"""
+        timestamp = datetime.now().strftime('%H%M%S%f')
         org_data = {
-            "name": "Member Settings Test Organization",
+            "name": f"Member Settings Test Organization {timestamp}",
             "organization_type": "COMPANY",
             "description": "Organization for testing member settings and role changes",
             "industry": "Technology",
