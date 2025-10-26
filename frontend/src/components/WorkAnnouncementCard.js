@@ -129,23 +129,23 @@ function WorkAnnouncementCard({ announcement, onEdit, onDelete, onPin, onReact, 
       {/* Header */}
       <div className="card-header">
         <div className="header-left">
-          {author?.avatar_url ? (
-            <img src={author.avatar_url} alt={author.first_name} className="author-avatar" />
+          {announcement.author_avatar ? (
+            <img src={announcement.author_avatar} alt={announcement.author_name} className="author-avatar" />
           ) : (
             <div className="author-avatar-placeholder" style={{ background: moduleColor }}>
-              {author?.first_name?.[0]}{author?.last_name?.[0]}
+              {announcement.author_name?.[0]}
             </div>
           )}
           <div className="author-info">
             <div className="author-name">{announcement.author_name}</div>
             <div className="announcement-meta">
               <span className="meta-date">{formatDate(announcement.created_at)}</span>
-              {department && (
+              {announcement.department_name && (
                 <>
                   <span className="meta-separator">•</span>
                   <div className="meta-department">
-                    <div className="dept-color-dot" style={{ background: department.color }} />
-                    <span>{department.name}</span>
+                    <div className="dept-color-dot" style={{ background: announcement.department_color }} />
+                    <span>{announcement.department_name}</span>
                   </div>
                 </>
               )}
