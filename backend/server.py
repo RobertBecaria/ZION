@@ -7508,13 +7508,10 @@ async def update_department(
     organization_id: str,
     dept_id: str,
     department_data: DepartmentUpdate,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    current_user: dict = Depends(get_current_user)
 ):
     """Update a department."""
     try:
-        # Verify token and get current user
-        current_user = await get_current_user(credentials.credentials)
-        
         # Check if department exists
         department = await db.departments.find_one({"id": dept_id, "organization_id": organization_id})
         if not department:
