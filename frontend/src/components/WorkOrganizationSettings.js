@@ -684,6 +684,7 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
             )}
           </button>
         </div>
+        )}
       </div>
 
       {/* Leave Confirmation Dialog */}
