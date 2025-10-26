@@ -8512,6 +8512,392 @@ async def get_organization_public_profile(
 
 # ===== END ORGANIZATION FOLLOW & JOIN REQUEST ENDPOINTS =====
 
+# ===== MEMBER SETTINGS & CHANGE REQUEST ENDPOINTS =====
+
+@api_router.put("/work/organizations/{organization_id}/members/me")
+async def update_my_member_settings(
+    organization_id: str,
+    settings: WorkMemberSettingsUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Member updates their own settings.
+    - job_title: Applied immediately
+    - role/department/team changes: Create change requests for admin approval
+    """
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=404, detail="Вы не являетесь членом этой организации")
+        
+        # Update job title immediately (no approval needed)
+        if settings.job_title is not None:
+            await db.work_members.update_one(
+                {"_id": membership["_id"]},
+                {"$set": {"job_title": settings.job_title, "updated_at": datetime.now(timezone.utc)}}
+            )
+        
+        # Create change requests for role/department/team changes
+        change_requests_created = []
+        
+        if settings.requested_role is not None:
+            change_request = WorkChangeRequest(
+                organization_id=organization_id,
+                user_id=current_user["id"],
+                request_type=ChangeRequestType.ROLE_CHANGE,
+                current_role=WorkRole(membership["role"]),
+                requested_role=settings.requested_role,
+                requested_custom_role_name=settings.requested_custom_role_name,
+                reason=settings.reason
+            )
+            await db.work_change_requests.insert_one(change_request.model_dump(by_alias=True))
+            change_requests_created.append("role")
+        
+        if settings.requested_department is not None:
+            change_request = WorkChangeRequest(
+                organization_id=organization_id,
+                user_id=current_user["id"],
+                request_type=ChangeRequestType.DEPARTMENT_CHANGE,
+                current_department=membership.get("department"),
+                requested_department=settings.requested_department,
+                reason=settings.reason
+            )
+            await db.work_change_requests.insert_one(change_request.model_dump(by_alias=True))
+            change_requests_created.append("department")
+        
+        if settings.requested_team is not None:
+            change_request = WorkChangeRequest(
+                organization_id=organization_id,
+                user_id=current_user["id"],
+                request_type=ChangeRequestType.TEAM_CHANGE,
+                current_team=membership.get("team"),
+                requested_team=settings.requested_team,
+                reason=settings.reason
+            )
+            await db.work_change_requests.insert_one(change_request.model_dump(by_alias=True))
+            change_requests_created.append("team")
+        
+        return {
+            "success": True,
+            "message": "Настройки обновлены",
+            "job_title_updated": settings.job_title is not None,
+            "change_requests_created": change_requests_created
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/leave")
+async def leave_organization(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Member leaves the organization"""
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=404, detail="Вы не являетесь членом этой организации")
+        
+        # Check if user is the owner
+        organization = await db.work_organizations.find_one({"organization_id": organization_id})
+        if organization and organization.get("creator_id") == current_user["id"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Владелец не может покинуть организацию. Сначала передайте права владения."
+            )
+        
+        # Remove membership
+        await db.work_members.update_one(
+            {"_id": membership["_id"]},
+            {"$set": {"status": "LEFT", "end_date": datetime.now(timezone.utc), "is_current": False}}
+        )
+        
+        # Update member count
+        await db.work_organizations.update_one(
+            {"organization_id": organization_id},
+            {"$inc": {"member_count": -1}}
+        )
+        
+        return {"success": True, "message": "Вы покинули организацию"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/change-requests")
+async def get_change_requests(
+    organization_id: str,
+    status: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all pending change requests for the organization (Admin only)"""
+    try:
+        # Check if user is admin
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership or not membership.get("is_admin"):
+            raise HTTPException(status_code=403, detail="Недостаточно прав для просмотра запросов")
+        
+        # Build query
+        query = {"organization_id": organization_id}
+        if status:
+            query["status"] = status
+        else:
+            query["status"] = "PENDING"  # Default to pending
+        
+        # Get requests
+        requests_cursor = db.work_change_requests.find(query).sort("created_at", -1)
+        requests = await requests_cursor.to_list(100)
+        
+        # Enrich with user details
+        enriched_requests = []
+        for req in requests:
+            user = await db.users.find_one({"id": req["user_id"]})
+            if user:
+                enriched_requests.append(WorkChangeRequestResponse(
+                    id=req["id"],
+                    organization_id=req["organization_id"],
+                    user_id=req["user_id"],
+                    request_type=req["request_type"],
+                    current_role=req.get("current_role"),
+                    current_department=req.get("current_department"),
+                    current_team=req.get("current_team"),
+                    current_job_title=req.get("current_job_title"),
+                    requested_role=req.get("requested_role"),
+                    requested_custom_role_name=req.get("requested_custom_role_name"),
+                    requested_department=req.get("requested_department"),
+                    requested_team=req.get("requested_team"),
+                    requested_job_title=req.get("requested_job_title"),
+                    reason=req.get("reason"),
+                    status=req["status"],
+                    reviewed_by=req.get("reviewed_by"),
+                    reviewed_at=req.get("reviewed_at"),
+                    rejection_reason=req.get("rejection_reason"),
+                    created_at=req["created_at"],
+                    user_first_name=user.get("first_name", ""),
+                    user_last_name=user.get("last_name", ""),
+                    user_email=user.get("email", ""),
+                    user_avatar_url=user.get("avatar_url")
+                ))
+        
+        return {"success": True, "data": enriched_requests}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/change-requests/{request_id}/approve")
+async def approve_change_request(
+    organization_id: str,
+    request_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Admin approves a change request"""
+    try:
+        # Check if user is admin
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership or not membership.get("is_admin"):
+            raise HTTPException(status_code=403, detail="Недостаточно прав для одобрения запросов")
+        
+        # Get the request
+        request = await db.work_change_requests.find_one({
+            "id": request_id,
+            "organization_id": organization_id,
+            "status": "PENDING"
+        })
+        
+        if not request:
+            raise HTTPException(status_code=404, detail="Запрос не найден")
+        
+        # Apply the changes based on request type
+        target_membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": request["user_id"],
+            "status": "ACTIVE"
+        })
+        
+        if not target_membership:
+            raise HTTPException(status_code=404, detail="Член организации не найден")
+        
+        update_fields = {"updated_at": datetime.now(timezone.utc)}
+        
+        if request["request_type"] == "ROLE_CHANGE" and request.get("requested_role"):
+            update_fields["role"] = request["requested_role"]
+            if request.get("requested_custom_role_name"):
+                update_fields["custom_role_name"] = request["requested_custom_role_name"]
+        
+        if request["request_type"] == "DEPARTMENT_CHANGE" and request.get("requested_department"):
+            update_fields["department"] = request["requested_department"]
+        
+        if request["request_type"] == "TEAM_CHANGE" and request.get("requested_team"):
+            update_fields["team"] = request["requested_team"]
+        
+        # Update member
+        await db.work_members.update_one(
+            {"_id": target_membership["_id"]},
+            {"$set": update_fields}
+        )
+        
+        # Mark request as approved
+        await db.work_change_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "APPROVED",
+                "reviewed_by": current_user["id"],
+                "reviewed_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        return {"success": True, "message": "Запрос одобрен"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/change-requests/{request_id}/reject")
+async def reject_change_request(
+    organization_id: str,
+    request_id: str,
+    rejection_reason: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Admin rejects a change request"""
+    try:
+        # Check if user is admin
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership or not membership.get("is_admin"):
+            raise HTTPException(status_code=403, detail="Недостаточно прав для отклонения запросов")
+        
+        # Get the request
+        request = await db.work_change_requests.find_one({
+            "id": request_id,
+            "organization_id": organization_id,
+            "status": "PENDING"
+        })
+        
+        if not request:
+            raise HTTPException(status_code=404, detail="Запрос не найден")
+        
+        # Mark request as rejected
+        await db.work_change_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "REJECTED",
+                "reviewed_by": current_user["id"],
+                "reviewed_at": datetime.now(timezone.utc),
+                "rejection_reason": rejection_reason
+            }}
+        )
+        
+        return {"success": True, "message": "Запрос отклонен"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/teams")
+async def create_team(
+    organization_id: str,
+    team_data: WorkTeamCreate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new team (any member can create)"""
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=404, detail="Вы не являетесь членом этой организации")
+        
+        # Create team
+        team = WorkTeam(
+            organization_id=organization_id,
+            name=team_data.name,
+            description=team_data.description,
+            department_id=team_data.department_id,
+            team_lead_id=team_data.team_lead_id or current_user["id"],
+            member_ids=[current_user["id"]],  # Creator is first member
+            created_by=current_user["id"]
+        )
+        
+        await db.work_teams.insert_one(team.model_dump(by_alias=True))
+        
+        return {"success": True, "message": "Команда создана", "team_id": team.id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/teams")
+async def get_teams(
+    organization_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get all teams in the organization"""
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user["id"],
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=404, detail="Вы не являетесь членом этой организации")
+        
+        # Get teams
+        teams_cursor = db.work_teams.find({
+            "organization_id": organization_id,
+            "is_active": True
+        })
+        teams = await teams_cursor.to_list(100)
+        
+        return {"success": True, "data": teams}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== END MEMBER SETTINGS & CHANGE REQUEST ENDPOINTS =====
+
 @api_router.get("/health")
 async def health_check():
     return {
