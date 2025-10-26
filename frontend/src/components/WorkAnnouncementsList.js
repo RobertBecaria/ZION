@@ -1,20 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Megaphone, Plus, Filter, AlertCircle, Info, ArrowLeft, X } from 'lucide-react';
-import { getAnnouncementsByOrg, mockDepartments } from '../mock-work';
 import WorkAnnouncementCard from './WorkAnnouncementCard';
 import WorkAnnouncementComposer from './WorkAnnouncementComposer';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+
 function WorkAnnouncementsList({ organizationId, onBack, currentUserId, moduleColor = '#C2410C' }) {
-  const [announcements, setAnnouncements] = useState(getAnnouncementsByOrg(organizationId));
+  const [announcements, setAnnouncements] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showComposer, setShowComposer] = useState(false);
   const [editingAnnouncement, setEditingAnnouncement] = useState(null);
   const [filters, setFilters] = useState({
-    priority: 'all', // 'all', 'URGENT', 'IMPORTANT', 'NORMAL'
-    department: 'all', // 'all' or department ID
-    pinned: 'all' // 'all', 'pinned', 'unpinned'
+    priority: 'all',
+    department: 'all',
+    pinned: 'all'
   });
 
-  const departments = mockDepartments.filter(d => d.organization_id === organizationId);
+  useEffect(() => {
+    fetchDepartments();
+    fetchAnnouncements();
+  }, [organizationId]);
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, [filters]);
+
+  const fetchDepartments = async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
+
+  const fetchAnnouncements = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('zion_token');
+      
+      let url = `${BACKEND_URL}/api/organizations/${organizationId}/announcements?`;
+      
+      if (filters.priority !== 'all') {
+        url += `priority=${filters.priority}&`;
+      }
+      if (filters.department !== 'all') {
+        url += `department_id=${filters.department}&`;
+      }
+      if (filters.pinned !== 'all') {
+        url += `pinned=${filters.pinned === 'pinned'}&`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnnouncements(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSave = (announcementData) => {
     if (editingAnnouncement) {
