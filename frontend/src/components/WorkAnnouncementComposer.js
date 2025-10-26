@@ -43,7 +43,7 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
     { value: 'URGENT', label: 'Срочно', color: '#DC2626', bg: '#FEE2E2', icon: AlertCircle }
   ];
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.title.trim()) {
       alert('Введите заголовок объявления');
       return;
