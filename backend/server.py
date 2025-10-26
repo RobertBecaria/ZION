@@ -428,6 +428,7 @@ class FamilyPost(BaseModel):
 # === WORK ORGANIZATION SYSTEM MODELS ===
 
 class WorkRole(str, Enum):
+    # Organization roles - updated to include MEMBER
     OWNER = "OWNER"  # Organization owner (creator)
     ADMIN = "ADMIN"  # Organization administrator
     CEO = "CEO"
