@@ -1,89 +1,95 @@
 {
-  "total_tests": 13,
-  "passed_tests": 11,
+  "total_tests": 14,
+  "passed_tests": 12,
   "failed_tests": 2,
-  "success_rate": 84.61538461538461,
+  "success_rate": 85.71428571428571,
   "test_results": [
     {
       "test_name": "Setup: Environment Setup",
       "success": true,
       "details": "All users and organization created successfully",
-      "timestamp": "2025-10-26T08:25:03.988926"
+      "timestamp": "2025-10-26T08:25:56.120945"
     },
     {
       "test_name": "Member Settings: Update Job Title",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-26T08:25:04.034297"
+      "timestamp": "2025-10-26T08:25:56.161219"
     },
     {
       "test_name": "Member Settings: Request Role Change",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-26T08:25:04.075462"
+      "timestamp": "2025-10-26T08:25:56.202931"
     },
     {
       "test_name": "Role Change: Get Pending Requests",
       "success": true,
       "details": "Found 2 pending requests",
-      "timestamp": "2025-10-26T08:25:04.111787"
+      "timestamp": "2025-10-26T08:25:56.252021"
     },
     {
       "test_name": "Role Change: Approve Request",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-26T08:25:56.286804"
+    },
+    {
+      "test_name": "Role Change: Verify Role Update",
       "success": false,
-      "details": "Response: {'detail': \"'User' object is not subscriptable\", 'status_code': 500, 'expected_status': 200}",
-      "timestamp": "2025-10-26T08:25:04.150826"
+      "details": "Member role not updated",
+      "timestamp": "2025-10-26T08:25:56.336753"
     },
     {
       "test_name": "Team Management: Create Team",
       "success": true,
-      "details": "Team created with ID: 9e6a3b55-3b08-4b23-873c-809b27f2ab27",
-      "timestamp": "2025-10-26T08:25:04.192293"
+      "details": "Team created with ID: 5438918f-8a99-4c70-a8d0-230b14ded8a8",
+      "timestamp": "2025-10-26T08:25:56.414430"
     },
     {
       "test_name": "Team Management: Get Teams",
       "success": true,
       "details": "Found 1 teams including created team",
-      "timestamp": "2025-10-26T08:25:04.231599"
+      "timestamp": "2025-10-26T08:25:56.451860"
     },
     {
       "test_name": "Team Management: Member Create Team",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-26T08:25:04.310670"
+      "timestamp": "2025-10-26T08:25:56.496201"
     },
     {
       "test_name": "Authorization: Unauthorized Access",
       "success": false,
-      "details": "Expected 401, got: {'success': True, 'data': [{'id': '9e6a3b55-3b08-4b23-873c-809b27f2ab27', 'organization_id': 'f2fad45a-fe9e-4f17-9ff5-bfaed52355a6', 'name': 'Backend Development Team', 'description': 'Team responsible for backend development', 'department_id': None, 'team_lead_id': '02da39db-739b-4fed-b852-ca894bb68c6b', 'member_ids': ['bfc4325b-68f5-4d19-adb7-e03ff113c074'], 'created_by': 'bfc4325b-68f5-4d19-adb7-e03ff113c074', 'created_at': '2025-10-26T08:25:04.187000', 'updated_at': '2025-10-26T08:25:04.187000', 'is_active': True}, {'id': '121a8bcd-25a1-4640-81b8-e58a2c9c27a5', 'organization_id': 'f2fad45a-fe9e-4f17-9ff5-bfaed52355a6', 'name': 'Frontend Development Team', 'description': 'Team for frontend development', 'department_id': None, 'team_lead_id': '99afae2b-46bd-42e6-bd6c-3cb00305b6bd', 'member_ids': ['99afae2b-46bd-42e6-bd6c-3cb00305b6bd'], 'created_by': '99afae2b-46bd-42e6-bd6c-3cb00305b6bd', 'created_at': '2025-10-26T08:25:04.266000', 'updated_at': '2025-10-26T08:25:04.266000', 'is_active': True}], 'status_code': 200, 'expected_status': 401}",
-      "timestamp": "2025-10-26T08:25:04.346333"
+      "details": "Expected 401, got: {'success': True, 'data': [{'id': '5438918f-8a99-4c70-a8d0-230b14ded8a8', 'organization_id': 'a0770c1e-6ea6-4035-a843-a0d5b0a849aa', 'name': 'Backend Development Team', 'description': 'Team responsible for backend development', 'department_id': None, 'team_lead_id': '268cbe56-1cd2-433a-ae8d-c438f7ef2f6b', 'member_ids': ['b86c24b4-90b4-4ead-a005-9524c8bdc79b'], 'created_by': 'b86c24b4-90b4-4ead-a005-9524c8bdc79b', 'created_at': '2025-10-26T08:25:56.369000', 'updated_at': '2025-10-26T08:25:56.369000', 'is_active': True}, {'id': '391e34db-de16-422c-b3e9-5fb605fdf7b8', 'organization_id': 'a0770c1e-6ea6-4035-a843-a0d5b0a849aa', 'name': 'Frontend Development Team', 'description': 'Team for frontend development', 'department_id': None, 'team_lead_id': '54f26483-3a65-42c3-92b7-50afc973ca60', 'member_ids': ['54f26483-3a65-42c3-92b7-50afc973ca60'], 'created_by': '54f26483-3a65-42c3-92b7-50afc973ca60', 'created_at': '2025-10-26T08:25:56.488000', 'updated_at': '2025-10-26T08:25:56.488000', 'is_active': True}], 'status_code': 200, 'expected_status': 401}",
+      "timestamp": "2025-10-26T08:25:56.537235"
     },
     {
       "test_name": "Authorization: Invalid Organization",
       "success": true,
       "details": "Correctly rejected invalid organization",
-      "timestamp": "2025-10-26T08:25:04.384585"
+      "timestamp": "2025-10-26T08:25:56.572935"
     },
     {
       "test_name": "Authorization: Non-member Access",
       "success": true,
       "details": "Correctly rejected non-member access",
-      "timestamp": "2025-10-26T08:25:04.690357"
+      "timestamp": "2025-10-26T08:25:56.883382"
     },
     {
       "test_name": "Error Handling: Invalid Role",
       "success": true,
       "details": "Correctly rejected invalid role",
-      "timestamp": "2025-10-26T08:25:04.730844"
+      "timestamp": "2025-10-26T08:25:56.929699"
     },
     {
       "test_name": "Error Handling: Non-existent Request",
       "success": true,
       "details": "Correctly handled non-existent request",
-      "timestamp": "2025-10-26T08:25:04.772828"
+      "timestamp": "2025-10-26T08:25:57.010491"
     }
   ],
-  "organization_id": "f2fad45a-fe9e-4f17-9ff5-bfaed52355a6",
-  "team_id": "9e6a3b55-3b08-4b23-873c-809b27f2ab27",
-  "change_request_id": "ad238dc7-a9dd-4190-9982-0378d3818491"
+  "organization_id": "a0770c1e-6ea6-4035-a843-a0d5b0a849aa",
+  "team_id": "5438918f-8a99-4c70-a8d0-230b14ded8a8",
+  "change_request_id": "c518b80e-c710-41a4-8b42-fc30bbe4b108"
 }
