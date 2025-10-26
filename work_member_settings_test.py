@@ -290,26 +290,25 @@ class WorkMemberSettingsAPITester:
                 return False
 
     def test_approve_role_change_request(self):
-        """Test approving role change request - PUT /api/work/role-change-requests/{request_id}/status"""
-        # This would need a request_id from previous test
-        # For now, test with a dummy ID to check if endpoint exists
+        """Test approving change request - POST /api/work/organizations/{organization_id}/change-requests/{request_id}/approve"""
+        if not self.organization_id:
+            self.log_test("Approve Change Request (Endpoint Check)", False, "No organization_id available")
+            return False
+        
+        # Test with a dummy ID to check if endpoint exists
         dummy_request_id = str(uuid.uuid4())
         
-        approval_data = {
-            "status": "APPROVED"
-        }
-        
-        success, response = self.make_request("PUT", f"work/role-change-requests/{dummy_request_id}/status", approval_data, 404, self.admin_token)
+        success, response = self.make_request("POST", f"work/organizations/{self.organization_id}/change-requests/{dummy_request_id}/approve", None, 404, self.admin_token)
         
         if success:  # 404 is expected for non-existent request
-            self.log_test("Approve Role Change Request (Endpoint Check)", True)
+            self.log_test("Approve Change Request (Endpoint Check)", True)
             return True
         else:
             if response.get("status_code") == 404:
-                self.log_test("Approve Role Change Request (Endpoint Check)", True)
+                self.log_test("Approve Change Request (Endpoint Check)", True)
                 return True
             else:
-                self.log_test("Approve Role Change Request (Endpoint Check)", False, f"Response: {response}")
+                self.log_test("Approve Change Request (Endpoint Check)", False, f"Response: {response}")
                 return False
 
     def test_create_team(self):
