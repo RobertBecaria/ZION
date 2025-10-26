@@ -8807,9 +8807,9 @@ async def create_team(
             name=team_data.name,
             description=team_data.description,
             department_id=team_data.department_id,
-            team_lead_id=team_data.team_lead_id or current_user["id"],
-            member_ids=[current_user["id"]],  # Creator is first member
-            created_by=current_user["id"]
+            team_lead_id=team_data.team_lead_id or current_user.id,
+            member_ids=[current_user.id],  # Creator is first member
+            created_by=current_user.id
         )
         
         await db.work_teams.insert_one(team.model_dump(by_alias=True))
