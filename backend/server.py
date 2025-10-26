@@ -7749,13 +7749,10 @@ async def remove_department_member(
 async def create_announcement(
     organization_id: str,
     announcement_data: AnnouncementCreate,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    current_user: dict = Depends(get_current_user)
 ):
     """Create a new announcement."""
     try:
-        # Verify token and get current user
-        current_user = await get_current_user(credentials.credentials)
-        
         # Check if organization exists
         organization = await db.work_organizations.find_one({"id": organization_id})
         if not organization:
