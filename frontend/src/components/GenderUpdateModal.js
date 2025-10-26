@@ -114,7 +114,7 @@ function GenderUpdateModal({ isOpen, onClose, onUpdate }) {
           })}
         </div>
 
-        <div className="modal-actions" style={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+        <div className="modal-actions">
           <button
             className="btn-primary"
             onClick={handleSubmit}
@@ -122,30 +122,11 @@ function GenderUpdateModal({ isOpen, onClose, onUpdate }) {
             style={{
               backgroundColor: selectedGender ? '#059669' : '#E4E6EB',
               color: selectedGender ? 'white' : '#BCC0C4',
-              cursor: selectedGender && !loading ? 'pointer' : 'not-allowed'
+              cursor: selectedGender && !loading ? 'pointer' : 'not-allowed',
+              width: '100%'
             }}
           >
             {loading ? 'Сохранение...' : 'Продолжить'}
-          </button>
-          
-          <button
-            className="btn-secondary"
-            onClick={() => {
-              // User explicitly skips - close modal, will show again next time since gender not set
-              onClose();
-            }}
-            disabled={loading}
-            style={{
-              backgroundColor: 'transparent',
-              color: '#65676B',
-              border: 'none',
-              padding: '8px',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              fontSize: '0.9375rem',
-              textDecoration: 'underline'
-            }}
-          >
-            Пропустить (можно указать позже в настройках)
           </button>
         </div>
 
