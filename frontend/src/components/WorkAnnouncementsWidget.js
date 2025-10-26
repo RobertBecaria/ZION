@@ -1,10 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Megaphone, Pin, AlertCircle, Info, ChevronRight, Eye } from 'lucide-react';
-import { getAnnouncementsByOrg } from '../mock-work';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
 function WorkAnnouncementsWidget({ organizationId, departmentId = null, onViewAll, moduleColor = '#C2410C' }) {
   const [expanded, setExpanded] = useState(true);
-  const announcements = getAnnouncementsByOrg(organizationId, departmentId).slice(0, 5);
+  const [announcements, setAnnouncements] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (organizationId) {
+      fetchAnnouncements();
+    }
+  }, [organizationId, departmentId]);
+
+  const fetchAnnouncements = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('zion_token');
+      
+      let url = `${BACKEND_URL}/api/organizations/${organizationId}/announcements?limit=5`;
+      if (departmentId) {
+        url += `&department_id=${departmentId}`;
+      }
+
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setAnnouncements(data.data || []);
+      } else {
+        console.error('Failed to fetch announcements');
+      }
+    } catch (error) {
+      console.error('Error fetching announcements:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const urgentCount = announcements.filter(a => a.priority === 'URGENT').length;
 
   const getPriorityConfig = (priority) => {
