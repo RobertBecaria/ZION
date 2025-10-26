@@ -7436,7 +7436,7 @@ async def create_department(
             raise HTTPException(status_code=404, detail="Организация не найдена")
         
         # Check if user is OWNER or ADMIN
-        membership = await db.work_memberships.find_one({
+        membership = await db.work_members.find_one({
             "organization_id": organization_id,
             "user_id": current_user["id"],
             "status": "ACTIVE"
