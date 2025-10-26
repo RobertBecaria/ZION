@@ -2247,16 +2247,16 @@ function Dashboard() {
         </aside>
       </div>
 
-      {/* Gender Update Modal */}
+      {/* Gender Update Modal - Mandatory on First Login */}
       {showGenderModal && user && (
         <GenderUpdateModal
           isOpen={showGenderModal}
           onClose={() => {
-            // User closed without selecting - don't mark as asked, so they'll see it again next time
-            setShowGenderModal(false);
+            // Modal is now mandatory - do nothing on close attempt
+            // User MUST select gender to continue
           }}
           onUpdate={async (gender) => {
-            // User successfully selected gender - mark as asked so we don't show again
+            // User successfully selected gender
             localStorage.setItem(`gender_asked_${user.id}`, 'true');
             // Refresh user profile to get updated gender
             await refreshProfile();
