@@ -502,6 +502,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
           onClose={() => setShowSettingsModal(false)}
           onSuccess={handleSettingsSuccess}
           onLeaveOrganization={onBack}
+          currentMembership={members.find(m => m.user_id === currentUserId)}
         />
       )}
     </div>
