@@ -397,6 +397,192 @@ export const getOrganizationPosts = (organizationId) => {
   return mockWorkPosts.filter(p => p.organization_id === organizationId);
 };
 
+// Mock Departments
+export const mockDepartments = [
+  {
+    id: 'dept-1',
+    organization_id: 'org-1',
+    name: 'Engineering',
+    description: 'Software development and technical infrastructure',
+    color: '#1D4ED8',
+    head_id: 'user-1',
+    member_count: 12,
+    created_at: '2024-01-15T10:00:00Z'
+  },
+  {
+    id: 'dept-2',
+    organization_id: 'org-1',
+    name: 'Sales & Marketing',
+    description: 'Customer acquisition and brand management',
+    color: '#059669',
+    head_id: 'user-2',
+    member_count: 8,
+    created_at: '2024-01-15T10:30:00Z'
+  },
+  {
+    id: 'dept-3',
+    organization_id: 'org-1',
+    name: 'Human Resources',
+    description: 'Talent management and employee development',
+    color: '#7E22CE',
+    head_id: 'user-3',
+    member_count: 5,
+    created_at: '2024-01-15T11:00:00Z'
+  },
+  {
+    id: 'dept-4',
+    organization_id: 'org-1',
+    name: 'Finance',
+    description: 'Financial planning and accounting',
+    color: '#A16207',
+    head_id: 'user-4',
+    member_count: 6,
+    created_at: '2024-01-15T11:30:00Z'
+  },
+  {
+    id: 'dept-5',
+    organization_id: 'org-1',
+    name: 'Customer Support',
+    description: 'Client success and technical support',
+    color: '#BE185D',
+    head_id: 'user-5',
+    member_count: 10,
+    created_at: '2024-01-15T12:00:00Z'
+  }
+];
+
+// Department Roles
+export const DepartmentRoles = {
+  DEPARTMENT_HEAD: 'DEPARTMENT_HEAD',
+  LEAD: 'LEAD',
+  MEMBER: 'MEMBER',
+  CLIENT: 'CLIENT'
+};
+
+// Mock Department Members
+export const mockDepartmentMembers = [
+  // Engineering Department
+  { id: 'dm-1', department_id: 'dept-1', user_id: 'user-1', role: 'DEPARTMENT_HEAD', joined_at: '2024-01-15T10:00:00Z' },
+  { id: 'dm-2', department_id: 'dept-1', user_id: 'user-3', role: 'LEAD', joined_at: '2024-01-16T09:00:00Z' },
+  { id: 'dm-3', department_id: 'dept-1', user_id: 'user-5', role: 'MEMBER', joined_at: '2024-01-17T10:00:00Z' },
+  
+  // Sales & Marketing Department
+  { id: 'dm-4', department_id: 'dept-2', user_id: 'user-2', role: 'DEPARTMENT_HEAD', joined_at: '2024-01-15T10:30:00Z' },
+  { id: 'dm-5', department_id: 'dept-2', user_id: 'user-4', role: 'LEAD', joined_at: '2024-01-18T11:00:00Z' },
+  
+  // HR Department
+  { id: 'dm-6', department_id: 'dept-3', user_id: 'user-3', role: 'DEPARTMENT_HEAD', joined_at: '2024-01-15T11:00:00Z' },
+  
+  // Finance Department
+  { id: 'dm-7', department_id: 'dept-4', user_id: 'user-4', role: 'DEPARTMENT_HEAD', joined_at: '2024-01-15T11:30:00Z' },
+  
+  // Customer Support Department
+  { id: 'dm-8', department_id: 'dept-5', user_id: 'user-5', role: 'DEPARTMENT_HEAD', joined_at: '2024-01-15T12:00:00Z' },
+  { id: 'dm-9', department_id: 'dept-5', user_id: 'user-1', role: 'MEMBER', joined_at: '2024-01-19T14:00:00Z' }
+];
+
+// Mock Announcements
+export const mockAnnouncements = [
+  {
+    id: 'ann-1',
+    organization_id: 'org-1',
+    department_id: null, // Organization-wide
+    title: 'Q1 All Hands Meeting - Mandatory Attendance',
+    content: 'Join us this Friday at 3 PM for our quarterly review. We will discuss company performance, upcoming projects, and answer your questions. Location: Main Conference Room.',
+    priority: 'URGENT',
+    author_id: 'user-1',
+    author_name: 'Oleksandr Kovalenko',
+    target_type: 'ALL',
+    target_departments: [],
+    is_pinned: true,
+    created_at: '2024-03-20T09:00:00Z',
+    views: 45,
+    reactions: { 
+      thumbsup: 12, 
+      heart: 5,
+      clap: 8,
+      fire: 3
+    }
+  },
+  {
+    id: 'ann-2',
+    organization_id: 'org-1',
+    department_id: 'dept-1', // Engineering department
+    title: 'New Code Review Guidelines',
+    content: 'We have updated our code review process. All PRs must now have at least 2 approvals before merging. Please review the updated documentation.',
+    priority: 'IMPORTANT',
+    author_id: 'user-1',
+    author_name: 'Oleksandr Kovalenko',
+    target_type: 'DEPARTMENTS',
+    target_departments: ['dept-1'],
+    is_pinned: false,
+    created_at: '2024-03-19T14:30:00Z',
+    views: 28,
+    reactions: { 
+      thumbsup: 15,
+      eyes: 6
+    }
+  },
+  {
+    id: 'ann-3',
+    organization_id: 'org-1',
+    department_id: 'dept-2', // Sales department
+    title: 'New Sales Targets for Q2',
+    content: 'Great work on Q1! Our Q2 targets have been set. Please check your dashboards for individual quotas. Let\'s crush these goals together! 🚀',
+    priority: 'NORMAL',
+    author_id: 'user-2',
+    author_name: 'Kateryna Shevchenko',
+    target_type: 'DEPARTMENTS',
+    target_departments: ['dept-2'],
+    is_pinned: false,
+    created_at: '2024-03-18T10:15:00Z',
+    views: 18,
+    reactions: { 
+      fire: 10,
+      muscle: 7,
+      rocket: 5
+    }
+  },
+  {
+    id: 'ann-4',
+    organization_id: 'org-1',
+    department_id: null,
+    title: 'Office Renovation Schedule',
+    content: 'The 3rd floor will undergo renovation starting next Monday. Please coordinate with facilities team if you need temporary workspace arrangements.',
+    priority: 'IMPORTANT',
+    author_id: 'user-3',
+    author_name: 'Dmytro Petrenko',
+    target_type: 'ALL',
+    target_departments: [],
+    is_pinned: true,
+    created_at: '2024-03-17T16:45:00Z',
+    views: 52,
+    reactions: { 
+      thumbsup: 20,
+      eyes: 8
+    }
+  },
+  {
+    id: 'ann-5',
+    organization_id: 'org-1',
+    department_id: 'dept-5', // Customer Support
+    title: 'New Support Ticketing System',
+    content: 'We are migrating to a new ticketing system this weekend. Training sessions will be held on Monday morning. Please attend to learn the new workflow.',
+    priority: 'URGENT',
+    author_id: 'user-5',
+    author_name: 'Andriy Bondarenko',
+    target_type: 'DEPARTMENTS',
+    target_departments: ['dept-5'],
+    is_pinned: false,
+    created_at: '2024-03-16T11:20:00Z',
+    views: 22,
+    reactions: { 
+      thumbsup: 12,
+      pray: 4
+    }
+  }
+];
+
 // Helper function to search organizations
 export const searchOrganizations = (query, type = null) => {
   let results = mockOrganizations.filter(org => 
@@ -409,4 +595,37 @@ export const searchOrganizations = (query, type = null) => {
   }
   
   return results;
+};
+
+// Helper function to get departments by organization
+export const getDepartmentsByOrg = (orgId) => {
+  return mockDepartments.filter(dept => dept.organization_id === orgId);
+};
+
+// Helper function to get department members
+export const getDepartmentMembers = (departmentId) => {
+  const memberIds = mockDepartmentMembers
+    .filter(dm => dm.department_id === departmentId)
+    .map(dm => ({ ...dm, user: mockWorkUsers.find(u => u.id === dm.user_id) }));
+  return memberIds;
+};
+
+// Helper function to get announcements by organization
+export const getAnnouncementsByOrg = (orgId, departmentId = null) => {
+  let announcements = mockAnnouncements.filter(ann => ann.organization_id === orgId);
+  
+  if (departmentId) {
+    announcements = announcements.filter(ann => 
+      ann.target_type === 'ALL' || 
+      ann.department_id === departmentId ||
+      (ann.target_departments && ann.target_departments.includes(departmentId))
+    );
+  }
+  
+  // Sort pinned first, then by date
+  return announcements.sort((a, b) => {
+    if (a.is_pinned && !b.is_pinned) return -1;
+    if (!a.is_pinned && b.is_pinned) return 1;
+    return new Date(b.created_at) - new Date(a.created_at);
+  });
 };
