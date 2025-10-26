@@ -981,6 +981,16 @@ class AnnouncementReaction(BaseModel):
 class AnnouncementReactionRequest(BaseModel):
     reaction_type: str
 
+# ===== ORGANIZATION FOLLOW MODELS =====
+
+class OrganizationFollow(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    follower_id: str  # User who is following
+    followed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# ===== END ORGANIZATION FOLLOW MODELS =====
+
 # ===== END DEPARTMENTS & ANNOUNCEMENTS MODELS =====
 
 class ChatMessageCreate(BaseModel):
