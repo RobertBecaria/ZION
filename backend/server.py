@@ -8518,7 +8518,7 @@ async def get_organization_public_profile(
 async def update_my_member_settings(
     organization_id: str,
     settings: WorkMemberSettingsUpdate,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """
     Member updates their own settings.
