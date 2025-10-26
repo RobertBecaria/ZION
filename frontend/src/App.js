@@ -788,6 +788,8 @@ function Dashboard() {
   // Work Module State
   const [selectedOrganizationId, setSelectedOrganizationId] = useState(null);
   const [workSetupMode, setWorkSetupMode] = useState('choice'); // 'choice', 'search', 'create'
+  const [activeDepartmentId, setActiveDepartmentId] = useState(null);
+  const [showDepartmentManager, setShowDepartmentManager] = useState(false);
   
   // Removed showProfileCompletionModal state - now using full-page FamilySetupPage
   const [showGenderModal, setShowGenderModal] = useState(false);
