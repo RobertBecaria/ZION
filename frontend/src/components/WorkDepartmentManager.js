@@ -75,34 +75,64 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
     setShowCreateModal(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name.trim()) {
       alert('Введите название отдела');
       return;
     }
 
-    if (editingDepartment) {
-      // Update existing
-      setDepartments(departments.map(d => 
-        d.id === editingDepartment.id 
-          ? { ...d, ...formData }
-          : d
-      ));
-      alert('Отдел обновлен!');
-    } else {
-      // Create new
-      const newDept = {
-        id: `dept-${Date.now()}`,
-        organization_id: organizationId,
-        ...formData,
-        member_count: 0,
-        created_at: new Date().toISOString()
-      };
-      setDepartments([...departments, newDept]);
-      alert('Отдел создан!');
-    }
+    try {
+      const token = localStorage.getItem('zion_token');
+      
+      if (editingDepartment) {
+        // Update existing
+        const response = await fetch(
+          `${BACKEND_URL}/api/organizations/${organizationId}/departments/${editingDepartment.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          }
+        );
 
-    setShowCreateModal(false);
+        if (response.ok) {
+          alert('Отдел обновлен!');
+          await fetchDepartments();
+        } else {
+          const error = await response.json();
+          alert(error.detail || 'Ошибка при обновлении отдела');
+        }
+      } else {
+        // Create new
+        const response = await fetch(
+          `${BACKEND_URL}/api/organizations/${organizationId}/departments`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          }
+        );
+
+        if (response.ok) {
+          alert('Отдел создан!');
+          await fetchDepartments();
+        } else {
+          const error = await response.json();
+          alert(error.detail || 'Ошибка при создании отдела');
+        }
+      }
+
+      setShowCreateModal(false);
+    } catch (error) {
+      console.error('Error saving department:', error);
+      alert('Произошла ошибка');
+    }
   };
 
   const handleDelete = (departmentId) => {
