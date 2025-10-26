@@ -7703,13 +7703,10 @@ async def remove_department_member(
     organization_id: str,
     dept_id: str,
     user_id: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    current_user: dict = Depends(get_current_user)
 ):
     """Remove a member from a department."""
     try:
-        # Verify token and get current user
-        current_user = await get_current_user(credentials.credentials)
-        
         # Check if department exists
         department = await db.departments.find_one({"id": dept_id, "organization_id": organization_id})
         if not department:
