@@ -580,6 +580,22 @@ function WorkAnnouncementsList({ organizationId, onBack, currentUserId, moduleCo
         .empty-state-btn:hover {
           opacity: 0.9;
         }
+
+        .loading-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 4rem 2rem;
+          text-align: center;
+          background: white;
+          border-radius: 12px;
+          border: 1px solid #E4E6EB;
+        }
+
+        .loading-state p {
+          margin-top: 1rem;
+          color: #65676B;
+        }
       `}</style>
     </div>
   );
