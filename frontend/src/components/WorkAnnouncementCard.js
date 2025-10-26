@@ -78,6 +78,27 @@ function WorkAnnouncementCard({ announcement, onEdit, onDelete, onPin, onReact, 
   ];
 
   const totalReactions = Object.values(announcement.reactions || {}).reduce((sum, count) => sum + count, 0);
+    switch (priority) {
+      case 'URGENT':
+        return { color: '#DC2626', bg: '#FEE2E2', icon: AlertCircle, label: 'Срочно' };
+      case 'IMPORTANT':
+        return { color: '#F59E0B', bg: '#FEF3C7', icon: AlertCircle, label: 'Важно' };
+      default:
+        return { color: '#059669', bg: '#D1FAE5', icon: Info, label: 'Обычно' };
+    }
+  };
+
+  const priorityConfig = getPriorityConfig(announcement.priority);
+  const PriorityIcon = priorityConfig.icon;
+
+  const reactions = [
+    { type: 'thumbsup', icon: ThumbsUp, label: 'Нравится' },
+    { type: 'heart', icon: Heart, label: 'Любовь' },
+    { type: 'clap', icon: Clap, label: 'Аплодисменты' },
+    { type: 'fire', icon: Flame, label: 'Огонь' }
+  ];
+
+  const totalReactions = Object.values(announcement.reactions || {}).reduce((sum, count) => sum + count, 0);
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
