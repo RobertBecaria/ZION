@@ -1,0 +1,89 @@
+{
+  "total_tests": 13,
+  "passed_tests": 11,
+  "failed_tests": 2,
+  "success_rate": 84.61538461538461,
+  "test_results": [
+    {
+      "test_name": "Setup: Environment Setup",
+      "success": true,
+      "details": "All users and organization created successfully",
+      "timestamp": "2025-10-26T08:25:03.988926"
+    },
+    {
+      "test_name": "Member Settings: Update Job Title",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-26T08:25:04.034297"
+    },
+    {
+      "test_name": "Member Settings: Request Role Change",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-26T08:25:04.075462"
+    },
+    {
+      "test_name": "Role Change: Get Pending Requests",
+      "success": true,
+      "details": "Found 2 pending requests",
+      "timestamp": "2025-10-26T08:25:04.111787"
+    },
+    {
+      "test_name": "Role Change: Approve Request",
+      "success": false,
+      "details": "Response: {'detail': \"'User' object is not subscriptable\", 'status_code': 500, 'expected_status': 200}",
+      "timestamp": "2025-10-26T08:25:04.150826"
+    },
+    {
+      "test_name": "Team Management: Create Team",
+      "success": true,
+      "details": "Team created with ID: 9e6a3b55-3b08-4b23-873c-809b27f2ab27",
+      "timestamp": "2025-10-26T08:25:04.192293"
+    },
+    {
+      "test_name": "Team Management: Get Teams",
+      "success": true,
+      "details": "Found 1 teams including created team",
+      "timestamp": "2025-10-26T08:25:04.231599"
+    },
+    {
+      "test_name": "Team Management: Member Create Team",
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-26T08:25:04.310670"
+    },
+    {
+      "test_name": "Authorization: Unauthorized Access",
+      "success": false,
+      "details": "Expected 401, got: {'success': True, 'data': [{'id': '9e6a3b55-3b08-4b23-873c-809b27f2ab27', 'organization_id': 'f2fad45a-fe9e-4f17-9ff5-bfaed52355a6', 'name': 'Backend Development Team', 'description': 'Team responsible for backend development', 'department_id': None, 'team_lead_id': '02da39db-739b-4fed-b852-ca894bb68c6b', 'member_ids': ['bfc4325b-68f5-4d19-adb7-e03ff113c074'], 'created_by': 'bfc4325b-68f5-4d19-adb7-e03ff113c074', 'created_at': '2025-10-26T08:25:04.187000', 'updated_at': '2025-10-26T08:25:04.187000', 'is_active': True}, {'id': '121a8bcd-25a1-4640-81b8-e58a2c9c27a5', 'organization_id': 'f2fad45a-fe9e-4f17-9ff5-bfaed52355a6', 'name': 'Frontend Development Team', 'description': 'Team for frontend development', 'department_id': None, 'team_lead_id': '99afae2b-46bd-42e6-bd6c-3cb00305b6bd', 'member_ids': ['99afae2b-46bd-42e6-bd6c-3cb00305b6bd'], 'created_by': '99afae2b-46bd-42e6-bd6c-3cb00305b6bd', 'created_at': '2025-10-26T08:25:04.266000', 'updated_at': '2025-10-26T08:25:04.266000', 'is_active': True}], 'status_code': 200, 'expected_status': 401}",
+      "timestamp": "2025-10-26T08:25:04.346333"
+    },
+    {
+      "test_name": "Authorization: Invalid Organization",
+      "success": true,
+      "details": "Correctly rejected invalid organization",
+      "timestamp": "2025-10-26T08:25:04.384585"
+    },
+    {
+      "test_name": "Authorization: Non-member Access",
+      "success": true,
+      "details": "Correctly rejected non-member access",
+      "timestamp": "2025-10-26T08:25:04.690357"
+    },
+    {
+      "test_name": "Error Handling: Invalid Role",
+      "success": true,
+      "details": "Correctly rejected invalid role",
+      "timestamp": "2025-10-26T08:25:04.730844"
+    },
+    {
+      "test_name": "Error Handling: Non-existent Request",
+      "success": true,
+      "details": "Correctly handled non-existent request",
+      "timestamp": "2025-10-26T08:25:04.772828"
+    }
+  ],
+  "organization_id": "f2fad45a-fe9e-4f17-9ff5-bfaed52355a6",
+  "team_id": "9e6a3b55-3b08-4b23-873c-809b27f2ab27",
+  "change_request_id": "ad238dc7-a9dd-4190-9982-0378d3818491"
+}
