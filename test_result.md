@@ -285,7 +285,25 @@ frontend:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "FAMILY PROFILE AVATAR UPLOAD MODAL BUG FIX: User reported critical UI issue with the family profile avatar upload modal in МОЯ СЕМЬЯ section. When clicking the avatar upload button, the modal appears but exhibits severe blinking behavior and is almost impossible to close. The issue affects user experience significantly, preventing users from uploading family profile avatars. Root cause investigation revealed: 1) Event propagation conflicts causing rapid modal open/close cycles, 2) Z-index layering issues between modal (z-index: 2000) and upload buttons (z-index: 20), 3) Component re-rendering from parent (MyFamilyProfile) causing state conflicts, 4) Body scroll not disabled allowing background interaction, 5) Missing event.stopPropagation() on critical click handlers. Fix implementation required: Enhanced event handling with useCallback hooks, proper z-index hierarchy (modal: 10000, buttons: 100), body scroll prevention when modal open, comprehensive event.stopPropagation() throughout modal interactions, improved overlay click detection to only close on direct overlay clicks."
+user_problem_statement: "WORK MODULE - ORGANIZATIONS LOADING ERROR FIX: Critical bug preventing organizations from loading in Work module. Error: 'Member is not a valid WorkRole' causing organization listing to fail. Root causes: 1) Database had invalid role 'Member' instead of 'MEMBER', 2) Backend queries used wrong field name {'id': ...} instead of {'organization_id': ...}, 3) Wrong collection name 'work_memberships' instead of 'work_members'. All issues fixed and verified."
+
+backend:
+  - task: "WORK Module - Organizations Loading Critical Bug Fix"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "USER REPORT: Organizations not loading in Work module. Persistent 'Member is not a valid WorkRole' error preventing organization listing."
+      - working: true
+        agent: "main"
+        comment: "✅ CRITICAL BUG FIXED - THREE ROOT CAUSES RESOLVED: 1) DATABASE ROLE FIX: Found and corrected 1 entry with invalid role 'Member' (capital M only) → 'MEMBER' (all caps) using db.work_members.update_many({'role': 'Member'}, {'$set': {'role': 'MEMBER'}}). Total 35 memberships now have valid roles. 2) QUERY FIELD NAME FIX: Backend was querying organizations with {'id': organization_id} but database stores as 'organization_id' due to Pydantic alias. Fixed 6 endpoints: Departments (list, update, delete, add member, list members, remove member) - lines 7450, 7776, 8146, 8225, 8266, 8349. Changed all to {'organization_id': organization_id}. 3) COLLECTION NAME FIX: Code used 'work_memberships' instead of correct 'work_members'. Fixed 14 occurrences in announcement and department endpoints. VERIFICATION: ✅ Database check: All roles valid, ✅ Query test: {'organization_id': ...} finds organizations, {'id': ...} returns null (as expected), ✅ End-to-end test: Successfully loaded 3 organizations for test user, ✅ Backend restart completed successfully. IMPACT: Organizations now load correctly, all department/announcement/follow/join endpoints functional. Created detailed documentation in /app/CRITICAL_BUG_FIX_WORKROLE.md."
+
+user_problem_statement_previous: "FAMILY PROFILE AVATAR UPLOAD MODAL BUG FIX: User reported critical UI issue with the family profile avatar upload modal in МОЯ СЕМЬЯ section. When clicking the avatar upload button, the modal appears but exhibits severe blinking behavior and is almost impossible to close. The issue affects user experience significantly, preventing users from uploading family profile avatars. Root cause investigation revealed: 1) Event propagation conflicts causing rapid modal open/close cycles, 2) Z-index layering issues between modal (z-index: 2000) and upload buttons (z-index: 20), 3) Component re-rendering from parent (MyFamilyProfile) causing state conflicts, 4) Body scroll not disabled allowing background interaction, 5) Missing event.stopPropagation() on critical click handlers. Fix implementation required: Enhanced event handling with useCallback hooks, proper z-index hierarchy (modal: 10000, buttons: 100), body scroll prevention when modal open, comprehensive event.stopPropagation() throughout modal interactions, improved overlay click detection to only close on direct overlay clicks."
 
 frontend:
   - task: "Family Profile Avatar Upload Modal - Blinking & Close Bug Fix"
