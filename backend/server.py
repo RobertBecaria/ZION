@@ -5988,9 +5988,14 @@ async def get_user_work_organizations(
                 if "organization_id" in org_response_data:
                     org_response_data["id"] = org_response_data.pop("organization_id")
                 
+                # Handle role - convert 'Member' to 'MEMBER' if needed for backwards compatibility
+                role_value = membership["role"]
+                if role_value == "Member":
+                    role_value = "MEMBER"
+                
                 org_response = WorkOrganizationResponse(
                     **org_response_data,
-                    user_role=WorkRole(membership["role"]),
+                    user_role=WorkRole(role_value),
                     user_custom_role_name=membership.get("custom_role_name"),
                     user_department=membership.get("department"),
                     user_team=membership.get("team"),
