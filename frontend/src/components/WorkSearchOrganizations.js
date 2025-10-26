@@ -308,7 +308,7 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
                                       {org.is_private ? 'Отправка...' : 'Вступление...'}
                                     </>
                                   ) : (
-                                    org.is_private ? 'Запросить доступ' : 'Присоединиться'
+                                    'Запрос на вступление'
                                   )}
                                 </button>
                               )}
