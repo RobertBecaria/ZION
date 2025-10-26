@@ -67,11 +67,11 @@ function GenderUpdateModal({ isOpen, onClose, onUpdate }) {
   };
 
   return (
-    <div className="modal-overlay" onClick={(e) => e.target.className === 'modal-overlay' && !loading && onClose()}>
+    <div className="modal-overlay" style={{ cursor: 'default' }}>
       <div className="gender-modal">
         <div className="modal-header">
           <h2>Укажите ваш пол</h2>
-          <p className="modal-subtitle">Это поможет настроить фильтры и улучшить взаимодействие</p>
+          <p className="modal-subtitle">Это обязательное поле для продолжения работы в системе</p>
         </div>
 
         <div className="gender-options">
