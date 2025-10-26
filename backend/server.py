@@ -884,6 +884,101 @@ class WorkPostResponse(BaseModel):
     author: Dict[str, Any]
     organization: Dict[str, Any]
 
+# ===== DEPARTMENTS & ANNOUNCEMENTS MODELS =====
+
+class DepartmentRole(str, Enum):
+    DEPARTMENT_HEAD = "DEPARTMENT_HEAD"
+    LEAD = "LEAD"
+    MEMBER = "MEMBER"
+    CLIENT = "CLIENT"
+
+class Department(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    name: str
+    description: Optional[str] = None
+    color: str  # Hex color code
+    head_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DepartmentCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: str = "#1D4ED8"
+    head_id: Optional[str] = None
+
+class DepartmentUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    color: Optional[str] = None
+    head_id: Optional[str] = None
+
+class DepartmentMember(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    department_id: str
+    user_id: str
+    role: DepartmentRole
+    joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class DepartmentMemberAdd(BaseModel):
+    user_id: str
+    role: DepartmentRole = DepartmentRole.MEMBER
+
+class AnnouncementPriority(str, Enum):
+    NORMAL = "NORMAL"
+    IMPORTANT = "IMPORTANT"
+    URGENT = "URGENT"
+
+class AnnouncementTargetType(str, Enum):
+    ALL = "ALL"
+    DEPARTMENTS = "DEPARTMENTS"
+
+class Announcement(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    department_id: Optional[str] = None  # Which department created this
+    title: str
+    content: str
+    priority: AnnouncementPriority
+    author_id: str
+    target_type: AnnouncementTargetType
+    target_departments: List[str] = []  # Empty if target_type is ALL
+    is_pinned: bool = False
+    views: int = 0
+    reactions: Dict[str, int] = {}  # {"thumbsup": 5, "heart": 3}
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AnnouncementCreate(BaseModel):
+    title: str
+    content: str
+    priority: AnnouncementPriority = AnnouncementPriority.NORMAL
+    target_type: AnnouncementTargetType = AnnouncementTargetType.ALL
+    target_departments: List[str] = []
+    department_id: Optional[str] = None
+    is_pinned: bool = False
+
+class AnnouncementUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    priority: Optional[AnnouncementPriority] = None
+    target_type: Optional[AnnouncementTargetType] = None
+    target_departments: Optional[List[str]] = None
+    is_pinned: Optional[bool] = None
+
+class AnnouncementReaction(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    announcement_id: str
+    user_id: str
+    reaction_type: str  # thumbsup, heart, clap, fire
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AnnouncementReactionRequest(BaseModel):
+    reaction_type: str
+
+# ===== END DEPARTMENTS & ANNOUNCEMENTS MODELS =====
+
 class ChatMessageCreate(BaseModel):
     group_id: str
     content: str
