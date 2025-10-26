@@ -205,7 +205,7 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 p-6 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Настройки Организации</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Настройки</h2>
             <p className="text-sm text-gray-600 mt-1">{organization?.name}</p>
           </div>
           <button
@@ -216,54 +216,110 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
           </button>
         </div>
 
-        {/* Navigation Tabs */}
-        <div className="border-b border-gray-200 px-6">
-          <div className="flex gap-1">
-            {[
-              { id: 'basic', label: 'Основное', icon: Building2 },
-              { id: 'contact', label: 'Контакты', icon: Mail },
-              { id: 'media', label: 'Медиа', icon: Image },
-              { id: 'privacy', label: 'Приватность', icon: Globe }
-            ].map(tab => (
+        {/* Main Tabs (Company / Personal) */}
+        {currentMembership?.is_admin && (
+          <div className="border-b border-gray-200 px-6 bg-gray-50">
+            <div className="flex gap-4">
               <button
-                key={tab.id}
-                onClick={() => setActiveSection(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 font-medium transition-all duration-200 border-b-2 ${
-                  activeSection === tab.id
-                    ? 'text-orange-600 border-orange-600'
+                onClick={() => setActiveTab('company')}
+                className={`px-6 py-4 font-semibold text-base border-b-3 transition-all duration-200 ${
+                  activeTab === 'company'
+                    ? 'text-orange-600 border-orange-600 border-b-3'
                     : 'text-gray-600 border-transparent hover:text-gray-900'
                 }`}
+                style={{ borderBottomWidth: activeTab === 'company' ? '3px' : '0' }}
               >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
+                <Building2 className="w-5 h-5 inline-block mr-2" />
+                Настройки Компании
               </button>
-            ))}
+              <button
+                onClick={() => setActiveTab('personal')}
+                className={`px-6 py-4 font-semibold text-base border-b-3 transition-all duration-200 ${
+                  activeTab === 'personal'
+                    ? 'text-orange-600 border-orange-600 border-b-3'
+                    : 'text-gray-600 border-transparent hover:text-gray-900'
+                }`}
+                style={{ borderBottomWidth: activeTab === 'personal' ? '3px' : '0' }}
+              >
+                <UserCog className="w-5 h-5 inline-block mr-2" />
+                МОИ НАСТРОЙКИ
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Sub-Navigation Tabs (for Company Settings only) */}
+        {activeTab === 'company' && currentMembership?.is_admin && (
+          <div className="border-b border-gray-200 px-6">
+            <div className="flex gap-1">
+              {[
+                { id: 'basic', label: 'Основное', icon: Building2 },
+                { id: 'contact', label: 'Контакты', icon: Mail },
+                { id: 'media', label: 'Медиа', icon: Image },
+                { id: 'privacy', label: 'Приватность', icon: Globe },
+                { id: 'requests', label: 'Запросы', icon: Clock }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveSection(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 font-medium transition-all duration-200 border-b-2 ${
+                    activeSection === tab.id
+                      ? 'text-orange-600 border-orange-600'
+                      : 'text-gray-600 border-transparent hover:text-gray-900'
+                  }`}
+                >
+                  <tab.icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-6">
-          {/* Success Message */}
-          {success && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 mb-6">
-              <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-green-900">Сохранено!</h3>
-                <p className="text-sm text-green-700 mt-1">Настройки организации успешно обновлены.</p>
-              </div>
-            </div>
+          {/* Personal Settings Tab Content */}
+          {activeTab === 'personal' && (
+            <WorkMemberSettings
+              organizationId={organizationId}
+              currentMembership={currentMembership}
+              onClose={onClose}
+              onUpdate={() => {
+                loadOrganization();
+                if (onSuccess) onSuccess();
+              }}
+            />
           )}
 
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 mb-6">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-red-900">Ошибка</h3>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
-              </div>
-            </div>
-          )}
+          {/* Company Settings Tab Content */}
+          {activeTab === 'company' && currentMembership?.is_admin && (
+            <>
+              {/* Change Requests Section (NEW) */}
+              {activeSection === 'requests' && (
+                <WorkChangeRequestsManager organizationId={organizationId} />
+              )}
+
+              {/* Success Message */}
+              {activeSection !== 'requests' && success && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 mb-6">
+                  <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-green-900">Сохранено!</h3>
+                    <p className="text-sm text-green-700 mt-1">Настройки организации успешно обновлены.</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Message */}
+              {activeSection !== 'requests' && error && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 mb-6">
+                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-900">Ошибка</h3>
+                    <p className="text-sm text-red-700 mt-1">{error}</p>
+                  </div>
+                </div>
+              )}
 
           {/* Basic Info Section */}
           {activeSection === 'basic' && (
