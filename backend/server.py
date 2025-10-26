@@ -7463,13 +7463,10 @@ async def create_department(
 @api_router.get("/organizations/{organization_id}/departments")
 async def list_departments(
     organization_id: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    current_user: dict = Depends(get_current_user)
 ):
     """List all departments in an organization."""
     try:
-        # Verify token and get current user
-        current_user = await get_current_user(credentials.credentials)
-        
         # Check if user is a member
         membership = await db.work_memberships.find_one({
             "organization_id": organization_id,
