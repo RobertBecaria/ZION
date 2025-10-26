@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Megaphone, AlertCircle, Info, X, Building2, Users } from 'lucide-react';
-import { getDepartmentsByOrg } from '../mock-work';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
 function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnnouncement = null, moduleColor = '#C2410C' }) {
+  const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
     title: editingAnnouncement?.title || '',
     content: editingAnnouncement?.content || '',
@@ -12,7 +14,28 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
     is_pinned: editingAnnouncement?.is_pinned || false
   });
 
-  const departments = getDepartmentsByOrg(organizationId);
+  useEffect(() => {
+    fetchDepartments();
+  }, [organizationId]);
+
+  const fetchDepartments = async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
 
   const priorities = [
     { value: 'NORMAL', label: 'Обычно', color: '#059669', bg: '#D1FAE5', icon: Info },
