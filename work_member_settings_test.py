@@ -235,28 +235,24 @@ class WorkMemberSettingsAPITester:
             return False
 
     def test_create_role_change_request(self):
-        """Test creating role change request - POST /api/work/organizations/{organization_id}/role-change-requests"""
+        """Test creating role change request via member settings update"""
         if not self.organization_id:
-            self.log_test("Create Role Change Request", False, "No organization_id available")
+            self.log_test("Create Role Change Request (via member settings)", False, "No organization_id available")
             return False
         
-        request_data = {
-            "request_type": "ROLE_CHANGE",
+        # Role change requests are created via the member settings update endpoint
+        settings_data = {
             "requested_role": "MANAGER",
             "reason": "Ready for management responsibilities"
         }
         
-        success, response = self.make_request("POST", f"work/organizations/{self.organization_id}/role-change-requests", request_data, 200, self.member_token)
+        success, response = self.make_request("PUT", f"work/organizations/{self.organization_id}/members/me", settings_data, 200, self.member_token)
         
         if success:
-            self.log_test("Create Role Change Request", True)
+            self.log_test("Create Role Change Request (via member settings)", True)
             return True
         else:
-            # Check if endpoint exists
-            if response.get("status_code") == 404:
-                self.log_test("Create Role Change Request", False, "Endpoint not implemented (404)")
-            else:
-                self.log_test("Create Role Change Request", False, f"Response: {response}")
+            self.log_test("Create Role Change Request (via member settings)", False, f"Response: {response}")
             return False
 
     def test_get_organization_role_change_requests(self):
