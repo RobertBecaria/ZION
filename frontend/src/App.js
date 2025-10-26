@@ -2296,6 +2296,15 @@ function Dashboard() {
           }}
         />
       )}
+
+      {/* Department Manager Modal */}
+      {showDepartmentManager && selectedOrganizationId && (
+        <WorkDepartmentManager
+          organizationId={selectedOrganizationId}
+          onClose={() => setShowDepartmentManager(false)}
+          moduleColor={currentModule.color}
+        />
+      )}
     </div>
   );
 }
