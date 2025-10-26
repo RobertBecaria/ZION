@@ -7983,13 +7983,10 @@ async def pin_announcement(
     organization_id: str,
     announcement_id: str,
     pin_data: dict,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
+    current_user: dict = Depends(get_current_user)
 ):
     """Pin or unpin an announcement."""
     try:
-        # Verify token and get current user
-        current_user = await get_current_user(credentials.credentials)
-        
         # Check permissions (OWNER or ADMIN only)
         membership = await db.work_memberships.find_one({
             "organization_id": organization_id,
