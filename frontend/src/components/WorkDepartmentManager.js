@@ -135,10 +135,32 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
     }
   };
 
-  const handleDelete = (departmentId) => {
+  const handleDelete = async (departmentId) => {
     if (window.confirm('Удалить этот отдел?')) {
-      setDepartments(departments.filter(d => d.id !== departmentId));
-      alert('Отдел удален');
+      try {
+        const token = localStorage.getItem('zion_token');
+        const response = await fetch(
+          `${BACKEND_URL}/api/organizations/${organizationId}/departments/${departmentId}`,
+          {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.ok) {
+          alert('Отдел удален');
+          await fetchDepartments();
+        } else {
+          const error = await response.json();
+          alert(error.detail || 'Ошибка при удалении отдела');
+        }
+      } catch (error) {
+        console.error('Error deleting department:', error);
+        alert('Произошла ошибка');
+      }
     }
   };
 
