@@ -53,8 +53,8 @@ function GenderUpdateModal({ isOpen, onClose, onUpdate }) {
       });
 
       if (response.ok) {
+        // Call onUpdate which will handle refresh and modal closing
         onUpdate(selectedGender);
-        onClose();
       } else {
         throw new Error('Failed to update gender');
       }
