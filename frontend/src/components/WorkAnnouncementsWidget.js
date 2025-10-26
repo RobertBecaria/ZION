@@ -315,6 +315,13 @@ function WorkAnnouncementsWidget({ organizationId, departmentId = null, onViewAl
           0%, 100% { opacity: 1; }
           50% { opacity: 0.7; }
         }
+
+        .loading-state {
+          padding: 2rem 1rem;
+          text-align: center;
+          color: #65676B;
+          font-size: 0.875rem;
+        }
       `}</style>
     </div>
   );
