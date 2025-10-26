@@ -193,17 +193,11 @@ function WorkAnnouncementCard({ announcement, onEdit, onDelete, onPin, onReact, 
         <p className="announcement-content">{announcement.content}</p>
 
         {/* Target Audience */}
-        {announcement.target_type === 'DEPARTMENTS' && announcement.target_departments.length > 0 && (
+        {announcement.target_type === 'DEPARTMENTS' && announcement.target_departments && announcement.target_departments.length > 0 && (
           <div className="target-audience">
             <span className="target-label">Для отделов:</span>
-            {announcement.target_departments.map(deptId => {
-              const dept = mockDepartments.find(d => d.id === deptId);
-              return dept ? (
-                <span key={dept.id} className="target-dept" style={{ background: `${dept.color}15`, color: dept.color }}>
-                  {dept.name}
-                </span>
-              ) : null;
-            })}
+            {/* Display department names if available, otherwise show IDs */}
+            <span className="target-dept">Отделы: {announcement.target_departments.length}</span>
           </div>
         )}
       </div>
