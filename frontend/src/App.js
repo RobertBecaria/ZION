@@ -2256,8 +2256,10 @@ function Dashboard() {
             // User MUST select gender to continue
           }}
           onUpdate={async (gender) => {
-            // User successfully selected gender
-            localStorage.setItem(`gender_asked_${user.id}`, 'true');
+            // Mark that we've asked this user for gender
+            if (user?.id) {
+              localStorage.setItem(`gender_asked_${user.id}`, 'true');
+            }
             // Refresh user profile to get updated gender
             await refreshProfile();
             setShowGenderModal(false);
