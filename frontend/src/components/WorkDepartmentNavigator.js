@@ -256,6 +256,13 @@ function WorkDepartmentNavigator({ organizationId, activeDepartmentId, onDepartm
           opacity: 0.8;
           transform: translateY(-1px);
         }
+
+        .loading-state {
+          padding: 1rem;
+          text-align: center;
+          color: #65676B;
+          font-size: 0.875rem;
+        }
       `}</style>
     </div>
   );
