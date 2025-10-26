@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Building2, Globe, Mail, MapPin, Image, AlertCircle, Check, Upload, Trash2, LogOut, Crown } from 'lucide-react';
+import { X, Save, Building2, Globe, Mail, MapPin, Image, AlertCircle, Check, Upload, Trash2, LogOut, Crown, UserCog, Clock } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
 import WorkTransferOwnershipModal from './WorkTransferOwnershipModal';
+import WorkMemberSettings from './WorkMemberSettings';
+import WorkChangeRequestsManager from './WorkChangeRequestsManager';
 
-const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveOrganization }) => {
+const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveOrganization, currentMembership }) => {
   const [organization, setOrganization] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const [activeSection, setActiveSection] = useState('basic'); // 'basic', 'contact', 'media', 'privacy'
+  const [activeTab, setActiveTab] = useState(currentMembership?.is_admin ? 'company' : 'personal'); // 'company' or 'personal'
+  const [activeSection, setActiveSection] = useState('basic'); // 'basic', 'contact', 'media', 'privacy' (for company tab)
   
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [leaving, setLeaving] = useState(false);
