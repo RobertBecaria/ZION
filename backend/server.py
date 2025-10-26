@@ -8824,7 +8824,7 @@ async def create_team(
 @api_router.get("/work/organizations/{organization_id}/teams")
 async def get_teams(
     organization_id: str,
-    current_user: dict = Depends(get_current_user)
+    current_user: User = Depends(get_current_user)
 ):
     """Get all teams in the organization"""
     try:
