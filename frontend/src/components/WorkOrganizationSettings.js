@@ -650,10 +650,13 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
               </div>
             </div>
           )}
+            </>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
+        {/* Footer - Only show for company settings */}
+        {activeTab === 'company' && currentMembership?.is_admin && (
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 flex gap-3">
           <button
             onClick={onClose}
             className="flex-1 px-6 py-3 border-2 border-gray-300 rounded-xl hover:bg-gray-50 transition-colors duration-200 font-semibold text-gray-700"
