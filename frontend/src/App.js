@@ -317,8 +317,8 @@ function RegistrationForm({ onSwitchToLogin }) {
     first_name: '',
     last_name: '',
     middle_name: '',
-    phone: '',
-    gender: '' // NEW: MALE, FEMALE, or empty
+    phone: ''
+    // Removed gender - will be set via mandatory popup on first login
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
