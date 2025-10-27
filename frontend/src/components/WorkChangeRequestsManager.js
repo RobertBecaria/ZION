@@ -209,6 +209,20 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
     <div className="work-change-requests">
       <div className="requests-header">
         <h3><Clock size={20} /> Запросы на изменения</h3>
+        <div className="request-type-selector">
+          <button
+            className={requestType === 'change' ? 'active' : ''}
+            onClick={() => setRequestType('change')}
+          >
+            <Briefcase size={16} /> Изменения
+          </button>
+          <button
+            className={requestType === 'join' ? 'active' : ''}
+            onClick={() => setRequestType('join')}
+          >
+            <UserPlus size={16} /> Вступления
+          </button>
+        </div>
         <div className="status-filter">
           <button
             className={statusFilter === 'PENDING' ? 'active' : ''}
