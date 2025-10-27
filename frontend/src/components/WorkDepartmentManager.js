@@ -19,6 +19,8 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
   });
 
   useEffect(() => {
+    console.log('WorkDepartmentManager useEffect triggered');
+    console.log('  organizationId:', organizationId);
     fetchDepartments();
     fetchOrganizationMembers();
   }, [organizationId]);
