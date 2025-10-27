@@ -310,56 +310,11 @@ const WorkMemberSettings = ({ organizationId, currentMembership, onClose, onUpda
         
         {/* Team Management */}
         <div className="settings-section" style={{ marginTop: '2rem', borderTop: '1px solid #e5e7eb', paddingTop: '1.5rem' }}>
-          <h4><Users size={18} /> Команды</h4>
-          {!showTeamForm && (
-            <button
-              onClick={() => setShowTeamForm(true)}
-              className="btn-secondary"
-            >
-              <Users size={18} />
-              Создать команду
-            </button>
-          )}
-          
-          {showTeamForm && (
-            <div className="team-form">
-              <input
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                placeholder="Название команды"
-                className="settings-input"
-                style={{ marginBottom: '0.75rem' }}
-              />
-              <textarea
-                value={teamDescription}
-                onChange={(e) => setTeamDescription(e.target.value)}
-                placeholder="Описание команды (опционально)"
-                className="settings-textarea"
-                rows={2}
-                style={{ marginBottom: '0.75rem' }}
-              />
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button
-                  onClick={handleCreateTeam}
-                  disabled={loading}
-                  className="btn-primary"
-                >
-                  Создать
-                </button>
-                <button
-                  onClick={() => {
-                    setShowTeamForm(false);
-                    setTeamName('');
-                    setTeamDescription('');
-                  }}
-                  className="btn-secondary"
-                >
-                  Отмена
-                </button>
-              </div>
-            </div>
-          )}
+          <WorkTeamManager 
+            organizationId={organizationId}
+            currentMembership={currentMembership}
+            onClose={onClose}
+          />
         </div>
         
         {/* Leave Organization */}
