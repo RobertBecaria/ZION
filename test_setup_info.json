@@ -1,0 +1,10 @@
+{
+  "admin_email": "admintest@example.com",
+  "admin_password": "admin123",
+  "admin_user_id": "498c8140-3f26-4d99-8d61-4eb7af982985",
+  "member_email": "membertest@example.com",
+  "member_password": "test123",
+  "member_user_id": "20b9b563-ea8c-49d1-88ad-c244677317a9",
+  "organization_id": "7a1968de-4575-46ef-8d99-7650fd522a2b",
+  "setup_timestamp": "2025-10-27T09:42:58.983083"
+}
