@@ -52,6 +52,10 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
         console.error('Error parsing token:', e);
       }
     }
+    // Load pending change requests count if admin
+    if (currentMembership?.is_admin) {
+      loadPendingChangeRequests();
+    }
   }, [organizationId]);
 
   const loadOrganization = async () => {
