@@ -505,9 +505,8 @@ frontend:
 
 test_plan:
   current_focus:
-    - "WORK Module Backend Testing - COMPLETED"
-  stuck_tasks: 
-    - "Organization Posts Permission Bug - Backend Fix Required"
+    - "Join Request Notifications Integration - COMPLETED"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
