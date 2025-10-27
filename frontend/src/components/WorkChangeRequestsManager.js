@@ -182,6 +182,39 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
       setError(err.message);
     }
   };
+
+  const handleRejectJoinRequest = async (requestId) => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      
+      const response = await fetch(
+        `${API}/work/join-requests/${requestId}/reject`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ rejection_reason: rejectionReason })
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Ошибка при отклонении запроса на вступление');
+      }
+      
+      // Refresh list and close modal
+      setRejectingRequest(null);
+      setRejectionReason('');
+      fetchJoinRequests();
+      // Notify parent component
+      if (onRequestHandled) onRequestHandled();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
   
   const getRequestTypeLabel = (type) => {
     const labels = {
