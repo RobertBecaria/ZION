@@ -1,91 +1,91 @@
 {
   "total_tests": 13,
-  "passed_tests": 5,
-  "failed_tests": 8,
-  "success_rate": 38.46153846153847,
+  "passed_tests": 12,
+  "failed_tests": 1,
+  "success_rate": 92.3076923076923,
   "test_results": [
     {
       "test_name": "Admin Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:19:26.308284"
+      "timestamp": "2025-10-27T11:20:03.987755"
     },
     {
       "test_name": "Member Registration & Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:19:26.838482"
+      "timestamp": "2025-10-27T11:20:04.524005"
     },
     {
       "test_name": "Add Member to Organization",
-      "success": false,
-      "details": "Response: {'detail': \"You don't have permission to add members\", 'status_code': 403, 'expected_status': 200}",
-      "timestamp": "2025-10-27T11:19:26.880142"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.568408"
     },
     {
       "test_name": "Member Create Change Request",
-      "success": false,
-      "details": "Response: {'detail': '\u0412\u044b \u043d\u0435 \u044f\u0432\u043b\u044f\u0435\u0442\u0435\u0441\u044c \u0447\u043b\u0435\u043d\u043e\u043c \u044d\u0442\u043e\u0439 \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0446\u0438\u0438', 'status_code': 404, 'expected_status': 200}",
-      "timestamp": "2025-10-27T11:19:26.919888"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.609823"
     },
     {
       "test_name": "GET Pending Change Requests",
       "success": true,
-      "details": "Found 0 requests",
-      "timestamp": "2025-10-27T11:19:26.958090"
+      "details": "Found 2 requests",
+      "timestamp": "2025-10-27T11:20:04.647241"
     },
     {
       "test_name": "Approve Change Request",
-      "success": false,
-      "details": "No test request ID available",
-      "timestamp": "2025-10-27T11:19:26.958105"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.729261"
     },
     {
       "test_name": "Verify Role Updated",
       "success": false,
       "details": "Role not updated. Response: {'detail': 'Method Not Allowed', 'status_code': 405, 'expected_status': 200}",
-      "timestamp": "2025-10-27T11:19:26.993930"
+      "timestamp": "2025-10-27T11:20:04.760166"
     },
     {
       "test_name": "Create Request for Rejection Test",
-      "success": false,
-      "details": "Response: {'detail': '\u0412\u044b \u043d\u0435 \u044f\u0432\u043b\u044f\u0435\u0442\u0435\u0441\u044c \u0447\u043b\u0435\u043d\u043e\u043c \u044d\u0442\u043e\u0439 \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0446\u0438\u0438', 'status_code': 404, 'expected_status': 200}",
-      "timestamp": "2025-10-27T11:19:27.030382"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.800731"
     },
     {
       "test_name": "Get New Pending Request",
-      "success": false,
-      "details": "Response: {'success': True, 'data': []}",
-      "timestamp": "2025-10-27T11:19:27.067124"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.838587"
     },
     {
       "test_name": "Reject Change Request",
-      "success": false,
-      "details": "No test request ID available",
-      "timestamp": "2025-10-27T11:19:27.067139"
+      "success": true,
+      "details": "",
+      "timestamp": "2025-10-27T11:20:04.877947"
     },
     {
       "test_name": "Verify Rejected Request",
-      "success": false,
-      "details": "Rejected request not found or missing rejection reason",
-      "timestamp": "2025-10-27T11:19:27.105280"
+      "success": true,
+      "details": "Request rejected with reason: Department change not approved at this time",
+      "timestamp": "2025-10-27T11:20:04.922931"
     },
     {
       "test_name": "Non-Admin Authorization Check",
       "success": true,
       "details": "All admin endpoints properly return 403 for non-admin",
-      "timestamp": "2025-10-27T11:19:27.265000"
+      "timestamp": "2025-10-27T11:20:05.076569"
     },
     {
       "test_name": "Pending Count Accuracy",
       "success": true,
-      "details": "Found 0 pending requests",
-      "timestamp": "2025-10-27T11:19:27.301741"
+      "details": "Found 1 pending requests",
+      "timestamp": "2025-10-27T11:20:05.118157"
     }
   ],
   "admin_email": "admin@test.com",
-  "member_email": "member_test_111926@example.com",
+  "member_email": "member_test_112003@example.com",
   "organization_id": "d80dbe76-45e7-45fa-b937-a2b5a20b8aaf",
   "admin_user_id": "b2b2f7ee-5b9c-4972-8658-50be80d9429e",
-  "member_user_id": "c1944ac0-0ed7-4c15-8909-b67d3557c098"
+  "member_user_id": "dd7efb90-212c-4b66-ab6a-8cc0d234bfcf"
 }
