@@ -200,14 +200,12 @@ class CleanAdminChangeRequestsTester:
         request_id = department_request["id"]
         
         # Step 5: Admin rejects the request
-        reject_data = {
-            "rejection_reason": "Engineering department is at full capacity. Please try again next quarter."
-        }
+        rejection_reason = "Engineering department is at full capacity. Please try again next quarter."
         
         success, response = self.make_request(
             "POST", 
-            f"work/organizations/{self.organization_id}/change-requests/{request_id}/reject", 
-            reject_data, 
+            f"work/organizations/{self.organization_id}/change-requests/{request_id}/reject?rejection_reason={rejection_reason}", 
+            {}, 
             200, 
             self.admin_token
         )
