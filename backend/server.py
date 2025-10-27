@@ -7570,14 +7570,22 @@ async def create_department(
         if not organization:
             raise HTTPException(status_code=404, detail="Организация не найдена")
         
-        # Check if user is OWNER or ADMIN
+        # Check if user is OWNER or ADMIN or has is_admin=True
         membership = await db.work_members.find_one({
             "organization_id": organization_id,
             "user_id": current_user.id,
             "status": "ACTIVE"
         })
         
-        if not membership or membership.get("role") not in ["OWNER", "ADMIN"]:
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        is_authorized = (
+            membership.get("role") in ["OWNER", "ADMIN", "CEO"] or 
+            membership.get("is_admin") is True
+        )
+        
+        if not is_authorized:
             raise HTTPException(status_code=403, detail="Только владелец или администратор может создавать отделы")
         
         # Create department
