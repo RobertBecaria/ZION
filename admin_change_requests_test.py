@@ -307,18 +307,42 @@ class AdminChangeRequestsTester:
 
     def test_admin_reject_request(self):
         """Test Scenario 2: Admin rejects request with reason"""
-        if not self.admin_token or len(self.change_request_ids) < 2:
-            self.log_test("Admin Reject Request", False, "No admin token or insufficient change requests")
+        if not self.admin_token:
+            self.log_test("Admin Reject Request", False, "No admin token")
             return False
 
-        request_id = self.change_request_ids[1]  # Second request (department change)
+        # Get current pending requests to find the department change request
+        success, response = self.make_request(
+            "GET", 
+            f"work/organizations/{self.organization_id}/change-requests?status=PENDING", 
+            None, 
+            200, 
+            self.admin_token
+        )
+        
+        if not (success and response.get("success") and isinstance(response.get("data"), list)):
+            self.log_test("Admin Reject Request", False, f"Failed to get pending requests: {response}")
+            return False
+        
+        # Find department change request
+        department_request_id = None
+        for request in response["data"]:
+            if (request.get("user_id") == self.member_user_id and 
+                request.get("request_type") == "DEPARTMENT_CHANGE"):
+                department_request_id = request.get("id")
+                break
+        
+        if not department_request_id:
+            self.log_test("Admin Reject Request", False, "Department change request not found")
+            return False
+
         reject_data = {
             "rejection_reason": "Engineering department is currently at full capacity. Please reapply next quarter."
         }
         
         success, response = self.make_request(
             "POST", 
-            f"work/organizations/{self.organization_id}/change-requests/{request_id}/reject", 
+            f"work/organizations/{self.organization_id}/change-requests/{department_request_id}/reject", 
             reject_data, 
             200, 
             self.admin_token
