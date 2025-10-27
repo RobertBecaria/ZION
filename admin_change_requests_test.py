@@ -14,7 +14,7 @@ class AdminChangeRequestsTester:
         self.member_token = None
         self.admin_user_id = None
         self.member_user_id = None
-        self.organization_id = "dc9ca3c6-9260-4426-b38f-08d30c4ffc8b"  # Existing test org
+        self.organization_id = "7a1968de-4575-46ef-8d99-7650fd522a2b"  # New test org
         self.tests_run = 0
         self.tests_passed = 0
         self.test_results = []
