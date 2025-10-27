@@ -206,22 +206,33 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
             >
               ← Back
             </button>
-            {/* Admin Actions */}
-            {isAdmin && (
-              <button
-                onClick={() => setShowSettingsModal(true)}
-                className="absolute top-6 right-6 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl text-gray-900 font-semibold hover:bg-white transition-all duration-200 shadow-md flex items-center gap-2 z-20"
-              >
-                <Settings className="w-4 h-4" />
-                Настройки
-                {/* Notification Badge for pending change requests */}
-                {pendingChangeRequestsCount > 0 && (
-                  <span className="absolute -top-2 -right-2 min-w-[24px] h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-2 animate-pulse z-30">
-                    {pendingChangeRequestsCount}
-                  </span>
-                )}
-              </button>
-            )}
+            
+            {/* Notification Bell and Admin Actions */}
+            <div className="absolute top-6 right-6 flex items-center gap-3 z-20">
+              {/* Notification Bell - visible to all members */}
+              {currentMembership && (
+                <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-md px-2 py-1.5">
+                  <WorkNotificationBell organizationId={organizationId} />
+                </div>
+              )}
+              
+              {/* Admin Settings Button */}
+              {isAdmin && (
+                <button
+                  onClick={() => setShowSettingsModal(true)}
+                  className="px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl text-gray-900 font-semibold hover:bg-white transition-all duration-200 shadow-md flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" />
+                  Настройки
+                  {/* Notification Badge for pending change requests */}
+                  {pendingChangeRequestsCount > 0 && (
+                    <span className="absolute -top-2 -right-2 min-w-[24px] h-6 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-2 animate-pulse z-30">
+                      {pendingChangeRequestsCount}
+                    </span>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Organization Info */}
