@@ -237,8 +237,8 @@ class AdminChangeRequestsTester:
             self.admin_token
         )
         
-        if success and isinstance(response, list):
-            for member in response:
+        if success and "members" in response and isinstance(response["members"], list):
+            for member in response["members"]:
                 if member.get("user_id") == self.member_user_id:
                     if member.get("role") == "MANAGER":
                         self.log_test("Verify Member Role Updated", True, "Member role successfully updated to MANAGER")
