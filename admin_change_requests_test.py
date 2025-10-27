@@ -379,8 +379,8 @@ class AdminChangeRequestsTester:
             self.admin_token
         )
         
-        if success and isinstance(response, list) and len(response) > 0:
-            request = response[0]  # Check first request
+        if success and response.get("success") and isinstance(response.get("data"), list) and len(response["data"]) > 0:
+            request = response["data"][0]  # Check first request
             required_fields = [
                 "id", "user_id", "request_type", "status", "created_at",
                 "user_first_name", "user_last_name", "user_email"
