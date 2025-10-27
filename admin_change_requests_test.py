@@ -346,8 +346,8 @@ class AdminChangeRequestsTester:
             self.admin_token
         )
         
-        if success and isinstance(response, list):
-            for request in response:
+        if success and response.get("success") and isinstance(response.get("data"), list):
+            for request in response["data"]:
                 if (request.get("user_id") == self.member_user_id and 
                     request.get("request_type") == "DEPARTMENT_CHANGE" and
                     request.get("status") == "REJECTED"):
