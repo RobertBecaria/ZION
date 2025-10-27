@@ -363,10 +363,10 @@ class AdminChangeRequestsTester:
             self.log_test("Verify Rejection Saved", False, "No admin token")
             return False
 
-        # Get all requests to find the rejected one
+        # Get rejected requests to find the rejected one
         success, response = self.make_request(
             "GET", 
-            f"work/organizations/{self.organization_id}/change-requests", 
+            f"work/organizations/{self.organization_id}/change-requests?status=REJECTED", 
             None, 
             200, 
             self.admin_token
