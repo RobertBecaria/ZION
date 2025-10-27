@@ -420,7 +420,7 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
             </div>
             <div className="modal-footer">
               <button
-                onClick={() => handleReject(rejectingRequest)}
+                onClick={() => requestType === 'change' ? handleReject(rejectingRequest) : handleRejectJoinRequest(rejectingRequest)}
                 className="btn-danger"
               >
                 Отклонить запрос
