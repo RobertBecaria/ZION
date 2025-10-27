@@ -1,0 +1,102 @@
+{
+  "total_tests": 15,
+  "passed_tests": 0,
+  "failed_tests": 15,
+  "success_rate": 0.0,
+  "test_results": [
+    {
+      "test_name": "Admin Login",
+      "success": false,
+      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
+      "timestamp": "2025-10-27T09:42:10.684363"
+    },
+    {
+      "test_name": "Member Login",
+      "success": false,
+      "details": "Response: {'detail': 'Incorrect email or password', 'status_code': 401, 'expected_status': 200}",
+      "timestamp": "2025-10-27T09:42:11.227148"
+    },
+    {
+      "test_name": "Member Submit Role Change Request",
+      "success": false,
+      "details": "No member token",
+      "timestamp": "2025-10-27T09:42:11.727238"
+    },
+    {
+      "test_name": "Admin Get Pending Count",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:12.227344"
+    },
+    {
+      "test_name": "Admin Get Pending Requests List",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:12.727454"
+    },
+    {
+      "test_name": "Admin Approve Request",
+      "success": false,
+      "details": "No admin token or change request ID",
+      "timestamp": "2025-10-27T09:42:13.227566"
+    },
+    {
+      "test_name": "Verify Member Role Updated",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:13.727676"
+    },
+    {
+      "test_name": "Verify Pending Count Zero",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:14.227791"
+    },
+    {
+      "test_name": "Member Submit Department Change Request",
+      "success": false,
+      "details": "No member token",
+      "timestamp": "2025-10-27T09:42:14.727903"
+    },
+    {
+      "test_name": "Admin Reject Request",
+      "success": false,
+      "details": "No admin token or insufficient change requests",
+      "timestamp": "2025-10-27T09:42:15.228014"
+    },
+    {
+      "test_name": "Verify Rejection Saved",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:15.728124"
+    },
+    {
+      "test_name": "Badge Count Integration",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:16.228231"
+    },
+    {
+      "test_name": "Request Details Validation",
+      "success": false,
+      "details": "No admin token",
+      "timestamp": "2025-10-27T09:42:16.728350"
+    },
+    {
+      "test_name": "Non-Admin Authorization",
+      "success": false,
+      "details": "No member token",
+      "timestamp": "2025-10-27T09:42:17.228463"
+    },
+    {
+      "test_name": "Edge Case - Duplicate Approval",
+      "success": false,
+      "details": "No admin token or change request ID",
+      "timestamp": "2025-10-27T09:42:17.728571"
+    }
+  ],
+  "organization_id": "dc9ca3c6-9260-4426-b38f-08d30c4ffc8b",
+  "admin_user_id": null,
+  "member_user_id": null,
+  "change_request_ids": []
+}
