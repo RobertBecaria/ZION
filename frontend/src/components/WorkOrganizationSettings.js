@@ -13,6 +13,7 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
   const [success, setSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState(currentMembership?.is_admin ? 'company' : 'personal'); // 'company' or 'personal'
   const [activeSection, setActiveSection] = useState('basic'); // 'basic', 'contact', 'media', 'privacy' (for company tab)
+  const [pendingChangeRequestsCount, setPendingChangeRequestsCount] = useState(0);
   
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [leaving, setLeaving] = useState(false);
