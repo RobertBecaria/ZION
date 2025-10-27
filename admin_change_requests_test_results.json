@@ -1,104 +1,104 @@
 {
   "total_tests": 15,
-  "passed_tests": 13,
-  "failed_tests": 2,
-  "success_rate": 86.66666666666667,
+  "passed_tests": 14,
+  "failed_tests": 1,
+  "success_rate": 93.33333333333333,
   "test_results": [
     {
       "test_name": "Admin Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:45:58.428889"
+      "timestamp": "2025-10-27T09:46:35.737280"
     },
     {
       "test_name": "Member Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:45:59.194853"
+      "timestamp": "2025-10-27T09:46:36.507898"
     },
     {
       "test_name": "Member Submit Role Change Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:45:59.731839"
+      "timestamp": "2025-10-27T09:46:37.050937"
     },
     {
       "test_name": "Admin Get Pending Count",
       "success": true,
-      "details": "Found 3 pending requests",
-      "timestamp": "2025-10-27T09:46:00.272271"
+      "details": "Found 4 pending requests",
+      "timestamp": "2025-10-27T09:46:37.597477"
     },
     {
       "test_name": "Admin Get Pending Requests List",
       "success": true,
       "details": "Member's request found with correct details",
-      "timestamp": "2025-10-27T09:46:00.817147"
+      "timestamp": "2025-10-27T09:46:38.146681"
     },
     {
       "test_name": "Admin Approve Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:46:01.361127"
+      "timestamp": "2025-10-27T09:46:38.687920"
     },
     {
       "test_name": "Verify Member Role Updated",
       "success": true,
       "details": "Member role successfully updated to MANAGER",
-      "timestamp": "2025-10-27T09:46:01.905259"
+      "timestamp": "2025-10-27T09:46:39.233020"
     },
     {
       "test_name": "Verify Pending Count Zero",
-      "success": false,
-      "details": "Expected 0 pending requests, got 2",
-      "timestamp": "2025-10-27T09:46:02.443211"
+      "success": true,
+      "details": "Role change request no longer pending (total pending: 3)",
+      "timestamp": "2025-10-27T09:46:39.778750"
     },
     {
       "test_name": "Member Submit Department Change Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:46:02.980795"
+      "timestamp": "2025-10-27T09:46:40.319441"
     },
     {
       "test_name": "Admin Reject Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T09:46:03.573947"
+      "timestamp": "2025-10-27T09:46:40.941547"
     },
     {
       "test_name": "Verify Rejection Saved",
       "success": false,
-      "details": "Rejection reason not saved",
-      "timestamp": "2025-10-27T09:46:04.111630"
+      "details": "Department request found but status is PENDING, not REJECTED",
+      "timestamp": "2025-10-27T09:46:41.489969"
     },
     {
       "test_name": "Badge Count Integration",
       "success": true,
-      "details": "Badge count shows 3 pending requests",
-      "timestamp": "2025-10-27T09:46:04.688501"
+      "details": "Badge count shows 4 pending requests",
+      "timestamp": "2025-10-27T09:46:42.079006"
     },
     {
       "test_name": "Request Details Validation",
       "success": true,
       "details": "All required fields present",
-      "timestamp": "2025-10-27T09:46:05.230542"
+      "timestamp": "2025-10-27T09:46:42.621922"
     },
     {
       "test_name": "Non-Admin Authorization",
       "success": true,
       "details": "Member correctly denied admin access",
-      "timestamp": "2025-10-27T09:46:05.768653"
+      "timestamp": "2025-10-27T09:46:43.162726"
     },
     {
       "test_name": "Edge Case - Duplicate Approval",
       "success": true,
       "details": "Request not found after approval (acceptable)",
-      "timestamp": "2025-10-27T09:46:06.305924"
+      "timestamp": "2025-10-27T09:46:43.706049"
     }
   ],
   "organization_id": "7a1968de-4575-46ef-8d99-7650fd522a2b",
   "admin_user_id": "498c8140-3f26-4d99-8d61-4eb7af982985",
   "member_user_id": "20b9b563-ea8c-49d1-88ad-c244677317a9",
   "change_request_ids": [
-    "dfa7c0d2-4240-4c9c-82d2-b2cd491f5df5"
+    "167b57ec-9aea-41c5-8879-162ffea791b5"
   ]
 }
