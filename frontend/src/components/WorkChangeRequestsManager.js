@@ -1,20 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users, UserPlus } from 'lucide-react';
 
 const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
   const API = `${BACKEND_URL}/api`;
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [requests, setRequests] = useState([]);
+  const [changeRequests, setChangeRequests] = useState([]);
+  const [joinRequests, setJoinRequests] = useState([]);
+  const [requestType, setRequestType] = useState('change'); // 'change' or 'join'
   const [statusFilter, setStatusFilter] = useState('PENDING');
   const [rejectingRequest, setRejectingRequest] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
   
   useEffect(() => {
-    fetchRequests();
-  }, [organizationId, statusFilter]);
+    if (requestType === 'change') {
+      fetchChangeRequests();
+    } else {
+      fetchJoinRequests();
+    }
+  }, [organizationId, statusFilter, requestType]);
   
   const fetchRequests = async () => {
     try {
