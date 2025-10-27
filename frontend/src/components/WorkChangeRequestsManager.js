@@ -325,34 +325,48 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
               </div>
               
               <div className="request-body">
-                <div className="change-details">
-                  {request.request_type === 'ROLE_CHANGE' && (
-                    <div className="change-item">
-                      <Briefcase size={16} />
-                      <span className="current">{request.current_role}</span>
-                      <span className="arrow">→</span>
-                      <span className="requested">{request.requested_role}</span>
+                {requestType === 'change' ? (
+                  <div className="change-details">
+                    {request.request_type === 'ROLE_CHANGE' && (
+                      <div className="change-item">
+                        <Briefcase size={16} />
+                        <span className="current">{request.current_role}</span>
+                        <span className="arrow">→</span>
+                        <span className="requested">{request.requested_role}</span>
+                      </div>
+                    )}
+                    
+                    {request.request_type === 'DEPARTMENT_CHANGE' && (
+                      <div className="change-item">
+                        <Users size={16} />
+                        <span className="current">{request.current_department || 'Не указан'}</span>
+                        <span className="arrow">→</span>
+                        <span className="requested">{request.requested_department}</span>
+                      </div>
+                    )}
+                    
+                    {request.request_type === 'TEAM_CHANGE' && (
+                      <div className="change-item">
+                        <Users size={16} />
+                        <span className="current">{request.current_team || 'Не указана'}</span>
+                        <span className="arrow">→</span>
+                        <span className="requested">{request.requested_team}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="join-details">
+                    <div className="join-item">
+                      <UserPlus size={16} />
+                      <span>Запрос на вступление в организацию</span>
                     </div>
-                  )}
-                  
-                  {request.request_type === 'DEPARTMENT_CHANGE' && (
-                    <div className="change-item">
-                      <Users size={16} />
-                      <span className="current">{request.current_department || 'Не указан'}</span>
-                      <span className="arrow">→</span>
-                      <span className="requested">{request.requested_department}</span>
-                    </div>
-                  )}
-                  
-                  {request.request_type === 'TEAM_CHANGE' && (
-                    <div className="change-item">
-                      <Users size={16} />
-                      <span className="current">{request.current_team || 'Не указана'}</span>
-                      <span className="arrow">→</span>
-                      <span className="requested">{request.requested_team}</span>
-                    </div>
-                  )}
-                </div>
+                    {request.message && (
+                      <div className="join-message">
+                        <strong>Сообщение:</strong> {request.message}
+                      </div>
+                    )}
+                  </div>
+                )}
                 
                 {request.reason && (
                   <div className="reason">
