@@ -111,7 +111,38 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
       }
       
       // Refresh list
-      fetchRequests();
+      fetchChangeRequests();
+      // Notify parent component
+      if (onRequestHandled) onRequestHandled();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+  const handleApproveJoinRequest = async (requestId) => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      
+      const response = await fetch(
+        `${API}/work/join-requests/${requestId}/approve`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ role: 'MEMBER' })
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Ошибка при одобрении запроса на вступление');
+      }
+      
+      // Refresh list
+      fetchJoinRequests();
       // Notify parent component
       if (onRequestHandled) onRequestHandled();
     } catch (err) {
