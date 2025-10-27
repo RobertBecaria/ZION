@@ -267,8 +267,8 @@ class AdminChangeRequestsTester:
             self.admin_token
         )
         
-        if success and isinstance(response, list):
-            pending_count = len(response)
+        if success and response.get("success") and isinstance(response.get("data"), list):
+            pending_count = len(response["data"])
             if pending_count == 0:
                 self.log_test("Verify Pending Count Zero", True, "Pending count is now 0")
                 return True
