@@ -280,12 +280,12 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
                 { id: 'contact', label: 'Контакты', icon: Mail },
                 { id: 'media', label: 'Медиа', icon: Image },
                 { id: 'privacy', label: 'Приватность', icon: Globe },
-                { id: 'requests', label: 'Запросы', icon: Clock }
+                { id: 'requests', label: 'Запросы', icon: Clock, badge: pendingChangeRequestsCount }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveSection(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 font-medium transition-all duration-200 border-b-2 ${
+                  className={`flex items-center gap-2 px-4 py-3 font-medium transition-all duration-200 border-b-2 relative ${
                     activeSection === tab.id
                       ? 'text-orange-600 border-orange-600'
                       : 'text-gray-600 border-transparent hover:text-gray-900'
@@ -293,6 +293,12 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
                 >
                   <tab.icon className="w-4 h-4" />
                   {tab.label}
+                  {/* Badge for pending requests */}
+                  {tab.badge > 0 && (
+                    <span className="ml-1 min-w-[20px] h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1.5">
+                      {tab.badge}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
