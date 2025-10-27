@@ -285,7 +285,7 @@ frontend:
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "ADMIN PANEL - CHANGE REQUESTS MANAGEMENT TESTING: Comprehensive testing of the Admin Panel for managing member change requests (role, department, team). Features tested include: notification badge on Settings button, badge on 'Запросы' tab in settings, real-time count updates after approve/reject, complete member-to-admin workflow, rejection flow with reasons, multiple requests handling, badge count integration, request details validation, authorization controls, and edge cases. All core functionality verified working correctly."
+user_problem_statement: "TEAM CREATION UI & MANAGEMENT BACKEND API TESTING: Comprehensive testing of the Team Creation and Management backend APIs for work organizations. Features tested include: POST /api/work/organizations/{org_id}/teams endpoint for team creation with minimal and full data, GET /api/work/organizations/{org_id}/teams endpoint for listing teams, authorization controls for members vs non-members, data validation and integrity checks, creator automatic membership, team lead defaulting behavior, and proper response formats. Testing conducted using ZION.CITY organization (ID: d80dbe76-45e7-45fa-b937-a2b5a20b8aaf) with admin credentials (admin@test.com/admin123). All core functionality verified working correctly with 91.7% success rate."
 
 backend:
   - task: "Team Creation UI & Management - Backend API"
