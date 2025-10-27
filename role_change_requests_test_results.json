@@ -8,84 +8,84 @@
       "test_name": "Admin Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:03.987755"
+      "timestamp": "2025-10-27T11:20:36.670598"
     },
     {
       "test_name": "Member Registration & Login",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.524005"
+      "timestamp": "2025-10-27T11:20:37.207415"
     },
     {
       "test_name": "Add Member to Organization",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.568408"
+      "timestamp": "2025-10-27T11:20:37.249388"
     },
     {
       "test_name": "Member Create Change Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.609823"
+      "timestamp": "2025-10-27T11:20:37.286535"
     },
     {
       "test_name": "GET Pending Change Requests",
       "success": true,
-      "details": "Found 2 requests",
-      "timestamp": "2025-10-27T11:20:04.647241"
+      "details": "Found 3 requests",
+      "timestamp": "2025-10-27T11:20:37.331191"
     },
     {
       "test_name": "Approve Change Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.729261"
+      "timestamp": "2025-10-27T11:20:37.367292"
     },
     {
       "test_name": "Verify Role Updated",
       "success": false,
-      "details": "Role not updated. Response: {'detail': 'Method Not Allowed', 'status_code': 405, 'expected_status': 200}",
-      "timestamp": "2025-10-27T11:20:04.760166"
+      "details": "Failed to get members. Response: {'detail': \"6 validation errors for WorkMemberResponse\\ncustom_role_name\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\\ndepartment\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\\nteam\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\\njob_title\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\\nstart_date\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\\nis_current\\n  Field required [type=missing, input_value={'_id': ObjectId('68ff54a...'user_avatar_url': None}, input_type=dict]\\n    For further information visit https://errors.pydantic.dev/2.11/v/missing\", 'status_code': 500, 'expected_status': 200}",
+      "timestamp": "2025-10-27T11:20:37.411852"
     },
     {
       "test_name": "Create Request for Rejection Test",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.800731"
+      "timestamp": "2025-10-27T11:20:37.450226"
     },
     {
       "test_name": "Get New Pending Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.838587"
+      "timestamp": "2025-10-27T11:20:37.489423"
     },
     {
       "test_name": "Reject Change Request",
       "success": true,
       "details": "",
-      "timestamp": "2025-10-27T11:20:04.877947"
+      "timestamp": "2025-10-27T11:20:37.529380"
     },
     {
       "test_name": "Verify Rejected Request",
       "success": true,
       "details": "Request rejected with reason: Department change not approved at this time",
-      "timestamp": "2025-10-27T11:20:04.922931"
+      "timestamp": "2025-10-27T11:20:37.567982"
     },
     {
       "test_name": "Non-Admin Authorization Check",
       "success": true,
       "details": "All admin endpoints properly return 403 for non-admin",
-      "timestamp": "2025-10-27T11:20:05.076569"
+      "timestamp": "2025-10-27T11:20:37.681639"
     },
     {
       "test_name": "Pending Count Accuracy",
       "success": true,
-      "details": "Found 1 pending requests",
-      "timestamp": "2025-10-27T11:20:05.118157"
+      "details": "Found 2 pending requests",
+      "timestamp": "2025-10-27T11:20:37.721696"
     }
   ],
   "admin_email": "admin@test.com",
-  "member_email": "member_test_112003@example.com",
+  "member_email": "member_test_112036@example.com",
   "organization_id": "d80dbe76-45e7-45fa-b937-a2b5a20b8aaf",
   "admin_user_id": "b2b2f7ee-5b9c-4972-8658-50be80d9429e",
-  "member_user_id": "dd7efb90-212c-4b66-ab6a-8cc0d234bfcf"
+  "member_user_id": "7a6a8260-7b10-41ad-b6b9-62d056d2218c"
 }
