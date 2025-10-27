@@ -18,6 +18,8 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [pendingChangeRequestsCount, setPendingChangeRequestsCount] = useState(0);
+  const [currentMembership, setCurrentMembership] = useState(null);
 
   useEffect(() => {
     // Get current user ID from token or localStorage
