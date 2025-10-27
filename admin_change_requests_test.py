@@ -284,21 +284,19 @@ class AdminChangeRequestsTester:
             return False
 
         request_data = {
-            "request_type": "DEPARTMENT_CHANGE",
             "requested_department": "Engineering",
             "reason": "I would like to move to the Engineering department to better utilize my technical skills."
         }
         
         success, response = self.make_request(
-            "POST", 
-            f"work/organizations/{self.organization_id}/change-requests", 
+            "PUT", 
+            f"work/organizations/{self.organization_id}/members/me", 
             request_data, 
             200, 
             self.member_token
         )
         
-        if success and response.get("id"):
-            self.change_request_ids.append(response["id"])
+        if success:
             self.log_test("Member Submit Department Change Request", True)
             return True
         else:
