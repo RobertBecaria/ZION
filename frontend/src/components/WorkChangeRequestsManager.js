@@ -22,7 +22,7 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
     }
   }, [organizationId, statusFilter, requestType]);
   
-  const fetchRequests = async () => {
+  const fetchChangeRequests = async () => {
     try {
       setLoading(true);
       setError('');
@@ -44,7 +44,45 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
         throw new Error(data.detail || 'Ошибка при загрузке запросов');
       }
       
-      setRequests(data.data || []);
+      setChangeRequests(data.data || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const fetchJoinRequests = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      
+      const token = localStorage.getItem('zion_token');
+      
+      const response = await fetch(
+        `${API}/work/organizations/${organizationId}/join-requests`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Ошибка при загрузке запросов на вступление');
+      }
+      
+      // Filter by status if needed
+      let filteredRequests = data.requests || [];
+      if (statusFilter.toLowerCase() !== 'pending') {
+        filteredRequests = filteredRequests.filter(r => 
+          r.status.toLowerCase() === statusFilter.toLowerCase()
+        );
+      }
+      
+      setJoinRequests(filteredRequests);
     } catch (err) {
       setError(err.message);
     } finally {
