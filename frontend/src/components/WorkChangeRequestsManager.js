@@ -345,7 +345,7 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
               {statusFilter === 'PENDING' && (
                 <div className="request-actions">
                   <button
-                    onClick={() => handleApprove(request.id)}
+                    onClick={() => requestType === 'change' ? handleApprove(request.id) : handleApproveJoinRequest(request.id)}
                     className="btn-approve"
                   >
                     <CheckCircle size={18} />
