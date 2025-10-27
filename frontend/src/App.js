@@ -1494,6 +1494,7 @@ function Dashboard() {
                               <ErrorBoundary>
                                 <WorkOrganizationList
                                   onOrgClick={(orgId) => {
+                                    console.log('WorkOrganizationList onOrgClick called with orgId:', orgId);
                                     setSelectedOrganizationId(orgId);
                                     setActiveView('work-org-profile');
                                   }}
