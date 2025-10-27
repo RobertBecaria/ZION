@@ -101,6 +101,8 @@ const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
       setRejectingRequest(null);
       setRejectionReason('');
       fetchRequests();
+      // Notify parent component
+      if (onRequestHandled) onRequestHandled();
     } catch (err) {
       setError(err.message);
     }
