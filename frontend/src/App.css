@@ -1201,7 +1201,7 @@ body {
   width: 100%;
   gap: 0;
   padding: 0;
-  min-height: calc(100vh - 62px);
+  min-height: calc(100vh - 66px);
   align-items: flex-start;
 }
 
