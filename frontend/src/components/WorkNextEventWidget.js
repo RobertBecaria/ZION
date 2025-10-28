@@ -233,6 +233,37 @@ const EventDetailsModal = React.memo(({ event, onClose, timeLeft, onRSVPUpdate }
         </div>
 
         <div className="event-modal-footer">
+          {event.rsvp_enabled && (
+            <div className="modal-rsvp-actions">
+              <span className="rsvp-question">Вы пойдете?</span>
+              <div className="rsvp-buttons">
+                <button 
+                  className={`rsvp-action-btn going ${userRSVP === 'GOING' ? 'active' : ''}`}
+                  onClick={() => handleRSVP('GOING')}
+                  disabled={updating}
+                >
+                  <CheckCircle size={18} />
+                  {userRSVP === 'GOING' ? 'Иду' : 'Приду'}
+                </button>
+                <button 
+                  className={`rsvp-action-btn maybe ${userRSVP === 'MAYBE' ? 'active' : ''}`}
+                  onClick={() => handleRSVP('MAYBE')}
+                  disabled={updating}
+                >
+                  <HelpCircle size={18} />
+                  Возможно
+                </button>
+                <button 
+                  className={`rsvp-action-btn not-going ${userRSVP === 'NOT_GOING' ? 'active' : ''}`}
+                  onClick={() => handleRSVP('NOT_GOING')}
+                  disabled={updating}
+                >
+                  <XCircle size={18} />
+                  Не приду
+                </button>
+              </div>
+            </div>
+          )}
           <button className="modal-btn secondary" onClick={onClose}>
             Закрыть
           </button>
