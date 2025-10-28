@@ -15890,8 +15890,103 @@ a,
   padding: 16px 24px;
   border-top: 1px solid #E5E7EB;
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-rsvp-actions {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
+}
+
+.rsvp-question {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.rsvp-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.rsvp-action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+.rsvp-action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.rsvp-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rsvp-action-btn.going {
+  background: #F0FDF4;
+  color: #15803D;
+  border-color: transparent;
+}
+
+.rsvp-action-btn.going:hover:not(:disabled) {
+  background: #DCFCE7;
+  border-color: #10B981;
+}
+
+.rsvp-action-btn.going.active {
+  background: #10B981;
+  color: white;
+  border-color: #10B981;
+}
+
+.rsvp-action-btn.maybe {
+  background: #FEF3C7;
+  color: #B45309;
+  border-color: transparent;
+}
+
+.rsvp-action-btn.maybe:hover:not(:disabled) {
+  background: #FDE68A;
+  border-color: #F59E0B;
+}
+
+.rsvp-action-btn.maybe.active {
+  background: #F59E0B;
+  color: white;
+  border-color: #F59E0B;
+}
+
+.rsvp-action-btn.not-going {
+  background: #FEE2E2;
+  color: #B91C1C;
+  border-color: transparent;
+}
+
+.rsvp-action-btn.not-going:hover:not(:disabled) {
+  background: #FECACA;
+  border-color: #EF4444;
+}
+
+.rsvp-action-btn.not-going.active {
+  background: #EF4444;
+  color: white;
+  border-color: #EF4444;
 }
 
 .modal-btn {
