@@ -9251,32 +9251,17 @@ async def get_organization_events(
             query["team_id"] = team_id
         
         # Filter by visibility (user can only see events they're allowed to)
-        visibility_query = {
+        # Simplified for now - show all events to organization members
+        final_query = {
+            **query,
             "$or": [
                 {"visibility": "ALL_MEMBERS"},
-                {"created_by_user_id": current_user.id}  # Always see own events
+                {"created_by_user_id": current_user.id}
             ]
         }
         
-        if membership.get("department"):
-            visibility_query["$or"].append({
-                "visibility": "DEPARTMENT",
-                "department_id": membership["department"]
-            })
-        
-        if membership.get("team"):
-            visibility_query["$or"].append({
-                "visibility": "TEAM",
-                "team_id": membership["team"]
-            })
-        
-        if membership.get("is_admin"):
-            visibility_query["$or"].append({"visibility": "ADMINS_ONLY"})
-        
-        query.update(visibility_query)
-        
         # Fetch events
-        events = await db.work_organization_events.find(query).sort("scheduled_date", 1).to_list(length=100)
+        events = await db.work_organization_events.find(final_query).sort("scheduled_date", 1).to_list(length=100)
         
         # Enrich events with additional data
         event_responses = []
