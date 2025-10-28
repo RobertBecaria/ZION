@@ -6,8 +6,54 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_A
 const API = `${BACKEND_URL}/api`;
 
 // Separate Modal Component that doesn't re-render with countdown
-const EventDetailsModal = React.memo(({ event, onClose, timeLeft }) => {
+const EventDetailsModal = React.memo(({ event, onClose, timeLeft, onRSVPUpdate }) => {
   if (!event) return null;
+
+  const [userRSVP, setUserRSVP] = React.useState(event.user_rsvp_status || null);
+  const [rsvpStats, setRsvpStats] = React.useState(event.rsvp_summary || { GOING: 0, MAYBE: 0, NOT_GOING: 0 });
+  const [updating, setUpdating] = React.useState(false);
+
+  const handleRSVP = async (status) => {
+    if (updating) return;
+    
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${API}/work/organizations/${event.organization_id}/events/${event.id}/rsvp`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Update local state
+        const oldStatus = userRSVP;
+        setUserRSVP(status);
+        
+        // Update stats optimistically
+        const newStats = { ...rsvpStats };
+        if (oldStatus) {
+          newStats[oldStatus] = Math.max(0, (newStats[oldStatus] || 0) - 1);
+        }
+        newStats[status] = (newStats[status] || 0) + 1;
+        setRsvpStats(newStats);
+        
+        // Call parent update callback
+        if (onRSVPUpdate) {
+          onRSVPUpdate(event.id, status, newStats);
+        }
+      }
+    } catch (error) {
+      console.error('Error updating RSVP:', error);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
