@@ -9109,6 +9109,438 @@ async def mark_all_notifications_read(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# === WORK ORGANIZATION EVENT ENDPOINTS ===
+
+@api_router.post("/work/organizations/{organization_id}/events")
+async def create_organization_event(
+    organization_id: str,
+    event_data: WorkOrganizationEventCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new organization event (all members can create)"""
+    try:
+        # Verify user is a member of the organization
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Create event
+        new_event = WorkOrganizationEvent(
+            organization_id=organization_id,
+            created_by_user_id=current_user.id,
+            **event_data.model_dump(),
+            scheduled_date=datetime.fromisoformat(event_data.scheduled_date)
+        )
+        
+        await db.work_organization_events.insert_one(new_event.model_dump())
+        
+        # Get organization details for notification
+        org = await db.work_organizations.find_one({"id": organization_id})
+        org_name = org.get("name") if org else "организации"
+        
+        # Create notifications for members based on visibility
+        members_to_notify = []
+        
+        if event_data.visibility == WorkEventVisibility.ALL_MEMBERS:
+            # Notify all organization members except creator
+            all_members = await db.work_members.find({
+                "organization_id": organization_id,
+                "status": "ACTIVE"
+            }).to_list(length=None)
+            members_to_notify = [m["user_id"] for m in all_members if m["user_id"] != current_user.id]
+        
+        elif event_data.visibility == WorkEventVisibility.DEPARTMENT and event_data.department_id:
+            # Notify department members
+            dept_members = await db.work_members.find({
+                "organization_id": organization_id,
+                "department": event_data.department_id,
+                "status": "ACTIVE"
+            }).to_list(length=None)
+            members_to_notify = [m["user_id"] for m in dept_members if m["user_id"] != current_user.id]
+        
+        elif event_data.visibility == WorkEventVisibility.TEAM and event_data.team_id:
+            # Notify team members
+            team_members = await db.work_members.find({
+                "organization_id": organization_id,
+                "team": event_data.team_id,
+                "status": "ACTIVE"
+            }).to_list(length=None)
+            members_to_notify = [m["user_id"] for m in team_members if m["user_id"] != current_user.id]
+        
+        elif event_data.visibility == WorkEventVisibility.ADMINS_ONLY:
+            # Notify admins only
+            admin_members = await db.work_members.find({
+                "organization_id": organization_id,
+                "is_admin": True,
+                "status": "ACTIVE"
+            }).to_list(length=None)
+            members_to_notify = [m["user_id"] for m in admin_members if m["user_id"] != current_user.id]
+        
+        # Create notifications
+        event_date_str = datetime.fromisoformat(event_data.scheduled_date).strftime('%d.%m.%Y')
+        if event_data.scheduled_time:
+            event_date_str += f" в {event_data.scheduled_time}"
+        
+        for user_id in members_to_notify:
+            notification = WorkNotification(
+                user_id=user_id,
+                organization_id=organization_id,
+                notification_type=NotificationType.EVENT_CREATED,
+                title="Новое событие",
+                message=f"Создано событие '{event_data.title}' в {org_name} на {event_date_str}",
+                related_request_id=new_event.id
+            )
+            await db.work_notifications.insert_one(notification.model_dump())
+        
+        return {"success": True, "event": new_event.model_dump(), "message": "Событие создано"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/events")
+async def get_organization_events(
+    organization_id: str,
+    current_user: User = Depends(get_current_user),
+    upcoming_only: bool = True,
+    event_type: Optional[str] = None,
+    department_id: Optional[str] = None,
+    team_id: Optional[str] = None
+):
+    """Get organization events with filters"""
+    try:
+        # Verify user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Build query
+        query = {"organization_id": organization_id, "is_cancelled": False}
+        
+        if upcoming_only:
+            query["scheduled_date"] = {"$gte": datetime.now(timezone.utc)}
+        
+        if event_type:
+            query["event_type"] = event_type
+        
+        if department_id:
+            query["department_id"] = department_id
+        
+        if team_id:
+            query["team_id"] = team_id
+        
+        # Filter by visibility (user can only see events they're allowed to)
+        visibility_query = {
+            "$or": [
+                {"visibility": "ALL_MEMBERS"},
+                {"created_by_user_id": current_user.id}  # Always see own events
+            ]
+        }
+        
+        if membership.get("department"):
+            visibility_query["$or"].append({
+                "visibility": "DEPARTMENT",
+                "department_id": membership["department"]
+            })
+        
+        if membership.get("team"):
+            visibility_query["$or"].append({
+                "visibility": "TEAM",
+                "team_id": membership["team"]
+            })
+        
+        if membership.get("is_admin"):
+            visibility_query["$or"].append({"visibility": "ADMINS_ONLY"})
+        
+        query.update(visibility_query)
+        
+        # Fetch events
+        events = await db.work_organization_events.find(query).sort("scheduled_date", 1).to_list(length=100)
+        
+        # Enrich events with additional data
+        event_responses = []
+        for event in events:
+            # Get creator name
+            creator = await db.users.find_one({"id": event["created_by_user_id"]})
+            creator_name = f"{creator['first_name']} {creator['last_name']}" if creator else "Неизвестно"
+            
+            # Get department/team names
+            dept_name = None
+            team_name = None
+            
+            if event.get("department_id"):
+                dept = await db.work_departments.find_one({"id": event["department_id"]})
+                dept_name = dept.get("name") if dept else None
+            
+            if event.get("team_id"):
+                team = await db.work_teams.find_one({"id": event["team_id"]})
+                team_name = team.get("name") if team else None
+            
+            # Calculate RSVP summary
+            rsvp_responses = event.get("rsvp_responses", {})
+            rsvp_summary = {
+                "GOING": sum(1 for status in rsvp_responses.values() if status == "GOING"),
+                "MAYBE": sum(1 for status in rsvp_responses.values() if status == "MAYBE"),
+                "NOT_GOING": sum(1 for status in rsvp_responses.values() if status == "NOT_GOING")
+            }
+            
+            user_rsvp_status = rsvp_responses.get(current_user.id)
+            
+            event_responses.append(
+                WorkOrganizationEventResponse(
+                    **event,
+                    created_by_name=creator_name,
+                    department_name=dept_name,
+                    team_name=team_name,
+                    rsvp_summary=rsvp_summary,
+                    user_rsvp_status=user_rsvp_status
+                )
+            )
+        
+        return {"success": True, "events": event_responses}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/events/{event_id}")
+async def get_organization_event(
+    organization_id: str,
+    event_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get single event details"""
+    try:
+        # Verify membership
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Get event
+        event = await db.work_organization_events.find_one({"id": event_id, "organization_id": organization_id})
+        
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        
+        # Enrich with additional data (same as list endpoint)
+        creator = await db.users.find_one({"id": event["created_by_user_id"]})
+        creator_name = f"{creator['first_name']} {creator['last_name']}" if creator else "Неизвестно"
+        
+        dept_name = None
+        team_name = None
+        
+        if event.get("department_id"):
+            dept = await db.work_departments.find_one({"id": event["department_id"]})
+            dept_name = dept.get("name") if dept else None
+        
+        if event.get("team_id"):
+            team = await db.work_teams.find_one({"id": event["team_id"]})
+            team_name = team.get("name") if team else None
+        
+        rsvp_responses = event.get("rsvp_responses", {})
+        rsvp_summary = {
+            "GOING": sum(1 for status in rsvp_responses.values() if status == "GOING"),
+            "MAYBE": sum(1 for status in rsvp_responses.values() if status == "MAYBE"),
+            "NOT_GOING": sum(1 for status in rsvp_responses.values() if status == "NOT_GOING")
+        }
+        
+        user_rsvp_status = rsvp_responses.get(current_user.id)
+        
+        event_response = WorkOrganizationEventResponse(
+            **event,
+            created_by_name=creator_name,
+            department_name=dept_name,
+            team_name=team_name,
+            rsvp_summary=rsvp_summary,
+            user_rsvp_status=user_rsvp_status
+        )
+        
+        return {"success": True, "event": event_response}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.patch("/work/organizations/{organization_id}/events/{event_id}")
+async def update_organization_event(
+    organization_id: str,
+    event_id: str,
+    event_update: WorkOrganizationEventUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update an event (creator or admin only)"""
+    try:
+        # Get event
+        event = await db.work_organization_events.find_one({"id": event_id, "organization_id": organization_id})
+        
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        
+        # Check permissions (creator or admin)
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        is_creator = event["created_by_user_id"] == current_user.id
+        is_admin = membership.get("is_admin", False)
+        
+        if not (is_creator or is_admin):
+            raise HTTPException(status_code=403, detail="Только создатель или админ могут обновить событие")
+        
+        # Build update
+        update_data = {k: v for k, v in event_update.model_dump().items() if v is not None}
+        
+        if "scheduled_date" in update_data:
+            update_data["scheduled_date"] = datetime.fromisoformat(update_data["scheduled_date"])
+        
+        update_data["updated_at"] = datetime.now(timezone.utc)
+        
+        # Update event
+        await db.work_organization_events.update_one(
+            {"id": event_id},
+            {"$set": update_data}
+        )
+        
+        # Send update notification if significant change
+        if any(k in update_data for k in ["title", "scheduled_date", "scheduled_time", "location", "is_cancelled"]):
+            org = await db.work_organizations.find_one({"id": organization_id})
+            org_name = org.get("name") if org else "организации"
+            
+            # Get all members who had RSVP'd
+            rsvp_user_ids = list(event.get("rsvp_responses", {}).keys())
+            
+            if event_update.is_cancelled:
+                notif_message = f"Событие '{event['title']}' в {org_name} было отменено."
+                if event_update.cancelled_reason:
+                    notif_message += f" Причина: {event_update.cancelled_reason}"
+                notif_type = NotificationType.EVENT_CANCELLED
+            else:
+                notif_message = f"Событие '{event['title']}' в {org_name} было обновлено."
+                notif_type = NotificationType.EVENT_UPDATED
+            
+            for user_id in rsvp_user_ids:
+                if user_id != current_user.id:
+                    notification = WorkNotification(
+                        user_id=user_id,
+                        organization_id=organization_id,
+                        notification_type=notif_type,
+                        title="Событие обновлено" if not event_update.is_cancelled else "Событие отменено",
+                        message=notif_message,
+                        related_request_id=event_id
+                    )
+                    await db.work_notifications.insert_one(notification.model_dump())
+        
+        return {"success": True, "message": "Событие обновлено"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/work/organizations/{organization_id}/events/{event_id}")
+async def delete_organization_event(
+    organization_id: str,
+    event_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete an event (creator or admin only)"""
+    try:
+        # Get event
+        event = await db.work_organization_events.find_one({"id": event_id, "organization_id": organization_id})
+        
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        
+        # Check permissions
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        is_creator = event["created_by_user_id"] == current_user.id
+        is_admin = membership.get("is_admin", False)
+        
+        if not (is_creator or is_admin):
+            raise HTTPException(status_code=403, detail="Только создатель или админ могут удалить событие")
+        
+        # Delete event
+        await db.work_organization_events.delete_one({"id": event_id})
+        
+        return {"success": True, "message": "Событие удалено"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/events/{event_id}/rsvp")
+async def rsvp_to_event(
+    organization_id: str,
+    event_id: str,
+    rsvp_data: WorkEventRSVP,
+    current_user: User = Depends(get_current_user)
+):
+    """RSVP to an event"""
+    try:
+        # Verify membership
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Get event
+        event = await db.work_organization_events.find_one({"id": event_id, "organization_id": organization_id})
+        
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        
+        if not event.get("rsvp_enabled", False):
+            raise HTTPException(status_code=400, detail="RSVP не включен для этого события")
+        
+        # Update RSVP
+        await db.work_organization_events.update_one(
+            {"id": event_id},
+            {"$set": {f"rsvp_responses.{current_user.id}": rsvp_data.response.value}}
+        )
+        
+        return {"success": True, "message": "RSVP обновлен"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/work/organizations/{organization_id}/teams")
 async def create_team(
     organization_id: str,
