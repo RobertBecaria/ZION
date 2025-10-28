@@ -98,7 +98,8 @@ function WorkEventsPanel({ organizationId, currentMembership }) {
           end_time: '',
           location: '',
           visibility: 'ALL_MEMBERS',
-          rsvp_enabled: true
+          rsvp_enabled: true,
+          reminder_intervals: []
         });
         fetchEvents();
       }
