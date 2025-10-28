@@ -1140,6 +1140,11 @@ class WorkEventRSVPStatus(str, Enum):
     MAYBE = "MAYBE"
     NOT_GOING = "NOT_GOING"
 
+class WorkEventReminderInterval(str, Enum):
+    FIFTEEN_MINUTES = "15_MINUTES"  # 15 минут до события
+    ONE_HOUR = "1_HOUR"  # 1 час до события
+    ONE_DAY = "1_DAY"  # 1 день до события
+
 class WorkOrganizationEvent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     organization_id: str
