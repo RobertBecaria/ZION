@@ -265,6 +265,69 @@ function WorkEventsPanel({ organizationId, currentMembership }) {
               <label htmlFor="rsvp-enabled">Включить подтверждение участия (RSVP)</label>
             </div>
 
+            {/* Reminder Options */}
+            <div className="reminder-options">
+              <label className="reminder-label">Напомнить участникам:</label>
+              <div className="reminder-checkboxes">
+                <div className="form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="reminder-15min"
+                    checked={formData.reminder_intervals.includes('15_MINUTES')}
+                    onChange={(e) => {
+                      const intervals = [...formData.reminder_intervals];
+                      if (e.target.checked) {
+                        intervals.push('15_MINUTES');
+                      } else {
+                        const index = intervals.indexOf('15_MINUTES');
+                        if (index > -1) intervals.splice(index, 1);
+                      }
+                      setFormData({ ...formData, reminder_intervals: intervals });
+                    }}
+                  />
+                  <label htmlFor="reminder-15min">За 15 минут</label>
+                </div>
+                
+                <div className="form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="reminder-1hour"
+                    checked={formData.reminder_intervals.includes('1_HOUR')}
+                    onChange={(e) => {
+                      const intervals = [...formData.reminder_intervals];
+                      if (e.target.checked) {
+                        intervals.push('1_HOUR');
+                      } else {
+                        const index = intervals.indexOf('1_HOUR');
+                        if (index > -1) intervals.splice(index, 1);
+                      }
+                      setFormData({ ...formData, reminder_intervals: intervals });
+                    }}
+                  />
+                  <label htmlFor="reminder-1hour">За 1 час</label>
+                </div>
+                
+                <div className="form-checkbox">
+                  <input
+                    type="checkbox"
+                    id="reminder-1day"
+                    checked={formData.reminder_intervals.includes('1_DAY')}
+                    onChange={(e) => {
+                      const intervals = [...formData.reminder_intervals];
+                      if (e.target.checked) {
+                        intervals.push('1_DAY');
+                      } else {
+                        const index = intervals.indexOf('1_DAY');
+                        if (index > -1) intervals.splice(index, 1);
+                      }
+                      setFormData({ ...formData, reminder_intervals: intervals });
+                    }}
+                  />
+                  <label htmlFor="reminder-1day">За 1 день</label>
+                </div>
+              </div>
+            </div>
+
             <div className="form-actions">
               <Button type="button" variant="outline" onClick={() => setShowCreateForm(false)}>
                 Отмена
