@@ -276,7 +276,29 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
     }
   };
 
-  // Helper functions moved to EventDetailsModal component to avoid duplication
+  // Helper functions for the main widget display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ru-RU', { 
+      day: 'numeric', 
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const getEventTypeEmoji = (type) => {
+    const types = {
+      'MEETING': '👥',
+      'TRAINING': '📚',
+      'DEADLINE': '⏰',
+      'COMPANY_EVENT': '🎉',
+      'TEAM_BUILDING': '🤝',
+      'REVIEW': '📝',
+      'ANNOUNCEMENT': '📢',
+      'OTHER': '📌'
+    };
+    return types[type] || '📌';
+  };
 
   const handleWidgetClick = useCallback((e) => {
     e.stopPropagation();
