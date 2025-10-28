@@ -1117,6 +1117,109 @@ class WorkNotificationResponse(BaseModel):
     created_at: datetime
     organization_name: Optional[str] = None
 
+# === WORK ORGANIZATION EVENT MODELS ===
+
+class WorkEventType(str, Enum):
+    MEETING = "MEETING"
+    TRAINING = "TRAINING"
+    DEADLINE = "DEADLINE"
+    COMPANY_EVENT = "COMPANY_EVENT"
+    TEAM_BUILDING = "TEAM_BUILDING"
+    REVIEW = "REVIEW"
+    ANNOUNCEMENT = "ANNOUNCEMENT"
+    OTHER = "OTHER"
+
+class WorkEventVisibility(str, Enum):
+    ALL_MEMBERS = "ALL_MEMBERS"
+    DEPARTMENT = "DEPARTMENT"
+    TEAM = "TEAM"
+    ADMINS_ONLY = "ADMINS_ONLY"
+
+class WorkEventRSVPStatus(str, Enum):
+    GOING = "GOING"
+    MAYBE = "MAYBE"
+    NOT_GOING = "NOT_GOING"
+
+class WorkOrganizationEvent(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    created_by_user_id: str
+    title: str
+    description: Optional[str] = None
+    event_type: WorkEventType = WorkEventType.OTHER
+    scheduled_date: datetime  # Event date
+    scheduled_time: Optional[str] = None  # HH:MM format
+    end_time: Optional[str] = None  # HH:MM format
+    location: Optional[str] = None
+    department_id: Optional[str] = None  # For department-specific events
+    team_id: Optional[str] = None  # For team-specific events
+    visibility: WorkEventVisibility = WorkEventVisibility.ALL_MEMBERS
+    rsvp_enabled: bool = False
+    rsvp_responses: Dict[str, str] = {}  # {user_id: "GOING"/"MAYBE"/"NOT_GOING"}
+    color_code: str = "#ea580c"  # Work module orange
+    is_cancelled: bool = False
+    cancelled_reason: Optional[str] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+class WorkOrganizationEventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    event_type: WorkEventType = WorkEventType.OTHER
+    scheduled_date: str  # ISO format date string
+    scheduled_time: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    department_id: Optional[str] = None
+    team_id: Optional[str] = None
+    visibility: WorkEventVisibility = WorkEventVisibility.ALL_MEMBERS
+    rsvp_enabled: bool = False
+
+class WorkOrganizationEventUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    event_type: Optional[WorkEventType] = None
+    scheduled_date: Optional[str] = None
+    scheduled_time: Optional[str] = None
+    end_time: Optional[str] = None
+    location: Optional[str] = None
+    department_id: Optional[str] = None
+    team_id: Optional[str] = None
+    visibility: Optional[WorkEventVisibility] = None
+    rsvp_enabled: Optional[bool] = None
+    is_cancelled: Optional[bool] = None
+    cancelled_reason: Optional[str] = None
+
+class WorkEventRSVP(BaseModel):
+    response: WorkEventRSVPStatus
+
+class WorkOrganizationEventResponse(BaseModel):
+    id: str
+    organization_id: str
+    created_by_user_id: str
+    created_by_name: str  # Creator's full name
+    title: str
+    description: Optional[str]
+    event_type: WorkEventType
+    scheduled_date: datetime
+    scheduled_time: Optional[str]
+    end_time: Optional[str]
+    location: Optional[str]
+    department_id: Optional[str]
+    department_name: Optional[str]
+    team_id: Optional[str]
+    team_name: Optional[str]
+    visibility: WorkEventVisibility
+    rsvp_enabled: bool
+    rsvp_responses: Dict[str, str]
+    rsvp_summary: Dict[str, int]  # {"GOING": 5, "MAYBE": 2, "NOT_GOING": 1}
+    user_rsvp_status: Optional[str]  # Current user's RSVP status
+    color_code: str
+    is_cancelled: bool
+    cancelled_reason: Optional[str]
+    created_at: datetime
+    updated_at: Optional[datetime]
+
 class WorkMemberSettingsUpdate(BaseModel):
     """Member updates their own settings - creates change requests for role/dept/team"""
     job_title: Optional[str] = None  # Direct update, no approval needed
