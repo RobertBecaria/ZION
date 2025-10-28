@@ -870,6 +870,13 @@ function Dashboard() {
     }
   }, [user]);
 
+  // Set appropriate view when switching to Work module
+  useEffect(() => {
+    if (activeModule === 'organizations') {
+      setActiveView('my-work');
+    }
+  }, [activeModule]);
+
   // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
