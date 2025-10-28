@@ -328,6 +328,17 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
               >
                 Posts
               </button>
+              <button
+                onClick={() => setActiveTab('events')}
+                className={`px-6 py-3 font-semibold transition-all duration-200 border-b-2 flex items-center gap-2 ${
+                  activeTab === 'events'
+                    ? 'text-orange-600 border-orange-600'
+                    : 'text-gray-600 border-transparent hover:text-gray-900'
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+                События
+              </button>
               {isAdmin && (
                 <button
                   onClick={() => setActiveTab('requests')}
