@@ -424,7 +424,7 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
         </div>
       </div>
 
-      <EventModal />
+      {EventModal}
     </>
   );
 }
