@@ -15344,11 +15344,11 @@ a,
 .work-next-event-widget .widget-header {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 10px;
+  margin-bottom: 14px;
   color: #C2410C;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .work-next-event-widget .widget-header svg {
@@ -15358,7 +15358,7 @@ a,
 .work-next-event-widget .widget-header h4 {
   margin: 0;
   flex: 1;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 
