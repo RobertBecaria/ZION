@@ -91,6 +91,38 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
     return types[type] || '📌';
   };
 
+  const getEventTypeLabel = (type) => {
+    const labels = {
+      'MEETING': 'Встреча',
+      'TRAINING': 'Обучение',
+      'DEADLINE': 'Дедлайн',
+      'COMPANY_EVENT': 'Мероприятие',
+      'TEAM_BUILDING': 'Тимбилдинг',
+      'REVIEW': 'Ревью',
+      'ANNOUNCEMENT': 'Объявление',
+      'OTHER': 'Другое'
+    };
+    return labels[type] || 'Событие';
+  };
+
+  const getRSVPStats = () => {
+    if (!nextEvent || !nextEvent.rsvp_responses) return null;
+    
+    const responses = nextEvent.rsvp_responses;
+    const going = Object.values(responses).filter(r => r === 'GOING').length;
+    const maybe = Object.values(responses).filter(r => r === 'MAYBE').length;
+    const notGoing = Object.values(responses).filter(r => r === 'NOT_GOING').length;
+    
+    return { going, maybe, notGoing };
+  };
+
+  const handleWidgetClick = () => {
+    setShowModal(true);
+    if (onEventClick) {
+      onEventClick(nextEvent);
+    }
+  };
+
   if (loading) {
     return (
       <div className="work-next-event-widget loading">
