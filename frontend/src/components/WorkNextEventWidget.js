@@ -324,11 +324,15 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
     return { going, maybe, notGoing };
   };
 
-  const handleWidgetClick = (e) => {
+  const handleWidgetClick = useCallback((e) => {
     e.stopPropagation();
     e.preventDefault();
     setShowModal(true);
-  };
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setShowModal(false);
+  }, []);
 
   // Modal component that renders via portal
   const EventModal = () => {
