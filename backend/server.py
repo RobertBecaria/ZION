@@ -9197,11 +9197,7 @@ async def create_organization_event(
             )
             await db.work_notifications.insert_one(notification.model_dump())
         
-        # Return clean event data without MongoDB _id
-        event_dict = new_event.model_dump()
-        event_dict.pop('_id', None)  # Remove MongoDB _id if it exists
-        
-        return {"success": True, "event": event_dict, "message": "Событие создано"}
+        return {"success": True, "message": "Событие создано", "event_id": new_event.id}
         
     except HTTPException:
         raise
