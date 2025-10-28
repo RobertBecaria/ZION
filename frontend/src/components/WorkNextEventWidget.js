@@ -44,6 +44,19 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
     return () => clearInterval(timer);
   }, [nextEvent]);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showModal]);
+
   const fetchNextEvent = async () => {
     try {
       setLoading(true);
