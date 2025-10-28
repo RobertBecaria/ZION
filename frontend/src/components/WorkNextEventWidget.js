@@ -93,14 +93,11 @@ const EventDetailsModal = React.memo(({ event, onClose, timeLeft, onRSVPUpdate }
   };
 
   const getRSVPStats = () => {
-    if (!event.rsvp_responses) return null;
-    
-    const responses = event.rsvp_responses;
-    const going = Object.values(responses).filter(r => r === 'GOING').length;
-    const maybe = Object.values(responses).filter(r => r === 'MAYBE').length;
-    const notGoing = Object.values(responses).filter(r => r === 'NOT_GOING').length;
-    
-    return { going, maybe, notGoing };
+    return {
+      going: rsvpStats.GOING || 0,
+      maybe: rsvpStats.MAYBE || 0,
+      notGoing: rsvpStats.NOT_GOING || 0
+    };
   };
 
   return (
