@@ -1633,7 +1633,7 @@ function Dashboard() {
                   </div>
 
                   {/* Right Sidebar - Events Panel */}
-                  {!(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations' || activeView === 'my-info' || activeView === 'my-documents' || activeModule === 'work') && (
+                  {!(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations' || activeView === 'my-info' || activeView === 'my-documents' || activeModule === 'organizations') && (
                     <div className="events-panel-area">
                       {/* Regular Events Panel for other views */}
                       <UniversalEventsPanel
