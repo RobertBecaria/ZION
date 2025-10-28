@@ -1182,6 +1182,7 @@ class WorkOrganizationEventCreate(BaseModel):
     team_id: Optional[str] = None
     visibility: WorkEventVisibility = WorkEventVisibility.ALL_MEMBERS
     rsvp_enabled: bool = False
+    reminder_intervals: List[WorkEventReminderInterval] = []  # Reminder options
 
 class WorkOrganizationEventUpdate(BaseModel):
     title: Optional[str] = None
