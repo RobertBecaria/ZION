@@ -1147,7 +1147,8 @@ function Dashboard() {
               style={{ backgroundColor: activeView === 'my-profile' ? currentModule.color : undefined }}
               onClick={() => setActiveView('my-profile')}
             >
-              👤 Мой Профиль
+              <User size={18} />
+              <span>Мой Профиль</span>
             </button>
             
             <button 
@@ -1155,7 +1156,8 @@ function Dashboard() {
               style={{ backgroundColor: activeView === 'feed' ? currentModule.color : undefined }}
               onClick={() => setActiveView('feed')}
             >
-              📰 Моя Лента
+              <Newspaper size={18} />
+              <span>Моя Лента</span>
             </button>
             
             {/* Family Section - Always visible in Family module */}
@@ -1171,7 +1173,8 @@ function Dashboard() {
                   }}
                   onClick={() => setActiveView('my-family-profile')}
                 >
-                  👨‍👩‍👧‍👦 МОЯ СЕМЬЯ
+                  <Heart size={18} />
+                  <span>МОЯ СЕМЬЯ</span>
                 </button>
                 
                 <div className="sidebar-divider"></div>
@@ -1191,7 +1194,8 @@ function Dashboard() {
                   }}
                   onClick={() => setActiveView('my-work')}
                 >
-                  💼 МОЯ РАБОТА
+                  <Briefcase size={18} />
+                  <span>МОЯ РАБОТА</span>
                 </button>
                 
                 <div className="sidebar-divider"></div>
