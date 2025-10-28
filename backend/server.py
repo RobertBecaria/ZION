@@ -9801,6 +9801,37 @@ async def trigger_reminder_check(current_user: User = Depends(get_current_user))
     await check_and_send_event_reminders()
     return {"success": True, "message": "Reminder check completed"}
 
+
+@api_router.post("/internal/check-reminders")
+async def internal_reminder_check(request: Request):
+    """
+    Internal endpoint for cron job (no auth required, localhost only).
+    This is called by the cron script every 5 minutes.
+    """
+    # Security: Only allow calls from localhost
+    client_host = request.client.host
+    if client_host not in ["127.0.0.1", "localhost", "::1"]:
+        raise HTTPException(status_code=403, detail="Access denied: Internal endpoint only")
+    
+    # Verify internal request header
+    internal_header = request.headers.get("X-Internal-Request")
+    if internal_header != "true":
+        raise HTTPException(status_code=403, detail="Access denied: Missing internal header")
+    
+    try:
+        await check_and_send_event_reminders()
+        return {
+            "success": True,
+            "message": "Reminder check completed",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e),
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
 # ===== END EVENT REMINDERS SYSTEM =====
 
 @api_router.get("/health")
