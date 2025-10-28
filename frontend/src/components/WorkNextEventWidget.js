@@ -119,15 +119,13 @@ function WorkNextEventWidget({ organizationId, onEventClick }) {
 
   const handleWidgetClick = (e) => {
     e.stopPropagation();
+    e.preventDefault();
     setShowModal(true);
-    if (onEventClick) {
-      onEventClick(nextEvent);
-    }
   };
 
   // Modal component that renders via portal
   const EventModal = () => {
-    if (!showModal) return null;
+    if (!showModal || !nextEvent) return null;
 
     const modalContent = (
       <div className="event-modal-overlay" onClick={(e) => {
