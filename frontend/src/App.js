@@ -1859,7 +1859,8 @@ function Dashboard() {
           )}
 
           {/* ORGANIZATIONS Module - Department & Announcements Widgets */}
-          {activeModule === 'organizations' && selectedOrganizationId && (activeView === 'work-org-profile' || activeView === 'wall' || activeView === 'feed') && (
+          {/* Only show when viewing a specific organization profile, not in general feed */}
+          {activeModule === 'organizations' && selectedOrganizationId && activeView === 'work-org-profile' && (
             <>
               {/* Next Event Countdown Widget */}
               <WorkNextEventWidget
