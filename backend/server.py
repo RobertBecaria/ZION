@@ -9129,12 +9129,13 @@ async def create_organization_event(
         if not membership:
             raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
         
-        # Create event
+        # Create event - exclude scheduled_date from dump and convert it separately
+        event_dict = event_data.model_dump(exclude={'scheduled_date'})
         new_event = WorkOrganizationEvent(
             organization_id=organization_id,
             created_by_user_id=current_user.id,
-            **event_data.model_dump(),
-            scheduled_date=datetime.fromisoformat(event_data.scheduled_date)
+            scheduled_date=datetime.fromisoformat(event_data.scheduled_date),
+            **event_dict
         )
         
         await db.work_organization_events.insert_one(new_event.model_dump())
