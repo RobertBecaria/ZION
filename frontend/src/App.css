@@ -1494,7 +1494,7 @@ body {
   width: 340px;
   background: white;
   border-radius: 0;
-  padding: 0 1.75rem 1.75rem 1.75rem;
+  padding: 1.75rem 1.75rem 1.75rem 1.75rem;
   min-height: calc(100vh - 66px);
   position: sticky;
   top: 66px;
