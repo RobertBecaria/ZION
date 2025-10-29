@@ -27,6 +27,7 @@ import WorkJoinRequests from './components/WorkJoinRequests';
 import WorkOrganizationPublicProfile from './components/WorkOrganizationPublicProfile';
 import WorkDepartmentNavigator from './components/WorkDepartmentNavigator';
 import WorkAnnouncementsWidget from './components/WorkAnnouncementsWidget';
+import WorkAnnouncementsList from './components/WorkAnnouncementsList';
 import WorkDepartmentManager from './components/WorkDepartmentManager';
 import WorkNextEventWidget from './components/WorkNextEventWidget';
 import WorkUpcomingEventsList from './components/WorkUpcomingEventsList';
