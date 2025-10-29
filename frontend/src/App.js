@@ -1893,8 +1893,7 @@ function Dashboard() {
                 organizationId={selectedOrganizationId}
                 departmentId={activeDepartmentId}
                 onViewAll={() => {
-                  // TODO: Navigate to announcements list view
-                  console.log('View all announcements');
+                  setActiveView('work-announcements');
                 }}
                 moduleColor={currentModule.color}
               />
