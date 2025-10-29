@@ -7814,6 +7814,10 @@ async def list_departments(
         # Enrich with head name and member count
         result = []
         for dept in departments:
+            # Remove MongoDB _id field
+            if "_id" in dept:
+                del dept["_id"]
+            
             # Get member count
             member_count = await db.department_members.count_documents({"department_id": dept["id"]})
             dept["member_count"] = member_count
