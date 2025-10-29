@@ -1645,6 +1645,14 @@ function Dashboard() {
                                   moduleColor={currentModule.color}
                                 />
                               </ErrorBoundary>
+                            ) : activeView === 'work-department-management' ? (
+                              <ErrorBoundary>
+                                <WorkDepartmentManagementPage
+                                  organizationId={selectedOrganizationId}
+                                  onBack={() => setActiveView('wall')}
+                                  moduleColor={currentModule.color}
+                                />
+                              </ErrorBoundary>
                             ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
