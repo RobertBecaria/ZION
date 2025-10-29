@@ -438,6 +438,20 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
                       <Users size={16} />
                       Управление членами
                     </button>
+                    <button
+                      className="dept-action-btn secondary"
+                      onClick={() => handleEditDepartment(dept)}
+                      style={{ background: '#F0F2F5', color: '#050505' }}
+                    >
+                      <Edit3 size={16} />
+                    </button>
+                    <button
+                      className="dept-action-btn danger"
+                      onClick={() => handleDeleteDepartment(dept.id, dept.name)}
+                      style={{ background: '#FEE2E2', color: '#DC2626' }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
                 </div>
               </div>
