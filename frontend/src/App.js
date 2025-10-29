@@ -797,6 +797,16 @@ function Dashboard() {
   const [activeDepartmentId, setActiveDepartmentId] = useState(null);
   const [showDepartmentManager, setShowDepartmentManager] = useState(false);
   const [departmentRefreshTrigger, setDepartmentRefreshTrigger] = useState(0);
+  
+  // Setup window function for opening full department management
+  useEffect(() => {
+    window.openDepartmentManagement = () => {
+      setActiveView('work-department-management');
+    };
+    return () => {
+      delete window.openDepartmentManagement;
+    };
+  }, []);
   const [viewingPublicOrgId, setViewingPublicOrgId] = useState(null); // For public profile view
   
   // Removed showProfileCompletionModal state - now using full-page FamilySetupPage
