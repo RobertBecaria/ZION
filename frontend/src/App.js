@@ -1896,6 +1896,7 @@ function Dashboard() {
                 onDepartmentSelect={setActiveDepartmentId}
                 onCreateDepartment={() => setShowDepartmentManager(true)}
                 moduleColor={currentModule.color}
+                refreshTrigger={departmentRefreshTrigger}
               />
 
               {/* Announcements Widget */}
