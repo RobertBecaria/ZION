@@ -550,6 +550,147 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
         </div>
       )}
 
+      {/* Edit Department Modal */}
+      {showEditModal && selectedDepartment && (
+        <div className="member-modal-overlay">
+          <div className="member-modal">
+            <div className="member-modal-header">
+              <div>
+                <h3>Редактировать отдел</h3>
+                <p>{selectedDepartment.name}</p>
+              </div>
+              <button onClick={() => setShowEditModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="member-modal-body">
+              <div className="form-group">
+                <label>Название отдела *</label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({...editFormData, name: e.target.value})}
+                  placeholder="Введите название"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Описание</label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({...editFormData, description: e.target.value})}
+                  placeholder="Введите описание"
+                  rows={3}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Цвет</label>
+                <div className="color-options">
+                  {colorOptions.map((option) => (
+                    <button
+                      key={option.color}
+                      className={`color-option ${editFormData.color === option.color ? 'selected' : ''}`}
+                      style={{ background: option.color }}
+                      onClick={() => setEditFormData({...editFormData, color: option.color})}
+                      title={option.name}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Руководитель</label>
+                <select
+                  value={editFormData.head_id}
+                  onChange={(e) => setEditFormData({...editFormData, head_id: e.target.value})}
+                >
+                  <option value="">Не назначен</option>
+                  {organizationMembers.map((member) => (
+                    <option key={member.user_id} value={member.user_id}>
+                      {member.first_name} {member.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="modal-actions-row">
+                <button
+                  className="cancel-btn"
+                  onClick={() => setShowEditModal(false)}
+                >
+                  Отмена
+                </button>
+                <button
+                  className="save-btn"
+                  onClick={handleSaveEdit}
+                  style={{ background: moduleColor }}
+                >
+                  Сохранить изменения
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invite Member Modal */}
+      {showInviteModal && (
+        <div className="member-modal-overlay">
+          <div className="member-modal invite-modal">
+            <div className="member-modal-header">
+              <div>
+                <h3>Пригласить в организацию</h3>
+                <p>Отправить приглашение по email</p>
+              </div>
+              <button onClick={() => setShowInviteModal(false)}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="member-modal-body">
+              <div className="form-group">
+                <label>Email адрес *</label>
+                <input
+                  type="email"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  placeholder="example@email.com"
+                />
+              </div>
+
+              <div className="invite-info">
+                <div className="info-icon" style={{ background: `${moduleColor}15`, color: moduleColor }}>
+                  <UserPlus size={20} />
+                </div>
+                <div>
+                  <h4>Как это работает?</h4>
+                  <p>Пользователь получит приглашение по email и сможет присоединиться к организации после регистрации.</p>
+                </div>
+              </div>
+
+              <div className="modal-actions-row">
+                <button
+                  className="cancel-btn"
+                  onClick={() => setShowInviteModal(false)}
+                >
+                  Отмена
+                </button>
+                <button
+                  className="save-btn"
+                  onClick={handleInviteMember}
+                  style={{ background: moduleColor }}
+                >
+                  <UserPlus size={18} />
+                  Отправить приглашение
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <style jsx>{`
         .dept-management-page {
           padding: 2rem;
