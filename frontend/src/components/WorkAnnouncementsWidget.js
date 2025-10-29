@@ -195,6 +195,11 @@ function WorkAnnouncementsWidget({ organizationId, departmentId = null, onViewAl
           text-align: center;
         }
 
+        .empty-state-container {
+          display: flex;
+          flex-direction: column;
+        }
+
         .empty-state p {
           margin-top: 0.5rem;
           font-size: 0.875rem;
