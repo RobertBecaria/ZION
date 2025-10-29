@@ -970,7 +970,6 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
           align-items: center;
           justify-content: center;
           gap: 0.5rem;
-          flex: 1;
           padding: 0.75rem 1rem;
           border: none;
           border-radius: 8px;
@@ -978,6 +977,16 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
+        }
+
+        .dept-action-btn.primary {
+          flex: 1;
+        }
+
+        .dept-action-btn.secondary,
+        .dept-action-btn.danger {
+          width: 44px;
+          padding: 0.75rem;
         }
 
         .dept-action-btn:hover {
