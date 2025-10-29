@@ -1624,6 +1624,15 @@ function Dashboard() {
                                   }}
                                 />
                               </ErrorBoundary>
+                            ) : activeView === 'work-announcements' ? (
+                              <ErrorBoundary>
+                                <WorkAnnouncementsList
+                                  organizationId={selectedOrganizationId}
+                                  onBack={() => setActiveView('wall')}
+                                  currentUserId={user?.id}
+                                  moduleColor={currentModule.color}
+                                />
+                              </ErrorBoundary>
                             ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
