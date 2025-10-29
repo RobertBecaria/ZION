@@ -226,6 +226,20 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
             <Plus size={18} />
             Создать отдел
           </button>
+          <button
+            className="view-all-btn"
+            onClick={() => {
+              onClose();
+              // Trigger navigation to full page - parent component will handle
+              if (window.openDepartmentManagement) {
+                window.openDepartmentManagement();
+              }
+            }}
+            style={{ borderColor: moduleColor, color: moduleColor }}
+          >
+            <Building2 size={18} />
+            Полное управление
+          </button>
         </div>
 
         <div className="departments-grid">
