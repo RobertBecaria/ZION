@@ -157,6 +157,127 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
     }
   };
 
+  const handleEditDepartment = (dept) => {
+    setSelectedDepartment(dept);
+    setEditFormData({
+      name: dept.name,
+      description: dept.description || '',
+      color: dept.color,
+      head_id: dept.head_id || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editFormData.name.trim()) {
+      alert('Введите название отдела');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(
+        `${BACKEND_URL}/api/organizations/${organizationId}/departments/${selectedDepartment.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(editFormData)
+        }
+      );
+
+      if (response.ok) {
+        alert('Отдел обновлен!');
+        setShowEditModal(false);
+        await fetchDepartments();
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Ошибка при обновлении отдела');
+      }
+    } catch (error) {
+      console.error('Error updating department:', error);
+      alert('Произошла ошибка');
+    }
+  };
+
+  const handleDeleteDepartment = async (deptId, deptName) => {
+    if (!window.confirm(`Удалить отдел "${deptName}"? Это действие нельзя отменить.`)) return;
+
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(
+        `${BACKEND_URL}/api/organizations/${organizationId}/departments/${deptId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.ok) {
+        alert('Отдел удален!');
+        await fetchDepartments();
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Ошибка при удалении отдела');
+      }
+    } catch (error) {
+      console.error('Error deleting department:', error);
+      alert('Произошла ошибка');
+    }
+  };
+
+  const handleInviteMember = async () => {
+    if (!inviteEmail.trim()) {
+      alert('Введите email адрес');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(
+        `${BACKEND_URL}/api/work/organizations/${organizationId}/invite`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: inviteEmail })
+        }
+      );
+
+      if (response.ok) {
+        alert('Приглашение отправлено!');
+        setInviteEmail('');
+        setShowInviteModal(false);
+        // Refresh members list
+        await fetchOrganizationMembers();
+      } else {
+        const error = await response.json();
+        alert(error.detail || 'Ошибка при отправке приглашения');
+      }
+    } catch (error) {
+      console.error('Error inviting member:', error);
+      alert('Произошла ошибка');
+    }
+  };
+
+  const colorOptions = [
+    { color: '#1D4ED8', name: 'Синий' },
+    { color: '#059669', name: 'Зеленый' },
+    { color: '#7E22CE', name: 'Фиолетовый' },
+    { color: '#A16207', name: 'Желтый' },
+    { color: '#BE185D', name: 'Розовый' },
+    { color: '#DC2626', name: 'Красный' },
+    { color: '#EA580C', name: 'Оранжевый' },
+    { color: '#0891B2', name: 'Голубой' }
+  ];
+
   const filteredDepartments = departments.filter(dept => 
     dept.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     dept.description?.toLowerCase().includes(searchQuery.toLowerCase())
