@@ -93,9 +93,19 @@ function WorkAnnouncementsWidget({ organizationId, departmentId = null, onViewAl
           {loading ? (
             <div className="loading-state">Загрузка...</div>
           ) : announcements.length === 0 ? (
-            <div className="empty-state">
-              <Megaphone size={32} style={{ color: '#BCC0C4' }} />
-              <p>Нет объявлений</p>
+            <div className="empty-state-container">
+              <div className="empty-state">
+                <Megaphone size={32} style={{ color: '#BCC0C4' }} />
+                <p>Нет объявлений</p>
+              </div>
+              <button
+                className="view-all-btn"
+                onClick={onViewAll}
+                style={{ color: moduleColor, borderColor: `${moduleColor}40` }}
+              >
+                <span>Создать объявление</span>
+                <ChevronRight size={16} />
+              </button>
             </div>
           ) : (
             <>
