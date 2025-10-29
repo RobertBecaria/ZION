@@ -366,6 +366,14 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
           />
         </div>
         <div className="toolbar-actions">
+          <button
+            className="invite-btn"
+            onClick={() => setShowInviteModal(true)}
+            style={{ background: `${moduleColor}15`, color: moduleColor }}
+          >
+            <UserPlus size={18} />
+            Пригласить в организацию
+          </button>
           <div className="view-toggle">
             <button
               className={viewMode === 'grid' ? 'active' : ''}
