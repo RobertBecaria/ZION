@@ -2381,7 +2381,11 @@ function Dashboard() {
       {showDepartmentManager && selectedOrganizationId && (
         <WorkDepartmentManager
           organizationId={selectedOrganizationId}
-          onClose={() => setShowDepartmentManager(false)}
+          onClose={() => {
+            setShowDepartmentManager(false);
+            // Trigger refresh in department navigator
+            setDepartmentRefreshTrigger(prev => prev + 1);
+          }}
           moduleColor={currentModule.color}
         />
       )}
