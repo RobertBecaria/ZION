@@ -7910,7 +7910,7 @@ async def delete_department(
             "status": "ACTIVE"
         })
         
-        if not membership or membership.get("role") not in ["OWNER", "ADMIN"]:
+        if not membership or (membership.get("role") not in ["OWNER", "ADMIN"] and not membership.get("is_admin")):
             raise HTTPException(status_code=403, detail="Только владелец или администратор может удалять отделы")
         
         # Delete department members first
