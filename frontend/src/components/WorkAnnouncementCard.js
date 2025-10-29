@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Pin, AlertCircle, Info, Eye, ThumbsUp, Heart, Flame, Clap, MessageCircle, Edit3, Trash2, MoreHorizontal } from 'lucide-react';
+import { Pin, AlertCircle, Info, Eye, ThumbsUp, Heart, Flame, MessageCircle, Edit3, Trash2, MoreHorizontal, Smile } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 
