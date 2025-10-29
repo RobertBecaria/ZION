@@ -27,6 +27,7 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
 
   const fetchDepartments = async () => {
     try {
+      console.log('fetchDepartments called for organizationId:', organizationId);
       setLoading(true);
       const token = localStorage.getItem('zion_token');
       const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
@@ -36,9 +37,15 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
         }
       });
 
+      console.log('fetchDepartments response status:', response.status);
+      
       if (response.ok) {
         const data = await response.json();
+        console.log('fetchDepartments data:', data);
         setDepartments(data.data || []);
+        console.log('Departments set to:', data.data || []);
+      } else {
+        console.error('fetchDepartments failed with status:', response.status);
       }
     } catch (error) {
       console.error('Error fetching departments:', error);
