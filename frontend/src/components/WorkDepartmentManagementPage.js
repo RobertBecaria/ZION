@@ -11,8 +11,17 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [showMemberModal, setShowMemberModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [departmentMembers, setDepartmentMembers] = useState([]);
   const [availableMembers, setAvailableMembers] = useState([]);
+  const [editFormData, setEditFormData] = useState({
+    name: '',
+    description: '',
+    color: '#1D4ED8',
+    head_id: ''
+  });
+  const [inviteEmail, setInviteEmail] = useState('');
 
   useEffect(() => {
     fetchDepartments();
