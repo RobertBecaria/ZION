@@ -1457,6 +1457,13 @@ function Dashboard() {
                       <InvitationManager
                         currentUser={user}
                       />
+                    ) : /* MY PROFILE - Dynamic Profile View */
+                    activeView === 'my-profile' ? (
+                      <MyProfile 
+                        user={user} 
+                        activeModule={activeModule}
+                        moduleColor={currentModule.color}
+                      />
                     ) : /* Media Storage Views - Full Width */
                     (activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') ? (
                       <MediaStorage
