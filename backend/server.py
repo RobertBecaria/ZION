@@ -717,6 +717,14 @@ class WorkMember(BaseModel):
     can_invite: bool = False  # Only managers and above
     is_admin: bool = False
     
+    # === TEACHER-SPECIFIC FIELDS (for EDUCATIONAL organizations) ===
+    is_teacher: bool = False
+    teaching_subjects: List[str] = []  # List of subjects from RUSSIAN_SCHOOL_SUBJECTS
+    teaching_grades: List[int] = []  # Grade levels (1-11)
+    is_class_supervisor: bool = False  # Классный руководитель
+    supervised_class: Optional[str] = None  # e.g., "5А", "7Б"
+    teacher_qualification: Optional[str] = None  # e.g., "Высшая категория"
+    
     # Status
     status: str = "ACTIVE"  # ACTIVE, INACTIVE, LEFT
     joined_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
