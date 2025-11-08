@@ -7,6 +7,7 @@ import UniversalWall from './components/UniversalWall';
 import ContentNavigation from './components/ContentNavigation';
 import UniversalEventsPanel from './components/UniversalEventsPanel';
 import MediaStorage from './components/MediaStorage';
+import MyProfile from './components/MyProfile';
 // NEW FAMILY SYSTEM COMPONENTS
 import ProfileCompletionModal from './components/ProfileCompletionModal';
 import FamilyTriggerFlow from './components/FamilyTriggerFlow';
