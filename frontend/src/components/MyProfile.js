@@ -349,11 +349,6 @@ function MyProfile({ user, activeModule, moduleColor }) {
                     <span className="info-label">Email</span>
                     <span className="info-value">{profileData.email}</span>
                   </div>
-                  {privacySettings && (
-                    <span className="visibility-badge">
-                      {getVisibilityIcon(privacySettings.email_visibility)}
-                    </span>
-                  )}
                 </div>
               )}
               {profileData.phone && (
@@ -363,11 +358,6 @@ function MyProfile({ user, activeModule, moduleColor }) {
                     <span className="info-label">Телефон</span>
                     <span className="info-value">{profileData.phone}</span>
                   </div>
-                  {privacySettings && (
-                    <span className="visibility-badge">
-                      {getVisibilityIcon(privacySettings.phone_visibility)}
-                    </span>
-                  )}
                 </div>
               )}
               {profileData.business_email && (
@@ -377,11 +367,6 @@ function MyProfile({ user, activeModule, moduleColor }) {
                     <span className="info-label">Рабочий email</span>
                     <span className="info-value">{profileData.business_email}</span>
                   </div>
-                  {privacySettings && (
-                    <span className="visibility-badge">
-                      {getVisibilityIcon(privacySettings.business_email_visibility)}
-                    </span>
-                  )}
                 </div>
               )}
               {profileData.business_phone && (
@@ -391,11 +376,6 @@ function MyProfile({ user, activeModule, moduleColor }) {
                     <span className="info-label">Рабочий телефон</span>
                     <span className="info-value">{profileData.business_phone}</span>
                   </div>
-                  {privacySettings && (
-                    <span className="visibility-badge">
-                      {getVisibilityIcon(privacySettings.business_phone_visibility)}
-                    </span>
-                  )}
                 </div>
               )}
               {(profileData.address_city || profileData.address_country) && (
@@ -408,11 +388,6 @@ function MyProfile({ user, activeModule, moduleColor }) {
                       {profileData.address_country}
                     </span>
                   </div>
-                  {privacySettings && (
-                    <span className="visibility-badge">
-                      {getVisibilityIcon(privacySettings.address_visibility)}
-                    </span>
-                  )}
                 </div>
               )}
             </div>
