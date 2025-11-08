@@ -298,25 +298,25 @@ class ProfileFieldVisibility(str, Enum):
     PRIVATE = "PRIVATE"  # Only me
 
 class ProfilePrivacySettings(BaseModel):
-    """User's privacy settings for their dynamic profile"""
-    # Basic Info Visibility
-    phone_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PRIVATE
-    email_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PUBLIC
-    address_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PRIVATE
-    birth_date_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PRIVATE
+    """User's privacy settings for their dynamic profile - 13 total controls"""
+    # Family Context Settings (What family members see) - 4 settings
+    family_show_address: bool = True  # Show home address (street, city, state, country)
+    family_show_phone: bool = True  # Show personal phone number
+    family_show_birthdate: bool = True  # Show date of birth and upcoming birthday countdown
+    family_show_spouse_info: bool = True  # Show marriage status and spouse details
     
-    # Family Module Visibility
-    family_address_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PRIVATE
-    family_members_visibility: ProfileFieldVisibility = ProfileFieldVisibility.PRIVATE
+    # Work Context Settings (What organization members see) - 5 settings
+    work_show_department: bool = True  # Show department in organization
+    work_show_team: bool = True  # Show team within department
+    work_show_manager: bool = True  # Show direct manager/supervisor name
+    work_show_work_anniversary: bool = True  # Show start date and years of service
+    work_show_job_title: bool = True  # Show job title/position
     
-    # Organization Module Visibility
-    business_phone_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    business_email_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    job_title_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    department_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    team_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    manager_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
-    work_anniversary_visibility: ProfileFieldVisibility = ProfileFieldVisibility.ORGANIZATION_ONLY
+    # Public Context Settings (What everyone sees) - 4 settings
+    public_show_email: bool = False  # Show email address (default: hidden)
+    public_show_phone: bool = False  # Show phone number (default: hidden)
+    public_show_location: bool = True  # Show city and country (default: visible)
+    public_show_bio: bool = True  # Show bio/about me section (default: visible)
 
 class ProfileUpdateRequest(BaseModel):
     """Request to update user profile"""
