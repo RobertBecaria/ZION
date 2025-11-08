@@ -574,6 +574,81 @@ class OrganizationSize(str, Enum):
     SIZE_201_500 = "201-500"
     SIZE_500_PLUS = "500+"
 
+# === RUSSIAN SCHOOL SYSTEM CONSTANTS ===
+
+class SchoolLevel(str, Enum):
+    PRIMARY = "PRIMARY"  # Начальная школа (1-4 классы)
+    BASIC = "BASIC"  # Основная школа (5-9 классы)
+    SECONDARY = "SECONDARY"  # Средняя школа (10-11 классы)
+    VOCATIONAL = "VOCATIONAL"  # Техникум/Колледж
+
+# Russian School Structure
+RUSSIAN_SCHOOL_STRUCTURE = {
+    "PRIMARY": {
+        "name": "Начальная школа",
+        "name_en": "Primary School",
+        "grades": [1, 2, 3, 4],
+        "description": "Один основной учитель, базовая грамотность и математика"
+    },
+    "BASIC": {
+        "name": "Основная школа",
+        "name_en": "Basic General Education",
+        "grades": [5, 6, 7, 8, 9],
+        "description": "Разные учителя по предметам, завершается ОГЭ",
+        "exam": "ОГЭ (Основной государственный экзамен)"
+    },
+    "SECONDARY": {
+        "name": "Средняя школа",
+        "name_en": "Secondary (Complete) General Education",
+        "grades": [10, 11],
+        "description": "Специализация, подготовка к ЕГЭ и поступлению в вуз",
+        "exam": "ЕГЭ (Единый государственный экзамен)"
+    }
+}
+
+# Russian School Subjects (Предметы)
+RUSSIAN_SCHOOL_SUBJECTS = [
+    # Core subjects
+    "Математика",
+    "Русский язык",
+    "Литература",
+    "Английский язык",
+    "Немецкий язык",
+    "Французский язык",
+    
+    # Sciences
+    "Физика",
+    "Химия",
+    "Биология",
+    "География",
+    "Астрономия",
+    
+    # Humanities
+    "История",
+    "Обществознание",
+    "Право",
+    "Экономика",
+    
+    # Arts & Physical Education
+    "Физкультура",
+    "Музыка",
+    "ИЗО (Изобразительное искусство)",
+    "Технология",
+    "МХК (Мировая художественная культура)",
+    
+    # Other
+    "Информатика",
+    "ОБЖ (Основы безопасности жизнедеятельности)",
+    "Родной язык",
+    "Родная литература"
+]
+
+# Grade levels (классы)
+RUSSIAN_GRADES = list(range(1, 12))  # 1-11
+
+# Class naming conventions (буквы классов)
+CLASS_LETTERS = ["А", "Б", "В", "Г", "Д", "Е", "Ж", "З", "И", "К"]
+
 class WorkOrganization(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), alias="organization_id")
     name: str
