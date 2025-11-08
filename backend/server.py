@@ -1058,6 +1058,43 @@ class WorkMemberResponse(BaseModel):
     user_last_name: str
     user_email: str
     user_avatar_url: Optional[str]
+    
+    # Teacher-specific fields
+    is_teacher: Optional[bool] = False
+    teaching_subjects: Optional[List[str]] = []
+    teaching_grades: Optional[List[int]] = []
+    is_class_supervisor: Optional[bool] = False
+    supervised_class: Optional[str] = None
+    teacher_qualification: Optional[str] = None
+
+# === TEACHER-SPECIFIC MODELS ===
+
+class TeacherProfileUpdate(BaseModel):
+    """Update teacher-specific fields"""
+    is_teacher: Optional[bool] = None
+    teaching_subjects: Optional[List[str]] = None
+    teaching_grades: Optional[List[int]] = None
+    is_class_supervisor: Optional[bool] = None
+    supervised_class: Optional[str] = None
+    teacher_qualification: Optional[str] = None
+    job_title: Optional[str] = None  # Can also update job title
+
+class TeacherResponse(BaseModel):
+    """Response for teacher information"""
+    id: str
+    user_id: str
+    user_first_name: str
+    user_last_name: str
+    user_email: str
+    user_avatar_url: Optional[str]
+    job_title: Optional[str]
+    teaching_subjects: List[str]
+    teaching_grades: List[int]
+    is_class_supervisor: bool
+    supervised_class: Optional[str]
+    teacher_qualification: Optional[str]
+    department: Optional[str]
+    start_date: Optional[datetime]
 
 class WorkPostCreate(BaseModel):
     title: Optional[str] = None
