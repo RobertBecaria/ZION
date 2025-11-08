@@ -9458,6 +9458,180 @@ async def update_my_member_settings(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# === TEACHER-SPECIFIC ENDPOINTS ===
+
+@api_router.put("/work/organizations/{organization_id}/teachers/me")
+async def update_my_teacher_profile(
+    organization_id: str,
+    teacher_data: TeacherProfileUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update current user's teacher profile"""
+    try:
+        # Check if user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=404, detail="Вы не являетесь членом этой организации")
+        
+        # Check if organization is educational
+        org = await db.work_organizations.find_one({"id": organization_id})
+        if not org or org.get("organization_type") != "EDUCATIONAL":
+            raise HTTPException(status_code=400, detail="Эта организация не является учебным заведением")
+        
+        # Build update fields
+        update_fields = {"updated_at": datetime.now(timezone.utc)}
+        
+        if teacher_data.is_teacher is not None:
+            update_fields["is_teacher"] = teacher_data.is_teacher
+        if teacher_data.teaching_subjects is not None:
+            update_fields["teaching_subjects"] = teacher_data.teaching_subjects
+        if teacher_data.teaching_grades is not None:
+            update_fields["teaching_grades"] = teacher_data.teaching_grades
+        if teacher_data.is_class_supervisor is not None:
+            update_fields["is_class_supervisor"] = teacher_data.is_class_supervisor
+        if teacher_data.supervised_class is not None:
+            update_fields["supervised_class"] = teacher_data.supervised_class
+        if teacher_data.teacher_qualification is not None:
+            update_fields["teacher_qualification"] = teacher_data.teacher_qualification
+        if teacher_data.job_title is not None:
+            update_fields["job_title"] = teacher_data.job_title
+        
+        # Update teacher profile
+        await db.work_members.update_one(
+            {"_id": membership["_id"]},
+            {"$set": update_fields}
+        )
+        
+        return {
+            "success": True,
+            "message": "Профиль учителя обновлен"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/teachers", response_model=List[TeacherResponse])
+async def get_organization_teachers(
+    organization_id: str,
+    grade: Optional[int] = None,
+    subject: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all teachers in the organization with optional filters"""
+    try:
+        # Check if user is a member or if org is public
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        org = await db.work_organizations.find_one({"id": organization_id})
+        if not org:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        # If private and not a member, deny access
+        if org.get("is_private") and not membership:
+            raise HTTPException(status_code=403, detail="Доступ запрещен")
+        
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "is_teacher": True,
+            "status": "ACTIVE"
+        }
+        
+        if grade is not None:
+            query["teaching_grades"] = grade
+        if subject is not None:
+            query["teaching_subjects"] = subject
+        
+        # Get teachers
+        teachers_cursor = db.work_members.find(query)
+        teachers = await teachers_cursor.to_list(None)
+        
+        # Enrich with user details
+        teacher_responses = []
+        for teacher in teachers:
+            user = await db.users.find_one({"id": teacher["user_id"]})
+            if user:
+                teacher_responses.append(TeacherResponse(
+                    id=teacher["id"],
+                    user_id=teacher["user_id"],
+                    user_first_name=user["first_name"],
+                    user_last_name=user["last_name"],
+                    user_email=user["email"],
+                    user_avatar_url=user.get("avatar_url"),
+                    job_title=teacher.get("job_title"),
+                    teaching_subjects=teacher.get("teaching_subjects", []),
+                    teaching_grades=teacher.get("teaching_grades", []),
+                    is_class_supervisor=teacher.get("is_class_supervisor", False),
+                    supervised_class=teacher.get("supervised_class"),
+                    teacher_qualification=teacher.get("teacher_qualification"),
+                    department=teacher.get("department"),
+                    start_date=teacher.get("start_date")
+                ))
+        
+        return teacher_responses
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/teachers/{teacher_id}", response_model=TeacherResponse)
+async def get_teacher_profile(
+    organization_id: str,
+    teacher_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get specific teacher's profile"""
+    try:
+        # Get teacher
+        teacher = await db.work_members.find_one({
+            "id": teacher_id,
+            "organization_id": organization_id,
+            "is_teacher": True,
+            "status": "ACTIVE"
+        })
+        
+        if not teacher:
+            raise HTTPException(status_code=404, detail="Учитель не найден")
+        
+        # Get user details
+        user = await db.users.find_one({"id": teacher["user_id"]})
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        
+        return TeacherResponse(
+            id=teacher["id"],
+            user_id=teacher["user_id"],
+            user_first_name=user["first_name"],
+            user_last_name=user["last_name"],
+            user_email=user["email"],
+            user_avatar_url=user.get("avatar_url"),
+            job_title=teacher.get("job_title"),
+            teaching_subjects=teacher.get("teaching_subjects", []),
+            teaching_grades=teacher.get("teaching_grades", []),
+            is_class_supervisor=teacher.get("is_class_supervisor", False),
+            supervised_class=teacher.get("supervised_class"),
+            teacher_qualification=teacher.get("teacher_qualification"),
+            department=teacher.get("department"),
+            start_date=teacher.get("start_date")
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/work/organizations/{organization_id}/change-requests")
 async def get_change_requests(
     organization_id: str,
