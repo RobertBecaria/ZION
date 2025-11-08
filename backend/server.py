@@ -10297,7 +10297,7 @@ async def create_event_reminder_notification(user_id: str, event: dict, interval
             "organization_id": event['organization_id'],
             "user_id": user_id,
             "type": "EVENT_REMINDER",
-            "title": f"Напоминание о событии",
+            "title": "Напоминание о событии",
             "message": f"Событие \"{event['title']}\" начнется {time_msg}",
             "metadata": {
                 "event_id": event['id'],
