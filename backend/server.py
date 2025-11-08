@@ -2975,7 +2975,7 @@ async def update_profile_privacy(
     privacy_data: ProfilePrivacyUpdateRequest,
     current_user: User = Depends(get_current_user)
 ):
-    """Update user's profile privacy settings"""
+    """Update user's profile privacy settings - 13 boolean toggles"""
     
     # Get existing privacy settings or create new
     privacy_doc = await db.profile_privacy_settings.find_one({"user_id": current_user.id})
@@ -2983,32 +2983,37 @@ async def update_profile_privacy(
     if privacy_doc:
         # Update existing
         update_fields = {}
-        if privacy_data.phone_visibility is not None:
-            update_fields["phone_visibility"] = privacy_data.phone_visibility.value
-        if privacy_data.email_visibility is not None:
-            update_fields["email_visibility"] = privacy_data.email_visibility.value
-        if privacy_data.address_visibility is not None:
-            update_fields["address_visibility"] = privacy_data.address_visibility.value
-        if privacy_data.birth_date_visibility is not None:
-            update_fields["birth_date_visibility"] = privacy_data.birth_date_visibility.value
-        if privacy_data.family_address_visibility is not None:
-            update_fields["family_address_visibility"] = privacy_data.family_address_visibility.value
-        if privacy_data.family_members_visibility is not None:
-            update_fields["family_members_visibility"] = privacy_data.family_members_visibility.value
-        if privacy_data.business_phone_visibility is not None:
-            update_fields["business_phone_visibility"] = privacy_data.business_phone_visibility.value
-        if privacy_data.business_email_visibility is not None:
-            update_fields["business_email_visibility"] = privacy_data.business_email_visibility.value
-        if privacy_data.job_title_visibility is not None:
-            update_fields["job_title_visibility"] = privacy_data.job_title_visibility.value
-        if privacy_data.department_visibility is not None:
-            update_fields["department_visibility"] = privacy_data.department_visibility.value
-        if privacy_data.team_visibility is not None:
-            update_fields["team_visibility"] = privacy_data.team_visibility.value
-        if privacy_data.manager_visibility is not None:
-            update_fields["manager_visibility"] = privacy_data.manager_visibility.value
-        if privacy_data.work_anniversary_visibility is not None:
-            update_fields["work_anniversary_visibility"] = privacy_data.work_anniversary_visibility.value
+        # Family Context Settings
+        if privacy_data.family_show_address is not None:
+            update_fields["family_show_address"] = privacy_data.family_show_address
+        if privacy_data.family_show_phone is not None:
+            update_fields["family_show_phone"] = privacy_data.family_show_phone
+        if privacy_data.family_show_birthdate is not None:
+            update_fields["family_show_birthdate"] = privacy_data.family_show_birthdate
+        if privacy_data.family_show_spouse_info is not None:
+            update_fields["family_show_spouse_info"] = privacy_data.family_show_spouse_info
+        
+        # Work Context Settings
+        if privacy_data.work_show_department is not None:
+            update_fields["work_show_department"] = privacy_data.work_show_department
+        if privacy_data.work_show_team is not None:
+            update_fields["work_show_team"] = privacy_data.work_show_team
+        if privacy_data.work_show_manager is not None:
+            update_fields["work_show_manager"] = privacy_data.work_show_manager
+        if privacy_data.work_show_work_anniversary is not None:
+            update_fields["work_show_work_anniversary"] = privacy_data.work_show_work_anniversary
+        if privacy_data.work_show_job_title is not None:
+            update_fields["work_show_job_title"] = privacy_data.work_show_job_title
+        
+        # Public Context Settings
+        if privacy_data.public_show_email is not None:
+            update_fields["public_show_email"] = privacy_data.public_show_email
+        if privacy_data.public_show_phone is not None:
+            update_fields["public_show_phone"] = privacy_data.public_show_phone
+        if privacy_data.public_show_location is not None:
+            update_fields["public_show_location"] = privacy_data.public_show_location
+        if privacy_data.public_show_bio is not None:
+            update_fields["public_show_bio"] = privacy_data.public_show_bio
         
         if update_fields:
             await db.profile_privacy_settings.update_one(
@@ -3016,39 +3021,45 @@ async def update_profile_privacy(
                 {"$set": update_fields}
             )
     else:
-        # Create new privacy settings
+        # Create new privacy settings with defaults
         privacy_settings = ProfilePrivacySettings()
-        if privacy_data.phone_visibility is not None:
-            privacy_settings.phone_visibility = privacy_data.phone_visibility
-        if privacy_data.email_visibility is not None:
-            privacy_settings.email_visibility = privacy_data.email_visibility
-        if privacy_data.address_visibility is not None:
-            privacy_settings.address_visibility = privacy_data.address_visibility
-        if privacy_data.birth_date_visibility is not None:
-            privacy_settings.birth_date_visibility = privacy_data.birth_date_visibility
-        if privacy_data.family_address_visibility is not None:
-            privacy_settings.family_address_visibility = privacy_data.family_address_visibility
-        if privacy_data.family_members_visibility is not None:
-            privacy_settings.family_members_visibility = privacy_data.family_members_visibility
-        if privacy_data.business_phone_visibility is not None:
-            privacy_settings.business_phone_visibility = privacy_data.business_phone_visibility
-        if privacy_data.business_email_visibility is not None:
-            privacy_settings.business_email_visibility = privacy_data.business_email_visibility
-        if privacy_data.job_title_visibility is not None:
-            privacy_settings.job_title_visibility = privacy_data.job_title_visibility
-        if privacy_data.department_visibility is not None:
-            privacy_settings.department_visibility = privacy_data.department_visibility
-        if privacy_data.team_visibility is not None:
-            privacy_settings.team_visibility = privacy_data.team_visibility
-        if privacy_data.manager_visibility is not None:
-            privacy_settings.manager_visibility = privacy_data.manager_visibility
-        if privacy_data.work_anniversary_visibility is not None:
-            privacy_settings.work_anniversary_visibility = privacy_data.work_anniversary_visibility
+        
+        # Apply any provided values
+        if privacy_data.family_show_address is not None:
+            privacy_settings.family_show_address = privacy_data.family_show_address
+        if privacy_data.family_show_phone is not None:
+            privacy_settings.family_show_phone = privacy_data.family_show_phone
+        if privacy_data.family_show_birthdate is not None:
+            privacy_settings.family_show_birthdate = privacy_data.family_show_birthdate
+        if privacy_data.family_show_spouse_info is not None:
+            privacy_settings.family_show_spouse_info = privacy_data.family_show_spouse_info
+        
+        if privacy_data.work_show_department is not None:
+            privacy_settings.work_show_department = privacy_data.work_show_department
+        if privacy_data.work_show_team is not None:
+            privacy_settings.work_show_team = privacy_data.work_show_team
+        if privacy_data.work_show_manager is not None:
+            privacy_settings.work_show_manager = privacy_data.work_show_manager
+        if privacy_data.work_show_work_anniversary is not None:
+            privacy_settings.work_show_work_anniversary = privacy_data.work_show_work_anniversary
+        if privacy_data.work_show_job_title is not None:
+            privacy_settings.work_show_job_title = privacy_data.work_show_job_title
+        
+        if privacy_data.public_show_email is not None:
+            privacy_settings.public_show_email = privacy_data.public_show_email
+        if privacy_data.public_show_phone is not None:
+            privacy_settings.public_show_phone = privacy_data.public_show_phone
+        if privacy_data.public_show_location is not None:
+            privacy_settings.public_show_location = privacy_data.public_show_location
+        if privacy_data.public_show_bio is not None:
+            privacy_settings.public_show_bio = privacy_data.public_show_bio
         
         await db.profile_privacy_settings.insert_one({
             "user_id": current_user.id,
             **privacy_settings.dict()
         })
+    
+    return {"success": True, "message": "Privacy settings updated successfully"}
     
     return {"success": True, "message": "Privacy settings updated successfully"}
 
