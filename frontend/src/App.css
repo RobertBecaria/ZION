@@ -17268,3 +17268,261 @@ a,
   }
 }
 
+
+/* ============================================
+   UPDATED PRIVACY SETTINGS - iOS STYLE TOGGLES
+============================================ */
+
+.privacy-modal {
+  max-width: 700px !important;
+}
+
+.modal-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+}
+
+.modal-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 36px;
+  color: #9ca3af;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.close-btn:hover {
+  color: #1a1a1a;
+  background: #f3f4f6;
+  transform: rotate(90deg);
+}
+
+/* Privacy Context Sections */
+.privacy-context-section {
+  margin-bottom: 32px;
+}
+
+.privacy-context-section:last-child {
+  margin-bottom: 0;
+}
+
+.context-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.context-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 4px 0;
+}
+
+.context-header p {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Privacy Settings List */
+.privacy-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Privacy Toggle Item */
+.privacy-toggle-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 16px;
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+  transition: all 0.2s ease;
+}
+
+.privacy-toggle-item:hover {
+  background: #f9fafb;
+}
+
+.privacy-toggle-item:last-child {
+  border-bottom: none;
+}
+
+.privacy-toggle-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  border-radius: 10px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.privacy-toggle-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.privacy-toggle-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.privacy-toggle-description {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+/* iOS-Style Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e7eb;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 31px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 27px;
+  width: 27px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #059669;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Orange toggle for work context */
+.privacy-context-section:nth-child(2) .toggle-switch input:checked + .toggle-slider {
+  background-color: #ea580c;
+}
+
+/* Blue toggle for public context */
+.privacy-context-section:nth-child(3) .toggle-switch input:checked + .toggle-slider {
+  background-color: #6366f1;
+}
+
+/* Hover effect for toggle */
+.toggle-switch:hover .toggle-slider {
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+}
+
+.toggle-switch:hover input:checked + .toggle-slider {
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+}
+
+/* Remove old privacy control styles */
+.privacy-section,
+.privacy-control,
+.privacy-options,
+.privacy-option {
+  display: none !important;
+}
+
+/* Responsive adjustments for privacy modal */
+@media (max-width: 768px) {
+  .privacy-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .modal-header {
+    padding: 20px;
+  }
+
+  .modal-header h2 {
+    font-size: 18px;
+  }
+
+  .privacy-toggle-item {
+    padding: 16px 12px;
+  }
+
+  .privacy-toggle-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .toggle-switch {
+    width: 48px;
+    height: 28px;
+  }
+
+  .toggle-slider:before {
+    height: 24px;
+    width: 24px;
+  }
+
+  .toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(18px);
+  }
+}
+
