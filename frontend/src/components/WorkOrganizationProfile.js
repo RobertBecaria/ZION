@@ -77,7 +77,6 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
         // Set current user's membership
         if (currentUserId) {
           const myMembership = membersData.members?.find(m => m.user_id === currentUserId);
-          console.log('Current Membership:', myMembership);
           setCurrentMembership(myMembership || null);
         }
       }
