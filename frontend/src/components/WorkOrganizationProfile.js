@@ -90,7 +90,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     } finally {
       setLoading(false);
     }
-  }, [organizationId]);
+  }, [organizationId, currentUserId]);
 
   const loadPendingRequestsCount = useCallback(async () => {
     if (!organizationId || !organization?.user_is_admin) return;
