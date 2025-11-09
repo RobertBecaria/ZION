@@ -134,7 +134,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     if (organization?.user_is_admin) {
       loadPendingRequestsCount();
     }
-  }, [organization?.user_is_admin, loadPendingRequestsCount]);
+  }, [organization?.user_is_admin]); // Removed function from deps to prevent infinite loop
 
   // Check if current user is admin (from organization object)
   const isAdmin = organization?.user_is_admin || false;
