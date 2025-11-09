@@ -543,6 +543,43 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
           </div>
         )}
 
+        {activeTab === 'teachers' && organization?.organization_type === 'EDUCATIONAL' && (
+          <div className="space-y-6">
+            {/* Teacher Profile Setup Button (if user is member) */}
+            {currentMembership && (
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
+                      <GraduationCap className="w-5 h-5 text-orange-600" />
+                      Профиль Учителя
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      {currentMembership.is_teacher 
+                        ? 'Обновите информацию о предметах и классах'
+                        : 'Настройте свой профиль учителя'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowTeacherForm(true)}
+                    className="px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-200 font-semibold flex items-center gap-2 hover:scale-105"
+                  >
+                    <Edit className="w-4 h-4" />
+                    {currentMembership.is_teacher ? 'Редактировать' : 'Настроить'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Teacher Directory */}
+            <TeacherDirectory 
+              organizationId={organizationId}
+              moduleColor="#ea580c"
+              onEditProfile={() => setShowTeacherForm(true)}
+            />
+          </div>
+        )}
+
         {activeTab === 'requests' && isAdmin && (
           <div className="bg-white rounded-2xl shadow-md p-8 border border-gray-100">
             <WorkJoinRequestsManagement
