@@ -284,6 +284,6 @@ const TeacherDirectory = React.memo(function TeacherDirectory({ organizationId, 
       )}
     </div>
   );
-}
+});
 
 export default TeacherDirectory;
