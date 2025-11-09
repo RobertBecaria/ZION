@@ -551,27 +551,33 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
 
         {activeTab === 'teachers' && organization?.organization_type === 'EDUCATIONAL' && (
           <div className="space-y-6">
-            {/* Teacher Profile Setup Button (if user is member) */}
+            {/* Teacher Profile Setup Banner (if user is member) */}
             {currentMembership && (
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border border-orange-200">
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl p-6 border-2 border-orange-200 shadow-lg">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-1 flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-orange-600" />
-                      Профиль Учителя
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {currentMembership.is_teacher 
-                        ? 'Обновите информацию о предметах и классах'
-                        : 'Настройте свой профиль учителя'}
-                    </p>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center">
+                      <GraduationCap className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900 mb-1">
+                        {currentMembership.is_teacher 
+                          ? 'Ваш профиль учителя' 
+                          : 'Создайте профиль учителя'}
+                      </h3>
+                      <p className="text-sm text-gray-600">
+                        {currentMembership.is_teacher 
+                          ? `Предметы: ${currentMembership.teaching_subjects?.join(', ') || 'Не указаны'} · Классы: ${currentMembership.teaching_grades?.join(', ') || 'Не указаны'}`
+                          : 'Укажите предметы, классы и статус классного руководителя'}
+                      </p>
+                    </div>
                   </div>
                   <button
                     onClick={() => setShowTeacherForm(true)}
-                    className="px-6 py-3 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-200 font-semibold flex items-center gap-2 hover:scale-105"
+                    className="px-8 py-4 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-200 font-bold text-lg flex items-center gap-3 hover:scale-105 shadow-lg hover:shadow-xl"
                   >
-                    <Edit className="w-4 h-4" />
-                    {currentMembership.is_teacher ? 'Редактировать' : 'Настроить'}
+                    <Edit className="w-5 h-5" />
+                    {currentMembership.is_teacher ? 'Редактировать' : 'Настроить профиль'}
                   </button>
                 </div>
               </div>
