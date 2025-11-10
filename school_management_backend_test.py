@@ -211,7 +211,7 @@ class SchoolManagementTester:
         try:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}", headers=headers)
+            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
