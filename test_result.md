@@ -328,7 +328,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "School Management - Phase 1 Backend"
+    - "School Management - Phase 2 Backend - Student Profiles & Enrollment"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
