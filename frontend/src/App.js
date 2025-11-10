@@ -1692,6 +1692,37 @@ function Dashboard() {
                                   moduleColor={currentModule.color}
                                 />
                               </ErrorBoundary>
+                            ) : activeView === 'my-school' ? (
+                              <ErrorBoundary>
+                                <SchoolDashboard
+                                  onViewChildren={() => setActiveView('school-my-children')}
+                                  onFindSchool={() => setActiveView('school-find')}
+                                  onEnrollmentRequest={() => setActiveView('school-enrollment')}
+                                  onViewMySchools={() => setActiveView('school-my-schools')}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-my-children' ? (
+                              <ErrorBoundary>
+                                <ParentChildrenDashboard />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-find' ? (
+                              <ErrorBoundary>
+                                <SchoolFinder />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-enrollment' ? (
+                              <ErrorBoundary>
+                                <SchoolEnrollment />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-my-schools' ? (
+                              <ErrorBoundary>
+                                <MySchoolsList 
+                                  onBack={() => setActiveView('my-school')}
+                                  onSchoolClick={(schoolId) => {
+                                    // Future: Navigate to school details
+                                    console.log('School clicked:', schoolId);
+                                  }}
+                                />
+                              </ErrorBoundary>
                             ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
