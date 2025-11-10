@@ -11,7 +11,7 @@ from datetime import datetime
 
 # Configuration
 BASE_URL = "https://teacher-mgmt.preview.emergentagent.com/api"
-ORGANIZATION_ID = "d80dbe76-45e7-45fa-b937-a2b5a20b8aaf"  # ZION.CITY organization
+self.organization_id = "d80dbe76-45e7-45fa-b937-a2b5a20b8aaf"  # ZION.CITY organization
 
 # Test credentials
 ADMIN_EMAIL = "admin@test.com"
@@ -23,7 +23,7 @@ class SchoolManagementTester:
         self.teacher_token = None
         self.teacher_user_id = None
         self.teacher_email = None
-        self.organization_id = ORGANIZATION_ID
+        self.organization_id = self.organization_id
         self.results = []
         
     def log_result(self, test_name, success, details="", response_data=None):
@@ -290,7 +290,7 @@ class SchoolManagementTester:
             }
             
             response = requests.put(
-                f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers/me",
+                f"{BASE_URL}/work/organizations/{self.organization_id}/teachers/me",
                 headers=headers,
                 json=teacher_data
             )
@@ -328,7 +328,7 @@ class SchoolManagementTester:
             }
             
             response = requests.put(
-                f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers/me",
+                f"{BASE_URL}/work/organizations/{self.organization_id}/teachers/me",
                 headers=headers,
                 json=invalid_data
             )
@@ -351,7 +351,7 @@ class SchoolManagementTester:
         try:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers", headers=headers)
+            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}/teachers", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
@@ -399,7 +399,7 @@ class SchoolManagementTester:
         try:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers?grade=10", headers=headers)
+            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}/teachers?grade=10", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
@@ -429,7 +429,7 @@ class SchoolManagementTester:
         try:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers?subject=Математика", headers=headers)
+            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}/teachers?subject=Математика", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
@@ -460,7 +460,7 @@ class SchoolManagementTester:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
             # First get list of teachers to find a teacher ID
-            list_response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers", headers=headers)
+            list_response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}/teachers", headers=headers)
             
             if list_response.status_code != 200:
                 self.log_result("Get Individual Teacher", False, "Could not get teachers list")
@@ -477,7 +477,7 @@ class SchoolManagementTester:
                 self.log_result("Get Individual Teacher", False, "No teacher ID found")
                 return False
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers/{teacher_id}", headers=headers)
+            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}/teachers/{teacher_id}", headers=headers)
             
             if response.status_code == 200:
                 data = response.json()
@@ -539,7 +539,7 @@ class SchoolManagementTester:
             
             # Test non-member trying to update teacher profile
             response = requests.put(
-                f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/teachers/me",
+                f"{BASE_URL}/work/organizations/{self.organization_id}/teachers/me",
                 headers=headers,
                 json={"is_teacher": True}
             )
