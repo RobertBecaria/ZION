@@ -7023,9 +7023,10 @@ async def create_work_organization(
 
 @api_router.get("/work/organizations")
 async def get_user_work_organizations(
+    type: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
-    """Get all work organizations where user is a member"""
+    """Get all work organizations where user is a member, optionally filtered by type"""
     try:
         # Get user's memberships
         memberships = await db.work_members.find({
@@ -7035,14 +7036,21 @@ async def get_user_work_organizations(
         
         organizations = []
         for membership in memberships:
-            # Try both id fields since model has alias
-            org = await db.work_organizations.find_one({
+            # Build organization query
+            org_query = {
                 "$or": [
                     {"id": membership["organization_id"]},
                     {"organization_id": membership["organization_id"]}
                 ],
                 "is_active": True
-            })
+            }
+            
+            # Add type filter if provided
+            if type:
+                org_query["organization_type"] = type
+            
+            # Try both id fields since model has alias
+            org = await db.work_organizations.find_one(org_query)
             
             if org:
                 org_response_data = org.copy()
