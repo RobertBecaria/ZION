@@ -211,63 +211,81 @@ class SchoolManagementTester:
         try:
             headers = {"Authorization": f"Bearer {self.admin_token}"}
             
-            response = requests.get(f"{BASE_URL}/work/organizations/{self.organization_id}", headers=headers)
+            # First, let's list all organizations to see what exists
+            list_response = requests.get(f"{BASE_URL}/work/organizations", headers=headers)
             
-            if response.status_code == 200:
-                data = response.json()
-                org_type = data.get("organization_type")
+            if list_response.status_code == 200:
+                orgs_data = list_response.json()
+                organizations = orgs_data.get("organizations", [])
                 
-                if org_type == "EDUCATIONAL":
-                    self.log_result("Organization Type Validation", True, "Organization is EDUCATIONAL type")
+                # Look for ZION.CITY or any EDUCATIONAL organization
+                educational_org = None
+                zion_org = None
+                
+                for org in organizations:
+                    if org.get("name") == "ZION.CITY":
+                        zion_org = org
+                    if org.get("organization_type") == "EDUCATIONAL":
+                        educational_org = org
+                
+                if zion_org:
+                    self.organization_id = zion_org.get("id")
+                    if zion_org.get("organization_type") == "EDUCATIONAL":
+                        self.log_result("Organization Type Validation", True, f"Found ZION.CITY as EDUCATIONAL: {self.organization_id}")
+                        return True
+                    else:
+                        # Try to update ZION.CITY to EDUCATIONAL
+                        update_response = requests.put(
+                            f"{BASE_URL}/work/organizations/{self.organization_id}",
+                            headers=headers,
+                            json={"organization_type": "EDUCATIONAL"}
+                        )
+                        
+                        if update_response.status_code == 200:
+                            self.log_result("Organization Type Validation", True, "Updated ZION.CITY to EDUCATIONAL type")
+                            return True
+                        else:
+                            self.log_result("Organization Type Validation", False, 
+                                           f"Failed to update ZION.CITY: {update_response.status_code}")
+                            return False
+                elif educational_org:
+                    # Use existing educational organization
+                    self.organization_id = educational_org.get("id")
+                    self.log_result("Organization Type Validation", True, f"Using existing EDUCATIONAL org: {educational_org.get('name')} ({self.organization_id})")
                     return True
                 else:
-                    # If not educational, try to update it
-                    update_response = requests.put(
-                        f"{BASE_URL}/work/organizations/{self.organization_id}",
+                    # Create new educational organization
+                    print("No EDUCATIONAL organization found, creating one...")
+                    create_response = requests.post(
+                        f"{BASE_URL}/work/organizations",
                         headers=headers,
-                        json={"organization_type": "EDUCATIONAL"}
+                        json={
+                            "name": "Test School",
+                            "organization_type": "EDUCATIONAL",
+                            "description": "Educational organization for testing",
+                            "school_type": "СОШ",
+                            "principal_name": "Директор Школы",
+                            "school_levels": ["PRIMARY", "BASIC", "SECONDARY"],
+                            "grades_offered": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+                        }
                     )
                     
-                    if update_response.status_code == 200:
-                        self.log_result("Organization Type Validation", True, "Updated organization to EDUCATIONAL type")
+                    if create_response.status_code in [200, 201]:
+                        created_org = create_response.json()
+                        # Update the organization ID
+                        if "organization_id" in created_org:
+                            self.organization_id = created_org["organization_id"]
+                        elif "id" in created_org:
+                            self.organization_id = created_org["id"]
+                        
+                        self.log_result("Organization Type Validation", True, f"Created EDUCATIONAL organization: {self.organization_id}")
                         return True
                     else:
                         self.log_result("Organization Type Validation", False, 
-                                       f"Organization type is {org_type}, failed to update: {update_response.status_code}")
+                                       f"Failed to create organization: {create_response.status_code}", create_response.text)
                         return False
-            elif response.status_code == 404:
-                # Organization doesn't exist, create it
-                print("ZION.CITY organization not found, creating it...")
-                create_response = requests.post(
-                    f"{BASE_URL}/work/organizations",
-                    headers=headers,
-                    json={
-                        "name": "ZION.CITY",
-                        "organization_type": "EDUCATIONAL",
-                        "description": "Educational organization for testing",
-                        "school_type": "СОШ",
-                        "principal_name": "Директор Школы",
-                        "school_levels": ["PRIMARY", "BASIC", "SECONDARY"],
-                        "grades_offered": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-                    }
-                )
-                
-                if create_response.status_code in [200, 201]:
-                    created_org = create_response.json()
-                    # Update the organization ID if needed
-                    if "organization_id" in created_org:
-                        self.organization_id = created_org["organization_id"]
-                    elif "id" in created_org:
-                        self.organization_id = created_org["id"]
-                    
-                    self.log_result("Organization Type Validation", True, f"Created EDUCATIONAL organization: {self.organization_id}")
-                    return True
-                else:
-                    self.log_result("Organization Type Validation", False, 
-                                   f"Failed to create organization: {create_response.status_code}", create_response.text)
-                    return False
             else:
-                self.log_result("Organization Type Validation", False, f"Status: {response.status_code}", response.text)
+                self.log_result("Organization Type Validation", False, f"Failed to list organizations: {list_response.status_code}")
                 return False
                 
         except Exception as e:
