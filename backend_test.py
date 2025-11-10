@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://teacher-mgmt.preview.emergentagent.com/api"
+BASE_URL = "https://school-profiles.preview.emergentagent.com/api"
 ORGANIZATION_ID = "d5e2d110-cb59-441f-b2f0-55c9ac715431"  # Test School organization
 
 # Test credentials

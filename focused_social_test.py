@@ -6,7 +6,7 @@ from datetime import datetime
 
 class FocusedSocialTest:
     def __init__(self):
-        self.base_url = "https://teacher-mgmt.preview.emergentagent.com/api"
+        self.base_url = "https://school-profiles.preview.emergentagent.com/api"
         self.token = None
         self.user_id = None
         self.post_id = None
