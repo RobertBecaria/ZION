@@ -45,6 +45,7 @@ class SchoolManagementTester:
     def authenticate_admin(self):
         """Authenticate admin user"""
         try:
+            # First try to login
             response = requests.post(f"{BASE_URL}/auth/login", json={
                 "email": ADMIN_EMAIL,
                 "password": ADMIN_PASSWORD
@@ -55,6 +56,34 @@ class SchoolManagementTester:
                 self.admin_token = data.get("access_token")
                 self.log_result("Admin Authentication", True, f"Admin logged in successfully")
                 return True
+            elif response.status_code == 401:
+                # Try to register admin user
+                print("Admin user not found, attempting to register...")
+                register_response = requests.post(f"{BASE_URL}/auth/register", json={
+                    "email": ADMIN_EMAIL,
+                    "password": ADMIN_PASSWORD,
+                    "first_name": "Admin",
+                    "last_name": "User"
+                })
+                
+                if register_response.status_code in [200, 201]:
+                    # Now try to login again
+                    login_response = requests.post(f"{BASE_URL}/auth/login", json={
+                        "email": ADMIN_EMAIL,
+                        "password": ADMIN_PASSWORD
+                    })
+                    
+                    if login_response.status_code == 200:
+                        data = login_response.json()
+                        self.admin_token = data.get("access_token")
+                        self.log_result("Admin Authentication", True, f"Admin registered and logged in successfully")
+                        return True
+                    else:
+                        self.log_result("Admin Authentication", False, f"Login after registration failed: {login_response.status_code}", login_response.text)
+                        return False
+                else:
+                    self.log_result("Admin Authentication", False, f"Registration failed: {register_response.status_code}", register_response.text)
+                    return False
             else:
                 self.log_result("Admin Authentication", False, f"Status: {response.status_code}", response.text)
                 return False
