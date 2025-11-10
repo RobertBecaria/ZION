@@ -439,6 +439,11 @@ class SchoolManagementTester:
                 self.log_result("List Teachers (Grade Filter)", True, 
                                f"Grade filter working correctly, found {len(teachers)} teachers for grade 10")
                 return True
+            elif response.status_code == 500:
+                # Known backend bug - same field mapping issue
+                self.log_result("List Teachers (Grade Filter)", False, 
+                               f"Backend bug detected: {response.text}. Same field mapping issue as base teachers endpoint")
+                return False
             else:
                 self.log_result("List Teachers (Grade Filter)", False, f"Status: {response.status_code}", response.text)
                 return False
