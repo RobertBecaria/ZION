@@ -1218,6 +1218,30 @@ function Dashboard() {
               </>
             )}
             
+            {/* School Section - Always visible in School module */}
+            {activeModule === 'school' && (
+              <>
+                <div className="sidebar-divider" style={{ background: 'linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.3), transparent)' }}></div>
+                
+                <button 
+                  className={`profile-btn ${activeView === 'my-school' ? 'primary' : 'secondary'}`}
+                  style={{ 
+                    backgroundColor: activeView === 'my-school' ? '#1E40AF' : undefined,
+                    background: activeView === 'my-school' 
+                      ? 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)'
+                      : undefined,
+                    color: activeView === 'my-school' ? 'white' : undefined
+                  }}
+                  onClick={() => setActiveView('my-school')}
+                >
+                  <GraduationCap size={18} />
+                  <span>МОЯ ШКОЛА</span>
+                </button>
+                
+                <div className="sidebar-divider"></div>
+              </>
+            )}
+            
             {/* Work Section - Always visible in Organizations module */}
             {activeModule === 'organizations' && (
               <>
