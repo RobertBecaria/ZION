@@ -328,7 +328,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "School Management - Phase 2 Backend - Student Profiles & Enrollment"
+    - "Children Section Save Functionality in User Profile"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
