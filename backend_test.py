@@ -321,7 +321,12 @@ class TeacherEndpointBugFixTester:
                                "Cannot get teachers list to test individual retrieval")
                 return False
             
-            teachers = list_response.json().get("teachers", [])
+            list_data = list_response.json()
+            # Handle both response formats: direct list or {"teachers": [...]}
+            if isinstance(list_data, list):
+                teachers = list_data
+            else:
+                teachers = list_data.get("teachers", [])
             if not teachers:
                 self.log_result("Individual Teacher Endpoint - BUG FIX VERIFICATION", True, 
                                "No teachers to test individual retrieval (organization empty)")
