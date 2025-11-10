@@ -255,12 +255,17 @@ const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
           </div>
 
           <div className="form-actions">
-            <button className="btn-secondary" onClick={resetForm}>
+            <button className="btn-secondary" onClick={resetForm} disabled={loading}>
               Отмена
             </button>
-            <button className="btn-primary" style={{ backgroundColor: moduleColor }}>
+            <button 
+              className="btn-primary" 
+              style={{ backgroundColor: moduleColor }}
+              onClick={handleSaveChild}
+              disabled={loading}
+            >
               <Save size={16} />
-              Сохранить
+              {loading ? 'Сохранение...' : 'Сохранить'}
             </button>
           </div>
         </div>
