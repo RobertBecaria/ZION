@@ -341,6 +341,14 @@ frontend:
     stuck_count: 2
     priority: "high"
     needs_retesting: false
+
+  - task: "Children Section Save Functionality in User Profile"
+    implemented: true
+    working: "NA"
+    file: "components/ChildrenSection.js, components/MyInfoPage.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
