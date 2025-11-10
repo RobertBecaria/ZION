@@ -124,7 +124,7 @@ class SchoolManagementTester:
                     # Add teacher to organization as member
                     headers = {"Authorization": f"Bearer {self.admin_token}"}
                     add_member_response = requests.post(
-                        f"{BASE_URL}/work/organizations/{ORGANIZATION_ID}/members",
+                        f"{BASE_URL}/work/organizations/{self.organization_id}/members",
                         headers=headers,
                         json={
                             "user_email": self.teacher_email,
