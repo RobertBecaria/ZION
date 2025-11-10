@@ -868,15 +868,15 @@ function Dashboard() {
   // Removed automatic profile completion modal - user will access via МОЯ СЕМЬЯ button
   // Family profile creation now happens on-demand when clicking МОЯ СЕМЬЯ
 
-  // Check if user needs to set gender (only ask once)
+  // Check if user needs to set gender (MANDATORY first time, never again after set)
   useEffect(() => {
     if (user) {
       const hasAskedGender = localStorage.getItem(`gender_asked_${user.id}`);
       
       // Only show modal if gender is not set AND we haven't asked before
+      // Once user sets gender, user.gender will exist and modal never shows again
       if (!user.gender && !hasAskedGender) {
         setShowGenderModal(true);
-        // DON'T mark as asked here - only mark when user actually updates or explicitly skips
       } else {
         setShowGenderModal(false);
       }
