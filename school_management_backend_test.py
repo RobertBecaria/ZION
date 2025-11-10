@@ -23,6 +23,7 @@ class SchoolManagementTester:
         self.teacher_token = None
         self.teacher_user_id = None
         self.teacher_email = None
+        self.organization_id = ORGANIZATION_ID
         self.results = []
         
     def log_result(self, test_name, success, details="", response_data=None):
