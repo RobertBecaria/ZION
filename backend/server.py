@@ -10150,7 +10150,7 @@ async def get_my_children(
             
             student_responses.append(StudentResponse(
                 student_id=student["student_id"],
-                organization_id=student["organization_id"],
+                organization_id=student.get("organization_id"),
                 user_id=student.get("user_id"),
                 student_first_name=student["student_first_name"],
                 student_last_name=student["student_last_name"],
