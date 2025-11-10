@@ -94,6 +94,43 @@ const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
     return `${age} лет`;
   };
 
+  const handleSaveChild = async () => {
+    try {
+      // Validate required fields
+      if (!formData.first_name || !formData.last_name || !formData.date_of_birth) {
+        alert('Пожалуйста, заполните обязательные поля: Имя, Фамилия и Дата Рождения');
+        return;
+      }
+
+      setLoading(true);
+      const token = localStorage.getItem('zion_token');
+      
+      const response = await fetch(`${BACKEND_URL}/api/users/me/children`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        alert('Информация о ребёнке успешно сохранена!');
+        resetForm();
+        fetchChildren(); // Reload the list
+      } else {
+        const error = await response.json();
+        alert(`Ошибка: ${error.detail || 'Не удалось сохранить данные'}`);
+      }
+    } catch (error) {
+      console.error('Error saving child:', error);
+      alert('Произошла ошибка при сохранении данных');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="info-section">
