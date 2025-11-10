@@ -1521,6 +1521,13 @@ function Dashboard() {
                         onModuleFilterChange={setSelectedModuleFilter}
                         onModuleCountsUpdate={setMediaStats}
                       />
+                    ) : /* SCHOOL Module Views - Full Width */
+                    activeView === 'school-my-children' ? (
+                      <ParentChildrenDashboard />
+                    ) : activeView === 'school-enrollment' ? (
+                      <SchoolEnrollment />
+                    ) : activeView === 'school-find' ? (
+                      <SchoolFinder />
                     ) : /* MY INFO Module Views */
                     activeView === 'my-info' ? (
                       <MyInfoPage 
