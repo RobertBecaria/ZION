@@ -1248,7 +1248,10 @@ function Dashboard() {
                       : undefined,
                     color: activeView === 'my-school' ? 'white' : undefined
                   }}
-                  onClick={() => setActiveView('my-school')}
+                  onClick={() => {
+                    setActiveModule('organizations');
+                    setActiveView('my-school');
+                  }}
                 >
                   <GraduationCap size={18} />
                   <span>МОЯ ШКОЛА</span>
