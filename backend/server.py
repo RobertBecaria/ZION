@@ -10156,7 +10156,7 @@ async def get_my_children(
                 student_last_name=student["student_last_name"],
                 student_middle_name=student.get("student_middle_name"),
                 date_of_birth=student["date_of_birth"],
-                grade=student["grade"],
+                grade=student.get("grade"),
                 assigned_class=student.get("assigned_class"),
                 enrolled_subjects=student.get("enrolled_subjects", []),
                 parent_ids=student.get("parent_ids", []),
