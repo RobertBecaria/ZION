@@ -10173,6 +10173,66 @@ async def get_my_children(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.post("/users/me/children")
+async def add_child_profile(
+    child_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Add basic child information for parent's profile
+    This creates a minimal student record that can be used for enrollment
+    """
+    try:
+        import uuid
+        
+        # Validate required fields
+        if not child_data.get('first_name') or not child_data.get('last_name') or not child_data.get('date_of_birth'):
+            raise HTTPException(status_code=400, detail="Требуются поля: имя, фамилия и дата рождения")
+        
+        # Parse date_of_birth
+        try:
+            dob = datetime.fromisoformat(child_data['date_of_birth']).date()
+        except:
+            raise HTTPException(status_code=400, detail="Неверный формат даты рождения")
+        
+        # Create student record
+        student_id = str(uuid.uuid4())
+        student_doc = {
+            "student_id": student_id,
+            "organization_id": None,  # Will be set when enrolled in a school
+            "student_first_name": child_data['first_name'],
+            "student_last_name": child_data['last_name'],
+            "student_middle_name": child_data.get('middle_name', ''),
+            "date_of_birth": dob.isoformat(),
+            "grade": child_data.get('grade'),
+            "assigned_class": None,
+            "enrolled_subjects": [],
+            "parent_ids": [current_user.id],
+            "academic_status": "PENDING",  # Not yet enrolled
+            "enrollment_date": None,
+            "student_number": None,
+            "notes": child_data.get('notes', ''),
+            "is_active": True,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.work_students.insert_one(student_doc)
+        
+        # Calculate age for response
+        today = date.today()
+        age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+        
+        return {
+            "message": "Информация о ребёнке успешно сохранена",
+            "student_id": student_id,
+            "age": age
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # === ENROLLMENT REQUEST ENDPOINTS ===
 
 @api_router.post("/work/organizations/{organization_id}/enrollment-requests")
