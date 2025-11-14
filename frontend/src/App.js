@@ -821,6 +821,12 @@ function Dashboard() {
   }, []);
   const [viewingPublicOrgId, setViewingPublicOrgId] = useState(null); // For public profile view
   
+  // Journal/School Module State
+  const [schoolRoles, setSchoolRoles] = useState(null);
+  const [loadingSchoolRoles, setLoadingSchoolRoles] = useState(true);
+  const [selectedSchool, setSelectedSchool] = useState(null);
+  const [schoolRole, setSchoolRole] = useState(null); // 'parent' or 'teacher'
+  
   // Removed showProfileCompletionModal state - now using full-page FamilySetupPage
   const [showGenderModal, setShowGenderModal] = useState(false);
   
