@@ -1864,11 +1864,83 @@ function Dashboard() {
                             )}
                           </>
                         )}
+
+                        {/* JOURNAL MODULE - School Management */}
+                        {activeModule === 'journal' && (
+                          <>
+                            {loadingSchoolRoles ? (
+                              <div className="loading-state">
+                                <p>Загрузка информации о школах...</p>
+                              </div>
+                            ) : !schoolRoles ? (
+                              <div className="empty-state-large">
+                                <p>Не удалось загрузить информацию о школах</p>
+                              </div>
+                            ) : activeView === 'journal-role-select' ? (
+                              <div className="journal-role-select">
+                                <h2>Выберите Роль</h2>
+                                <p>Вы являетесь и родителем, и учителем. Выберите роль для продолжения.</p>
+                                <div className="role-selection-buttons">
+                                  {schoolRoles.is_parent && (
+                                    <button 
+                                      className="role-select-btn"
+                                      onClick={() => {
+                                        setSchoolRole('parent');
+                                        setActiveView('journal-school-tiles');
+                                      }}
+                                    >
+                                      <GraduationCap size={32} />
+                                      <h3>Как Родитель</h3>
+                                      <p>{schoolRoles.schools_as_parent.length} {
+                                        schoolRoles.schools_as_parent.length === 1 ? 'школа' : 'школы'
+                                      }</p>
+                                    </button>
+                                  )}
+                                  {schoolRoles.is_teacher && (
+                                    <button 
+                                      className="role-select-btn"
+                                      onClick={() => {
+                                        setSchoolRole('teacher');
+                                        setActiveView('journal-school-tiles');
+                                      }}
+                                    >
+                                      <Briefcase size={32} />
+                                      <h3>Как Учитель</h3>
+                                      <p>{schoolRoles.schools_as_teacher.length} {
+                                        schoolRoles.schools_as_teacher.length === 1 ? 'школа' : 'школы'
+                                      }</p>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ) : activeView === 'journal-school-tiles' ? (
+                              <ErrorBoundary>
+                                <SchoolTiles
+                                  schools={schoolRole === 'parent' ? schoolRoles.schools_as_parent : schoolRoles.schools_as_teacher}
+                                  role={schoolRole}
+                                  onSchoolSelect={(school) => {
+                                    setSelectedSchool(school);
+                                    setActiveView('journal-dashboard');
+                                  }}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'journal-dashboard' ? (
+                              <div className="journal-dashboard-placeholder">
+                                <h2>Журнал - {selectedSchool?.organization_name}</h2>
+                                <p>Dashboard будет здесь. Используйте WORLD ZONE для навигации.</p>
+                              </div>
+                            ) : (
+                              <div className="journal-content-placeholder">
+                                <p>Выберите раздел из WORLD ZONE</p>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </>
                     )}
                   </div>
 
-                  {/* Right Sidebar - Events Panel */}
+                  {/* Right Sidebar - Events Panel or Journal World Zone */}
                   {!(activeView === 'my-profile' || activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos' || activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations' || activeView === 'my-info' || activeView === 'my-documents' || activeModule === 'organizations') && (
                     <div className="events-panel-area">
                       {/* Regular Events Panel for other views */}
