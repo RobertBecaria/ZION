@@ -24,6 +24,8 @@ import ParentChildrenDashboard from './components/ParentChildrenDashboard';
 import SchoolEnrollment from './components/SchoolEnrollment';
 import SchoolFinder from './components/SchoolFinder';
 import MySchoolsList from './components/MySchoolsList';
+import SchoolTiles from './components/SchoolTiles';
+import JournalWorldZone from './components/JournalWorldZone';
 // WORK MODULE COMPONENTS
 import WorkTriggerFlow from './components/WorkTriggerFlow';
 import WorkSetupPage from './components/WorkSetupPage';
