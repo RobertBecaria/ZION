@@ -1277,7 +1277,7 @@ function Dashboard() {
               </>
             )}
             
-            {/* Work & School Section - Always visible in Organizations module */}
+            {/* Work Section - Always visible in Organizations module */}
             {activeModule === 'organizations' && (
               <>
                 <div className="sidebar-divider" style={{ background: 'linear-gradient(90deg, transparent, rgba(194, 65, 12, 0.3), transparent)' }}></div>
@@ -1297,23 +1297,58 @@ function Dashboard() {
                   <span>МОЯ РАБОТА</span>
                 </button>
                 
-                <button 
-                  className={`profile-btn ${activeView === 'my-school' ? 'primary' : 'secondary'}`}
-                  style={{ 
-                    backgroundColor: activeView === 'my-school' ? '#1E40AF' : undefined,
-                    background: activeView === 'my-school' 
-                      ? 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)'
-                      : undefined,
-                    color: activeView === 'my-school' ? 'white' : undefined
-                  }}
-                  onClick={() => {
-                    setActiveModule('organizations');
-                    setActiveView('my-school');
-                  }}
-                >
-                  <GraduationCap size={18} />
-                  <span>МОЯ ШКОЛА</span>
-                </button>
+                <div className="sidebar-divider"></div>
+              </>
+            )}
+
+            {/* Journal/School Section - Always visible in Journal module */}
+            {activeModule === 'journal' && !loadingSchoolRoles && schoolRoles && (
+              <>
+                <div className="sidebar-divider" style={{ background: 'linear-gradient(90deg, transparent, rgba(109, 40, 217, 0.3), transparent)' }}></div>
+                
+                {/* MY SCHOOL button for parents */}
+                {schoolRoles.is_parent && (
+                  <button 
+                    className={`profile-btn ${schoolRole === 'parent' ? 'primary' : 'secondary'}`}
+                    style={{ 
+                      backgroundColor: schoolRole === 'parent' ? '#6D28D9' : undefined,
+                      background: schoolRole === 'parent' 
+                        ? 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%)'
+                        : undefined,
+                      color: schoolRole === 'parent' ? 'white' : undefined
+                    }}
+                    onClick={() => {
+                      setSchoolRole('parent');
+                      setSelectedSchool(null);
+                      setActiveView('journal-school-tiles');
+                    }}
+                  >
+                    <GraduationCap size={18} />
+                    <span>МОЯ ШКОЛА</span>
+                  </button>
+                )}
+                
+                {/* MY WORK button for teachers */}
+                {schoolRoles.is_teacher && (
+                  <button 
+                    className={`profile-btn ${schoolRole === 'teacher' ? 'primary' : 'secondary'}`}
+                    style={{ 
+                      backgroundColor: schoolRole === 'teacher' ? '#6D28D9' : undefined,
+                      background: schoolRole === 'teacher' 
+                        ? 'linear-gradient(135deg, #6D28D9 0%, #7C3AED 100%)'
+                        : undefined,
+                      color: schoolRole === 'teacher' ? 'white' : undefined
+                    }}
+                    onClick={() => {
+                      setSchoolRole('teacher');
+                      setSelectedSchool(null);
+                      setActiveView('journal-school-tiles');
+                    }}
+                  >
+                    <Briefcase size={18} />
+                    <span>МОЯ РАБОТА</span>
+                  </button>
+                )}
                 
                 <div className="sidebar-divider"></div>
               </>
