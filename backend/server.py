@@ -10623,6 +10623,155 @@ async def reject_enrollment_request(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# === CLASS SCHEDULE ENDPOINTS ===
+
+@api_router.post("/work/organizations/{organization_id}/schedules", response_model=ScheduleResponse)
+async def create_schedule(
+    organization_id: str,
+    schedule_data: ScheduleCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create class schedule entry (admin/teacher only)"""
+    try:
+        # Check if organization exists and is EDUCATIONAL
+        org = await db.work_organizations.find_one({"organization_id": organization_id})
+        if not org:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        if org.get("organization_type") != "EDUCATIONAL":
+            raise HTTPException(status_code=400, detail="Организация должна быть образовательного типа")
+        
+        # Check if user is admin or teacher
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active"
+        })
+        
+        if not membership or not (membership.get("is_admin") or membership.get("is_teacher")):
+            raise HTTPException(status_code=403, detail="Недостаточно прав")
+        
+        # Validate lesson number
+        if schedule_data.lesson_number < 1 or schedule_data.lesson_number > 7:
+            raise HTTPException(status_code=400, detail="Номер урока должен быть от 1 до 7")
+        
+        # Create schedule entry
+        schedule_id = str(uuid.uuid4())
+        schedule_doc = {
+            "schedule_id": schedule_id,
+            "organization_id": organization_id,
+            "grade": schedule_data.grade,
+            "assigned_class": schedule_data.assigned_class,
+            "day_of_week": schedule_data.day_of_week,
+            "lesson_number": schedule_data.lesson_number,
+            "subject": schedule_data.subject,
+            "teacher_id": schedule_data.teacher_id,
+            "classroom": schedule_data.classroom,
+            "time_start": schedule_data.time_start,
+            "time_end": schedule_data.time_end,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "is_active": True
+        }
+        
+        await db.class_schedules.insert_one(schedule_doc)
+        
+        # Get teacher name for response
+        teacher = await db.users.find_one({"id": schedule_data.teacher_id})
+        teacher_name = f"{teacher.get('first_name', '')} {teacher.get('last_name', '')}" if teacher else None
+        
+        return ScheduleResponse(
+            schedule_id=schedule_id,
+            organization_id=organization_id,
+            grade=schedule_data.grade,
+            assigned_class=schedule_data.assigned_class,
+            day_of_week=schedule_data.day_of_week,
+            lesson_number=schedule_data.lesson_number,
+            subject=schedule_data.subject,
+            teacher_id=schedule_data.teacher_id,
+            teacher_name=teacher_name,
+            classroom=schedule_data.classroom,
+            time_start=schedule_data.time_start,
+            time_end=schedule_data.time_end
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/schedules", response_model=List[ScheduleResponse])
+async def get_schedules(
+    organization_id: str,
+    grade: Optional[int] = None,
+    assigned_class: Optional[str] = None,
+    day_of_week: Optional[DayOfWeek] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get class schedules with optional filters"""
+    try:
+        # Check if user has access to organization
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active"
+        })
+        
+        # Also check if user is parent with children in this school
+        has_children = await db.work_students.count_documents({
+            "organization_id": organization_id,
+            "parent_ids": current_user.id,
+            "is_active": True
+        })
+        
+        if not membership and has_children == 0:
+            raise HTTPException(status_code=403, detail="Недостаточно прав")
+        
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "is_active": True
+        }
+        
+        if grade:
+            query["grade"] = grade
+        if assigned_class:
+            query["assigned_class"] = assigned_class
+        if day_of_week:
+            query["day_of_week"] = day_of_week
+        
+        # Get schedules
+        schedules_cursor = db.class_schedules.find(query).sort([("day_of_week", 1), ("lesson_number", 1)])
+        schedules = await schedules_cursor.to_list(None)
+        
+        # Enrich with teacher names
+        schedule_responses = []
+        for schedule in schedules:
+            teacher = await db.users.find_one({"id": schedule["teacher_id"]})
+            teacher_name = f"{teacher.get('first_name', '')} {teacher.get('last_name', '')}" if teacher else None
+            
+            schedule_responses.append(ScheduleResponse(
+                schedule_id=schedule["schedule_id"],
+                organization_id=schedule["organization_id"],
+                grade=schedule["grade"],
+                assigned_class=schedule["assigned_class"],
+                day_of_week=schedule["day_of_week"],
+                lesson_number=schedule["lesson_number"],
+                subject=schedule["subject"],
+                teacher_id=schedule["teacher_id"],
+                teacher_name=teacher_name,
+                classroom=schedule.get("classroom"),
+                time_start=schedule.get("time_start"),
+                time_end=schedule.get("time_end")
+            ))
+        
+        return schedule_responses
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/work/organizations/{organization_id}/change-requests")
 async def get_change_requests(
     organization_id: str,
