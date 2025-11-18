@@ -1229,6 +1229,68 @@ class EnrollmentRequestResponse(BaseModel):
     rejection_reason: Optional[str] = None
     created_at: datetime
 
+# === CLASS SCHEDULE MODELS ===
+
+class DayOfWeek(str, Enum):
+    MONDAY = "MONDAY"
+    TUESDAY = "TUESDAY"
+    WEDNESDAY = "WEDNESDAY"
+    THURSDAY = "THURSDAY"
+    FRIDAY = "FRIDAY"
+    SATURDAY = "SATURDAY"
+
+class ClassSchedule(BaseModel):
+    """Class schedule entry for a specific lesson"""
+    schedule_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    grade: int  # 1-11
+    assigned_class: str  # Format: 5А, 7Б
+    day_of_week: DayOfWeek
+    lesson_number: int  # 1-7 (typical Russian school day)
+    subject: str  # e.g., Математика, Русский язык
+    teacher_id: str  # User ID of the teacher
+    classroom: Optional[str] = None  # e.g., "Кабинет 205"
+    time_start: Optional[str] = None  # e.g., "08:00"
+    time_end: Optional[str] = None  # e.g., "08:45"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    is_active: bool = True
+
+class ScheduleCreate(BaseModel):
+    """Create new schedule entry"""
+    grade: int
+    assigned_class: str
+    day_of_week: DayOfWeek
+    lesson_number: int
+    subject: str
+    teacher_id: str
+    classroom: Optional[str] = None
+    time_start: Optional[str] = None
+    time_end: Optional[str] = None
+
+class ScheduleUpdate(BaseModel):
+    """Update schedule entry"""
+    subject: Optional[str] = None
+    teacher_id: Optional[str] = None
+    classroom: Optional[str] = None
+    time_start: Optional[str] = None
+    time_end: Optional[str] = None
+
+class ScheduleResponse(BaseModel):
+    """Response for schedule information"""
+    schedule_id: str
+    organization_id: str
+    grade: int
+    assigned_class: str
+    day_of_week: str
+    lesson_number: int
+    subject: str
+    teacher_id: str
+    teacher_name: Optional[str] = None  # Enriched teacher name
+    classroom: Optional[str]
+    time_start: Optional[str]
+    time_end: Optional[str]
+
 class WorkPostCreate(BaseModel):
     title: Optional[str] = None
     content: str
