@@ -1834,6 +1834,27 @@ function Dashboard() {
                                   }}
                                 />
                               </ErrorBoundary>
+                            ) : activeView === 'my-school-admin' ? (
+                              <ErrorBoundary>
+                                <SchoolDashboard
+                                  onViewChildren={() => setActiveView('school-my-children')}
+                                  onFindSchool={() => setActiveView('school-find')}
+                                  onEnrollmentRequest={() => setActiveView('school-enrollment')}
+                                  onViewMySchools={() => setActiveView('school-my-schools')}
+                                />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-my-children' ? (
+                              <ErrorBoundary>
+                                <ParentChildrenDashboard />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-find' ? (
+                              <ErrorBoundary>
+                                <SchoolFinder />
+                              </ErrorBoundary>
+                            ) : activeView === 'school-enrollment' ? (
+                              <ErrorBoundary>
+                                <SchoolEnrollment />
+                              </ErrorBoundary>
                             ) : (activeView === 'wall' || activeView === 'feed') ? (
                               <UniversalWall
                                 activeGroup={activeGroup}
