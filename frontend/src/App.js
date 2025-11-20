@@ -27,6 +27,7 @@ import MySchoolsList from './components/MySchoolsList';
 import SchoolTiles from './components/SchoolTiles';
 import JournalWorldZone from './components/JournalWorldZone';
 import ClassSchedule from './components/ClassSchedule';
+import StudentGradebook from './components/StudentGradebook';
 // WORK MODULE COMPONENTS
 import WorkTriggerFlow from './components/WorkTriggerFlow';
 import WorkSetupPage from './components/WorkSetupPage';
