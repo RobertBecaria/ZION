@@ -10854,6 +10854,270 @@ async def get_schedules(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# === GRADE/GRADEBOOK ENDPOINTS ===
+
+@api_router.post("/work/organizations/{organization_id}/grades", response_model=GradeResponse)
+async def create_grade(
+    organization_id: str,
+    grade_data: GradeCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create grade entry (teacher only)"""
+    try:
+        # Check if user is teacher
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active",
+            "is_teacher": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Только учителя могут выставлять оценки")
+        
+        # Validate grade value (1-5)
+        if grade_data.grade_value < 1 or grade_data.grade_value > 5:
+            raise HTTPException(status_code=400, detail="Оценка должна быть от 1 до 5")
+        
+        # Check if student exists in this organization
+        student = await db.work_students.find_one({
+            "student_id": grade_data.student_id,
+            "organization_id": organization_id,
+            "is_active": True
+        })
+        
+        if not student:
+            raise HTTPException(status_code=404, detail="Ученик не найден в этой организации")
+        
+        # Create grade entry
+        grade_id = str(uuid.uuid4())
+        grade_doc = {
+            "grade_id": grade_id,
+            "organization_id": organization_id,
+            "student_id": grade_data.student_id,
+            "subject": grade_data.subject,
+            "teacher_id": current_user.id,
+            "grade_value": grade_data.grade_value,
+            "grade_type": grade_data.grade_type,
+            "academic_period": grade_data.academic_period,
+            "date": grade_data.date,
+            "comment": grade_data.comment,
+            "weight": grade_data.weight,
+            "is_final": grade_data.is_final,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.student_grades.insert_one(grade_doc)
+        
+        # Get enriched data for response
+        teacher_name = f"{current_user.first_name} {current_user.last_name}"
+        student_name = f"{student.get('student_last_name', '')} {student.get('student_first_name', '')}"
+        
+        return GradeResponse(
+            grade_id=grade_id,
+            organization_id=organization_id,
+            student_id=grade_data.student_id,
+            student_name=student_name,
+            subject=grade_data.subject,
+            teacher_id=current_user.id,
+            teacher_name=teacher_name,
+            grade_value=grade_data.grade_value,
+            grade_type=grade_data.grade_type,
+            academic_period=grade_data.academic_period,
+            date=grade_data.date,
+            comment=grade_data.comment,
+            weight=grade_data.weight,
+            is_final=grade_data.is_final
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/students/{student_id}/grades", response_model=List[GradeResponse])
+async def get_student_grades(
+    organization_id: str,
+    student_id: str,
+    subject: Optional[str] = None,
+    academic_period: Optional[AcademicPeriod] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get grades for a specific student"""
+    try:
+        # Check if user has access (teacher, admin, or parent of this student)
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active"
+        })
+        
+        # Check if user is parent of this student
+        student = await db.work_students.find_one({
+            "student_id": student_id,
+            "organization_id": organization_id
+        })
+        
+        if not student:
+            raise HTTPException(status_code=404, detail="Ученик не найден")
+        
+        is_parent = current_user.id in student.get("parent_ids", [])
+        
+        if not membership and not is_parent:
+            raise HTTPException(status_code=403, detail="Недостаточно прав")
+        
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "student_id": student_id
+        }
+        
+        if subject:
+            query["subject"] = subject
+        if academic_period:
+            query["academic_period"] = academic_period
+        
+        # Get grades
+        grades_cursor = db.student_grades.find(query).sort("date", -1)
+        grades = await grades_cursor.to_list(None)
+        
+        # Enrich with teacher and student names
+        grade_responses = []
+        for grade in grades:
+            teacher = await db.users.find_one({"id": grade["teacher_id"]})
+            teacher_name = f"{teacher.get('first_name', '')} {teacher.get('last_name', '')}" if teacher else None
+            student_name = f"{student.get('student_last_name', '')} {student.get('student_first_name', '')}"
+            
+            grade_responses.append(GradeResponse(
+                grade_id=grade["grade_id"],
+                organization_id=grade["organization_id"],
+                student_id=grade["student_id"],
+                student_name=student_name,
+                subject=grade["subject"],
+                teacher_id=grade["teacher_id"],
+                teacher_name=teacher_name,
+                grade_value=grade["grade_value"],
+                grade_type=grade["grade_type"],
+                academic_period=grade["academic_period"],
+                date=grade["date"],
+                comment=grade.get("comment"),
+                weight=grade["weight"],
+                is_final=grade["is_final"]
+            ))
+        
+        return grade_responses
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/grades/by-class")
+async def get_class_grades(
+    organization_id: str,
+    grade: int,
+    assigned_class: str,
+    subject: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all grades for a class (teacher only)"""
+    try:
+        # Check if user is teacher
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active",
+            "is_teacher": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Недостаточно прав")
+        
+        # Get all students in this class
+        students_cursor = db.work_students.find({
+            "organization_id": organization_id,
+            "grade": grade,
+            "assigned_class": assigned_class,
+            "is_active": True
+        })
+        students = await students_cursor.to_list(None)
+        
+        if not students:
+            return []
+        
+        student_ids = [s["student_id"] for s in students]
+        
+        # Build grade query
+        grade_query = {
+            "organization_id": organization_id,
+            "student_id": {"$in": student_ids}
+        }
+        
+        if subject:
+            grade_query["subject"] = subject
+        
+        # Get all grades for these students
+        grades_cursor = db.student_grades.find(grade_query).sort("date", -1)
+        grades = await grades_cursor.to_list(None)
+        
+        # Group by student and subject
+        student_summaries = []
+        
+        # Get unique subjects
+        subjects = list(set([g["subject"] for g in grades]))
+        
+        for student in students:
+            student_name = f"{student.get('student_last_name', '')} {student.get('student_first_name', '')}"
+            
+            for subj in subjects:
+                student_grades = [g for g in grades if g["student_id"] == student["student_id"] and g["subject"] == subj]
+                
+                if student_grades:
+                    # Calculate weighted average
+                    total_weighted = sum([g["grade_value"] * g["weight"] for g in student_grades])
+                    total_weight = sum([g["weight"] for g in student_grades])
+                    average = round(total_weighted / total_weight, 2) if total_weight > 0 else None
+                    
+                    # Enrich grades with teacher names
+                    enriched_grades = []
+                    for g in student_grades:
+                        teacher = await db.users.find_one({"id": g["teacher_id"]})
+                        teacher_name = f"{teacher.get('first_name', '')} {teacher.get('last_name', '')}" if teacher else None
+                        
+                        enriched_grades.append(GradeResponse(
+                            grade_id=g["grade_id"],
+                            organization_id=g["organization_id"],
+                            student_id=g["student_id"],
+                            student_name=student_name,
+                            subject=g["subject"],
+                            teacher_id=g["teacher_id"],
+                            teacher_name=teacher_name,
+                            grade_value=g["grade_value"],
+                            grade_type=g["grade_type"],
+                            academic_period=g["academic_period"],
+                            date=g["date"],
+                            comment=g.get("comment"),
+                            weight=g["weight"],
+                            is_final=g["is_final"]
+                        ))
+                    
+                    student_summaries.append({
+                        "student_id": student["student_id"],
+                        "student_name": student_name,
+                        "subject": subj,
+                        "grades": enriched_grades,
+                        "average": average,
+                        "grade_count": len(student_grades)
+                    })
+        
+        return student_summaries
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/work/organizations/{organization_id}/change-requests")
 async def get_change_requests(
     organization_id: str,
