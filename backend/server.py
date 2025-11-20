@@ -1291,6 +1291,88 @@ class ScheduleResponse(BaseModel):
     time_start: Optional[str]
     time_end: Optional[str]
 
+# === GRADE/GRADEBOOK MODELS ===
+
+class GradeType(str, Enum):
+    EXAM = "EXAM"  # Контрольная работа
+    QUIZ = "QUIZ"  # Самостоятельная работа
+    HOMEWORK = "HOMEWORK"  # Домашняя работа
+    CLASSWORK = "CLASSWORK"  # Работа на уроке
+    TEST = "TEST"  # Тест
+    ORAL = "ORAL"  # Устный ответ
+    PROJECT = "PROJECT"  # Проект
+
+class AcademicPeriod(str, Enum):
+    QUARTER_1 = "QUARTER_1"  # 1 четверть
+    QUARTER_2 = "QUARTER_2"  # 2 четверть
+    QUARTER_3 = "QUARTER_3"  # 3 четверть
+    QUARTER_4 = "QUARTER_4"  # 4 четверть
+    SEMESTER_1 = "SEMESTER_1"  # 1 полугодие
+    SEMESTER_2 = "SEMESTER_2"  # 2 полугодие
+    YEAR = "YEAR"  # Годовая
+
+class Grade(BaseModel):
+    """Student grade entry"""
+    grade_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    student_id: str
+    subject: str
+    teacher_id: str
+    grade_value: int  # 1-5 (Russian grading system: 5=excellent, 4=good, 3=satisfactory, 2=unsatisfactory, 1=very poor)
+    grade_type: GradeType
+    academic_period: AcademicPeriod
+    date: str  # ISO date format
+    comment: Optional[str] = None
+    weight: int = 1  # Weight for calculating average (e.g., exams might have weight 2)
+    is_final: bool = False  # Quarter/semester/year final grade
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class GradeCreate(BaseModel):
+    """Create new grade entry"""
+    student_id: str
+    subject: str
+    grade_value: int
+    grade_type: GradeType
+    academic_period: AcademicPeriod
+    date: str
+    comment: Optional[str] = None
+    weight: int = 1
+    is_final: bool = False
+
+class GradeUpdate(BaseModel):
+    """Update grade entry"""
+    grade_value: Optional[int] = None
+    grade_type: Optional[GradeType] = None
+    comment: Optional[str] = None
+    weight: Optional[int] = None
+
+class GradeResponse(BaseModel):
+    """Response for grade information"""
+    grade_id: str
+    organization_id: str
+    student_id: str
+    student_name: Optional[str] = None  # Enriched student name
+    subject: str
+    teacher_id: str
+    teacher_name: Optional[str] = None  # Enriched teacher name
+    grade_value: int
+    grade_type: str
+    academic_period: str
+    date: str
+    comment: Optional[str]
+    weight: int
+    is_final: bool
+
+class StudentGradesSummary(BaseModel):
+    """Summary of student's grades by subject"""
+    student_id: str
+    student_name: str
+    subject: str
+    grades: List[GradeResponse]
+    average: Optional[float] = None
+    grade_count: int
+
 class WorkPostCreate(BaseModel):
     title: Optional[str] = None
     content: str
