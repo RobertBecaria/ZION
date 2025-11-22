@@ -9,6 +9,7 @@ import { useLightbox } from '../hooks/useLightbox';
 import LightboxModal from './LightboxModal';
 import { triggerConfetti, toast } from '../utils/animations';
 import WorkUniversalFeed from './WorkUniversalFeed';
+import JournalUniversalFeed from './JournalUniversalFeed';
 
 function UniversalWall({ 
   activeGroup, 
@@ -17,11 +18,17 @@ function UniversalWall({
   user,
   activeModule = 'family',  // New prop for current module
   activeFilters = [],  // Unified stacked filters array
-  userFamilyId = null  // User's family ID for filtering
+  userFamilyId = null,  // User's family ID for filtering
+  schoolRoles = null  // School roles for journal module
 }) {
   // If this is the organizations/work module, show WorkUniversalFeed
   if (activeModule === 'organizations') {
     return <WorkUniversalFeed currentUserId={user?.id} />;
+  }
+  
+  // If this is the journal module, show JournalUniversalFeed
+  if (activeModule === 'journal') {
+    return <JournalUniversalFeed currentUserId={user?.id} schoolRoles={schoolRoles} />;
   }
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
