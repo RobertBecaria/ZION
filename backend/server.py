@@ -11183,6 +11183,190 @@ async def get_class_grades(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# === JOURNAL POSTS ENDPOINTS (МОЯ ЛЕНТА) ===
+
+@api_router.post("/journal/organizations/{organization_id}/posts", response_model=JournalPostResponse)
+async def create_journal_post(
+    organization_id: str,
+    post_data: JournalPostCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create post in journal (teachers, parents, admins)"""
+    try:
+        # Check if organization exists and is EDUCATIONAL
+        org = await db.work_organizations.find_one({"organization_id": organization_id})
+        if not org:
+            raise HTTPException(status_code=404, detail="Организация не найдена")
+        
+        if org.get("organization_type") != "EDUCATIONAL":
+            raise HTTPException(status_code=400, detail="Организация должна быть образовательного типа")
+        
+        # Determine user's role in this organization
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active"
+        })
+        
+        # Check if user is parent
+        has_children = await db.work_students.count_documents({
+            "organization_id": organization_id,
+            "parent_ids": current_user.id,
+            "is_active": True
+        })
+        
+        # Determine role
+        if membership and membership.get("is_admin"):
+            user_role = "admin"
+        elif membership and membership.get("is_teacher"):
+            user_role = "teacher"
+        elif has_children > 0:
+            user_role = "parent"
+        else:
+            raise HTTPException(status_code=403, detail="Недостаточно прав для создания поста")
+        
+        # Validate audience based on role
+        if user_role == "parent" and post_data.audience_type not in [JournalAudienceType.PARENTS, JournalAudienceType.PUBLIC]:
+            raise HTTPException(status_code=403, detail="Родители могут публиковать только для других родителей или публично")
+        
+        # Create post
+        post_id = str(uuid.uuid4())
+        post_doc = {
+            "post_id": post_id,
+            "organization_id": organization_id,
+            "posted_by_user_id": current_user.id,
+            "posted_by_role": user_role,
+            "title": post_data.title,
+            "content": post_data.content,
+            "audience_type": post_data.audience_type,
+            "media_files": post_data.media_file_ids,
+            "likes_count": 0,
+            "comments_count": 0,
+            "is_published": True,
+            "is_pinned": post_data.is_pinned,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": None
+        }
+        
+        await db.journal_posts.insert_one(post_doc)
+        
+        # Build response
+        return JournalPostResponse(
+            post_id=post_id,
+            organization_id=organization_id,
+            organization_name=org.get("name"),
+            posted_by_user_id=current_user.id,
+            posted_by_role=user_role,
+            author={
+                "id": current_user.id,
+                "first_name": current_user.first_name,
+                "last_name": current_user.last_name,
+                "profile_picture": current_user.profile_picture
+            },
+            title=post_data.title,
+            content=post_data.content,
+            audience_type=post_data.audience_type,
+            media_files=post_data.media_file_ids,
+            likes_count=0,
+            comments_count=0,
+            is_published=True,
+            is_pinned=post_data.is_pinned,
+            created_at=datetime.now(timezone.utc)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/journal/organizations/{organization_id}/posts", response_model=List[JournalPostResponse])
+async def get_journal_posts(
+    organization_id: str,
+    audience_filter: Optional[JournalAudienceType] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get journal posts with audience filtering"""
+    try:
+        # Determine user's role in this organization
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "active"
+        })
+        
+        has_children = await db.work_students.count_documents({
+            "organization_id": organization_id,
+            "parent_ids": current_user.id,
+            "is_active": True
+        })
+        
+        # Determine what user can see based on their role
+        if membership and membership.get("is_admin"):
+            user_role = "admin"
+            allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.TEACHERS, 
+                               JournalAudienceType.PARENTS, JournalAudienceType.STUDENTS_PARENTS, 
+                               JournalAudienceType.ADMINS]
+        elif membership and membership.get("is_teacher"):
+            user_role = "teacher"
+            allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.TEACHERS]
+        elif has_children > 0:
+            user_role = "parent"
+            allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.PARENTS, 
+                               JournalAudienceType.STUDENTS_PARENTS]
+        else:
+            raise HTTPException(status_code=403, detail="Недостаточно прав")
+        
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "is_published": True,
+            "audience_type": {"$in": allowed_audiences}
+        }
+        
+        if audience_filter:
+            query["audience_type"] = audience_filter
+        
+        # Get posts
+        posts_cursor = db.journal_posts.find(query).sort("created_at", -1)
+        posts = await posts_cursor.to_list(None)
+        
+        # Enrich with author and organization data
+        post_responses = []
+        org = await db.work_organizations.find_one({"organization_id": organization_id})
+        
+        for post in posts:
+            author = await db.users.find_one({"id": post["posted_by_user_id"]})
+            
+            post_responses.append(JournalPostResponse(
+                post_id=post["post_id"],
+                organization_id=post["organization_id"],
+                organization_name=org.get("name") if org else None,
+                posted_by_user_id=post["posted_by_user_id"],
+                posted_by_role=post["posted_by_role"],
+                author={
+                    "id": post["posted_by_user_id"],
+                    "first_name": author.get("first_name", "") if author else "",
+                    "last_name": author.get("last_name", "") if author else "",
+                    "profile_picture": author.get("profile_picture") if author else None
+                },
+                title=post.get("title"),
+                content=post["content"],
+                audience_type=post["audience_type"],
+                media_files=post.get("media_files", []),
+                likes_count=post.get("likes_count", 0),
+                comments_count=post.get("comments_count", 0),
+                is_published=post["is_published"],
+                is_pinned=post.get("is_pinned", False),
+                created_at=datetime.fromisoformat(post["created_at"]) if isinstance(post["created_at"], str) else post["created_at"]
+            ))
+        
+        return post_responses
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.get("/work/organizations/{organization_id}/change-requests")
 async def get_change_requests(
     organization_id: str,
