@@ -1285,6 +1285,23 @@ function Dashboard() {
                 <div className="sidebar-divider" style={{ background: 'linear-gradient(90deg, transparent, rgba(194, 65, 12, 0.3), transparent)' }}></div>
                 
                 <button 
+                  className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
+                  style={{ 
+                    backgroundColor: (activeView === 'wall' || activeView === 'feed') ? '#C2410C' : undefined,
+                    background: (activeView === 'wall' || activeView === 'feed')
+                      ? 'linear-gradient(135deg, #C2410C 0%, #EA580C 100%)'
+                      : undefined,
+                    color: (activeView === 'wall' || activeView === 'feed') ? 'white' : undefined
+                  }}
+                  onClick={() => setActiveView('wall')}
+                >
+                  <Newspaper size={18} />
+                  <span>МОЯ ЛЕНТА</span>
+                </button>
+                
+                <div className="sidebar-divider" style={{ background: 'linear-gradient(90deg, transparent, rgba(194, 65, 12, 0.3), transparent)' }}></div>
+                
+                <button 
                   className={`profile-btn ${activeView === 'my-work' ? 'primary' : 'secondary'}`}
                   style={{ 
                     backgroundColor: activeView === 'my-work' ? '#C2410C' : undefined,
