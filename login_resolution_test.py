@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 class LoginResolutionTester:
-    def __init__(self, base_url="https://school-profiles.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://smart-school-hub-4.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.tests_run = 0
