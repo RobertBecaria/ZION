@@ -28,7 +28,7 @@ function UniversalWall({
   
   // If this is the journal module, show JournalUniversalFeed
   if (activeModule === 'journal') {
-    return <JournalUniversalFeed currentUserId={user?.id} schoolRoles={schoolRoles} />;
+    return <JournalUniversalFeed currentUserId={user?.id} schoolRoles={schoolRoles} user={user} />;
   }
   const [posts, setPosts] = useState([]);
   const [newPost, setNewPost] = useState('');
