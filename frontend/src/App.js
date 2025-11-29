@@ -38,6 +38,7 @@ import MediaWorldZone from './components/MediaWorldZone';
 import ChatWorldZone from './components/ChatWorldZone';
 import InfoWorldZone from './components/InfoWorldZone';
 import FamilyProfileWorldZone from './components/FamilyProfileWorldZone';
+import AcademicCalendar from './components/AcademicCalendar';
 import ClassSchedule from './components/ClassSchedule';
 import StudentGradebook from './components/StudentGradebook';
 // WORK MODULE COMPONENTS
