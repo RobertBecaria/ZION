@@ -52,10 +52,10 @@ const JournalUniversalFeed = ({
         // Fetch from schools where user is teacher
         if (schoolRoles.schools_as_teacher) {
           for (const school of schoolRoles.schools_as_teacher) {
-            if (selectedOrg === 'all' || selectedOrg === school.organization_id) {
+            if (schoolFilter === 'all' || schoolFilter === school.organization_id) {
               let url = `${BACKEND_URL}/api/journal/organizations/${school.organization_id}/posts`;
-              if (audienceFilter !== 'all') {
-                url += `?audience_filter=${audienceFilter}`;
+              if (externalAudienceFilter !== 'all') {
+                url += `?audience_filter=${externalAudienceFilter}`;
               }
               
               const response = await fetch(url, {
@@ -75,10 +75,10 @@ const JournalUniversalFeed = ({
         // Fetch from schools where user is parent
         if (schoolRoles.schools_as_parent) {
           for (const school of schoolRoles.schools_as_parent) {
-            if (selectedOrg === 'all' || selectedOrg === school.organization_id) {
+            if (schoolFilter === 'all' || schoolFilter === school.organization_id) {
               let url = `${BACKEND_URL}/api/journal/organizations/${school.organization_id}/posts`;
-              if (audienceFilter !== 'all') {
-                url += `?audience_filter=${audienceFilter}`;
+              if (externalAudienceFilter !== 'all') {
+                url += `?audience_filter=${externalAudienceFilter}`;
               }
               
               const response = await fetch(url, {
