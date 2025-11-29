@@ -108,6 +108,7 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
       return;
     }
 
+    setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
       const response = await fetch(
@@ -121,7 +122,7 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
           body: JSON.stringify({
             content: newPost,
             audience_type: selectedAudience,
-            media_file_ids: [],
+            media_file_ids: uploadedMediaIds,
             is_pinned: false
           })
         }
@@ -129,9 +130,10 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
 
       if (response.ok) {
         setNewPost('');
+        setSelectedFiles([]);
+        setUploadedMediaIds([]);
         setShowPostModal(false);
         fetchPosts();
-        alert('Пост успешно создан!');
       } else {
         const error = await response.json();
         alert(`Ошибка: ${error.detail || 'Не удалось создать пост'}`);
@@ -139,32 +141,9 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
     } catch (error) {
       console.error('Error creating post:', error);
       alert('Произошла ошибка при создании поста');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const getAllSchools = () => {
-    const schools = [];
-    if (schoolRoles) {
-      if (schoolRoles.schools_as_teacher) {
-        schools.push(...schoolRoles.schools_as_teacher.map(s => ({ ...s, role: 'teacher' })));
-      }
-      if (schoolRoles.schools_as_parent) {
-        schools.push(...schoolRoles.schools_as_parent.map(s => ({ ...s, role: 'parent' })));
-      }
-    }
-    // Remove duplicates
-    return Array.from(new Map(schools.map(s => [s.organization_id, s])).values());
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { 
-      day: 'numeric', 
-      month: 'long', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
   };
 
   const getAudienceLabel = (audienceType) => {
