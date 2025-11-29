@@ -1438,6 +1438,93 @@ class JournalPostResponse(BaseModel):
     is_pinned: bool
     created_at: datetime
 
+# === ACADEMIC CALENDAR MODELS ===
+
+class AcademicEventType(str, Enum):
+    HOLIDAY = "HOLIDAY"  # School holidays
+    EXAM = "EXAM"  # Exams
+    MEETING = "MEETING"  # Parent-teacher meetings
+    EVENT = "EVENT"  # School events
+    DEADLINE = "DEADLINE"  # Assignment deadlines
+    VACATION = "VACATION"  # Vacation periods
+    CONFERENCE = "CONFERENCE"  # Conferences
+    COMPETITION = "COMPETITION"  # Competitions
+
+class AcademicEventCreate(BaseModel):
+    """Create academic calendar event"""
+    title: str
+    description: Optional[str] = None
+    event_type: AcademicEventType
+    start_date: str  # ISO date string
+    end_date: Optional[str] = None  # ISO date string for multi-day events
+    start_time: Optional[str] = None  # HH:MM format
+    end_time: Optional[str] = None  # HH:MM format
+    location: Optional[str] = None
+    is_all_day: bool = True
+    audience_type: str = "PUBLIC"  # PUBLIC, TEACHERS, PARENTS, STUDENTS_PARENTS
+    grade_filter: Optional[str] = None  # Filter by grade if applicable
+    color: Optional[str] = None  # Custom color for the event
+
+class AcademicEvent(BaseModel):
+    """Academic calendar event"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    created_by_user_id: str
+    
+    # Event details
+    title: str
+    description: Optional[str] = None
+    event_type: AcademicEventType
+    
+    # Timing
+    start_date: str
+    end_date: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    is_all_day: bool = True
+    
+    # Location
+    location: Optional[str] = None
+    
+    # Audience
+    audience_type: str = "PUBLIC"
+    grade_filter: Optional[str] = None
+    
+    # Display
+    color: Optional[str] = None
+    
+    # Metadata
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+
+class AcademicEventResponse(BaseModel):
+    """Academic event response with creator info"""
+    id: str
+    organization_id: str
+    organization_name: Optional[str] = None
+    
+    title: str
+    description: Optional[str]
+    event_type: str
+    
+    start_date: str
+    end_date: Optional[str]
+    start_time: Optional[str]
+    end_time: Optional[str]
+    is_all_day: bool
+    
+    location: Optional[str]
+    audience_type: str
+    grade_filter: Optional[str]
+    color: Optional[str]
+    
+    is_active: bool
+    created_at: datetime
+    
+    # Creator info
+    created_by: Optional[Dict[str, Any]] = None
+
 class WorkPostCreate(BaseModel):
     title: Optional[str] = None
     content: str
