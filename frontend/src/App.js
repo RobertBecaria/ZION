@@ -1,7 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import './App.css';
 // Layout Components
-import { ModuleNavigation, LeftSidebar } from './components/layout';
+import { ModuleNavigation, LeftSidebar, RightSidebar } from './components/layout';
 // Config
 import { MODULES, getModuleByKey, getSidebarTintStyle, MODULE_DEFAULT_VIEWS, FAMILY_FILTER_OPTIONS } from './config/moduleConfig';
 // Hooks
