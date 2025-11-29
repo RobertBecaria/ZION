@@ -4,13 +4,18 @@ import {
   Image, Paperclip, X, FileText, MoreHorizontal, Smile
 } from 'lucide-react';
 
-const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
+const JournalUniversalFeed = ({ 
+  currentUserId, 
+  schoolRoles, 
+  user,
+  schoolFilter = 'all',  // External school filter from World Zone
+  audienceFilter: externalAudienceFilter = 'all'  // External audience filter from World Zone
+}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [newPost, setNewPost] = useState('');
   const [selectedOrg, setSelectedOrg] = useState('all');
   const [selectedAudience, setSelectedAudience] = useState('PUBLIC');
-  const [audienceFilter, setAudienceFilter] = useState('all');
   const [showPostModal, setShowPostModal] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadingFiles, setUploadingFiles] = useState([]);
@@ -30,16 +35,17 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
     { value: 'STUDENTS_PARENTS', label: '📚 Ученики и родители', icon: '📚' }
   ];
 
+  // Re-fetch posts when external filters change
   useEffect(() => {
     fetchPosts();
-  }, [selectedOrg, audienceFilter]);
+  }, [schoolFilter, externalAudienceFilter]);
 
   const fetchPosts = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
       
-      // Get posts from all user's schools
+      // Get posts from all user's schools or filtered school
       const allPosts = [];
       
       if (schoolRoles) {
