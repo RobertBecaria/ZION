@@ -172,168 +172,465 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
     return option ? option.label : audienceType;
   };
 
+  const getAllSchools = () => {
+    const schools = [];
+    if (schoolRoles) {
+      if (schoolRoles.schools_as_teacher) {
+        schools.push(...schoolRoles.schools_as_teacher.map(s => ({ ...s, role: 'teacher' })));
+      }
+      if (schoolRoles.schools_as_parent) {
+        schools.push(...schoolRoles.schools_as_parent.map(s => ({ ...s, role: 'parent' })));
+      }
+    }
+    return Array.from(new Map(schools.map(s => [s.organization_id, s])).values());
+  };
+
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now - date;
+    
+    if (diff < 60 * 1000) return 'только что';
+    if (diff < 60 * 60 * 1000) return `${Math.floor(diff / (60 * 1000))} мин назад`;
+    if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / (60 * 60 * 1000))} ч назад`;
+    
+    return date.toLocaleDateString('ru-RU', {
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    setSelectedFiles(prev => [...prev, ...files]);
+    setUploadingFiles(files.map(f => f.name));
+
+    try {
+      const token = localStorage.getItem('zion_token');
+      const uploadPromises = files.map(async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('source_module', 'personal');
+        formData.append('privacy_level', selectedAudience);
+
+        const response = await fetch(`${BACKEND_URL}/api/media/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          return result.id;
+        } else {
+          throw new Error(`Failed to upload ${file.name}`);
+        }
+      });
+
+      const uploadedIds = await Promise.all(uploadPromises);
+      setUploadedMediaIds(prev => [...prev, ...uploadedIds]);
+      setUploadingFiles([]);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert(`Ошибка загрузки: ${error.message}`);
+      setUploadingFiles([]);
+      setSelectedFiles(prev => prev.slice(0, -files.length));
+    }
+  };
+
+  const removeSelectedFile = (index) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setUploadedMediaIds(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const showPostForm = () => {
+    setShowPostModal(true);
+  };
+
+  const handleLike = async (postId) => {
+    // TODO: Implement like functionality for journal posts
+    console.log('Like post:', postId);
+  };
+
+  const toggleComments = (postId) => {
+    setShowComments(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+  };
+
   return (
-    <div className="journal-feed-container">
-      <div className="feed-header">
-        <h1>МОЯ ЛЕНТА - Журнал</h1>
-        <p className="feed-subtitle">Сообщения из школ</p>
-      </div>
-
-      {/* Filters */}
-      <div className="feed-filters">
-        <div className="filter-group">
-          <label>Школа:</label>
-          <select value={selectedOrg} onChange={(e) => setSelectedOrg(e.target.value)}>
-            <option value="all">Все школы</option>
-            {getAllSchools().map(school => (
-              <option key={school.organization_id} value={school.organization_id}>
-                {school.organization_name} ({school.role === 'teacher' ? 'Учитель' : 'Родитель'})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Аудитория:</label>
-          <select value={audienceFilter} onChange={(e) => setAudienceFilter(e.target.value)}>
-            <option value="all">Все посты</option>
-            {AUDIENCE_OPTIONS.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-        </div>
-
-        <button className="btn-primary" onClick={() => setShowPostModal(true)}>
-          <Plus size={18} />
-          Создать Пост
-        </button>
-      </div>
-
-      {/* Posts Feed */}
-      {loading ? (
-        <div className="loading-state">
-          <p>Загрузка постов...</p>
-        </div>
-      ) : posts.length === 0 ? (
-        <div className="empty-state-large">
-          <MessageCircle size={48} style={{ color: '#6D28D9', opacity: 0.5 }} />
-          <h3>Постов Нет</h3>
-          <p>Пока нет сообщений в ленте</p>
-        </div>
-      ) : (
-        <div className="posts-list">
-          {posts.map(post => (
-            <div key={post.post_id} className="post-card">
-              <div className="post-header">
-                <div className="post-author">
-                  <div className="author-avatar">
-                    {post.author.profile_picture ? (
-                      <img src={post.author.profile_picture} alt="Avatar" />
-                    ) : (
-                      <User size={24} />
-                    )}
-                  </div>
-                  <div className="author-info">
-                    <div className="author-name">
-                      {post.author.first_name} {post.author.last_name}
-                    </div>
-                    <div className="post-meta">
-                      <span className="post-role">{post.posted_by_role === 'teacher' ? 'Учитель' : post.posted_by_role === 'parent' ? 'Родитель' : 'Админ'}</span>
-                      <span className="separator">•</span>
-                      <span className="post-school">{post.organization_name}</span>
-                      <span className="separator">•</span>
-                      <Calendar size={14} />
-                      <span>{formatDate(post.created_at)}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="post-audience-badge">
-                  {getAudienceLabel(post.audience_type)}
-                </div>
+    <div className="universal-wall journal-wall">
+      {/* Post Creation Form - FAMILY STYLE */}
+      <div className="wall-header">
+        <div className="post-composer">
+          <div className="post-input-placeholder" onClick={showPostForm}>
+            {user?.profile_picture ? (
+              <img 
+                src={user.profile_picture} 
+                alt="Avatar" 
+                className="composer-avatar"
+                style={{ 
+                  width: '40px', 
+                  height: '40px', 
+                  borderRadius: '50%', 
+                  objectFit: 'cover' 
+                }}
+              />
+            ) : (
+              <div className="composer-avatar" style={{ backgroundColor: moduleColor }}>
+                <User size={20} color="white" />
               </div>
-
-              {post.title && <h3 className="post-title">{post.title}</h3>}
-              <div className="post-content">{post.content}</div>
-
-              <div className="post-actions">
-                <button className="post-action-btn">
-                  <Heart size={18} />
-                  <span>{post.likes_count}</span>
-                </button>
-                <button className="post-action-btn">
-                  <MessageCircle size={18} />
-                  <span>{post.comments_count}</span>
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Create Post Modal */}
-      {showPostModal && (
-        <div className="modal-overlay" onClick={() => setShowPostModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Создать Пост</h2>
-              <button className="modal-close" onClick={() => setShowPostModal(false)}>×</button>
-            </div>
-
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Школа:</label>
-                <select 
-                  value={selectedOrg}
-                  onChange={(e) => setSelectedOrg(e.target.value)}
-                >
-                  <option value="all">Выберите школу</option>
-                  {getAllSchools().map(school => (
-                    <option key={school.organization_id} value={school.organization_id}>
-                      {school.organization_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Аудитория:</label>
-                <select 
-                  value={selectedAudience}
-                  onChange={(e) => setSelectedAudience(e.target.value)}
-                >
-                  {AUDIENCE_OPTIONS.map(option => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label>Сообщение:</label>
-                <textarea 
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  placeholder="Напишите сообщение..."
-                  rows={6}
-                />
-              </div>
-            </div>
-
-            <div className="modal-footer">
-              <button className="btn-secondary" onClick={() => setShowPostModal(false)}>
-                Отмена
-              </button>
-              <button 
-                className="btn-primary" 
-                onClick={handleCreatePost}
-                disabled={!newPost.trim() || selectedOrg === 'all'}
-              >
-                <Send size={18} />
-                Опубликовать
-              </button>
+            )}
+            <div className="composer-placeholder">
+              Что у Вас нового?
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Enhanced Post Creation Modal */}
+      {showPostModal && (
+        <div 
+          className="modal-overlay post-composer-modal" 
+          style={{ display: 'flex' }}
+          onClick={(e) => {
+            if (e.target.classList.contains('modal-overlay')) {
+              setShowPostModal(false);
+            }
+          }}
+        >
+          <div className="post-form">
+            <form onSubmit={(e) => { e.preventDefault(); handleCreatePost(); }}>
+              <div className="form-header">
+                <h4>Создать запись</h4>
+                <button 
+                  type="button" 
+                  className="close-btn"
+                  onClick={() => setShowPostModal(false)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <div className="form-body">
+                {/* Author Section */}
+                <div className="form-author-section">
+                  <div className="form-author-avatar" style={{ backgroundColor: moduleColor }}>
+                    <User size={20} color="white" />
+                  </div>
+                  <div className="form-author-info">
+                    <h5>{user?.first_name} {user?.last_name}</h5>
+                    <p>Публикуется в модуле "Журнал"</p>
+                  </div>
+                </div>
+
+                {/* School Selection */}
+                <div className="journal-select-group">
+                  <label>Школа:</label>
+                  <select 
+                    value={selectedOrg}
+                    onChange={(e) => setSelectedOrg(e.target.value)}
+                    className="journal-select"
+                    style={{ borderColor: moduleColor }}
+                  >
+                    <option value="all">Выберите школу</option>
+                    {getAllSchools().map(school => (
+                      <option key={school.organization_id} value={school.organization_id}>
+                        {school.organization_name} ({school.role === 'teacher' ? 'Учитель' : 'Родитель'})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Textarea */}
+                <textarea
+                  value={newPost}
+                  onChange={(e) => setNewPost(e.target.value)}
+                  placeholder="Что у Вас нового?"
+                  className="post-textarea"
+                  rows="3"
+                  autoFocus
+                />
+                
+                {/* File Previews */}
+                {selectedFiles.length > 0 && (
+                  <div className="file-previews">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="file-preview">
+                        {file.type.startsWith('image/') ? (
+                          <img 
+                            src={URL.createObjectURL(file)} 
+                            alt="Preview" 
+                            className="preview-image"
+                          />
+                        ) : (
+                          <div className="preview-document">
+                            <FileText size={32} />
+                            <div className="document-name">{file.name}</div>
+                          </div>
+                        )}
+                        <button 
+                          type="button"
+                          className="remove-file-btn"
+                          onClick={() => removeSelectedFile(index)}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                
+                {/* Upload Progress */}
+                {uploadingFiles.length > 0 && (
+                  <div className="upload-progress">
+                    <p>Загружаем файлы...</p>
+                    {uploadingFiles.map((filename, index) => (
+                      <div key={index} className="uploading-file">
+                        <div className="upload-spinner"></div>
+                        {filename}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="form-actions">
+                <div className="media-actions">
+                  <span className="media-actions-label">Добавить:</span>
+                  <button 
+                    type="button" 
+                    className="media-btn"
+                    onClick={() => {
+                      fileInputRef.current.accept = "image/jpeg,image/png,image/gif,video/mp4,video/webm";
+                      fileInputRef.current?.click();
+                    }}
+                    title="Добавить фото/видео"
+                  >
+                    <Image size={24} />
+                  </button>
+                  
+                  <button 
+                    type="button" 
+                    className="media-btn"
+                    onClick={() => {
+                      fileInputRef.current.accept = "application/pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt";
+                      fileInputRef.current?.click();
+                    }}
+                    title="Добавить документы"
+                  >
+                    <Paperclip size={24} />
+                  </button>
+                  
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    onChange={handleFileSelect}
+                    style={{ display: 'none' }}
+                  />
+                </div>
+              </div>
+              
+              <div className="form-footer">
+                {/* Audience Selector - Journal Style */}
+                <div className="visibility-selector">
+                  <label htmlFor="post-audience" className="visibility-label">
+                    Кому показать?
+                  </label>
+                  <select 
+                    id="post-audience"
+                    value={selectedAudience}
+                    onChange={(e) => setSelectedAudience(e.target.value)}
+                    className="visibility-dropdown"
+                    style={{ borderColor: moduleColor }}
+                  >
+                    {AUDIENCE_OPTIONS.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <button 
+                  type="submit" 
+                  className="submit-btn"
+                  disabled={loading || !newPost.trim() || selectedOrg === 'all'}
+                  style={{ backgroundColor: loading ? undefined : moduleColor }}
+                >
+                  {loading ? 'Публикуем...' : 'Опубликовать'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
+
+      {/* Posts Feed */}
+      <div className="posts-feed">
+        {loading ? (
+          <div className="empty-feed">
+            <div className="empty-content">
+              <p>Загрузка постов...</p>
+            </div>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="empty-feed">
+            <div className="empty-content">
+              <MessageCircle size={48} color="#9ca3af" />
+              <h4>Пока нет записей</h4>
+              <p>Станьте первым, кто поделится новостями!</p>
+            </div>
+          </div>
+        ) : (
+          posts.map((post) => (
+            <div key={post.post_id} className="post-item">
+              <div className="post-header">
+                <div className="post-author">
+                  {post.author?.profile_picture ? (
+                    <img 
+                      src={post.author.profile_picture} 
+                      alt={`${post.author.first_name} ${post.author.last_name}`}
+                      className="author-avatar"
+                      style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '50%', 
+                        objectFit: 'cover' 
+                      }}
+                    />
+                  ) : (
+                    <div className="author-avatar" style={{ backgroundColor: moduleColor }}>
+                      <User size={20} color="white" />
+                    </div>
+                  )}
+                  <div className="author-info">
+                    <h5>{post.author?.first_name} {post.author?.last_name}</h5>
+                    <div className="post-meta-info">
+                      <span className="post-role-badge" style={{ 
+                        backgroundColor: post.posted_by_role === 'teacher' ? '#2563EB' : '#059669',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        fontSize: '11px',
+                        marginRight: '8px'
+                      }}>
+                        {post.posted_by_role === 'teacher' ? 'Учитель' : 'Родитель'}
+                      </span>
+                      <span className="post-time">{formatTime(post.created_at)}</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="post-header-right">
+                  <span className="audience-badge" style={{
+                    backgroundColor: `${moduleColor}15`,
+                    color: moduleColor,
+                    padding: '4px 10px',
+                    borderRadius: '16px',
+                    fontSize: '12px'
+                  }}>
+                    {getAudienceLabel(post.audience_type)}
+                  </span>
+                  <button className="post-menu-btn">
+                    <MoreHorizontal size={20} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="post-content">
+                {post.title && <h4 className="post-title">{post.title}</h4>}
+                <p>{post.content}</p>
+              </div>
+
+              {/* Post Stats */}
+              <div className="post-stats">
+                <div className="stats-left">
+                  {(post.likes_count || 0) > 0 && (
+                    <span className="stat-item">
+                      <Heart size={16} />
+                      {post.likes_count}
+                    </span>
+                  )}
+                </div>
+                <div className="stats-right">
+                  {(post.comments_count || 0) > 0 && (
+                    <span 
+                      className="stat-item clickable"
+                      onClick={() => toggleComments(post.post_id)}
+                    >
+                      {post.comments_count} комментариев
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Post Actions Bar */}
+              <div className="post-actions-bar">
+                <button 
+                  className="post-action-btn"
+                  onClick={() => handleLike(post.post_id)}
+                  style={{ color: moduleColor }}
+                >
+                  <Heart size={18} />
+                  <span>Нравится</span>
+                </button>
+                
+                <button 
+                  className="post-action-btn"
+                  onClick={() => toggleComments(post.post_id)}
+                >
+                  <MessageCircle size={18} />
+                  <span>Комментировать</span>
+                </button>
+              </div>
+
+              {/* Comments Section */}
+              {showComments[post.post_id] && (
+                <div className="comments-section">
+                  <div className="comment-input-container">
+                    <div className="comment-input-wrapper">
+                      <div className="comment-avatar" style={{ backgroundColor: moduleColor }}>
+                        <User size={16} color="white" />
+                      </div>
+                      <textarea
+                        value={newComment[post.post_id] || ''}
+                        onChange={(e) => setNewComment(prev => ({
+                          ...prev,
+                          [post.post_id]: e.target.value
+                        }))}
+                        placeholder="Напишите комментарий..."
+                        className="comment-input"
+                        rows="1"
+                      />
+                      <button 
+                        className="comment-submit-btn"
+                        disabled={!newComment[post.post_id]?.trim()}
+                        style={{ color: moduleColor }}
+                      >
+                        <Send size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="comments-list">
+                    <div className="no-comments">
+                      <MessageCircle size={24} color="#9ca3af" />
+                      <p>Пока нет комментариев</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 };
