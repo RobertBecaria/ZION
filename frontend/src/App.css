@@ -20303,3 +20303,242 @@ a,
   color: #1F2937;
 }
 
+
+/* ================================= */
+/* JOURNAL WORLD ZONE FEED FILTERS */
+/* ================================= */
+
+.feed-filters-zone {
+  padding: 16px;
+}
+
+.feed-filters-zone .filter-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  margin-bottom: 16px;
+}
+
+.feed-filters-zone .card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.feed-filters-zone .card-header h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.filter-content {
+  padding: 16px;
+}
+
+.filter-group {
+  margin-bottom: 20px;
+}
+
+.filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B7280;
+  margin-bottom: 10px;
+}
+
+.filter-select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #6D28D9;
+  box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
+}
+
+.filter-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 2px solid #E5E7EB;
+  border-radius: 10px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.filter-btn:hover {
+  border-color: #6D28D9;
+  background: #F9FAFB;
+}
+
+.filter-btn.active {
+  border-color: #6D28D9;
+  background: #6D28D9;
+  color: white;
+}
+
+.filter-btn-icon {
+  font-size: 16px;
+}
+
+.filter-btn-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Schools Quick List */
+.schools-quick-list {
+  padding: 12px;
+}
+
+.school-quick-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 8px;
+}
+
+.school-quick-item:last-child {
+  margin-bottom: 0;
+}
+
+.school-quick-item:hover {
+  background: #F9FAFB;
+}
+
+.school-quick-item.active {
+  background: #F3E8FF;
+}
+
+.school-quick-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.school-quick-role {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+/* Comment styles */
+.comment-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #F3F4F6;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.comment-author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-author-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.comment-time {
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+.comment-content {
+  padding-left: 42px;
+}
+
+.comment-content p {
+  font-size: 14px;
+  color: #4B5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.comment-stats {
+  display: flex;
+  gap: 16px;
+  padding-left: 42px;
+  margin-top: 8px;
+}
+
+.comment-stat-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.comment-stat-btn:hover {
+  background: #F3F4F6;
+  color: #6D28D9;
+}
+
+.comment-stat-btn.liked {
+  color: #6D28D9;
+}
+
+.loading-comments {
+  padding: 20px;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 14px;
+}
+
