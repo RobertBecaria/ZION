@@ -11402,7 +11402,7 @@ async def like_journal_post(
         else:
             # Like - add the like
             like_doc = {
-                "id": str(uuid4()),
+                "id": str(uuid.uuid4()),
                 "post_id": post_id,
                 "user_id": current_user.id,
                 "created_at": datetime.now(timezone.utc).isoformat()
