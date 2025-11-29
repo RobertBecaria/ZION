@@ -11455,6 +11455,205 @@ async def get_journal_posts(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+# === ACADEMIC CALENDAR ENDPOINTS ===
+
+@api_router.post("/journal/organizations/{organization_id}/calendar", response_model=AcademicEventResponse)
+async def create_academic_event(
+    organization_id: str,
+    event: AcademicEventCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new academic calendar event (teachers and admins only)"""
+    try:
+        # Verify user is a teacher at this organization
+        teacher = await db.teachers.find_one({
+            "user_id": current_user.id,
+            "organization_id": organization_id
+        })
+        
+        if not teacher:
+            raise HTTPException(
+                status_code=403, 
+                detail="Только учителя могут создавать события в календаре"
+            )
+        
+        # Get organization info
+        org = await db.organizations.find_one({"id": organization_id})
+        
+        # Create event document
+        event_doc = {
+            "id": str(uuid.uuid4()),
+            "organization_id": organization_id,
+            "created_by_user_id": current_user.id,
+            "title": event.title,
+            "description": event.description,
+            "event_type": event.event_type.value,
+            "start_date": event.start_date,
+            "end_date": event.end_date,
+            "start_time": event.start_time,
+            "end_time": event.end_time,
+            "is_all_day": event.is_all_day,
+            "location": event.location,
+            "audience_type": event.audience_type,
+            "grade_filter": event.grade_filter,
+            "color": event.color or get_event_color(event.event_type.value),
+            "is_active": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": None
+        }
+        
+        await db.academic_events.insert_one(event_doc)
+        
+        return AcademicEventResponse(
+            id=event_doc["id"],
+            organization_id=organization_id,
+            organization_name=org.get("name") if org else None,
+            title=event_doc["title"],
+            description=event_doc["description"],
+            event_type=event_doc["event_type"],
+            start_date=event_doc["start_date"],
+            end_date=event_doc["end_date"],
+            start_time=event_doc["start_time"],
+            end_time=event_doc["end_time"],
+            is_all_day=event_doc["is_all_day"],
+            location=event_doc["location"],
+            audience_type=event_doc["audience_type"],
+            grade_filter=event_doc["grade_filter"],
+            color=event_doc["color"],
+            is_active=True,
+            created_at=datetime.fromisoformat(event_doc["created_at"]),
+            created_by={
+                "id": current_user.id,
+                "first_name": current_user.first_name,
+                "last_name": current_user.last_name
+            }
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def get_event_color(event_type: str) -> str:
+    """Get default color for event type"""
+    colors = {
+        "HOLIDAY": "#10B981",  # Green
+        "EXAM": "#EF4444",  # Red
+        "MEETING": "#3B82F6",  # Blue
+        "EVENT": "#8B5CF6",  # Purple
+        "DEADLINE": "#F59E0B",  # Amber
+        "VACATION": "#06B6D4",  # Cyan
+        "CONFERENCE": "#EC4899",  # Pink
+        "COMPETITION": "#F97316"  # Orange
+    }
+    return colors.get(event_type, "#6B7280")
+
+
+@api_router.get("/journal/organizations/{organization_id}/calendar", response_model=List[AcademicEventResponse])
+async def get_academic_events(
+    organization_id: str,
+    month: Optional[int] = None,
+    year: Optional[int] = None,
+    event_type: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get academic calendar events for an organization"""
+    try:
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "is_active": True
+        }
+        
+        # Filter by event type if specified
+        if event_type:
+            query["event_type"] = event_type
+        
+        # Get events
+        events_cursor = db.academic_events.find(query, {"_id": 0}).sort("start_date", 1)
+        events = await events_cursor.to_list(500)
+        
+        # Filter by month/year if specified
+        if month and year:
+            target_month = f"{year}-{str(month).zfill(2)}"
+            events = [e for e in events if e.get("start_date", "").startswith(target_month)]
+        
+        # Get organization info
+        org = await db.organizations.find_one({"id": organization_id})
+        
+        # Build responses
+        responses = []
+        for event in events:
+            # Get creator info
+            creator = await db.users.find_one({"id": event.get("created_by_user_id")})
+            
+            responses.append(AcademicEventResponse(
+                id=event["id"],
+                organization_id=organization_id,
+                organization_name=org.get("name") if org else None,
+                title=event["title"],
+                description=event.get("description"),
+                event_type=event["event_type"],
+                start_date=event["start_date"],
+                end_date=event.get("end_date"),
+                start_time=event.get("start_time"),
+                end_time=event.get("end_time"),
+                is_all_day=event.get("is_all_day", True),
+                location=event.get("location"),
+                audience_type=event.get("audience_type", "PUBLIC"),
+                grade_filter=event.get("grade_filter"),
+                color=event.get("color"),
+                is_active=event.get("is_active", True),
+                created_at=datetime.fromisoformat(event["created_at"]) if isinstance(event["created_at"], str) else event["created_at"],
+                created_by={
+                    "id": creator.get("id") if creator else None,
+                    "first_name": creator.get("first_name") if creator else "Неизвестный",
+                    "last_name": creator.get("last_name") if creator else ""
+                } if creator else None
+            ))
+        
+        return responses
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/journal/calendar/{event_id}")
+async def delete_academic_event(
+    event_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete an academic calendar event"""
+    try:
+        # Find the event
+        event = await db.academic_events.find_one({"id": event_id})
+        if not event:
+            raise HTTPException(status_code=404, detail="Событие не найдено")
+        
+        # Verify user is the creator or a teacher at the organization
+        if event["created_by_user_id"] != current_user.id:
+            teacher = await db.teachers.find_one({
+                "user_id": current_user.id,
+                "organization_id": event["organization_id"]
+            })
+            if not teacher:
+                raise HTTPException(status_code=403, detail="Нет прав на удаление события")
+        
+        # Soft delete - mark as inactive
+        await db.academic_events.update_one(
+            {"id": event_id},
+            {"$set": {"is_active": False, "updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        return {"message": "Событие удалено", "id": event_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # === JOURNAL POST INTERACTIONS (Likes & Comments) ===
 
 @api_router.post("/journal/posts/{post_id}/like")
