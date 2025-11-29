@@ -7,7 +7,7 @@ import {
   User, Newspaper, Heart, Briefcase, GraduationCap, 
   Users, MessageCircle, Image, Video, FileText, Settings 
 } from 'lucide-react';
-import { getModuleByKey, getSidebarTintStyle } from '../config/moduleConfig';
+import { getModuleByKey, getSidebarTintStyle } from '../../config/moduleConfig';
 
 const LeftSidebar = ({
   activeModule,
