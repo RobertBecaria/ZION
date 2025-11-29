@@ -3,7 +3,7 @@
  * Top navigation bar with module selection buttons
  */
 import React from 'react';
-import { MODULES, MODULE_DEFAULT_VIEWS } from '../config/moduleConfig';
+import { MODULES, MODULE_DEFAULT_VIEWS } from '../../config/moduleConfig';
 
 const ModuleNavigation = ({ 
   activeModule, 
