@@ -1915,7 +1915,7 @@ function Dashboard() {
                           </>
                         )}
 
-                        {(activeModule === 'news' || activeModule === 'journal' || 
+                        {(activeModule === 'news' || 
                           activeModule === 'services' || activeModule === 'marketplace' || 
                           activeModule === 'finance' || activeModule === 'events') && (
                           <>
