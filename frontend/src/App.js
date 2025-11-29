@@ -2069,6 +2069,18 @@ function Dashboard() {
             <h3>Мировая Зона</h3>
           </div>
           
+          {/* JOURNAL Module - Feed View Filters */}
+          {activeModule === 'journal' && (activeView === 'wall' || activeView === 'feed') && (
+            <JournalWorldZone
+              inFeedView={true}
+              schoolRoles={schoolRoles}
+              schoolFilter={journalSchoolFilter}
+              onSchoolFilterChange={setJournalSchoolFilter}
+              audienceFilter={journalAudienceFilter}
+              onAudienceFilterChange={setJournalAudienceFilter}
+            />
+          )}
+          
           {/* WALL and FEED Views - Wall-specific widgets (Family module only) */}
           {activeModule === 'family' && (activeView === 'wall' || activeView === 'feed') && (
             <>
