@@ -1,7 +1,141 @@
 import React from 'react';
-import { GraduationCap, Users, Calendar, BookOpen, MessageCircle, Home } from 'lucide-react';
+import { GraduationCap, Users, Calendar, BookOpen, MessageCircle, Home, Filter, Building2 } from 'lucide-react';
 
-const JournalWorldZone = ({ selectedSchool, role, onNavigate }) => {
+const JournalWorldZone = ({ 
+  selectedSchool, 
+  role, 
+  onNavigate,
+  // Feed filter props
+  inFeedView = false,
+  schoolRoles = null,
+  schoolFilter = 'all',
+  onSchoolFilterChange = () => {},
+  audienceFilter = 'all',
+  onAudienceFilterChange = () => {}
+}) => {
+  
+  const moduleColor = '#6D28D9';
+
+  const AUDIENCE_OPTIONS = [
+    { value: 'all', label: 'Все посты', icon: '📰' },
+    { value: 'PUBLIC', label: 'Публичные', icon: '🌍' },
+    { value: 'TEACHERS', label: 'Для учителей', icon: '👨‍🏫' },
+    { value: 'PARENTS', label: 'Для родителей', icon: '👨‍👩‍👧' },
+    { value: 'STUDENTS_PARENTS', label: 'Для учеников', icon: '📚' }
+  ];
+
+  const getAllSchools = () => {
+    const schools = [];
+    if (schoolRoles) {
+      if (schoolRoles.schools_as_teacher) {
+        schools.push(...schoolRoles.schools_as_teacher.map(s => ({ ...s, role: 'teacher' })));
+      }
+      if (schoolRoles.schools_as_parent) {
+        schools.push(...schoolRoles.schools_as_parent.map(s => ({ ...s, role: 'parent' })));
+      }
+    }
+    return Array.from(new Map(schools.map(s => [s.organization_id, s])).values());
+  };
+
+  // Show Feed Filters when in feed view
+  if (inFeedView) {
+    const schools = getAllSchools();
+    
+    return (
+      <div className="journal-world-zone feed-filters-zone">
+        {/* Post Filters Card */}
+        <div className="world-zone-card filter-card">
+          <div className="card-header" style={{ borderBottomColor: `${moduleColor}30` }}>
+            <Filter size={20} style={{ color: moduleColor }} />
+            <h3>ФИЛЬТР ПОСТОВ</h3>
+          </div>
+          
+          <div className="filter-content">
+            {/* School Filter */}
+            <div className="filter-group">
+              <label className="filter-label">
+                <Building2 size={16} />
+                <span>По школе</span>
+              </label>
+              <select 
+                value={schoolFilter}
+                onChange={(e) => onSchoolFilterChange(e.target.value)}
+                className="filter-select"
+                style={{ borderColor: moduleColor }}
+              >
+                <option value="all">Все школы</option>
+                {schools.map(school => (
+                  <option key={school.organization_id} value={school.organization_id}>
+                    {school.organization_name} ({school.role === 'teacher' ? 'Учитель' : 'Родитель'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Audience Filter */}
+            <div className="filter-group">
+              <label className="filter-label">
+                <Users size={16} />
+                <span>По аудитории</span>
+              </label>
+              <div className="filter-buttons">
+                {AUDIENCE_OPTIONS.map(option => (
+                  <button
+                    key={option.value}
+                    className={`filter-btn ${audienceFilter === option.value ? 'active' : ''}`}
+                    onClick={() => onAudienceFilterChange(option.value)}
+                    style={{
+                      backgroundColor: audienceFilter === option.value ? moduleColor : 'transparent',
+                      borderColor: audienceFilter === option.value ? moduleColor : '#E5E7EB',
+                      color: audienceFilter === option.value ? 'white' : '#6B7280'
+                    }}
+                  >
+                    <span className="filter-btn-icon">{option.icon}</span>
+                    <span className="filter-btn-label">{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Stats Card */}
+        {schools.length > 0 && (
+          <div className="world-zone-card stats-card">
+            <div className="card-header" style={{ borderBottomColor: `${moduleColor}30` }}>
+              <GraduationCap size={20} style={{ color: moduleColor }} />
+              <h3>МОИ ШКОЛЫ</h3>
+            </div>
+            <div className="schools-quick-list">
+              {schools.map(school => (
+                <div 
+                  key={school.organization_id} 
+                  className={`school-quick-item ${schoolFilter === school.organization_id ? 'active' : ''}`}
+                  onClick={() => onSchoolFilterChange(school.organization_id)}
+                  style={{
+                    borderLeftColor: schoolFilter === school.organization_id ? moduleColor : 'transparent'
+                  }}
+                >
+                  <div className="school-quick-name">{school.organization_name}</div>
+                  <span 
+                    className="school-quick-role"
+                    style={{
+                      backgroundColor: school.role === 'teacher' ? '#2563EB15' : '#05966915',
+                      color: school.role === 'teacher' ? '#2563EB' : '#059669'
+                    }}
+                  >
+                    {school.role === 'teacher' ? 'Учитель' : 'Родитель'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Original school-selected view
   if (!selectedSchool) {
     return null;
   }
