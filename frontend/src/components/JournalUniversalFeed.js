@@ -666,11 +666,11 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
               {/* Post Actions Bar */}
               <div className="post-actions-bar">
                 <button 
-                  className="post-action-btn"
+                  className={`post-action-btn ${post.user_liked ? 'liked' : ''}`}
                   onClick={() => handleLike(post.post_id)}
-                  style={{ color: moduleColor }}
+                  style={{ color: post.user_liked ? moduleColor : undefined }}
                 >
-                  <Heart size={18} />
+                  <Heart size={18} fill={post.user_liked ? moduleColor : 'none'} />
                   <span>Нравится</span>
                 </button>
                 
@@ -700,9 +700,16 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
                         placeholder="Напишите комментарий..."
                         className="comment-input"
                         rows="1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            handleCommentSubmit(post.post_id, newComment[post.post_id]);
+                          }
+                        }}
                       />
                       <button 
                         className="comment-submit-btn"
+                        onClick={() => handleCommentSubmit(post.post_id, newComment[post.post_id])}
                         disabled={!newComment[post.post_id]?.trim()}
                         style={{ color: moduleColor }}
                       >
@@ -711,10 +718,83 @@ const JournalUniversalFeed = ({ currentUserId, schoolRoles, user }) => {
                     </div>
                   </div>
                   <div className="comments-list">
-                    <div className="no-comments">
-                      <MessageCircle size={24} color="#9ca3af" />
-                      <p>Пока нет комментариев</p>
-                    </div>
+                    {comments[post.post_id] ? (
+                      comments[post.post_id].length > 0 ? (
+                        comments[post.post_id].map(comment => (
+                          <div key={comment.id} className="comment-item">
+                            <div className="comment-header">
+                              <div className="comment-author">
+                                {comment.author?.profile_picture ? (
+                                  <img 
+                                    src={comment.author.profile_picture} 
+                                    alt="Avatar"
+                                    className="author-avatar"
+                                    style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }}
+                                  />
+                                ) : (
+                                  <div className="author-avatar" style={{ backgroundColor: moduleColor, width: '32px', height: '32px' }}>
+                                    <User size={16} color="white" />
+                                  </div>
+                                )}
+                                <div className="comment-author-info">
+                                  <span className="comment-author-name">
+                                    {comment.author?.first_name} {comment.author?.last_name}
+                                  </span>
+                                  <span className="comment-time">{formatTime(comment.created_at)}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="comment-content">
+                              <p>{comment.content}</p>
+                            </div>
+                            <div className="comment-stats">
+                              <button 
+                                className={`comment-stat-btn ${comment.user_liked ? 'liked' : ''}`}
+                                onClick={() => handleCommentLike(comment.id, post.post_id)}
+                              >
+                                <Heart size={14} fill={comment.user_liked ? moduleColor : 'none'} />
+                                {comment.likes_count > 0 && <span>{comment.likes_count}</span>}
+                              </button>
+                            </div>
+                            
+                            {/* Replies */}
+                            {comment.replies && comment.replies.length > 0 && (
+                              <div className="comment-replies" style={{ marginLeft: '20px', marginTop: '10px' }}>
+                                {comment.replies.map(reply => (
+                                  <div key={reply.id} className="comment-item comment-reply">
+                                    <div className="comment-header">
+                                      <div className="comment-author">
+                                        <div className="author-avatar" style={{ backgroundColor: moduleColor, width: '28px', height: '28px' }}>
+                                          <User size={14} color="white" />
+                                        </div>
+                                        <div className="comment-author-info">
+                                          <span className="comment-author-name">
+                                            {reply.author?.first_name} {reply.author?.last_name}
+                                          </span>
+                                          <span className="comment-time">{formatTime(reply.created_at)}</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="comment-content">
+                                      <p>{reply.content}</p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="no-comments">
+                          <MessageCircle size={24} color="#9ca3af" />
+                          <p>Пока нет комментариев</p>
+                        </div>
+                      )
+                    ) : (
+                      <div className="loading-comments">
+                        <p>Загружаем комментарии...</p>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
