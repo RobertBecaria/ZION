@@ -35,6 +35,7 @@ import SchoolTiles from './components/SchoolTiles';
 import JournalWorldZone from './components/JournalWorldZone';
 import FamilyWorldZone from './components/FamilyWorldZone';
 import MediaWorldZone from './components/MediaWorldZone';
+import ChatWorldZone from './components/ChatWorldZone';
 import ClassSchedule from './components/ClassSchedule';
 import StudentGradebook from './components/StudentGradebook';
 // WORK MODULE COMPONENTS
