@@ -1073,31 +1073,6 @@ function Dashboard() {
     }} />;
   }
 
-  const modules = [
-    { key: 'family', name: 'Семья', color: '#30A67E' },
-    { key: 'news', name: 'Новости', color: '#1D4ED8' },
-    { key: 'journal', name: 'Журнал', color: '#6D28D9' },
-    { key: 'services', name: 'Сервисы', color: '#B91C1C' },
-    { key: 'organizations', name: 'Организации', color: '#C2410C' },
-    { key: 'marketplace', name: 'Маркетплейс', color: '#BE185D' },
-    { key: 'finance', name: 'Финансы', color: '#A16207' },
-    { key: 'events', name: 'Мероприятия', color: '#7E22CE' }
-  ];
-
-  const currentModule = modules.find(m => m.key === activeModule);
-  const currentDate = new Date().toLocaleDateString('ru-RU', { 
-    day: 'numeric', 
-    month: 'long',
-    year: 'numeric'
-  });
-
-  // Enhanced sidebar tint with vibrant module colors
-  const sidebarTintStyle = {
-    background: `linear-gradient(135deg, ${currentModule.color}18 0%, ${currentModule.color}0A 50%, ${currentModule.color}15 100%)`,
-    borderColor: `${currentModule.color}25`,
-    color: currentModule.color, // For ::before pseudo-element
-  };
-
   const getUserAffiliationsByType = (type) => {
     if (!user.affiliations) return [];
     return user.affiliations.filter(a => a.affiliation.type === type);
