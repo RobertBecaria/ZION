@@ -828,6 +828,8 @@ function Dashboard() {
   const [loadingSchoolRoles, setLoadingSchoolRoles] = useState(true);
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [schoolRole, setSchoolRole] = useState(null); // 'parent' or 'teacher'
+  const [journalSchoolFilter, setJournalSchoolFilter] = useState('all');
+  const [journalAudienceFilter, setJournalAudienceFilter] = useState('all');
   
   // Removed showProfileCompletionModal state - now using full-page FamilySetupPage
   const [showGenderModal, setShowGenderModal] = useState(false);
