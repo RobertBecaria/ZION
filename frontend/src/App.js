@@ -1950,6 +1950,8 @@ function Dashboard() {
                                 user={user}
                                 activeModule="journal"
                                 schoolRoles={schoolRoles}
+                                journalSchoolFilter={journalSchoolFilter}
+                                journalAudienceFilter={journalAudienceFilter}
                               />
                             ) : activeView === 'journal-role-select' ? (
                               <div className="journal-role-select">
