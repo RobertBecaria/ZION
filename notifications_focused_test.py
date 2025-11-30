@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://smart-school-hub-4.preview.emergentagent.com/api"
+BACKEND_URL = "https://acadhub-14.preview.emergentagent.com/api"
 
 # Test credentials
 TEST_MEMBER_EMAIL = "test@zion.city"
