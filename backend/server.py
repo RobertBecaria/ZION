@@ -10632,30 +10632,45 @@ async def get_my_school_roles(
                     })
         
         # Check if user is a teacher in any educational organization
+        # First check work_members with is_teacher flag
         teacher_memberships_cursor = db.work_members.find({
             "user_id": current_user.id,
             "is_teacher": True,
             "status": "active"
         })
         teacher_memberships = await teacher_memberships_cursor.to_list(None)
-        roles["is_teacher"] = len(teacher_memberships) > 0
+        
+        # Also check the dedicated teachers collection
+        teachers_cursor = db.teachers.find({
+            "user_id": current_user.id
+        })
+        teachers_records = await teachers_cursor.to_list(None)
+        
+        roles["is_teacher"] = len(teacher_memberships) > 0 or len(teachers_records) > 0
         
         # Get schools where user is a teacher
         if roles["is_teacher"]:
             teacher_org_ids = [m["organization_id"] for m in teacher_memberships]
+            # Add org_ids from teachers collection
+            for t in teachers_records:
+                if t.get("organization_id") and t["organization_id"] not in teacher_org_ids:
+                    teacher_org_ids.append(t["organization_id"])
             
             for org_id in teacher_org_ids:
                 org = await db.work_organizations.find_one({"organization_id": org_id})
-                if org and org.get("organization_type") == "EDUCATIONAL":
-                    # Get teacher details
+                if org:
+                    # Get teacher details from work_members
                     member = next((m for m in teacher_memberships if m["organization_id"] == org_id), None)
+                    # Also check teachers collection for details
+                    teacher_record = next((t for t in teachers_records if t.get("organization_id") == org_id), None)
+                    
                     roles["schools_as_teacher"].append({
                         "organization_id": org_id,
                         "organization_name": org.get("name"),
-                        "teaching_subjects": member.get("teaching_subjects", []),
-                        "teaching_grades": member.get("teaching_grades", []),
-                        "is_class_supervisor": member.get("is_class_supervisor", False),
-                        "supervised_class": member.get("supervised_class")
+                        "teaching_subjects": member.get("teaching_subjects", []) if member else (teacher_record.get("subjects", []) if teacher_record else []),
+                        "teaching_grades": member.get("teaching_grades", []) if member else (teacher_record.get("grades", []) if teacher_record else []),
+                        "is_class_supervisor": member.get("is_class_supervisor", False) if member else False,
+                        "supervised_class": member.get("supervised_class") if member else None
                     })
         
         return roles
