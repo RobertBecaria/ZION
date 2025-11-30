@@ -1700,6 +1700,7 @@ function Dashboard() {
                         moduleName={currentModule.name}
                         user={user}
                         context={activeView}
+                        onOpenFullCalendar={activeModule === 'journal' ? () => setActiveView('event-planner') : null}
                       />
                     </div>
                   )}
