@@ -132,6 +132,24 @@ const JournalWorldZone = ({
             </div>
           </div>
         )}
+
+        {/* Event Planner Quick Access */}
+        {onOpenEventPlanner && (
+          <div className="world-zone-card">
+            <button 
+              className="event-planner-btn"
+              onClick={onOpenEventPlanner}
+              style={{ 
+                backgroundColor: moduleColor,
+                color: 'white'
+              }}
+            >
+              <Calendar size={18} />
+              <span>Планировщик событий</span>
+              <ChevronRight size={18} />
+            </button>
+          </div>
+        )}
       </div>
     );
   }
