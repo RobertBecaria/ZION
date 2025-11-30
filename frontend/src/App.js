@@ -1720,6 +1720,22 @@ function Dashboard() {
             />
           )}
           
+          {/* JOURNAL Module - School Selected Navigation */}
+          {activeModule === 'journal' && selectedSchool && (
+            <JournalWorldZone
+              selectedSchool={selectedSchool}
+              role={schoolRole}
+              onNavigate={(view) => {
+                if (view === 'school-list') {
+                  setSelectedSchool(null);
+                  setActiveView('journal-school-tiles');
+                } else {
+                  setActiveView(`journal-${view}`);
+                }
+              }}
+            />
+          )}
+          
           {/* WALL and FEED Views - Wall-specific widgets (Family module only) */}
           {activeModule === 'family' && (activeView === 'wall' || activeView === 'feed') && (
             <FamilyWorldZone
