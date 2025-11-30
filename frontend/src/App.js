@@ -1725,6 +1725,7 @@ function Dashboard() {
               onSchoolFilterChange={setJournalSchoolFilter}
               audienceFilter={journalAudienceFilter}
               onAudienceFilterChange={setJournalAudienceFilter}
+              onOpenEventPlanner={() => setActiveView('event-planner')}
             />
           )}
           
