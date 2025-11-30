@@ -1503,6 +1503,7 @@ class AcademicEvent(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     organization_id: str
     created_by_user_id: str
+    creator_role: str = "PARENT"  # ADMIN, TEACHER, PARENT, STUDENT
     
     # Event details
     title: str
@@ -1522,9 +1523,15 @@ class AcademicEvent(BaseModel):
     # Audience
     audience_type: str = "PUBLIC"
     grade_filter: Optional[str] = None
+    invitees: List[str] = []  # List of invited user IDs
     
     # Display
     color: Optional[str] = None
+    
+    # RSVP
+    requires_rsvp: bool = False
+    max_attendees: Optional[int] = None
+    rsvp_responses: List[Dict[str, Any]] = []  # List of RSVPResponse dicts
     
     # Metadata
     is_active: bool = True
