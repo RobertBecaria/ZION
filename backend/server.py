@@ -11513,28 +11513,54 @@ async def create_academic_event(
     event: AcademicEventCreate,
     current_user: User = Depends(get_current_user)
 ):
-    """Create a new academic calendar event (teachers and admins only)"""
+    """Create a new academic calendar event (teachers, admins, parents, students)"""
     try:
-        # Verify user is a teacher at this organization
+        # Determine creator role based on user's relationship to the organization
+        creator_role = "PARENT"  # Default
+        
+        # Check if teacher at this organization
         teacher = await db.teachers.find_one({
             "user_id": current_user.id,
             "organization_id": organization_id
         })
+        if teacher:
+            creator_role = "TEACHER"
         
-        if not teacher:
-            raise HTTPException(
-                status_code=403, 
-                detail="Только учителя могут создавать события в календаре"
-            )
+        # Check if admin/director (work_member with admin role)
+        work_member = await db.work_members.find_one({
+            "user_id": current_user.id,
+            "organization_id": organization_id
+        })
+        if work_member and work_member.get("role") in ["OWNER", "ADMIN"]:
+            creator_role = "ADMIN"
+        
+        # Check if student (child of a parent)
+        student = await db.work_students.find_one({
+            "parent_ids": current_user.id,
+            "organization_id": organization_id
+        })
+        if student and event.event_type in ["BIRTHDAY"]:
+            # For birthday events, check if user is a student themselves
+            user_student = await db.work_students.find_one({
+                "user_id": current_user.id
+            })
+            if user_student:
+                creator_role = "STUDENT"
+        
+        # Get role color
+        role_color = EVENT_ROLE_COLORS.get(creator_role, "#16A34A")
         
         # Get organization info
-        org = await db.organizations.find_one({"id": organization_id})
+        org = await db.work_organizations.find_one({"organization_id": organization_id})
+        if not org:
+            org = await db.organizations.find_one({"id": organization_id})
         
         # Create event document
         event_doc = {
             "id": str(uuid.uuid4()),
             "organization_id": organization_id,
             "created_by_user_id": current_user.id,
+            "creator_role": creator_role,
             "title": event.title,
             "description": event.description,
             "event_type": event.event_type.value,
@@ -11546,7 +11572,11 @@ async def create_academic_event(
             "location": event.location,
             "audience_type": event.audience_type,
             "grade_filter": event.grade_filter,
-            "color": event.color or get_event_color(event.event_type.value),
+            "color": event.color or role_color,  # Use role color if no custom color
+            "requires_rsvp": event.requires_rsvp,
+            "max_attendees": event.max_attendees,
+            "invitees": event.invitees or [],
+            "rsvp_responses": [],
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": None
@@ -11561,6 +11591,8 @@ async def create_academic_event(
             title=event_doc["title"],
             description=event_doc["description"],
             event_type=event_doc["event_type"],
+            creator_role=creator_role,
+            role_color=role_color,
             start_date=event_doc["start_date"],
             end_date=event_doc["end_date"],
             start_time=event_doc["start_time"],
@@ -11570,6 +11602,11 @@ async def create_academic_event(
             audience_type=event_doc["audience_type"],
             grade_filter=event_doc["grade_filter"],
             color=event_doc["color"],
+            requires_rsvp=event_doc["requires_rsvp"],
+            max_attendees=event_doc["max_attendees"],
+            invitees=event_doc["invitees"],
+            rsvp_responses=[],
+            rsvp_summary={"YES": 0, "NO": 0, "MAYBE": 0},
             is_active=True,
             created_at=datetime.fromisoformat(event_doc["created_at"]),
             created_by={
