@@ -1634,10 +1634,16 @@ function Dashboard() {
                                 />
                               </ErrorBoundary>
                             ) : activeView === 'journal-dashboard' ? (
-                              <div className="journal-dashboard-placeholder">
-                                <h2>Журнал - {selectedSchool?.organization_name}</h2>
-                                <p>Выберите раздел из навигации справа (WORLD ZONE)</p>
-                              </div>
+                              /* Show EventPlanner by default when school is selected */
+                              <ErrorBoundary>
+                                <EventPlanner
+                                  organizationId={selectedSchool?.organization_id}
+                                  schoolRoles={schoolRoles}
+                                  user={user}
+                                  moduleColor={currentModule.color}
+                                  viewType="full"
+                                />
+                              </ErrorBoundary>
                             ) : activeView === 'journal-schedule' ? (
                               <ErrorBoundary>
                                 <ClassSchedule
