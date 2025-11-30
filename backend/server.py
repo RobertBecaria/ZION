@@ -1547,6 +1547,8 @@ class AcademicEventResponse(BaseModel):
     title: str
     description: Optional[str]
     event_type: str
+    creator_role: str = "PARENT"
+    role_color: Optional[str] = None  # Color based on creator role
     
     start_date: str
     end_date: Optional[str]
@@ -1558,6 +1560,14 @@ class AcademicEventResponse(BaseModel):
     audience_type: str
     grade_filter: Optional[str]
     color: Optional[str]
+    invitees: List[str] = []
+    
+    # RSVP fields
+    requires_rsvp: bool = False
+    max_attendees: Optional[int] = None
+    rsvp_responses: List[Dict[str, Any]] = []
+    rsvp_summary: Optional[Dict[str, int]] = None  # {"YES": 5, "NO": 2, "MAYBE": 3}
+    user_rsvp: Optional[str] = None  # Current user's RSVP status
     
     is_active: bool
     created_at: datetime
