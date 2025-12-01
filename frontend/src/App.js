@@ -621,6 +621,7 @@ function Dashboard() {
                               /* Chat view */
                               <UniversalChatLayout
                                 activeGroup={activeGroup}
+                                activeDirectChat={activeDirectChat}
                                 chatGroups={chatGroups}
                                 onGroupSelect={handleGroupSelect}
                                 moduleColor={currentModule.color}
@@ -807,6 +808,7 @@ function Dashboard() {
                             ) : (
                               <UniversalChatLayout
                                 activeGroup={activeGroup}
+                                activeDirectChat={activeDirectChat}
                                 chatGroups={chatGroups}
                                 onGroupSelect={handleGroupSelect}
                                 moduleColor={currentModule.color}
@@ -832,6 +834,7 @@ function Dashboard() {
                             ) : (
                               <UniversalChatLayout
                                 activeGroup={activeGroup}
+                                activeDirectChat={activeDirectChat}
                                 chatGroups={chatGroups}
                                 onGroupSelect={handleGroupSelect}
                                 moduleColor={currentModule.color}
