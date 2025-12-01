@@ -6,7 +6,7 @@ import json
 from datetime import datetime
 
 class FamilyConnectionTester:
-    def __init__(self, base_url="https://eduevents-6.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://event-sync-7.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
