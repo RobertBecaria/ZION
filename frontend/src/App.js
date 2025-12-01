@@ -68,17 +68,7 @@ import WorkCalendarWidget from './components/WorkCalendarWidget';
 import { 
   Search, Bell, ChevronRight, Plus
 } from 'lucide-react';
-// Auth components now imported from ./components/auth
-
-// AuthProvider and useAuth now imported from ./components/auth
-
-// LoginForm now imported from ./components/auth
-
-// RegistrationForm now imported from ./components/auth
-
-// OnboardingWizard now imported from ./components/auth
-
-// All auth components now imported from ./components/auth
+// Auth components moved to ./components/auth
 
 // Main Dashboard Component
 function Dashboard() {
