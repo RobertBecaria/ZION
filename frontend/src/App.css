@@ -22681,3 +22681,80 @@ a,
   text-align: left;
   margin-left: 10px;
 }
+
+/* Birthday Party Invitation Flash Animation */
+@keyframes birthdayFlash {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 8px rgba(236, 72, 153, 0);
+  }
+}
+
+@keyframes birthdayFlashItem {
+  0%, 100% {
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  50% {
+    background-color: #FDF2F8;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+  }
+}
+
+.birthday-flash {
+  animation: birthdayFlash 0.5s ease-in-out infinite !important;
+}
+
+.birthday-flash-item {
+  animation: birthdayFlashItem 0.5s ease-in-out infinite !important;
+}
+
+/* Birthday Party Form Styles */
+.birthday-party-section {
+  margin-top: 16px;
+}
+
+.birthday-party-section .form-group {
+  margin-bottom: 0;
+}
+
+.birthday-party-section .form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.birthday-party-section input,
+.birthday-party-section textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  font-size: 14px;
+}
+
+.birthday-party-section input:focus,
+.birthday-party-section textarea:focus {
+  outline: none;
+  border-color: #EC4899;
+}
+
+/* Dietary Restrictions Input */
+.dietary-input {
+  background: #F9FAFB;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+}
+
+/* Birthday Invitation Display in Modal */
+.birthday-invitation-display {
+  transition: all 0.3s ease;
+}
+
+.birthday-invitation-display:hover {
+  transform: scale(1.02);
+}
