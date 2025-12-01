@@ -1,9 +1,9 @@
 /**
  * MessageBubble Component
- * WhatsApp-style message bubble with status indicators
+ * WhatsApp-style message bubble with status indicators, replies, and attachments
  */
 import React from 'react';
-import { Check, CheckCheck, Reply, MoreVertical } from 'lucide-react';
+import { Check, CheckCheck, Reply, Image, File, Download } from 'lucide-react';
 
 const MessageBubble = ({
   message,
@@ -31,6 +31,44 @@ const MessageBubble = ({
     }
   };
 
+  const renderAttachment = () => {
+    if (!message.attachment) return null;
+    
+    const { filename, file_path, mime_type } = message.attachment;
+    const isImage = mime_type?.startsWith('image/');
+    
+    if (isImage) {
+      return (
+        <div className="attachment-container image-attachment">
+          <img 
+            src={`${process.env.REACT_APP_BACKEND_URL}${file_path}`} 
+            alt={filename}
+            className="attachment-image"
+            onClick={() => window.open(`${process.env.REACT_APP_BACKEND_URL}${file_path}`, '_blank')}
+          />
+        </div>
+      );
+    }
+    
+    return (
+      <div className="attachment-container file-attachment">
+        <File size={32} color={moduleColor} />
+        <div className="file-info">
+          <span className="file-name">{filename}</span>
+          <a 
+            href={`${process.env.REACT_APP_BACKEND_URL}${file_path}`}
+            download={filename}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="download-btn"
+          >
+            <Download size={16} /> Скачать
+          </a>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'}`}>
       <div 
@@ -42,11 +80,11 @@ const MessageBubble = ({
           <div className="reply-reference">
             <div className="reply-bar" style={{ backgroundColor: moduleColor }}></div>
             <div className="reply-content">
-              <span className="reply-sender">
+              <span className="reply-sender" style={{ color: moduleColor }}>
                 {message.reply_message.sender?.first_name || 'Unknown'}
               </span>
               <span className="reply-text">
-                {message.reply_message.content?.substring(0, 50)}...
+                {message.reply_message.content?.substring(0, 60)}{message.reply_message.content?.length > 60 ? '...' : ''}
               </span>
             </div>
           </div>
@@ -59,9 +97,17 @@ const MessageBubble = ({
           </div>
         )}
         
+        {/* Attachment */}
+        {renderAttachment()}
+        
         {/* Message content */}
         <div className="message-content">
-          <span className="message-text">{message.content}</span>
+          {message.message_type !== 'IMAGE' && message.message_type !== 'FILE' && (
+            <span className="message-text">{message.content}</span>
+          )}
+          {(message.message_type === 'IMAGE' || message.message_type === 'FILE') && !message.attachment && (
+            <span className="message-text">{message.content}</span>
+          )}
           <span className="message-meta">
             {message.is_edited && <span className="edited-label">изменено</span>}
             <span className="message-time">{formatTime(message.created_at)}</span>
