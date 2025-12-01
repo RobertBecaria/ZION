@@ -1196,6 +1196,15 @@ class StudentResponse(BaseModel):
     student_number: Optional[str]
     notes: Optional[str]
     age: Optional[int] = None  # Calculated from date_of_birth
+    # Additional fields for UI compatibility
+    id: Optional[str] = None  # Alias for student_id
+    first_name: Optional[str] = None  # Alias for student_first_name
+    last_name: Optional[str] = None  # Alias for student_last_name
+    class_name: Optional[str] = None  # Alias for assigned_class
+    class_id: Optional[str] = None  # Derived from assigned_class
+    average_grade: Optional[float] = None  # Academic average (placeholder)
+    attendance_rate: Optional[int] = None  # Attendance percentage (placeholder)
+    parent_name: Optional[str] = None  # Primary parent name
 
 class StudentParentLinkRequest(BaseModel):
     """Link parent to student"""
