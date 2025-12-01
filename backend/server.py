@@ -1588,6 +1588,9 @@ class AcademicEventResponse(BaseModel):
     rsvp_summary: Optional[Dict[str, int]] = None  # {"YES": 5, "NO": 2, "MAYBE": 3}
     user_rsvp: Optional[str] = None  # Current user's RSVP status
     
+    # Birthday party specific data
+    birthday_party_data: Optional[Dict[str, Any]] = None
+    
     is_active: bool
     created_at: datetime
     
