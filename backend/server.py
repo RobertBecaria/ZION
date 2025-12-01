@@ -11622,6 +11622,7 @@ async def create_academic_event(
             "max_attendees": event.max_attendees,
             "invitees": event.invitees or [],
             "rsvp_responses": [],
+            "birthday_party_data": event.birthday_party_data,  # Birthday party specific data
             "is_active": True,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "updated_at": None
