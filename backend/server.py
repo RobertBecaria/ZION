@@ -10191,6 +10191,169 @@ async def get_school_constants():
         "school_levels": [level.value for level in SchoolLevel]
     }
 
+
+# === SCHOOL CLASSES ENDPOINTS ===
+
+@api_router.get("/work/organizations/{organization_id}/classes", response_model=List[SchoolClassResponse])
+async def get_organization_classes(
+    organization_id: str,
+    grade: Optional[int] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get classes for an organization. 
+    For teachers: returns classes they teach or supervise.
+    For admins: returns all classes in the organization."""
+    try:
+        # Check if user has access to this organization
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        teacher = await db.teachers.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id
+        })
+        
+        if not membership and not teacher:
+            # Also check if user is admin
+            if current_user.role != "admin":
+                raise HTTPException(status_code=403, detail="Нет доступа к этой организации")
+        
+        is_admin = membership and membership.get("is_admin")
+        is_teacher = membership and membership.get("is_teacher") or teacher is not None
+        
+        # Get unique classes from students
+        pipeline = [
+            {"$match": {"organization_id": organization_id, "academic_status": "ACTIVE"}},
+            {"$group": {
+                "_id": "$assigned_class",
+                "grade": {"$first": "$grade"},
+                "students_count": {"$sum": 1}
+            }},
+            {"$match": {"_id": {"$ne": None}}},
+            {"$sort": {"grade": 1, "_id": 1}}
+        ]
+        
+        if grade:
+            pipeline[0]["$match"]["grade"] = grade
+        
+        classes_data = await db.work_students.aggregate(pipeline).to_list(None)
+        
+        # If no students with classes, create classes based on teacher assignments
+        if not classes_data and is_teacher:
+            # Get teacher's teaching grades and supervised class
+            teacher_info = teacher or await db.work_members.find_one({
+                "organization_id": organization_id,
+                "user_id": current_user.id,
+                "is_teacher": True
+            })
+            
+            if teacher_info:
+                teaching_grades = teacher_info.get("teaching_grades", [])
+                supervised_class = teacher_info.get("supervised_class")
+                
+                # Generate sample classes based on teaching grades
+                class_letters = ["А", "Б", "В"]
+                generated_classes = []
+                
+                for g in teaching_grades:
+                    for letter in class_letters[:2]:  # Just A and B for each grade
+                        class_name = f"{g}-{letter}"
+                        generated_classes.append({
+                            "_id": class_name,
+                            "grade": g,
+                            "students_count": 0
+                        })
+                
+                # Add supervised class if exists
+                if supervised_class and not any(c["_id"] == supervised_class for c in generated_classes):
+                    grade_num = int(''.join(filter(str.isdigit, supervised_class))) if supervised_class else None
+                    if grade_num:
+                        generated_classes.append({
+                            "_id": supervised_class,
+                            "grade": grade_num,
+                            "students_count": 0
+                        })
+                
+                classes_data = sorted(generated_classes, key=lambda x: (x["grade"], x["_id"]))
+        
+        # Get all teachers to find class supervisors
+        teachers_cursor = db.teachers.find({"organization_id": organization_id})
+        teachers_list = await teachers_cursor.to_list(None)
+        
+        # Also check work_members for teacher data
+        members_cursor = db.work_members.find({
+            "organization_id": organization_id,
+            "is_teacher": True
+        })
+        members_list = await members_cursor.to_list(None)
+        
+        # Merge teacher info
+        all_teachers = {}
+        for t in teachers_list:
+            supervised = t.get("supervised_class")
+            if supervised:
+                user = await db.users.find_one({"id": t.get("user_id")})
+                if user:
+                    all_teachers[supervised] = {
+                        "id": t.get("user_id"),
+                        "name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip(),
+                        "subjects": t.get("teaching_subjects", [])
+                    }
+        
+        for m in members_list:
+            supervised = m.get("supervised_class")
+            if supervised and supervised not in all_teachers:
+                user = await db.users.find_one({"id": m.get("user_id")})
+                if user:
+                    all_teachers[supervised] = {
+                        "id": m.get("user_id"),
+                        "name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip(),
+                        "subjects": m.get("teaching_subjects", [])
+                    }
+        
+        # Get subjects taught to each class (based on teacher teaching_grades and teaching_subjects)
+        subjects_by_grade = {}
+        for t in teachers_list + members_list:
+            for g in t.get("teaching_grades", []):
+                if g not in subjects_by_grade:
+                    subjects_by_grade[g] = set()
+                subjects_by_grade[g].update(t.get("teaching_subjects", []))
+        
+        # Build response
+        class_responses = []
+        for class_info in classes_data:
+            class_name = class_info["_id"]
+            grade_num = class_info.get("grade", 0)
+            
+            teacher_info = all_teachers.get(class_name, {})
+            subjects = list(subjects_by_grade.get(grade_num, set()))
+            
+            # Determine if current user is the class teacher
+            is_class_teacher = teacher_info.get("id") == current_user.id
+            
+            class_responses.append(SchoolClassResponse(
+                id=str(uuid.uuid4()),  # Generate ID for display
+                name=class_name,
+                grade=grade_num,
+                students_count=class_info.get("students_count", 0),
+                class_teacher=teacher_info.get("name"),
+                class_teacher_id=teacher_info.get("id"),
+                subjects=subjects[:5],  # Limit to 5 subjects for display
+                schedule_count=len(subjects) * 2,  # Approximate lessons per week
+                is_class_teacher=is_class_teacher
+            ))
+        
+        return class_responses
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 # === STUDENT MANAGEMENT ENDPOINTS ===
 
 @api_router.post("/work/organizations/{organization_id}/students")
