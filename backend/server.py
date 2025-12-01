@@ -11765,6 +11765,7 @@ async def get_academic_events(
                 rsvp_responses=rsvp_responses,
                 rsvp_summary=rsvp_summary,
                 user_rsvp=user_rsvp,
+                birthday_party_data=event.get("birthday_party_data"),
                 is_active=event.get("is_active", True),
                 created_at=datetime.fromisoformat(event["created_at"]) if isinstance(event["created_at"], str) else event["created_at"],
                 created_by={
