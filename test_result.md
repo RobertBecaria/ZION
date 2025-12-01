@@ -1551,3 +1551,56 @@ Recurring `AttributeError: module 'bcrypt' has no attribute '__about__'` error d
 - `backend/requirements.txt` - bcrypt pinned to 4.0.1
 
 **Agent:** main
+
+---
+## Feature Implementation - December 1, 2025, 10:40 UTC
+
+### Task: Birthday Party Invitations Feature
+
+**Status:** ✅ IMPLEMENTED (Pending Frontend Testing)
+
+**Backend Implementation:**
+1. Added `BirthdayPartyTheme` enum (PINK/BLUE themes)
+2. Added `BirthdayPartyData` model with:
+   - theme (PINK/BLUE)
+   - custom_message
+   - wish_list (placeholder for future marketplace)
+   - birthday_child_name
+   - birthday_child_age
+3. Updated `AcademicEventCreate`, `AcademicEvent`, and `AcademicEventResponse` models
+4. Added dietary_restrictions field to RSVPInput and RSVP handling
+5. Created `/api/journal/organizations/{org_id}/classmates` endpoint for friend selection
+
+**Frontend Implementation:**
+1. Extended EventPlanner.js with:
+   - Birthday party specific state and form
+   - Theme selector (Pink/Blue with preview)
+   - Birthday child name and age inputs
+   - Custom message field
+   - Wish list management (local storage placeholder)
+   - Classmate multi-select (fetched from API)
+   - Invitation preview component
+2. Enhanced RSVP with dietary restrictions input for birthday events
+3. Added flash animation for pending birthday invitations (3 seconds)
+4. Added CSS for birthday party styling and animations
+
+**Backend Tests Completed:**
+- ✅ Birthday event creation with all party data
+- ✅ RSVP with dietary restrictions saving correctly
+- ✅ Classmates endpoint returning data
+
+**Frontend Tests Needed:**
+- Birthday party form opening when BIRTHDAY type selected
+- Theme switching (Pink/Blue)
+- Wish list add/remove
+- Classmate selection
+- Invitation preview
+- RSVP with dietary restrictions input
+- Flash animation on calendar
+
+**Files Modified:**
+- `backend/server.py` - Models, endpoints, RSVP handling
+- `frontend/src/components/EventPlanner.js` - Birthday party form, RSVP, flash animation
+- `frontend/src/App.css` - Flash animation styles
+
+**Agent:** main
