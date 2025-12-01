@@ -1565,13 +1565,17 @@ const EventPlanner = ({
                     const typeInfo = getEventTypeInfo(event.event_type);
                     const roleInfo = getCreatorRoleInfo(event.creator_role);
                     const countdown = getCountdown(event.start_date, event.start_time);
+                    const isFlashing = flashingInvitations.includes(event.id);
                     
                     return (
                       <div 
                         key={event.id} 
-                        className="event-list-item"
+                        className={`event-list-item ${isFlashing ? 'birthday-flash-item' : ''}`}
                         onClick={() => setSelectedEvent(event)}
-                        style={{ borderLeftColor: event.role_color || roleInfo.color }}
+                        style={{ 
+                          borderLeftColor: event.role_color || roleInfo.color,
+                          animation: isFlashing ? 'birthdayFlashItem 0.5s ease-in-out infinite' : undefined
+                        }}
                       >
                         <div className="event-date-badge" style={{ backgroundColor: event.role_color || roleInfo.color }}>
                           <span className="event-day">{new Date(event.start_date).getDate()}</span>
