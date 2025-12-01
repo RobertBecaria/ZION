@@ -2071,10 +2071,20 @@ class WorkTeam(BaseModel):
 # ===== END DEPARTMENTS & ANNOUNCEMENTS MODELS =====
 
 class ChatMessageCreate(BaseModel):
-    group_id: str
+    group_id: Optional[str] = None
+    direct_chat_id: Optional[str] = None
     content: str
     message_type: str = "TEXT"
     reply_to: Optional[str] = None
+
+class DirectChatCreate(BaseModel):
+    recipient_id: str  # User ID to start chat with
+
+class MessageStatusUpdate(BaseModel):
+    status: str  # "delivered" or "read"
+
+class TypingStatusUpdate(BaseModel):
+    is_typing: bool
 
 class ScheduledActionCreate(BaseModel):
     group_id: str
