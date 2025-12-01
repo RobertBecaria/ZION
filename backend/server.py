@@ -1096,6 +1096,32 @@ class TeacherResponse(BaseModel):
     department: Optional[str]
     start_date: Optional[datetime]
 
+# === SCHOOL CLASS MODELS ===
+
+class SchoolClass(BaseModel):
+    """School class (e.g., 5-А, 6-Б)"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organization_id: str
+    name: str  # e.g., "5-А", "6-Б"
+    grade: int  # 1-11
+    class_teacher_id: Optional[str] = None  # Teacher user_id who is class supervisor
+    class_teacher_name: Optional[str] = None
+    academic_year: Optional[str] = None  # e.g., "2024-2025"
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class SchoolClassResponse(BaseModel):
+    """Response for school class with enriched data"""
+    id: str
+    name: str
+    grade: int
+    students_count: int = 0
+    class_teacher: Optional[str] = None  # Teacher name
+    class_teacher_id: Optional[str] = None
+    subjects: List[str] = []  # Subjects taught to this class
+    schedule_count: int = 0  # Number of lessons per week
+    is_class_teacher: bool = False  # Whether current user is class teacher
+    academic_year: Optional[str] = None
+
 # === STUDENT-SPECIFIC MODELS ===
 
 class AcademicStatus(str, Enum):
