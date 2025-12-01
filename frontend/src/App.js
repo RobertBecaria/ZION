@@ -113,6 +113,11 @@ function Dashboard() {
   // Removed showProfileCompletionModal state - now using full-page FamilySetupPage
   const [showGenderModal, setShowGenderModal] = useState(false);
   
+  // Family Module State
+  const [selectedFamilyId, setSelectedFamilyId] = useState(null);
+  const [selectedFamilyForInvitation, setSelectedFamilyForInvitation] = useState(null);
+  const [showInvitationModal, setShowInvitationModal] = useState(false);
+  
   const { user, logout, refreshProfile } = useAuth();
 
   // Journal/School Module Hook
