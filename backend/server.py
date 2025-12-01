@@ -1549,6 +1549,9 @@ class AcademicEvent(BaseModel):
     max_attendees: Optional[int] = None
     rsvp_responses: List[Dict[str, Any]] = []  # List of RSVPResponse dicts
     
+    # Birthday party specific data
+    birthday_party_data: Optional[Dict[str, Any]] = None  # Theme, custom_message, wish_list, etc.
+    
     # Metadata
     is_active: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
