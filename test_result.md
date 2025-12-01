@@ -1522,3 +1522,32 @@ The RSVP functionality was already working correctly. The previous handoff repor
 - `backend/server.py` - Fixed audience filter permission check in `get_journal_posts`
 
 **Agent:** main
+
+---
+## Bug Fix - December 1, 2025, 10:00 UTC
+
+### Task: Fix bcrypt Dependency AttributeError
+
+**Status:** ✅ COMPLETED
+
+**Issue:**
+Recurring `AttributeError: module 'bcrypt' has no attribute '__about__'` error during password operations. This was caused by passlib 1.7.4 trying to access `bcrypt.__about__.__version__` which was removed in bcrypt 4.1+.
+
+**Root Cause:**
+- bcrypt 4.3.0 removed the `__about__` module
+- passlib 1.7.4 still tries to access it for version checking
+
+**Fix Applied:**
+- Downgraded bcrypt from 4.3.0 to 4.0.1 (`pip install bcrypt==4.0.1`)
+- Updated requirements.txt with `pip freeze`
+
+**Testing Results:**
+- ✅ Password hashing works without errors
+- ✅ Password verification works without errors
+- ✅ Login endpoint responds correctly with token
+- ✅ No bcrypt/AttributeError messages in backend logs
+
+**Files Modified:**
+- `backend/requirements.txt` - bcrypt pinned to 4.0.1
+
+**Agent:** main
