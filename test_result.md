@@ -1791,3 +1791,64 @@ Recurring `AttributeError: module 'bcrypt' has no attribute '__about__'` error d
 - ✅ Theme styling (Blue/Pink) preserved
 
 **Agent:** fork-agent
+
+---
+## EventPlanner.js Refactoring Complete - December 1, 2025, 15:48 UTC
+
+### Task: Complete Refactoring of EventPlanner.js Component
+
+**Status:** ✅ COMPLETED
+
+### Changes Made:
+
+**1. Replaced Inline Birthday Party Form with BirthdayPartyForm Component**
+- Extracted ~380 lines of inline JSX
+- Component: `/app/frontend/src/components/EventPlanner/BirthdayPartyForm.js`
+- All props properly passed: birthdayPartyData, classmates, wishInput, etc.
+
+**2. Replaced Inline Calendar Grid with CalendarGrid Component**
+- Extracted ~55 lines of inline JSX
+- Component: `/app/frontend/src/components/EventPlanner/CalendarGrid.js`
+- Updated component to accept all required props for state management
+- Props: days, events, today, selectedDate, flashingInvitations, onDaySelect, onEventSelect
+
+**3. Replaced Inline Upcoming Events Sidebar with UpcomingEventsSidebar Component**
+- Extracted ~40 lines of inline JSX
+- Component: `/app/frontend/src/components/EventPlanner/UpcomingEventsSidebar.js`
+- Props: upcomingEvents, moduleColor, onEventClick
+
+**4. Fixed Bug: toggleClassmateSelection Function**
+- Original: Expected classmateId but received full classmate object
+- Fixed: Now properly handles classmate objects with `c.id` comparison
+
+### File Size Reduction:
+- **Before:** 1730 lines
+- **After:** 1290 lines
+- **Reduction:** 440 lines (25.4% smaller)
+
+### Testing Verification:
+- ✅ Frontend compiled successfully (no errors)
+- ✅ ESLint passed - no issues found
+- ✅ Calendar view loads correctly with events
+- ✅ Upcoming events sidebar displays with countdown timers
+- ✅ Birthday party form appears when selecting "День рождения" event type
+- ✅ Theme selector (Pink/Blue) working
+- ✅ Wish list input visible
+- ✅ All event types rendering correctly
+- ✅ Event dots on calendar with role colors working
+
+### Component Architecture:
+```
+/app/frontend/src/components/
+├── EventPlanner.js (1290 lines - main orchestrator)
+└── EventPlanner/
+    ├── BirthdayPartyForm.js (417 lines)
+    ├── CalendarGrid.js (78 lines - updated)
+    ├── UpcomingEventsSidebar.js (58 lines - updated)
+    ├── WishListDisplay.js (156 lines)
+    ├── constants.js (40 lines)
+    ├── utils.js (149 lines)
+    └── index.js (16 lines)
+```
+
+**Agent:** fork-agent
