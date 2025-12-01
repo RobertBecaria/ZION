@@ -267,11 +267,11 @@ const EventPlanner = ({
   }, [events, user?.id]);
 
   // Handle classmate selection toggle
-  const toggleClassmateSelection = (classmateId) => {
+  const toggleClassmateSelection = (classmate) => {
     setSelectedClassmates(prev => 
-      prev.includes(classmateId)
-        ? prev.filter(id => id !== classmateId)
-        : [...prev, classmateId]
+      prev.some(c => c.id === classmate.id)
+        ? prev.filter(c => c.id !== classmate.id)
+        : [...prev, classmate]
     );
   };
 
