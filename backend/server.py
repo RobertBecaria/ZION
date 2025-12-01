@@ -11819,6 +11819,7 @@ async def rsvp_to_event(
             "user_id": current_user.id,
             "user_name": f"{current_user.first_name} {current_user.last_name}",
             "status": rsvp.status,
+            "dietary_restrictions": rsvp.dietary_restrictions,
             "responded_at": datetime.now(timezone.utc).isoformat()
         }
         rsvp_responses.append(new_rsvp)
