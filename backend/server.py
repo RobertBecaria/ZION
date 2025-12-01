@@ -11656,6 +11656,7 @@ async def create_academic_event(
             invitees=event_doc["invitees"],
             rsvp_responses=[],
             rsvp_summary={"YES": 0, "NO": 0, "MAYBE": 0},
+            birthday_party_data=event_doc.get("birthday_party_data"),
             is_active=True,
             created_at=datetime.fromisoformat(event_doc["created_at"]),
             created_by={
