@@ -4,7 +4,7 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { MessageCircle, Users, Settings, User, Plus } from 'lucide-react';
-import { ChatTabs, DirectChatList, ChatConversation } from './chat';
+import { ChatTabs, DirectChatList } from './chat';
 import ChatGroupList from './ChatGroupList';
 
 const ChatWorldZone = ({
@@ -14,11 +14,12 @@ const ChatWorldZone = ({
   handleGroupSelect,
   handleCreateGroup,
   user,
+  activeDirectChat,
+  setActiveDirectChat,
   onRefreshGroups
 }) => {
   const [activeTab, setActiveTab] = useState('chats');
   const [directChats, setDirectChats] = useState([]);
-  const [activeDirectChat, setActiveDirectChat] = useState(null);
   const [loadingChats, setLoadingChats] = useState(true);
 
   // Calculate unread counts
@@ -52,13 +53,17 @@ const ChatWorldZone = ({
   }, [fetchDirectChats]);
 
   const handleDirectChatSelect = (chatData) => {
-    setActiveDirectChat(chatData);
+    if (setActiveDirectChat) {
+      setActiveDirectChat(chatData);
+    }
     // Clear group selection when selecting direct chat
     if (handleGroupSelect) handleGroupSelect(null);
   };
 
   const handleGroupSelectWrapper = (groupData) => {
-    setActiveDirectChat(null); // Clear direct chat selection
+    if (setActiveDirectChat) {
+      setActiveDirectChat(null); // Clear direct chat selection
+    }
     if (handleGroupSelect) handleGroupSelect(groupData);
   };
 
