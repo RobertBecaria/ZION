@@ -26,7 +26,7 @@ import {
   DAYS_OF_WEEK,
   MONTHS,
   QUICK_PRESETS
-} from './EventPlanner';
+} from './EventPlanner/constants';
 
 // Import subcomponents
 import BirthdayPartyForm from './EventPlanner/BirthdayPartyForm';
