@@ -283,6 +283,8 @@ class User(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login: Optional[datetime] = None
+    last_seen: Optional[datetime] = None  # For online status tracking
+    is_online: bool = False  # Real-time online status
     
     # NEW FAMILY SYSTEM FIELDS
     address_street: Optional[str] = None
