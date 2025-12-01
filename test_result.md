@@ -1696,3 +1696,52 @@ Recurring `AttributeError: module 'bcrypt' has no attribute '__about__'` error d
 **Testing Method:** Screenshot tool with Playwright automation
 
 **Agent:** fork-agent
+
+---
+## Birthday Wish List Backend Implementation - December 1, 2025, 12:00 UTC
+
+### Task: Implement Backend for Birthday Wish List
+
+**Status:** ✅ COMPLETED
+
+### New Backend Endpoints Added:
+
+1. **GET /api/journal/calendar/{event_id}/wishlist**
+   - Returns wish list with claim status for each item
+   - Shows total wishes, claimed count, and whether current user can edit
+   - Tested: ✅
+
+2. **POST /api/journal/calendar/{event_id}/wishlist/claim**
+   - Allows users to claim/unclaim wish items
+   - Toggle behavior: clicking claimed item unclaims it
+   - Tested: ✅
+
+3. **PUT /api/journal/calendar/{event_id}/wishlist**
+   - Allows event creator to update the wish list
+   - Only creator can modify
+   - Tested: ✅
+
+### New Data Models:
+- `WishItem` - Individual wish with claim tracking
+- `WishListUpdate` - Request model for updating wishes
+- `WishClaimRequest` - Request model for claiming wishes
+
+### Frontend Updates:
+- Updated `EventPlanner.js` to display interactive wish list
+- Added claim/unclaim functionality with visual feedback
+- Shows claim status (✅ Вы выбрали / Available / Claimed by someone)
+- Counter shows X/Y выбрано (selected)
+- Themed styling (PINK/BLUE) preserved
+
+### Testing Verification:
+- Created test birthday event with wish list via API ✅
+- Verified wish list displays correctly in event modal ✅
+- Successfully claimed wish item (Робот-трансформер) ✅
+- Counter updated from 0/4 to 1/4 ✅
+- Visual feedback showing "Вы выбрали" (You selected) ✅
+
+**Files Modified:**
+- `/app/backend/server.py` - Added wish list endpoints and models
+- `/app/frontend/src/components/EventPlanner.js` - Added interactive wish list UI
+
+**Agent:** fork-agent
