@@ -23552,3 +23552,256 @@ a,
     max-width: 85%;
   }
 }
+
+/* ============================================
+   PHASE 2: ENHANCED CHAT FEATURES CSS
+   ============================================ */
+
+/* Online Indicator */
+.chat-avatar {
+  position: relative;
+}
+
+.online-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #25D366;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+/* Search Panel */
+.chat-search-panel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f0f2f5;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.chat-search-panel input {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+}
+
+.chat-search-panel button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #059669;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.chat-search-panel button:hover {
+  background: #047857;
+}
+
+.chat-search-panel button:last-child {
+  background: #9ca3af;
+}
+
+.chat-search-panel button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Search Results Panel */
+.search-results-panel {
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.search-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background: #f3f4f6;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.search-results-header button {
+  background: none;
+  border: none;
+  color: #059669;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-result-item {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.search-result-item:hover {
+  background: #f9fafb;
+}
+
+.search-result-item strong {
+  color: #059669;
+  margin-right: 4px;
+}
+
+.result-time {
+  float: right;
+  color: #9ca3af;
+  font-size: 11px;
+}
+
+/* Attachment Styles */
+.attachment-container {
+  margin-bottom: 4px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-attachment {
+  max-width: 280px;
+}
+
+.attachment-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.attachment-image:hover {
+  opacity: 0.9;
+}
+
+.file-attachment {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+
+.download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #059669;
+  text-decoration: none;
+}
+
+.download-btn:hover {
+  text-decoration: underline;
+}
+
+/* Reply Reference Improvements */
+.reply-reference {
+  display: flex;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 8px 10px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.reply-reference:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.reply-bar {
+  width: 4px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.reply-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.reply-sender {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.reply-text {
+  font-size: 13px;
+  color: #667781;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Improved Message Meta */
+.message-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+  float: right;
+  position: relative;
+  top: 5px;
+}
+
+/* Status Icons */
+.status-icon.read {
+  color: #34B7F1;
+}
+
+.status-icon.delivered,
+.status-icon.sent {
+  color: #8696A0;
+}
+
+/* Uploading State */
+.input-action-btn[disabled] {
+  opacity: 0.7;
+}
+
+/* Mobile Responsive Improvements */
+@media (max-width: 768px) {
+  .chat-search-panel {
+    padding: 8px 12px;
+  }
+  
+  .attachment-container {
+    max-width: 100%;
+  }
+  
+  .image-attachment {
+    max-width: 100%;
+  }
+}
