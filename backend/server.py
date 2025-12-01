@@ -5577,6 +5577,307 @@ async def complete_scheduled_action(
     
     return {"message": "Scheduled action marked as completed"}
 
+# ===== DIRECT MESSAGES (1:1 CHAT) ENDPOINTS =====
+
+@api_router.get("/direct-chats")
+async def get_user_direct_chats(current_user: User = Depends(get_current_user)):
+    """Get all direct chat conversations for the current user"""
+    direct_chats = await db.direct_chats.find({
+        "participant_ids": current_user.id,
+        "is_active": True
+    }).to_list(100)
+    
+    result = []
+    for chat in direct_chats:
+        chat.pop("_id", None)
+        
+        # Get the other participant
+        other_user_id = [uid for uid in chat["participant_ids"] if uid != current_user.id][0]
+        other_user = await get_user_by_id(other_user_id)
+        
+        # Get latest message
+        latest_message = await db.chat_messages.find_one(
+            {"direct_chat_id": chat["id"], "is_deleted": False},
+            sort=[("created_at", -1)]
+        )
+        if latest_message:
+            latest_message.pop("_id", None)
+        
+        # Get unread count
+        unread_count = await db.chat_messages.count_documents({
+            "direct_chat_id": chat["id"],
+            "user_id": {"$ne": current_user.id},
+            "status": {"$ne": "read"},
+            "is_deleted": False
+        })
+        
+        result.append({
+            "chat": chat,
+            "other_user": {
+                "id": other_user.id if other_user else other_user_id,
+                "first_name": other_user.first_name if other_user else "Unknown",
+                "last_name": other_user.last_name if other_user else "User",
+                "profile_picture": other_user.profile_picture if other_user else None
+            } if other_user else None,
+            "latest_message": latest_message,
+            "unread_count": unread_count
+        })
+    
+    # Sort by latest message time
+    result.sort(key=lambda x: x["latest_message"]["created_at"] if x["latest_message"] else x["chat"]["created_at"], reverse=True)
+    
+    return {"direct_chats": result}
+
+@api_router.post("/direct-chats")
+async def create_or_get_direct_chat(
+    chat_data: DirectChatCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new direct chat or get existing one"""
+    # Check if recipient exists
+    recipient = await get_user_by_id(chat_data.recipient_id)
+    if not recipient:
+        raise HTTPException(status_code=404, detail="Recipient user not found")
+    
+    # Check if chat already exists
+    existing_chat = await db.direct_chats.find_one({
+        "participant_ids": {"$all": [current_user.id, chat_data.recipient_id]},
+        "is_active": True
+    })
+    
+    if existing_chat:
+        existing_chat.pop("_id", None)
+        return {
+            "message": "Chat already exists",
+            "chat_id": existing_chat["id"],
+            "is_new": False
+        }
+    
+    # Create new direct chat
+    new_chat = DirectChat(
+        participant_ids=[current_user.id, chat_data.recipient_id]
+    )
+    
+    await db.direct_chats.insert_one(new_chat.dict())
+    
+    return {
+        "message": "Direct chat created successfully",
+        "chat_id": new_chat.id,
+        "is_new": True
+    }
+
+@api_router.get("/direct-chats/{chat_id}/messages")
+async def get_direct_chat_messages(
+    chat_id: str,
+    skip: int = 0,
+    limit: int = 50,
+    current_user: User = Depends(get_current_user)
+):
+    """Get messages from a direct chat"""
+    # Verify user is participant
+    chat = await db.direct_chats.find_one({
+        "id": chat_id,
+        "participant_ids": current_user.id,
+        "is_active": True
+    })
+    
+    if not chat:
+        raise HTTPException(status_code=403, detail="Not authorized to view this chat")
+    
+    # Mark unread messages as read
+    await db.chat_messages.update_many(
+        {
+            "direct_chat_id": chat_id,
+            "user_id": {"$ne": current_user.id},
+            "status": {"$ne": "read"}
+        },
+        {"$set": {
+            "status": "read",
+            "read_at": datetime.now(timezone.utc)
+        }}
+    )
+    
+    messages = await db.chat_messages.find(
+        {"direct_chat_id": chat_id, "is_deleted": False}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    
+    # Get sender info for each message
+    for message in messages:
+        message.pop("_id", None)
+        sender = await get_user_by_id(message["user_id"])
+        if sender:
+            message["sender"] = {
+                "id": sender.id,
+                "first_name": sender.first_name,
+                "last_name": sender.last_name,
+                "profile_picture": sender.profile_picture
+            }
+    
+    # Reverse to show chronological order
+    messages.reverse()
+    
+    return {"messages": messages}
+
+@api_router.post("/direct-chats/{chat_id}/messages")
+async def send_direct_message(
+    chat_id: str,
+    message_data: ChatMessageCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Send a message in a direct chat"""
+    # Verify user is participant
+    chat = await db.direct_chats.find_one({
+        "id": chat_id,
+        "participant_ids": current_user.id,
+        "is_active": True
+    })
+    
+    if not chat:
+        raise HTTPException(status_code=403, detail="Not authorized to send messages in this chat")
+    
+    new_message = ChatMessage(
+        direct_chat_id=chat_id,
+        user_id=current_user.id,
+        content=message_data.content,
+        message_type=message_data.message_type,
+        reply_to=message_data.reply_to,
+        status="sent"
+    )
+    
+    await db.chat_messages.insert_one(new_message.dict())
+    
+    # Update chat timestamp
+    await db.direct_chats.update_one(
+        {"id": chat_id},
+        {"$set": {"updated_at": datetime.now(timezone.utc)}}
+    )
+    
+    # Get sender info for response
+    message_dict = new_message.dict()
+    message_dict["sender"] = {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "profile_picture": current_user.profile_picture
+    }
+    
+    return {"message": "Message sent successfully", "message_id": new_message.id, "data": message_dict}
+
+@api_router.put("/messages/{message_id}/status")
+async def update_message_status(
+    message_id: str,
+    status_data: MessageStatusUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update message status (delivered/read)"""
+    message = await db.chat_messages.find_one({"id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Only the recipient can mark as delivered/read
+    if message["user_id"] == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot update status of your own message")
+    
+    update_data = {"status": status_data.status}
+    if status_data.status == "delivered":
+        update_data["delivered_at"] = datetime.now(timezone.utc)
+    elif status_data.status == "read":
+        update_data["read_at"] = datetime.now(timezone.utc)
+        if not message.get("delivered_at"):
+            update_data["delivered_at"] = datetime.now(timezone.utc)
+    
+    await db.chat_messages.update_one(
+        {"id": message_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Status updated successfully"}
+
+@api_router.get("/chats/{chat_id}/typing")
+async def get_typing_status(
+    chat_id: str,
+    chat_type: str = "direct",
+    current_user: User = Depends(get_current_user)
+):
+    """Get typing status for a chat"""
+    # Get typing status that's recent (within last 5 seconds)
+    five_seconds_ago = datetime.now(timezone.utc) - timedelta(seconds=5)
+    
+    typing_users = await db.typing_status.find({
+        "chat_id": chat_id,
+        "chat_type": chat_type,
+        "user_id": {"$ne": current_user.id},
+        "is_typing": True,
+        "updated_at": {"$gte": five_seconds_ago}
+    }, {"_id": 0}).to_list(10)
+    
+    # Get user names for typing users
+    for status in typing_users:
+        user = await get_user_by_id(status["user_id"])
+        if user:
+            status["user_name"] = f"{user.first_name} {user.last_name}"
+    
+    return {"typing_users": typing_users}
+
+@api_router.post("/chats/{chat_id}/typing")
+async def set_typing_status(
+    chat_id: str,
+    typing_data: TypingStatusUpdate,
+    chat_type: str = "direct",
+    current_user: User = Depends(get_current_user)
+):
+    """Set typing status for current user in a chat"""
+    await db.typing_status.update_one(
+        {
+            "chat_id": chat_id,
+            "chat_type": chat_type,
+            "user_id": current_user.id
+        },
+        {
+            "$set": {
+                "is_typing": typing_data.is_typing,
+                "updated_at": datetime.now(timezone.utc)
+            },
+            "$setOnInsert": {
+                "chat_id": chat_id,
+                "chat_type": chat_type,
+                "user_id": current_user.id
+            }
+        },
+        upsert=True
+    )
+    
+    return {"message": "Typing status updated"}
+
+@api_router.get("/users/contacts")
+async def get_user_contacts(
+    search: Optional[str] = None,
+    current_user: User = Depends(get_current_user)
+):
+    """Get list of users that can be contacted (for starting new chats)"""
+    query = {"id": {"$ne": current_user.id}}
+    
+    if search:
+        search_regex = {"$regex": search, "$options": "i"}
+        query["$or"] = [
+            {"first_name": search_regex},
+            {"last_name": search_regex},
+            {"email": search_regex}
+        ]
+    
+    users = await db.users.find(query, {
+        "_id": 0,
+        "id": 1,
+        "first_name": 1,
+        "last_name": 1,
+        "email": 1,
+        "profile_picture": 1
+    }).limit(50).to_list(50)
+    
+    return {"contacts": users}
+
+# ===== END DIRECT MESSAGES ENDPOINTS =====
+
 # Media Upload Endpoints
 @api_router.post("/media/upload", response_model=MediaUploadResponse)
 async def upload_media_file(
