@@ -66,7 +66,7 @@ import WorkNextEventWidget from './components/WorkNextEventWidget';
 import WorkUpcomingEventsList from './components/WorkUpcomingEventsList';
 import WorkCalendarWidget from './components/WorkCalendarWidget';
 import { 
-  Search, Bell, ChevronRight, Plus
+  Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase, Eye
 } from 'lucide-react';
 // Auth components moved to ./components/auth
 
