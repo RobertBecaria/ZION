@@ -489,44 +489,84 @@ const EventPlanner = ({
   const days = getDaysInMonth(currentDate);
   const today = new Date().toISOString().split('T')[0];
 
-  // Render RSVP buttons
-  const renderRSVPButtons = (event) => {
+  // Render RSVP buttons with dietary restrictions for birthday parties
+  const renderRSVPButtons = (event, showDietaryInput = false) => {
     if (!event.requires_rsvp) return null;
     
     const isLoading = rsvpLoading === event.id;
+    const isBirthday = event.event_type === 'BIRTHDAY';
+    
+    const handleRSVPWithDietary = (status) => {
+      if (isBirthday && status === 'YES' && dietaryRestrictions) {
+        handleRSVP(event.id, status, dietaryRestrictions);
+      } else {
+        handleRSVP(event.id, status);
+      }
+      setDietaryRestrictions('');
+    };
     
     return (
-      <div className="rsvp-buttons">
-        <button
-          className={`rsvp-btn yes ${event.user_rsvp === 'YES' ? 'active' : ''}`}
-          onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, 'YES'); }}
-          disabled={isLoading}
-          title="Приду"
-        >
-          <Check size={16} />
-          <span>Да</span>
-          {event.rsvp_summary?.YES > 0 && <span className="count">{event.rsvp_summary.YES}</span>}
-        </button>
-        <button
-          className={`rsvp-btn maybe ${event.user_rsvp === 'MAYBE' ? 'active' : ''}`}
-          onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, 'MAYBE'); }}
-          disabled={isLoading}
-          title="Возможно"
-        >
-          <HelpCircle size={16} />
-          <span>Может быть</span>
-          {event.rsvp_summary?.MAYBE > 0 && <span className="count">{event.rsvp_summary.MAYBE}</span>}
-        </button>
-        <button
-          className={`rsvp-btn no ${event.user_rsvp === 'NO' ? 'active' : ''}`}
-          onClick={(e) => { e.stopPropagation(); handleRSVP(event.id, 'NO'); }}
-          disabled={isLoading}
-          title="Не приду"
-        >
-          <XCircle size={16} />
-          <span>Нет</span>
-          {event.rsvp_summary?.NO > 0 && <span className="count">{event.rsvp_summary.NO}</span>}
-        </button>
+      <div className="rsvp-section-wrapper">
+        <div className="rsvp-buttons">
+          <button
+            className={`rsvp-btn yes ${event.user_rsvp === 'YES' ? 'active' : ''}`}
+            onClick={(e) => { e.stopPropagation(); handleRSVPWithDietary('YES'); }}
+            disabled={isLoading}
+            title="Приду"
+          >
+            <Check size={16} />
+            <span>Да</span>
+            {event.rsvp_summary?.YES > 0 && <span className="count">{event.rsvp_summary.YES}</span>}
+          </button>
+          <button
+            className={`rsvp-btn maybe ${event.user_rsvp === 'MAYBE' ? 'active' : ''}`}
+            onClick={(e) => { e.stopPropagation(); handleRSVPWithDietary('MAYBE'); }}
+            disabled={isLoading}
+            title="Возможно"
+          >
+            <HelpCircle size={16} />
+            <span>Может быть</span>
+            {event.rsvp_summary?.MAYBE > 0 && <span className="count">{event.rsvp_summary.MAYBE}</span>}
+          </button>
+          <button
+            className={`rsvp-btn no ${event.user_rsvp === 'NO' ? 'active' : ''}`}
+            onClick={(e) => { e.stopPropagation(); handleRSVPWithDietary('NO'); }}
+            disabled={isLoading}
+            title="Не приду"
+          >
+            <XCircle size={16} />
+            <span>Нет</span>
+            {event.rsvp_summary?.NO > 0 && <span className="count">{event.rsvp_summary.NO}</span>}
+          </button>
+        </div>
+        
+        {/* Dietary restrictions input for birthday parties */}
+        {isBirthday && showDietaryInput && !event.user_rsvp && (
+          <div className="dietary-input" style={{ marginTop: '12px' }}>
+            <label style={{ 
+              fontSize: '13px', 
+              color: '#6B7280', 
+              display: 'block', 
+              marginBottom: '6px'
+            }}>
+              🍽️ Есть ли аллергии или ограничения в питании?
+            </label>
+            <input
+              type="text"
+              value={dietaryRestrictions}
+              onChange={e => setDietaryRestrictions(e.target.value)}
+              placeholder="Например: Нет орехов, вегетарианец..."
+              onClick={e => e.stopPropagation()}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: '1px solid #E5E7EB',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+        )}
       </div>
     );
   };
