@@ -1745,3 +1745,49 @@ Recurring `AttributeError: module 'bcrypt' has no attribute '__about__'` error d
 - `/app/frontend/src/components/EventPlanner.js` - Added interactive wish list UI
 
 **Agent:** fork-agent
+
+---
+## Code Refactoring - December 1, 2025, 13:00 UTC
+
+### Task: Refactor EventPlanner.js and Extract Modular Components
+
+**Status:** ✅ COMPLETED
+
+### What Was Done:
+
+**Created new folder structure:** `/app/frontend/src/components/EventPlanner/`
+
+**New Files Created:**
+1. **constants.js** (40 lines) - EVENT_TYPES, CREATOR_ROLES, DAYS_OF_WEEK, MONTHS, QUICK_PRESETS
+2. **utils.js** (149 lines) - Helper functions: getEventTypeInfo, getCreatorRoleInfo, getCountdown, getCalendarDays, etc.
+3. **BirthdayPartyForm.js** (417 lines) - Complete birthday party form with theme selector, wish list, classmate selection
+4. **WishListDisplay.js** (156 lines) - Interactive wish list with claim/unclaim functionality
+5. **CalendarGrid.js** (99 lines) - Monthly calendar grid component
+6. **UpcomingEventsSidebar.js** (76 lines) - Upcoming events sidebar component
+7. **index.js** (16 lines) - Re-exports all components and utilities
+
+**Main EventPlanner.js Changes:**
+- Reduced from 1865 lines to 1730 lines (135 lines saved by extracting WishListDisplay)
+- Imports constants from `./EventPlanner/constants`
+- Uses WishListDisplay component for wish list in event details modal
+- BirthdayPartyForm and other components ready for future integration
+
+### Code Stats:
+- **Before:** 1865 lines (single file)
+- **After:** 1730 lines main + 953 lines in subcomponents = Better organized, reusable code
+
+### Benefits:
+- ✅ Modular, reusable components
+- ✅ Easier maintenance and testing
+- ✅ Separation of concerns
+- ✅ Constants extracted for single source of truth
+- ✅ Utility functions centralized
+
+### Testing Verification:
+- ✅ Frontend compiled successfully
+- ✅ Event planner calendar loads correctly
+- ✅ Birthday event details display correctly
+- ✅ WishListDisplay component works with claim functionality
+- ✅ Theme styling (Blue/Pink) preserved
+
+**Agent:** fork-agent
