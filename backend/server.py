@@ -11779,6 +11779,7 @@ async def get_academic_events(
 class RSVPInput(BaseModel):
     """RSVP input for event"""
     status: str  # YES, NO, MAYBE
+    dietary_restrictions: Optional[str] = None  # Food allergies/restrictions for birthday parties
 
 @api_router.post("/journal/calendar/{event_id}/rsvp")
 async def rsvp_to_event(
