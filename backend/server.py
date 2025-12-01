@@ -1511,6 +1511,8 @@ class AcademicEventCreate(BaseModel):
     requires_rsvp: bool = False  # Whether event requires RSVP
     max_attendees: Optional[int] = None  # Maximum attendees for birthday parties, etc.
     invitees: Optional[List[str]] = None  # List of invited user IDs (for private events)
+    # Birthday party specific fields
+    birthday_party_data: Optional[Dict[str, Any]] = None  # Theme, custom_message, wish_list, etc.
 
 class AcademicEvent(BaseModel):
     """Academic calendar event"""
