@@ -63,6 +63,22 @@ const EventPlanner = ({
   const [selectedEventTypes, setSelectedEventTypes] = useState([]);
   const [rsvpLoading, setRsvpLoading] = useState(null);
   
+  // Birthday party specific state
+  const [showBirthdayForm, setShowBirthdayForm] = useState(false);
+  const [classmates, setClassmates] = useState([]);
+  const [loadingClassmates, setLoadingClassmates] = useState(false);
+  const [selectedClassmates, setSelectedClassmates] = useState([]);
+  const [birthdayPartyData, setBirthdayPartyData] = useState({
+    theme: 'PINK', // PINK or BLUE
+    custom_message: '',
+    wish_list: [],
+    birthday_child_name: '',
+    birthday_child_age: null
+  });
+  const [wishInput, setWishInput] = useState('');
+  const [flashingInvitations, setFlashingInvitations] = useState([]);
+  const [dietaryRestrictions, setDietaryRestrictions] = useState('');
+  
   // Preset event templates
   const [showPresets, setShowPresets] = useState(false);
   const eventPresets = [
