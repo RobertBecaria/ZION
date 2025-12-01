@@ -12168,10 +12168,7 @@ async def update_event_wishlist(
         # Get existing birthday party data
         birthday_party_data = event.get("birthday_party_data", {}) or {}
         
-        # Preserve existing claims if the wish still exists
-        existing_wish_claims = birthday_party_data.get("wish_claims", {})
-        
-        # Update the wish list
+        # Update the wish list (claims are preserved as they're stored by index)
         birthday_party_data["wish_list"] = wishlist_update.wishes
         
         # Update the event in database
