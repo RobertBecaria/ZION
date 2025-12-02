@@ -37,12 +37,12 @@ USER2_PASSWORD = "testpassword123"
 
 class WebSocketChatTester:
     def __init__(self):
-        self.admin_token = None
-        self.teacher_token = None
-        self.teacher_user_id = None
-        self.teacher_email = None
-        self.organization_id = ORGANIZATION_ID
-        self.results = []
+        self.user1_token = None
+        self.user2_token = None
+        self.user1_id = None
+        self.user2_id = None
+        self.chat_id = None
+        self.test_results = []
         
     def log_result(self, test_name, success, details="", response_data=None):
         """Log test result"""
