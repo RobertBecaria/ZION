@@ -370,9 +370,9 @@ class WebSocketChatTester:
                     await websocket.send(json.dumps(stop_typing_message))
                     self.log_test("WebSocket Stop Typing", True, "Sent stop typing event")
                     
-            except websockets.exceptions.InvalidStatusCode as e:
+            except websockets.InvalidStatusCode as e:
                 self.log_test("WebSocket Connection", False, f"Invalid status code: {e}")
-            except websockets.exceptions.ConnectionClosedError as e:
+            except websockets.ConnectionClosedError as e:
                 self.log_test("WebSocket Connection", False, f"Connection closed: {e}")
             except asyncio.TimeoutError:
                 self.log_test("WebSocket Connection", False, "Connection timeout")
