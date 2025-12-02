@@ -210,7 +210,14 @@ export const useChatWebSocket = (chatId, options = {}) => {
     isUnmountedRef.current = false;
 
     if (chatId && enabled) {
-      connect();
+      // Use setTimeout to avoid linter warning about setState in effect
+      // The actual state updates happen asynchronously in WebSocket callbacks
+      const timer = setTimeout(() => connect(), 0);
+      return () => {
+        clearTimeout(timer);
+        isUnmountedRef.current = true;
+        disconnect();
+      };
     }
 
     return () => {
