@@ -54,6 +54,9 @@ const ChatConversation = ({
     ? chat?.other_user?.profile_picture 
     : null;
 
+  // Track pending delivery notifications for messages received via WebSocket
+  const [pendingDelivery, setPendingDelivery] = useState([]);
+
   // WebSocket integration
   const {
     isConnected: wsConnected,
@@ -69,11 +72,11 @@ const ChatConversation = ({
         return [...prev, newMsg];
       });
       
-      // Mark as delivered if from other user
+      // Queue delivery notification for messages from other users
       if (newMsg.user_id !== user?.id) {
-        wsSendDelivered([newMsg.id]);
+        setPendingDelivery(prev => [...prev, newMsg.id]);
       }
-    }, [user?.id, wsSendDelivered]),
+    }, [user?.id]),
     onTyping: useCallback((data) => {
       if (data.user_id === user?.id) return;
       
@@ -106,6 +109,14 @@ const ChatConversation = ({
       }
     }, [otherUserId])
   });
+
+  // Send delivery notifications for pending messages
+  useEffect(() => {
+    if (pendingDelivery.length > 0 && wsSendDelivered) {
+      wsSendDelivered(pendingDelivery);
+      setPendingDelivery([]);
+    }
+  }, [pendingDelivery, wsSendDelivered]);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
