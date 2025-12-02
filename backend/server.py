@@ -40,6 +40,107 @@ SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'fallback-secret-key-for-developme
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
+# === WEBSOCKET CONNECTION MANAGER ===
+class ChatConnectionManager:
+    """Manages WebSocket connections for real-time chat features"""
+    
+    def __init__(self):
+        # Dictionary mapping chat_id to set of websocket connections
+        self.chat_connections: Dict[str, Set[WebSocket]] = {}
+        # Dictionary mapping user_id to websocket connection
+        self.user_connections: Dict[str, WebSocket] = {}
+        # Lock for thread safety
+        self._lock = asyncio.Lock()
+    
+    async def connect(self, websocket: WebSocket, user_id: str, chat_id: str = None):
+        """Connect a user to WebSocket"""
+        await websocket.accept()
+        async with self._lock:
+            # Store user connection
+            self.user_connections[user_id] = websocket
+            
+            # If chat_id provided, add to chat room
+            if chat_id:
+                if chat_id not in self.chat_connections:
+                    self.chat_connections[chat_id] = set()
+                self.chat_connections[chat_id].add(websocket)
+        
+        logger.info(f"WebSocket connected: user={user_id}, chat={chat_id}")
+    
+    async def disconnect(self, websocket: WebSocket, user_id: str, chat_id: str = None):
+        """Disconnect a user from WebSocket"""
+        async with self._lock:
+            # Remove from user connections
+            if user_id in self.user_connections:
+                del self.user_connections[user_id]
+            
+            # Remove from chat connections
+            if chat_id and chat_id in self.chat_connections:
+                self.chat_connections[chat_id].discard(websocket)
+                if not self.chat_connections[chat_id]:
+                    del self.chat_connections[chat_id]
+        
+        logger.info(f"WebSocket disconnected: user={user_id}")
+    
+    async def join_chat(self, websocket: WebSocket, chat_id: str):
+        """Join a specific chat room"""
+        async with self._lock:
+            if chat_id not in self.chat_connections:
+                self.chat_connections[chat_id] = set()
+            self.chat_connections[chat_id].add(websocket)
+    
+    async def leave_chat(self, websocket: WebSocket, chat_id: str):
+        """Leave a specific chat room"""
+        async with self._lock:
+            if chat_id in self.chat_connections:
+                self.chat_connections[chat_id].discard(websocket)
+    
+    async def broadcast_to_chat(self, chat_id: str, message: dict, exclude_user: str = None):
+        """Broadcast a message to all users in a chat"""
+        if chat_id not in self.chat_connections:
+            return
+        
+        disconnected = []
+        for websocket in self.chat_connections[chat_id]:
+            try:
+                await websocket.send_json(message)
+            except Exception as e:
+                logger.error(f"Error broadcasting to chat {chat_id}: {e}")
+                disconnected.append(websocket)
+        
+        # Clean up disconnected sockets
+        async with self._lock:
+            for ws in disconnected:
+                self.chat_connections[chat_id].discard(ws)
+    
+    async def send_to_user(self, user_id: str, message: dict):
+        """Send a message to a specific user"""
+        if user_id not in self.user_connections:
+            return False
+        
+        try:
+            await self.user_connections[user_id].send_json(message)
+            return True
+        except Exception as e:
+            logger.error(f"Error sending to user {user_id}: {e}")
+            async with self._lock:
+                if user_id in self.user_connections:
+                    del self.user_connections[user_id]
+            return False
+    
+    def is_user_online(self, user_id: str) -> bool:
+        """Check if a user has an active WebSocket connection"""
+        return user_id in self.user_connections
+    
+    def get_online_users_in_chat(self, chat_id: str) -> int:
+        """Get number of online users in a chat"""
+        if chat_id not in self.chat_connections:
+            return 0
+        return len(self.chat_connections[chat_id])
+
+# Initialize the connection manager
+chat_manager = ChatConnectionManager()
+
 # Enums for better type safety
 class UserRole(str, Enum):
     ADMIN = "ADMIN"
