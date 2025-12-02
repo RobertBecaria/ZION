@@ -14479,7 +14479,7 @@ async def verify_websocket_token(token: str) -> Optional[dict]:
     except jwt.PyJWTError:
         return None
 
-@app.websocket("/ws/chat/{chat_id}")
+@app.websocket("/api/ws/chat/{chat_id}")
 async def websocket_chat_endpoint(
     websocket: WebSocket,
     chat_id: str,
