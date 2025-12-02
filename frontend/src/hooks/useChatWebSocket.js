@@ -85,6 +85,9 @@ export const useChatWebSocket = (chatId, options = {}) => {
     }
   }, [onMessage, onTyping, onStatus, onOnline]);
 
+  // Reconnect function ref to avoid circular dependency
+  const reconnectRef = useRef(null);
+
   // Connect to WebSocket
   const connect = useCallback(() => {
     if (isUnmountedRef.current || !enabled) return;
@@ -135,7 +138,9 @@ export const useChatWebSocket = (chatId, options = {}) => {
         if (!isUnmountedRef.current && enabled && event.code !== 1000) {
           reconnectTimeoutRef.current = setTimeout(() => {
             console.log('Attempting WebSocket reconnection...');
-            connect();
+            if (reconnectRef.current) {
+              reconnectRef.current();
+            }
           }, WS_RECONNECT_DELAY);
         }
       };
@@ -144,6 +149,11 @@ export const useChatWebSocket = (chatId, options = {}) => {
       setConnectionError('Failed to connect');
     }
   }, [chatId, enabled, getWebSocketUrl, handleMessage]);
+
+  // Keep reconnectRef updated with the latest connect function
+  useEffect(() => {
+    reconnectRef.current = connect;
+  }, [connect]);
 
   // Disconnect from WebSocket
   const disconnect = useCallback(() => {
