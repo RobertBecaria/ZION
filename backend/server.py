@@ -14441,6 +14441,207 @@ async def internal_reminder_check(request: Request):
 
 # ===== END EVENT REMINDERS SYSTEM =====
 
+# ===== WEBSOCKET CHAT SYSTEM =====
+
+async def verify_websocket_token(token: str) -> Optional[dict]:
+    """Verify JWT token for WebSocket connections"""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        return {"user_id": user_id}
+    except jwt.PyJWTError:
+        return None
+
+@app.websocket("/ws/chat/{chat_id}")
+async def websocket_chat_endpoint(
+    websocket: WebSocket,
+    chat_id: str,
+    token: Optional[str] = None
+):
+    """WebSocket endpoint for real-time chat communication
+    
+    Events received from client:
+    - typing: { type: "typing", is_typing: bool }
+    - read: { type: "read", message_ids: [str] }
+    - join: { type: "join", chat_id: str }
+    - leave: { type: "leave", chat_id: str }
+    
+    Events sent to client:
+    - typing: { type: "typing", user_id: str, user_name: str, is_typing: bool }
+    - message: { type: "message", message: {...} }
+    - status: { type: "status", message_id: str, status: str }
+    - online: { type: "online", user_id: str, is_online: bool }
+    """
+    # Verify token
+    if not token:
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+    
+    token_data = await verify_websocket_token(token)
+    if not token_data:
+        await websocket.close(code=4001, reason="Invalid token")
+        return
+    
+    user_id = token_data["user_id"]
+    
+    # Get user info
+    user = await db.users.find_one({"id": user_id}, {"_id": 0})
+    if not user:
+        await websocket.close(code=4001, reason="User not found")
+        return
+    
+    user_name = f"{user.get('first_name', '')} {user.get('last_name', '')}".strip()
+    
+    # Connect to WebSocket
+    await chat_manager.connect(websocket, user_id, chat_id)
+    
+    # Update user online status
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"is_online": True, "last_seen": datetime.now(timezone.utc)}}
+    )
+    
+    # Notify others in chat that user is online
+    await chat_manager.broadcast_to_chat(chat_id, {
+        "type": "online",
+        "user_id": user_id,
+        "user_name": user_name,
+        "is_online": True
+    })
+    
+    try:
+        while True:
+            # Receive message from client
+            data = await websocket.receive_json()
+            event_type = data.get("type")
+            
+            if event_type == "typing":
+                # Broadcast typing indicator
+                is_typing = data.get("is_typing", False)
+                await chat_manager.broadcast_to_chat(chat_id, {
+                    "type": "typing",
+                    "user_id": user_id,
+                    "user_name": user_name,
+                    "is_typing": is_typing,
+                    "chat_id": chat_id
+                })
+                
+                # Also update typing status in database for polling fallback
+                await db.typing_status.update_one(
+                    {"chat_id": chat_id, "user_id": user_id},
+                    {
+                        "$set": {
+                            "is_typing": is_typing,
+                            "updated_at": datetime.now(timezone.utc)
+                        },
+                        "$setOnInsert": {"chat_id": chat_id, "user_id": user_id}
+                    },
+                    upsert=True
+                )
+            
+            elif event_type == "read":
+                # Mark messages as read
+                message_ids = data.get("message_ids", [])
+                if message_ids:
+                    # Update direct chat messages
+                    await db.direct_chat_messages.update_many(
+                        {
+                            "id": {"$in": message_ids},
+                            "sender_id": {"$ne": user_id}
+                        },
+                        {"$set": {"status": "read", "read_at": datetime.now(timezone.utc)}}
+                    )
+                    
+                    # Broadcast read status to chat
+                    for msg_id in message_ids:
+                        await chat_manager.broadcast_to_chat(chat_id, {
+                            "type": "status",
+                            "message_id": msg_id,
+                            "status": "read",
+                            "reader_id": user_id
+                        })
+            
+            elif event_type == "delivered":
+                # Mark messages as delivered
+                message_ids = data.get("message_ids", [])
+                if message_ids:
+                    await db.direct_chat_messages.update_many(
+                        {
+                            "id": {"$in": message_ids},
+                            "sender_id": {"$ne": user_id},
+                            "status": "sent"
+                        },
+                        {"$set": {"status": "delivered"}}
+                    )
+                    
+                    # Broadcast delivered status
+                    for msg_id in message_ids:
+                        await chat_manager.broadcast_to_chat(chat_id, {
+                            "type": "status",
+                            "message_id": msg_id,
+                            "status": "delivered"
+                        })
+            
+            elif event_type == "join":
+                # Join another chat room
+                new_chat_id = data.get("chat_id")
+                if new_chat_id:
+                    await chat_manager.join_chat(websocket, new_chat_id)
+            
+            elif event_type == "leave":
+                # Leave a chat room
+                leave_chat_id = data.get("chat_id")
+                if leave_chat_id:
+                    await chat_manager.leave_chat(websocket, leave_chat_id)
+            
+            elif event_type == "ping":
+                # Keep-alive ping
+                await websocket.send_json({"type": "pong"})
+    
+    except WebSocketDisconnect:
+        pass
+    except Exception as e:
+        logger.error(f"WebSocket error for user {user_id}: {e}")
+    finally:
+        # Disconnect and cleanup
+        await chat_manager.disconnect(websocket, user_id, chat_id)
+        
+        # Update user offline status
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"is_online": False, "last_seen": datetime.now(timezone.utc)}}
+        )
+        
+        # Notify others that user is offline
+        await chat_manager.broadcast_to_chat(chat_id, {
+            "type": "online",
+            "user_id": user_id,
+            "user_name": user_name,
+            "is_online": False
+        })
+
+# Helper function to broadcast new message via WebSocket
+async def broadcast_new_message(chat_id: str, message_data: dict, sender_id: str):
+    """Broadcast a new message to all users in a chat via WebSocket"""
+    await chat_manager.broadcast_to_chat(chat_id, {
+        "type": "message",
+        "message": message_data,
+        "chat_id": chat_id
+    })
+    
+    # Also mark as delivered for all connected users
+    connected_count = chat_manager.get_online_users_in_chat(chat_id)
+    if connected_count > 1:  # More than just sender
+        # Update message status to delivered
+        await db.direct_chat_messages.update_one(
+            {"id": message_data.get("id")},
+            {"$set": {"status": "delivered"}}
+        )
+
+# ===== END WEBSOCKET CHAT SYSTEM =====
+
 @api_router.get("/health")
 async def health_check():
     return {
