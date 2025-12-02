@@ -1,6 +1,6 @@
 /**
  * TypingIndicator Component
- * Shows when someone is typing in the chat
+ * Shows when someone is typing in the chat with animated dots
  */
 import React from 'react';
 
@@ -19,12 +19,12 @@ const TypingIndicator = ({ typingUsers = [], moduleColor = '#059669' }) => {
 
   return (
     <div className="typing-indicator">
-      <div className="typing-dots">
-        <span style={{ backgroundColor: moduleColor }}></span>
-        <span style={{ backgroundColor: moduleColor }}></span>
-        <span style={{ backgroundColor: moduleColor }}></span>
+      <div className="typing-indicator-dots">
+        <div className="typing-indicator-dot" style={{ backgroundColor: moduleColor }}></div>
+        <div className="typing-indicator-dot" style={{ backgroundColor: moduleColor }}></div>
+        <div className="typing-indicator-dot" style={{ backgroundColor: moduleColor }}></div>
       </div>
-      <span className="typing-text">{getTypingText()}...</span>
+      <span className="typing-indicator-text">{getTypingText()}...</span>
     </div>
   );
 };
