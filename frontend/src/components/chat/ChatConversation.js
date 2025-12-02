@@ -448,6 +448,7 @@ const ChatConversation = ({
         </div>
         
         <div className="header-actions">
+          <ConnectionIndicator />
           <button 
             className="action-btn" 
             title="Поиск"
