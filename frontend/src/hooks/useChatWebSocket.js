@@ -53,7 +53,7 @@ export const useChatWebSocket = (chatId, options = {}) => {
       wsUrl = `${protocol}//${window.location.host}`;
     }
 
-    return `${wsUrl}/ws/chat/${chatId}?token=${token}`;
+    return `${wsUrl}/api/ws/chat/${chatId}?token=${token}`;
   }, [chatId]);
 
   // Handle incoming WebSocket messages
