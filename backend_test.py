@@ -26,7 +26,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://messagehub-387.preview.emergentagent.com"
+BACKEND_URL = "https://messaging-bugs.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials
