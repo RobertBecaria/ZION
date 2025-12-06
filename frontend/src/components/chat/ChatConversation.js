@@ -839,7 +839,7 @@ const ChatConversation = ({
       {showScrollButton && (
         <button 
           className="scroll-to-bottom-btn"
-          onClick={scrollToBottom}
+          onClick={() => scrollToBottom(true)}
           style={{ '--module-color': moduleColor }}
         >
           <ChevronDown size={20} />
