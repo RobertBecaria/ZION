@@ -1,18 +1,29 @@
 /**
  * MessageBubble Component
- * WhatsApp-style message bubble with status indicators, replies, attachments, and voice messages
+ * WhatsApp-style message bubble with status indicators, replies, attachments, voice messages, and reactions
  */
-import React from 'react';
-import { Check, CheckCheck, Reply, Image, File, Download } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, CheckCheck, Reply, File, Download, MoreVertical } from 'lucide-react';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
+import MessageContextMenu from './MessageContextMenu';
+
+// Quick reaction emojis for hover bar
+const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '😡'];
 
 const MessageBubble = ({
   message,
   isOwn,
   showSender = false,
   onReply,
+  onReact,
+  onEdit,
+  onDelete,
+  onForward,
   moduleColor = '#059669'
 }) => {
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
+
   const formatTime = (dateString) => {
     return new Date(dateString).toLocaleTimeString('ru-RU', {
       hour: '2-digit',
@@ -85,10 +96,65 @@ const MessageBubble = ({
     );
   };
 
+  // Render reactions on the message
+  const renderReactions = () => {
+    if (!message.reactions || Object.keys(message.reactions).length === 0) return null;
+    
+    return (
+      <div className="message-reactions">
+        {Object.entries(message.reactions).map(([emoji, count]) => (
+          <button 
+            key={emoji}
+            className={`reaction-badge ${message.user_reaction === emoji ? 'own-reaction' : ''}`}
+            onClick={() => onReact && onReact(message.id, emoji)}
+            style={message.user_reaction === emoji ? { borderColor: moduleColor } : {}}
+          >
+            <span className="reaction-emoji">{emoji}</span>
+            {count > 1 && <span className="reaction-count">{count}</span>}
+          </button>
+        ))}
+      </div>
+    );
+  };
+
+  // Handle context menu (right-click)
+  const handleContextMenu = (e) => {
+    e.preventDefault();
+    setContextMenuPosition({ x: e.clientX, y: e.clientY });
+    setShowContextMenu(true);
+  };
+
+  // Handle reaction from quick picker or context menu
+  const handleReaction = (emoji) => {
+    if (onReact) {
+      onReact(message.id, emoji);
+    }
+  };
+
   const isVoiceMessage = message.message_type === 'VOICE';
+  const isDeleted = message.is_deleted;
+
+  // Render deleted message
+  if (isDeleted) {
+    return (
+      <div className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'}`}>
+        <div className={`message-bubble deleted-bubble ${isOwn ? 'own-bubble' : 'other-bubble'}`}>
+          <span className="deleted-message-text">
+            {isOwn ? '🚫 Вы удалили это сообщение' : '🚫 Сообщение удалено'}
+          </span>
+          <span className="message-meta">
+            <span className="message-time">{formatTime(message.created_at)}</span>
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'}`}>
+    <div 
+      className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'}`}
+      onContextMenu={handleContextMenu}
+    >
       <div 
         className={`message-bubble ${isOwn ? 'own-bubble' : 'other-bubble'} ${isVoiceMessage ? 'voice-bubble' : ''}`}
         style={isOwn ? { backgroundColor: isVoiceMessage ? moduleColor : `${moduleColor}20` } : {}}
@@ -139,13 +205,56 @@ const MessageBubble = ({
         {/* Message tail */}
         <div className={`bubble-tail ${isOwn ? 'own-tail' : 'other-tail'}`}></div>
       </div>
+
+      {/* Reactions display */}
+      {renderReactions()}
       
-      {/* Hover actions */}
+      {/* Hover actions bar */}
       <div className="message-actions">
+        {/* Quick reaction picker */}
+        <div className="quick-reactions-bar">
+          {QUICK_REACTIONS.slice(0, 3).map(emoji => (
+            <button 
+              key={emoji}
+              className="quick-react-btn"
+              onClick={() => handleReaction(emoji)}
+              title={`Реакция ${emoji}`}
+            >
+              {emoji}
+            </button>
+          ))}
+        </div>
         <button className="action-btn" onClick={() => onReply && onReply(message)} title="Ответить">
           <Reply size={16} />
         </button>
+        <button 
+          className="action-btn" 
+          onClick={(e) => {
+            setContextMenuPosition({ x: e.clientX, y: e.clientY });
+            setShowContextMenu(true);
+          }}
+          title="Ещё"
+        >
+          <MoreVertical size={16} />
+        </button>
       </div>
+
+      {/* Context Menu */}
+      {showContextMenu && (
+        <MessageContextMenu
+          message={message}
+          isOwn={isOwn}
+          position={contextMenuPosition}
+          onClose={() => setShowContextMenu(false)}
+          onReply={() => onReply && onReply(message)}
+          onCopy={() => {}}
+          onForward={() => onForward && onForward(message)}
+          onEdit={() => onEdit && onEdit(message)}
+          onDelete={() => onDelete && onDelete(message)}
+          onReact={handleReaction}
+          moduleColor={moduleColor}
+        />
+      )}
     </div>
   );
 };
