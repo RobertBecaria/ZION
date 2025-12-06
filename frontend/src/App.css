@@ -23308,9 +23308,20 @@ a,
 .message-text {
   font-size: 14.2px;
   line-height: 19px;
-  color: #111b21;
+  color: #1a1a1a;
   white-space: pre-wrap;
   word-break: break-word;
+  font-weight: 400;
+}
+
+/* Ensure text is readable in own messages (green bubble) */
+.own-bubble .message-text {
+  color: #1a1a1a;
+}
+
+/* Ensure text is readable in other messages (white bubble) */
+.other-bubble .message-text {
+  color: #1a1a1a;
 }
 
 .message-meta {
