@@ -404,6 +404,47 @@ const ChatConversation = ({
     setReplyingTo(null);
   };
 
+  // Send voice message
+  const sendVoiceMessage = async (audioBlob, duration) => {
+    if (!audioBlob || !chatId) return;
+    
+    setSendingVoice(true);
+    try {
+      const token = localStorage.getItem('zion_token');
+      const formData = new FormData();
+      
+      // Create a filename with timestamp
+      const filename = `voice_${Date.now()}.webm`;
+      formData.append('file', audioBlob, filename);
+      formData.append('content', `🎤 Голосовое сообщение (${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')})`);
+      formData.append('message_type', 'VOICE');
+      formData.append('duration', duration.toString());
+      
+      if (replyingTo) {
+        formData.append('reply_to', replyingTo.id);
+      }
+      
+      const response = await fetch(
+        `${process.env.REACT_APP_BACKEND_URL}/api/direct-chats/${chatId}/messages/voice`,
+        {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        }
+      );
+      
+      if (response.ok) {
+        setReplyingTo(null);
+        setIsRecordingVoice(false);
+        fetchMessages();
+      }
+    } catch (error) {
+      console.error('Error sending voice message:', error);
+    } finally {
+      setSendingVoice(false);
+    }
+  };
+
   const formatLastSeen = (lastSeen) => {
     if (!lastSeen) return 'был(а) давно';
     const date = new Date(lastSeen);
