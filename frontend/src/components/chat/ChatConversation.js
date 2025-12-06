@@ -673,7 +673,11 @@ const ChatConversation = ({
       )}
 
       {/* Messages Area */}
-      <div className="messages-container">
+      <div 
+        className="messages-container"
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+      >
         {loading && messages.length === 0 ? (
           <div className="loading-messages">
             <p>Загрузка сообщений...</p>
