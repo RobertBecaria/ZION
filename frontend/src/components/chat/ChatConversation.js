@@ -799,6 +799,56 @@ const ChatConversation = ({
           </>
         )}
       </form>
+
+      {/* Scroll to bottom button */}
+      {showScrollButton && (
+        <button 
+          className="scroll-to-bottom-btn"
+          onClick={scrollToBottom}
+          style={{ '--module-color': moduleColor }}
+        >
+          <ChevronDown size={20} />
+        </button>
+      )}
+
+      {/* Emoji Picker */}
+      {showEmojiPicker && (
+        <div style={{ position: 'absolute', bottom: '80px', left: '20px', zIndex: 1000 }}>
+          <EmojiPicker
+            onSelect={handleEmojiSelect}
+            onClose={() => setShowEmojiPicker(false)}
+            moduleColor={moduleColor}
+          />
+        </div>
+      )}
+
+      {/* Edit Message Modal */}
+      {editingMessage && (
+        <>
+          <div className="edit-message-overlay" onClick={() => setEditingMessage(null)} />
+          <div className="edit-message-modal" style={{ '--module-color': moduleColor }}>
+            <h3>Редактировать сообщение</h3>
+            <textarea
+              className="edit-message-textarea"
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              autoFocus
+            />
+            <div className="edit-message-actions">
+              <button className="edit-cancel-btn" onClick={() => setEditingMessage(null)}>
+                Отмена
+              </button>
+              <button 
+                className="edit-save-btn" 
+                onClick={handleEditMessage}
+                disabled={!editContent.trim() || editContent === editingMessage.content}
+              >
+                Сохранить
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
