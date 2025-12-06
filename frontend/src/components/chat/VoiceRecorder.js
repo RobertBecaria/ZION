@@ -2,7 +2,7 @@
  * VoiceRecorder Component
  * WhatsApp-style voice message recorder with waveform visualization
  */
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Send, X, Trash2, Pause, Play } from 'lucide-react';
 
 const VoiceRecorder = ({ 
