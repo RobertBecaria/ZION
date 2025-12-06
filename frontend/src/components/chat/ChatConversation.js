@@ -127,7 +127,18 @@ const ChatConversation = ({
     }
   }, [pendingDelivery, wsSendDelivered]);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = useCallback((force = false) => {
+    if (!messagesContainerRef.current || !messagesEndRef.current) return;
+    
+    // Only auto-scroll if user is near the bottom OR if forced (new message sent/received)
+    const container = messagesContainerRef.current;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    
+    // If user scrolled up more than 150px, don't auto-scroll (unless forced)
+    if (distanceFromBottom > 150 && !force) {
+      return;
+    }
+    
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
