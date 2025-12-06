@@ -25139,9 +25139,11 @@ a,
   background: #f0f2f5;
 }
 
-/* Message Actions (updated) */
+/* Message Actions (updated) - Fixed layout jumping */
 .message-actions {
-  display: none;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -25151,6 +25153,7 @@ a,
   background: rgba(255, 255, 255, 0.95);
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 .message-bubble-wrapper.own .message-actions {
@@ -25163,7 +25166,8 @@ a,
 }
 
 .message-bubble-wrapper:hover .message-actions {
-  display: flex;
+  visibility: visible;
+  opacity: 1;
 }
 
 /* Deleted Message Style */
