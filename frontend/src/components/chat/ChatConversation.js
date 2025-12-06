@@ -708,6 +708,9 @@ const ChatConversation = ({
                     isOwn={isOwn}
                     showSender={showSender}
                     onReply={handleReply}
+                    onReact={handleReaction}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteMessage}
                     moduleColor={moduleColor}
                   />
                 </React.Fragment>
