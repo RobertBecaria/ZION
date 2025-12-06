@@ -23334,14 +23334,20 @@ a,
 
 .edited-label {
   font-size: 11px;
-  color: #667781;
+  color: #5c6970;
   font-style: italic;
   margin-right: 4px;
 }
 
 .message-time {
   font-size: 11px;
-  color: #667781;
+  color: #5c6970;
+}
+
+/* Better contrast for time in own messages */
+.own-bubble .message-time,
+.own-bubble .edited-label {
+  color: #4a6b5d;
 }
 
 .status-icon {
