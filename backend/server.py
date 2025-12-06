@@ -6382,6 +6382,251 @@ async def get_message_by_id(
     
     return {"message": message}
 
+# ===== MESSAGE ACTIONS: REACTIONS, EDIT, DELETE =====
+
+@api_router.post("/messages/{message_id}/react")
+async def react_to_message(
+    message_id: str,
+    reaction_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Add or remove a reaction to a message"""
+    emoji = reaction_data.get("emoji")
+    if not emoji:
+        raise HTTPException(status_code=400, detail="Emoji is required")
+    
+    message = await db.chat_messages.find_one({"id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Verify user has access
+    if message.get("direct_chat_id"):
+        chat = await db.direct_chats.find_one({
+            "id": message["direct_chat_id"],
+            "participant_ids": current_user.id
+        })
+        if not chat:
+            raise HTTPException(status_code=403, detail="Not authorized")
+    elif message.get("group_id"):
+        membership = await db.chat_group_members.find_one({
+            "group_id": message["group_id"],
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get current reactions
+    reactions = message.get("reactions", {})
+    user_reactions = message.get("user_reactions", {})
+    
+    # Check if user already reacted with this emoji
+    current_user_reaction = user_reactions.get(current_user.id)
+    
+    if current_user_reaction == emoji:
+        # Remove reaction (toggle off)
+        if emoji in reactions:
+            reactions[emoji] = max(0, reactions.get(emoji, 1) - 1)
+            if reactions[emoji] == 0:
+                del reactions[emoji]
+        if current_user.id in user_reactions:
+            del user_reactions[current_user.id]
+    else:
+        # Remove old reaction if exists
+        if current_user_reaction and current_user_reaction in reactions:
+            reactions[current_user_reaction] = max(0, reactions.get(current_user_reaction, 1) - 1)
+            if reactions[current_user_reaction] == 0:
+                del reactions[current_user_reaction]
+        
+        # Add new reaction
+        reactions[emoji] = reactions.get(emoji, 0) + 1
+        user_reactions[current_user.id] = emoji
+    
+    # Update message
+    await db.chat_messages.update_one(
+        {"id": message_id},
+        {"$set": {
+            "reactions": reactions,
+            "user_reactions": user_reactions
+        }}
+    )
+    
+    return {
+        "message": "Reaction updated",
+        "reactions": reactions,
+        "user_reaction": user_reactions.get(current_user.id)
+    }
+
+@api_router.put("/messages/{message_id}")
+async def edit_message(
+    message_id: str,
+    update_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Edit a message content (only by the sender)"""
+    new_content = update_data.get("content")
+    if not new_content or not new_content.strip():
+        raise HTTPException(status_code=400, detail="Content is required")
+    
+    message = await db.chat_messages.find_one({"id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Only the sender can edit
+    if message["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only edit your own messages")
+    
+    # Can only edit text messages
+    if message.get("message_type") not in [None, "TEXT"]:
+        raise HTTPException(status_code=400, detail="Can only edit text messages")
+    
+    # Check if message is deleted
+    if message.get("is_deleted"):
+        raise HTTPException(status_code=400, detail="Cannot edit deleted message")
+    
+    # Update message
+    await db.chat_messages.update_one(
+        {"id": message_id},
+        {"$set": {
+            "content": new_content.strip(),
+            "is_edited": True,
+            "edited_at": datetime.now(timezone.utc)
+        }}
+    )
+    
+    updated_message = await db.chat_messages.find_one({"id": message_id}, {"_id": 0})
+    
+    return {
+        "message": "Message updated",
+        "data": updated_message
+    }
+
+@api_router.delete("/messages/{message_id}")
+async def delete_message(
+    message_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a message (soft delete - only by the sender)"""
+    message = await db.chat_messages.find_one({"id": message_id})
+    if not message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    # Only the sender can delete
+    if message["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="You can only delete your own messages")
+    
+    # Soft delete - mark as deleted but keep in database
+    await db.chat_messages.update_one(
+        {"id": message_id},
+        {"$set": {
+            "is_deleted": True,
+            "deleted_at": datetime.now(timezone.utc),
+            "content": ""  # Clear content for privacy
+        }}
+    )
+    
+    return {"message": "Message deleted"}
+
+@api_router.post("/messages/{message_id}/forward")
+async def forward_message(
+    message_id: str,
+    forward_data: dict,
+    current_user: User = Depends(get_current_user)
+):
+    """Forward a message to another chat"""
+    target_chat_id = forward_data.get("target_chat_id")
+    chat_type = forward_data.get("chat_type", "direct")  # 'direct' or 'group'
+    
+    if not target_chat_id:
+        raise HTTPException(status_code=400, detail="Target chat ID is required")
+    
+    # Get original message
+    original_message = await db.chat_messages.find_one({"id": message_id})
+    if not original_message:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    if original_message.get("is_deleted"):
+        raise HTTPException(status_code=400, detail="Cannot forward deleted message")
+    
+    # Verify user has access to original message
+    if original_message.get("direct_chat_id"):
+        chat = await db.direct_chats.find_one({
+            "id": original_message["direct_chat_id"],
+            "participant_ids": current_user.id
+        })
+        if not chat:
+            raise HTTPException(status_code=403, detail="Not authorized to access this message")
+    
+    # Verify user has access to target chat
+    if chat_type == "direct":
+        target_chat = await db.direct_chats.find_one({
+            "id": target_chat_id,
+            "participant_ids": current_user.id,
+            "is_active": True
+        })
+        if not target_chat:
+            raise HTTPException(status_code=403, detail="Not authorized to forward to this chat")
+    else:
+        target_membership = await db.chat_group_members.find_one({
+            "group_id": target_chat_id,
+            "user_id": current_user.id,
+            "is_active": True
+        })
+        if not target_membership:
+            raise HTTPException(status_code=403, detail="Not authorized to forward to this group")
+    
+    # Get original sender info
+    original_sender = await get_user_by_id(original_message["user_id"])
+    original_sender_name = f"{original_sender.first_name} {original_sender.last_name}" if original_sender else "Unknown"
+    
+    # Create forwarded message
+    forwarded_message = ChatMessage(
+        direct_chat_id=target_chat_id if chat_type == "direct" else None,
+        group_id=target_chat_id if chat_type == "group" else None,
+        user_id=current_user.id,
+        content=original_message.get("content", ""),
+        message_type=original_message.get("message_type", "TEXT"),
+        status="sent"
+    )
+    
+    message_dict = forwarded_message.dict()
+    message_dict["forwarded_from"] = {
+        "message_id": message_id,
+        "sender_name": original_sender_name,
+        "chat_id": original_message.get("direct_chat_id") or original_message.get("group_id")
+    }
+    
+    # Copy attachment or voice if present
+    if original_message.get("attachment"):
+        message_dict["attachment"] = original_message["attachment"]
+    if original_message.get("voice"):
+        message_dict["voice"] = original_message["voice"]
+    
+    await db.chat_messages.insert_one(message_dict)
+    
+    # Update target chat timestamp
+    if chat_type == "direct":
+        await db.direct_chats.update_one(
+            {"id": target_chat_id},
+            {"$set": {"updated_at": datetime.now(timezone.utc)}}
+        )
+    else:
+        await db.chat_groups.update_one(
+            {"id": target_chat_id},
+            {"$set": {"updated_at": datetime.now(timezone.utc)}}
+        )
+    
+    # Add sender info for response
+    message_dict["sender"] = {
+        "id": current_user.id,
+        "first_name": current_user.first_name,
+        "last_name": current_user.last_name,
+        "profile_picture": current_user.profile_picture
+    }
+    message_dict.pop("_id", None)
+    
+    return {"message": "Message forwarded", "data": message_dict}
+
 # ===== END PHASE 2 ENHANCED CHAT FEATURES =====
 
 # ===== END DIRECT MESSAGES ENDPOINTS =====
