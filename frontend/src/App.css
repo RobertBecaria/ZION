@@ -26442,3 +26442,172 @@ a,
     border-radius: 0;
   }
 }
+
+/* ============================================
+   WORK UNIVERSAL FEED LAYOUT
+============================================ */
+
+.work-universal-feed-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.work-feed-main {
+  min-width: 0;
+}
+
+.work-feed-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Planner Widget */
+.planner-widget {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.planner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.planner-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.planner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.planner-btn.event-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.planner-btn.event-btn:hover {
+  background: #e5e7eb;
+}
+
+.planner-btn.task-btn {
+  border: 1px solid;
+}
+
+.planner-btn.task-btn:hover {
+  filter: brightness(0.95);
+}
+
+/* My Organizations Widget */
+.my-orgs-widget {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.orgs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.org-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.org-item:hover {
+  background: #f9fafb;
+}
+
+.org-item.active {
+  border-width: 2px;
+}
+
+.org-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.org-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .work-universal-feed-layout {
+    grid-template-columns: 1fr;
+  }
+  
+  .work-feed-sidebar {
+    order: -1;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .work-feed-sidebar > * {
+    flex: 1;
+    min-width: 280px;
+  }
+}
+
+@media (max-width: 640px) {
+  .work-feed-sidebar > * {
+    min-width: 100%;
+  }
+  
+  .planner-actions {
+    grid-template-columns: 1fr;
+  }
+}
