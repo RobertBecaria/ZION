@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle, FileText, Building2, Plus, Calendar, CheckCircle2 } from 'lucide-react';
 import WorkPostCard from './WorkPostCard';
 import WorkTasksPanel from './work/WorkTasksPanel';
-import WorkTaskCreateModal from './work/WorkTaskCreateModal';
+import WorkWorldZone from './WorkWorldZone';
 
 const WorkUniversalFeed = ({ currentUserId }) => {
   const [posts, setPosts] = useState([]);
