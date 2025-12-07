@@ -100,6 +100,7 @@ function Dashboard() {
   const [activeDepartmentId, setActiveDepartmentId] = useState(null);
   const [showDepartmentManager, setShowDepartmentManager] = useState(false);
   const [departmentRefreshTrigger, setDepartmentRefreshTrigger] = useState(0);
+  const [myOrganizations, setMyOrganizations] = useState([]);
   
   // Setup window function for opening full department management
   useEffect(() => {
