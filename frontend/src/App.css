@@ -26585,16 +26585,6 @@ a,
 }
 
 /* Responsive */
-@media (max-width: 1200px) {
-  .work-universal-feed-layout {
-    grid-template-columns: 1fr 280px;
-  }
-  
-  .work-feed-worldzone {
-    display: none;
-  }
-}
-
 @media (max-width: 900px) {
   .work-universal-feed-layout {
     grid-template-columns: 1fr;
@@ -26602,11 +26592,6 @@ a,
   
   .work-feed-tasks {
     order: -1;
-  }
-  
-  .work-feed-worldzone {
-    display: block;
-    order: -2;
   }
 }
 
