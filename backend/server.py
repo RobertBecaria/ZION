@@ -15035,6 +15035,892 @@ async def internal_reminder_check(request: Request):
 
 # ===== END EVENT REMINDERS SYSTEM =====
 
+# ===== WORK TASK MANAGEMENT ENDPOINTS =====
+
+def calculate_time_remaining(deadline: datetime) -> tuple:
+    """Calculate time remaining until deadline"""
+    if not deadline:
+        return None, False
+    
+    now = datetime.now(timezone.utc)
+    if deadline.tzinfo is None:
+        deadline = deadline.replace(tzinfo=timezone.utc)
+    
+    diff = deadline - now
+    is_overdue = diff.total_seconds() < 0
+    
+    if is_overdue:
+        return "Просрочено", True
+    
+    days = diff.days
+    hours = diff.seconds // 3600
+    minutes = (diff.seconds % 3600) // 60
+    
+    if days > 0:
+        return f"{days}д {hours}ч", False
+    elif hours > 0:
+        return f"{hours}ч {minutes}м", False
+    else:
+        return f"{minutes}м", False
+
+async def build_task_response(task: dict, current_user_id: str) -> dict:
+    """Build a complete task response with all related data"""
+    # Get creator info
+    creator = await db.users.find_one({"id": task["created_by"]}, {"_id": 0})
+    
+    # Get assigned user info
+    assigned_user = None
+    if task.get("assigned_to"):
+        assigned_user = await db.users.find_one({"id": task["assigned_to"]}, {"_id": 0})
+    
+    # Get accepted by user info
+    accepted_user = None
+    if task.get("accepted_by"):
+        accepted_user = await db.users.find_one({"id": task["accepted_by"]}, {"_id": 0})
+    
+    # Get completed by user info
+    completed_user = None
+    if task.get("completed_by"):
+        completed_user = await db.users.find_one({"id": task["completed_by"]}, {"_id": 0})
+    
+    # Get team info
+    team = None
+    if task.get("team_id"):
+        team = await db.work_teams.find_one({"id": task["team_id"]}, {"_id": 0})
+    
+    # Get department info
+    department = None
+    if task.get("department_id"):
+        department = await db.work_departments.find_one({"id": task["department_id"]}, {"_id": 0})
+    
+    # Calculate time remaining
+    time_remaining, is_overdue = calculate_time_remaining(task.get("deadline"))
+    
+    # Calculate subtask progress
+    subtasks = task.get("subtasks", [])
+    subtasks_completed = sum(1 for s in subtasks if s.get("is_completed"))
+    
+    # Determine permissions
+    is_creator = task["created_by"] == current_user_id
+    is_assigned = task.get("assigned_to") == current_user_id
+    is_accepted = task.get("accepted_by") == current_user_id
+    
+    # Check if user is in the assigned team or department
+    membership = await db.work_members.find_one({
+        "organization_id": task["organization_id"],
+        "user_id": current_user_id,
+        "status": "ACTIVE"
+    })
+    
+    is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"] if membership else False
+    is_in_team = membership and membership.get("team_id") == task.get("team_id") if task.get("team_id") else False
+    is_in_dept = membership and membership.get("department") == task.get("department_id") if task.get("department_id") else False
+    
+    can_accept = (
+        task["status"] == "NEW" and
+        not task.get("accepted_by") and
+        task["assignment_type"] in ["TEAM", "DEPARTMENT"] and
+        (is_in_team or is_in_dept or is_admin)
+    )
+    
+    can_complete = (
+        task["status"] in ["ACCEPTED", "IN_PROGRESS", "REVIEW"] and
+        (is_assigned or is_accepted or is_creator or is_admin)
+    )
+    
+    return {
+        "id": task["id"],
+        "organization_id": task["organization_id"],
+        "created_by": task["created_by"],
+        "created_by_name": f"{creator['first_name']} {creator['last_name']}" if creator else "Unknown",
+        "created_by_avatar": creator.get("profile_picture") if creator else None,
+        
+        "title": task["title"],
+        "description": task.get("description"),
+        
+        "assignment_type": task["assignment_type"],
+        "assigned_to": task.get("assigned_to"),
+        "assigned_to_name": f"{assigned_user['first_name']} {assigned_user['last_name']}" if assigned_user else None,
+        "assigned_to_avatar": assigned_user.get("profile_picture") if assigned_user else None,
+        "team_id": task.get("team_id"),
+        "team_name": team["name"] if team else None,
+        "department_id": task.get("department_id"),
+        "department_name": department["name"] if department else None,
+        "accepted_by": task.get("accepted_by"),
+        "accepted_by_name": f"{accepted_user['first_name']} {accepted_user['last_name']}" if accepted_user else None,
+        "accepted_at": task.get("accepted_at"),
+        
+        "status": task["status"],
+        "priority": task["priority"],
+        "deadline": task.get("deadline"),
+        "time_remaining": time_remaining,
+        "is_overdue": is_overdue,
+        
+        "subtasks": subtasks,
+        "subtasks_completed": subtasks_completed,
+        "subtasks_total": len(subtasks),
+        
+        "requires_photo_proof": task.get("requires_photo_proof", False),
+        "completion_photos": task.get("completion_photos", []),
+        "completion_note": task.get("completion_note"),
+        "completed_at": task.get("completed_at"),
+        "completed_by": task.get("completed_by"),
+        "completed_by_name": f"{completed_user['first_name']} {completed_user['last_name']}" if completed_user else None,
+        
+        "discussion_post_id": task.get("discussion_post_id"),
+        "completion_post_id": task.get("completion_post_id"),
+        
+        "is_template": task.get("is_template", False),
+        "template_name": task.get("template_name"),
+        
+        "created_at": task["created_at"],
+        "updated_at": task["updated_at"],
+        
+        "can_edit": is_creator or is_admin,
+        "can_delete": is_creator or is_admin,
+        "can_accept": can_accept,
+        "can_complete": can_complete
+    }
+
+@api_router.post("/work/organizations/{organization_id}/tasks")
+async def create_task(
+    organization_id: str,
+    task_data: WorkTaskCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new task in the organization"""
+    try:
+        # Verify user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # If creating from template
+        template_data = {}
+        if task_data.template_id:
+            template = await db.work_task_templates.find_one({
+                "id": task_data.template_id,
+                "organization_id": organization_id,
+                "is_active": True
+            })
+            if template:
+                template_data = {
+                    "description": template.get("description"),
+                    "priority": template.get("priority", "MEDIUM"),
+                    "requires_photo_proof": template.get("requires_photo_proof", False),
+                    "created_from_template_id": template["id"]
+                }
+        
+        # Build subtasks
+        subtasks = []
+        subtask_titles = task_data.subtasks or (template_data.get("subtasks") if template_data else [])
+        for title in subtask_titles:
+            subtasks.append({
+                "id": str(uuid.uuid4()),
+                "title": title,
+                "is_completed": False
+            })
+        
+        # Create task
+        new_task = WorkTask(
+            organization_id=organization_id,
+            created_by=current_user.id,
+            title=task_data.title,
+            description=task_data.description or template_data.get("description"),
+            assignment_type=task_data.assignment_type,
+            assigned_to=task_data.assigned_to,
+            team_id=task_data.team_id,
+            department_id=task_data.department_id,
+            priority=task_data.priority or template_data.get("priority", TaskPriority.MEDIUM),
+            deadline=datetime.fromisoformat(task_data.deadline) if task_data.deadline else None,
+            subtasks=subtasks,
+            requires_photo_proof=task_data.requires_photo_proof or template_data.get("requires_photo_proof", False),
+            created_from_template_id=template_data.get("created_from_template_id")
+        )
+        
+        # If assigned to specific user, set status to ACCEPTED
+        if task_data.assignment_type == TaskAssignmentType.USER and task_data.assigned_to:
+            new_task.status = TaskStatus.ACCEPTED
+            new_task.accepted_by = task_data.assigned_to
+            new_task.accepted_at = datetime.now(timezone.utc)
+        
+        # If personal task, auto-accept
+        if task_data.assignment_type == TaskAssignmentType.PERSONAL:
+            new_task.assigned_to = current_user.id
+            new_task.accepted_by = current_user.id
+            new_task.accepted_at = datetime.now(timezone.utc)
+            new_task.status = TaskStatus.ACCEPTED
+        
+        await db.work_tasks.insert_one(new_task.model_dump())
+        
+        # Save as template if requested
+        if task_data.save_as_template and task_data.template_name:
+            template = WorkTaskTemplate(
+                organization_id=organization_id,
+                created_by=current_user.id,
+                name=task_data.template_name,
+                title=task_data.title,
+                description=task_data.description,
+                priority=task_data.priority,
+                subtasks=task_data.subtasks,
+                requires_photo_proof=task_data.requires_photo_proof,
+                default_assignment_type=task_data.assignment_type
+            )
+            await db.work_task_templates.insert_one(template.model_dump())
+        
+        # Send notification to assigned user
+        if task_data.assigned_to and task_data.assigned_to != current_user.id:
+            org = await db.work_organizations.find_one({"id": organization_id})
+            notification = WorkNotification(
+                user_id=task_data.assigned_to,
+                organization_id=organization_id,
+                notification_type="TASK_ASSIGNED",
+                title="Новая задача",
+                message=f"Вам назначена задача: {task_data.title}",
+                related_entity_type="task",
+                related_entity_id=new_task.id
+            )
+            await db.work_notifications.insert_one(notification.model_dump())
+        
+        # Build and return response
+        task_dict = new_task.model_dump()
+        response = await build_task_response(task_dict, current_user.id)
+        
+        return {"task": response}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/tasks")
+async def get_organization_tasks(
+    organization_id: str,
+    status: Optional[str] = None,
+    priority: Optional[str] = None,
+    assignment_type: Optional[str] = None,
+    assigned_to_me: bool = False,
+    created_by_me: bool = False,
+    include_completed: bool = True,
+    current_user: User = Depends(get_current_user)
+):
+    """Get tasks for an organization with filters"""
+    try:
+        # Verify user is a member
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Build query
+        query = {
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True},
+            "is_template": {"$ne": True}
+        }
+        
+        if status:
+            query["status"] = status
+        elif not include_completed:
+            query["status"] = {"$ne": "DONE"}
+        
+        if priority:
+            query["priority"] = priority
+        
+        if assignment_type:
+            query["assignment_type"] = assignment_type
+        
+        if assigned_to_me:
+            query["$or"] = [
+                {"assigned_to": current_user.id},
+                {"accepted_by": current_user.id}
+            ]
+        
+        if created_by_me:
+            query["created_by"] = current_user.id
+        
+        # Fetch tasks
+        tasks = await db.work_tasks.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+        
+        # Build responses
+        task_responses = []
+        for task in tasks:
+            response = await build_task_response(task, current_user.id)
+            task_responses.append(response)
+        
+        return {"tasks": task_responses}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/tasks/my-tasks")
+async def get_my_tasks(
+    include_completed: bool = False,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all tasks assigned to or created by current user across all organizations"""
+    try:
+        query = {
+            "is_deleted": {"$ne": True},
+            "is_template": {"$ne": True},
+            "$or": [
+                {"assigned_to": current_user.id},
+                {"accepted_by": current_user.id},
+                {"created_by": current_user.id}
+            ]
+        }
+        
+        if not include_completed:
+            query["status"] = {"$ne": "DONE"}
+        
+        tasks = await db.work_tasks.find(query, {"_id": 0}).sort("deadline", 1).to_list(100)
+        
+        task_responses = []
+        for task in tasks:
+            response = await build_task_response(task, current_user.id)
+            task_responses.append(response)
+        
+        return {"tasks": task_responses}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/tasks/{task_id}")
+async def get_task(
+    organization_id: str,
+    task_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a specific task by ID"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        }, {"_id": 0})
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        response = await build_task_response(task, current_user.id)
+        return {"task": response}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/work/organizations/{organization_id}/tasks/{task_id}")
+async def update_task(
+    organization_id: str,
+    task_id: str,
+    update_data: WorkTaskUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a task"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        # Check permissions
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"]
+        is_creator = task["created_by"] == current_user.id
+        
+        if not (is_admin or is_creator):
+            raise HTTPException(status_code=403, detail="Нет прав на редактирование задачи")
+        
+        # Build update
+        update_dict = {k: v for k, v in update_data.model_dump().items() if v is not None}
+        
+        if "deadline" in update_dict and update_dict["deadline"]:
+            update_dict["deadline"] = datetime.fromisoformat(update_dict["deadline"])
+        
+        update_dict["updated_at"] = datetime.now(timezone.utc)
+        
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {"$set": update_dict}
+        )
+        
+        updated_task = await db.work_tasks.find_one({"id": task_id}, {"_id": 0})
+        response = await build_task_response(updated_task, current_user.id)
+        
+        return {"task": response}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/tasks/{task_id}/accept")
+async def accept_task(
+    organization_id: str,
+    task_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Accept/claim a team or department task"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        if task["status"] != "NEW":
+            raise HTTPException(status_code=400, detail="Задача уже принята")
+        
+        if task.get("accepted_by"):
+            raise HTTPException(status_code=400, detail="Задача уже принята другим пользователем")
+        
+        if task["assignment_type"] not in ["TEAM", "DEPARTMENT"]:
+            raise HTTPException(status_code=400, detail="Эту задачу нельзя принять")
+        
+        # Verify user is in the team/department
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        # Update task
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {"$set": {
+                "status": "ACCEPTED",
+                "accepted_by": current_user.id,
+                "accepted_at": datetime.now(timezone.utc),
+                "updated_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        # Notify creator
+        if task["created_by"] != current_user.id:
+            notification = WorkNotification(
+                user_id=task["created_by"],
+                organization_id=organization_id,
+                notification_type="TASK_ACCEPTED",
+                title="Задача принята",
+                message=f"{current_user.first_name} {current_user.last_name} принял(а) задачу: {task['title']}",
+                related_entity_type="task",
+                related_entity_id=task_id
+            )
+            await db.work_notifications.insert_one(notification.model_dump())
+        
+        updated_task = await db.work_tasks.find_one({"id": task_id}, {"_id": 0})
+        response = await build_task_response(updated_task, current_user.id)
+        
+        return {"task": response, "message": "Задача принята"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/tasks/{task_id}/status")
+async def update_task_status(
+    organization_id: str,
+    task_id: str,
+    status_update: WorkTaskStatusUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update task status (including completion)"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        # Verify permissions
+        is_assigned = task.get("assigned_to") == current_user.id
+        is_accepted = task.get("accepted_by") == current_user.id
+        is_creator = task["created_by"] == current_user.id
+        
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"]
+        
+        if not (is_assigned or is_accepted or is_creator or is_admin):
+            raise HTTPException(status_code=403, detail="Нет прав на изменение статуса")
+        
+        update_dict = {
+            "status": status_update.status,
+            "updated_at": datetime.now(timezone.utc)
+        }
+        
+        # Handle completion
+        if status_update.status == TaskStatus.DONE:
+            # Check if photo proof is required
+            if task.get("requires_photo_proof") and not status_update.completion_photo_ids:
+                raise HTTPException(status_code=400, detail="Требуется фото подтверждение выполнения")
+            
+            update_dict["completed_at"] = datetime.now(timezone.utc)
+            update_dict["completed_by"] = current_user.id
+            update_dict["completion_note"] = status_update.completion_note
+            update_dict["completion_photos"] = status_update.completion_photo_ids
+            
+            # Create completion post in feed
+            org = await db.work_organizations.find_one({"id": organization_id})
+            
+            post_content = f"✅ Задача выполнена: {task['title']}"
+            if status_update.completion_note:
+                post_content += f"\n\n{status_update.completion_note}"
+            
+            completion_post = WorkPost(
+                organization_id=organization_id,
+                user_id=current_user.id,
+                content=post_content,
+                post_type="TASK_COMPLETION",
+                visibility="ORGANIZATION",
+                media_ids=status_update.completion_photo_ids,
+                metadata={
+                    "task_id": task_id,
+                    "task_title": task["title"]
+                }
+            )
+            
+            await db.work_posts.insert_one(completion_post.model_dump())
+            update_dict["completion_post_id"] = completion_post.id
+            
+            # Notify creator
+            if task["created_by"] != current_user.id:
+                notification = WorkNotification(
+                    user_id=task["created_by"],
+                    organization_id=organization_id,
+                    notification_type="TASK_COMPLETED",
+                    title="Задача выполнена",
+                    message=f"Задача '{task['title']}' выполнена",
+                    related_entity_type="task",
+                    related_entity_id=task_id
+                )
+                await db.work_notifications.insert_one(notification.model_dump())
+        
+        await db.work_tasks.update_one({"id": task_id}, {"$set": update_dict})
+        
+        updated_task = await db.work_tasks.find_one({"id": task_id}, {"_id": 0})
+        response = await build_task_response(updated_task, current_user.id)
+        
+        return {"task": response, "message": f"Статус изменён на {status_update.status}"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/tasks/{task_id}/subtasks")
+async def add_subtask(
+    organization_id: str,
+    task_id: str,
+    subtask_data: WorkTaskSubtaskAdd,
+    current_user: User = Depends(get_current_user)
+):
+    """Add a subtask to a task"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        new_subtask = {
+            "id": str(uuid.uuid4()),
+            "title": subtask_data.title,
+            "is_completed": False
+        }
+        
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {
+                "$push": {"subtasks": new_subtask},
+                "$set": {"updated_at": datetime.now(timezone.utc)}
+            }
+        )
+        
+        return {"subtask": new_subtask, "message": "Подзадача добавлена"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.patch("/work/organizations/{organization_id}/tasks/{task_id}/subtasks/{subtask_id}")
+async def update_subtask(
+    organization_id: str,
+    task_id: str,
+    subtask_id: str,
+    update_data: WorkTaskSubtaskUpdate,
+    current_user: User = Depends(get_current_user)
+):
+    """Toggle subtask completion status"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        # Update subtask
+        subtasks = task.get("subtasks", [])
+        for subtask in subtasks:
+            if subtask["id"] == subtask_id:
+                subtask["is_completed"] = update_data.is_completed
+                break
+        
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {"$set": {
+                "subtasks": subtasks,
+                "updated_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        return {"message": "Подзадача обновлена"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/work/organizations/{organization_id}/tasks/{task_id}/discuss")
+async def create_task_discussion(
+    organization_id: str,
+    task_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a discussion post for a task"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        # Check if discussion already exists
+        if task.get("discussion_post_id"):
+            return {"post_id": task["discussion_post_id"], "message": "Обсуждение уже существует"}
+        
+        # Create discussion post
+        post_content = f"💬 Обсуждение задачи: {task['title']}"
+        if task.get("description"):
+            post_content += f"\n\n{task['description']}"
+        
+        discussion_post = WorkPost(
+            organization_id=organization_id,
+            user_id=current_user.id,
+            content=post_content,
+            post_type="TASK_DISCUSSION",
+            visibility="ORGANIZATION",
+            metadata={
+                "task_id": task_id,
+                "task_title": task["title"]
+            }
+        )
+        
+        await db.work_posts.insert_one(discussion_post.model_dump())
+        
+        # Link post to task
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {"$set": {
+                "discussion_post_id": discussion_post.id,
+                "updated_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        return {"post_id": discussion_post.id, "message": "Обсуждение создано"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/work/organizations/{organization_id}/tasks/{task_id}")
+async def delete_task(
+    organization_id: str,
+    task_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete (soft) a task"""
+    try:
+        task = await db.work_tasks.find_one({
+            "id": task_id,
+            "organization_id": organization_id,
+            "is_deleted": {"$ne": True}
+        })
+        
+        if not task:
+            raise HTTPException(status_code=404, detail="Задача не найдена")
+        
+        # Check permissions
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"]
+        is_creator = task["created_by"] == current_user.id
+        
+        if not (is_admin or is_creator):
+            raise HTTPException(status_code=403, detail="Нет прав на удаление задачи")
+        
+        await db.work_tasks.update_one(
+            {"id": task_id},
+            {"$set": {
+                "is_deleted": True,
+                "updated_at": datetime.now(timezone.utc)
+            }}
+        )
+        
+        return {"message": "Задача удалена"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# === TASK TEMPLATES ===
+
+@api_router.post("/work/organizations/{organization_id}/task-templates")
+async def create_task_template(
+    organization_id: str,
+    template_data: WorkTaskTemplateCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a task template"""
+    try:
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Вы не являетесь членом этой организации")
+        
+        template = WorkTaskTemplate(
+            organization_id=organization_id,
+            created_by=current_user.id,
+            **template_data.model_dump()
+        )
+        
+        await db.work_task_templates.insert_one(template.model_dump())
+        
+        return {"template": template.model_dump(), "message": "Шаблон создан"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/work/organizations/{organization_id}/task-templates")
+async def get_task_templates(
+    organization_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all task templates for an organization"""
+    try:
+        templates = await db.work_task_templates.find({
+            "organization_id": organization_id,
+            "is_active": True
+        }, {"_id": 0}).to_list(100)
+        
+        # Add creator names
+        for template in templates:
+            creator = await db.users.find_one({"id": template["created_by"]}, {"_id": 0})
+            template["created_by_name"] = f"{creator['first_name']} {creator['last_name']}" if creator else "Unknown"
+        
+        return {"templates": templates}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/work/organizations/{organization_id}/task-templates/{template_id}")
+async def delete_task_template(
+    organization_id: str,
+    template_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a task template"""
+    try:
+        template = await db.work_task_templates.find_one({
+            "id": template_id,
+            "organization_id": organization_id
+        })
+        
+        if not template:
+            raise HTTPException(status_code=404, detail="Шаблон не найден")
+        
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"]
+        is_creator = template["created_by"] == current_user.id
+        
+        if not (is_admin or is_creator):
+            raise HTTPException(status_code=403, detail="Нет прав на удаление шаблона")
+        
+        await db.work_task_templates.update_one(
+            {"id": template_id},
+            {"$set": {"is_active": False}}
+        )
+        
+        return {"message": "Шаблон удалён"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== END WORK TASK MANAGEMENT ENDPOINTS =====
+
 # ===== WEBSOCKET CHAT SYSTEM =====
 
 async def verify_websocket_token(token: str) -> Optional[dict]:
