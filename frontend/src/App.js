@@ -1149,6 +1149,16 @@ function Dashboard() {
             />
           )}
 
+          {/* ORGANIZATIONS Module - Work WorldZone */}
+          {activeModule === 'organizations' && (
+            <WorkWorldZone
+              organizations={[]} // Will be populated from feed
+              selectedOrg={selectedOrganizationId}
+              onOrgChange={setSelectedOrganizationId}
+              moduleColor={currentModule?.color || '#C2410C'}
+            />
+          )}
+
           {/* MY DOCUMENTS & MY INFO Views - Info widgets */}
           {(activeView === 'my-documents' || activeView === 'my-info') && (
             <InfoWorldZone activeView={activeView} />
