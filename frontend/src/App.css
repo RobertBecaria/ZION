@@ -26611,3 +26611,226 @@ a,
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================
+   WORK WORLD ZONE STYLES
+============================================ */
+
+.work-world-zone {
+  background: linear-gradient(180deg, rgba(194, 65, 12, 0.08) 0%, rgba(194, 65, 12, 0.03) 100%);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 400px;
+}
+
+.work-world-zone .world-zone-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.work-world-zone .card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid;
+}
+
+.work-world-zone .card-header h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #374151;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* Filter Card */
+.work-world-zone .filter-content {
+  padding: 16px;
+}
+
+.work-world-zone .filter-group {
+  margin-bottom: 16px;
+}
+
+.work-world-zone .filter-group:last-child {
+  margin-bottom: 0;
+}
+
+.work-world-zone .filter-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 8px;
+}
+
+.work-world-zone .filter-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #1f2937;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.work-world-zone .filter-select:focus {
+  outline: none;
+  border-color: var(--module-color);
+}
+
+/* Organizations Quick List */
+.work-world-zone .orgs-quick-list {
+  padding: 8px;
+}
+
+.work-world-zone .org-quick-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.work-world-zone .org-quick-item:hover {
+  background: #f9fafb;
+}
+
+.work-world-zone .org-quick-item.active {
+  background: rgba(194, 65, 12, 0.08);
+}
+
+.work-world-zone .org-quick-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.work-world-zone .org-quick-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.work-world-zone .org-quick-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.work-world-zone .org-quick-role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.work-world-zone .org-quick-arrow {
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.work-world-zone .view-all-btn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  background: none;
+  border: none;
+  border-top: 1px solid #f3f4f6;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.work-world-zone .view-all-btn:hover {
+  background: #f9fafb;
+}
+
+/* Stats Card */
+.work-world-zone .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+.work-world-zone .stat-item {
+  text-align: center;
+}
+
+.work-world-zone .stat-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.work-world-zone .stat-label {
+  display: block;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* Quick Actions */
+.work-world-zone .quick-actions {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.work-world-zone .quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.work-world-zone .quick-action-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.work-world-zone .quick-action-btn svg {
+  color: var(--module-color);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .work-world-zone {
+    padding: 12px;
+  }
+  
+  .work-world-zone .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
