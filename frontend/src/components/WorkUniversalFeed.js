@@ -284,8 +284,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
       )}
       </div>
 
-      {/* Right Column - Tasks & Events */}
-      <div className="work-feed-sidebar">
+      {/* Center Column - Tasks */}
+      <div className="work-feed-tasks">
         {/* Planner Quick Actions */}
         <div className="planner-widget" style={{ '--module-color': moduleColor }}>
           <div className="planner-header">
@@ -318,31 +318,16 @@ const WorkUniversalFeed = ({ currentUserId }) => {
             onRefreshFeed={refreshFeed}
           />
         )}
+      </div>
 
-        {/* My Organizations */}
-        {organizations.length > 0 && (
-          <div className="my-orgs-widget">
-            <div className="widget-header">
-              <Building2 size={18} color={moduleColor} />
-              <span>МОИ ОРГАНИЗАЦИИ</span>
-            </div>
-            <div className="orgs-list">
-              {organizations.slice(0, 5).map(org => (
-                <div 
-                  key={org.id} 
-                  className={`org-item ${selectedOrg === org.id ? 'active' : ''}`}
-                  onClick={() => setSelectedOrg(org.id)}
-                  style={selectedOrg === org.id ? { borderColor: moduleColor, backgroundColor: `${moduleColor}10` } : {}}
-                >
-                  <div className="org-avatar" style={{ background: `linear-gradient(135deg, ${moduleColor}, ${moduleColor}cc)` }}>
-                    {org.name.charAt(0)}
-                  </div>
-                  <span className="org-name">{org.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Right Column - WorldZone with Filters */}
+      <div className="work-feed-worldzone">
+        <WorkWorldZone
+          organizations={organizations}
+          selectedOrg={selectedOrg}
+          onOrgChange={(orgId) => setSelectedOrg(orgId)}
+          moduleColor={moduleColor}
+        />
       </div>
     </div>
   );
