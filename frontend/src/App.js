@@ -224,6 +224,29 @@ function Dashboard() {
     }
   }, [activeModule]);
 
+  // Fetch user's organizations when organizations module is active
+  useEffect(() => {
+    const fetchMyOrganizations = async () => {
+      if (activeModule !== 'organizations' || !user) return;
+      
+      try {
+        const token = localStorage.getItem('zion_token');
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/work/organizations/my`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setMyOrganizations(data.organizations || []);
+        }
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      }
+    };
+    
+    fetchMyOrganizations();
+  }, [activeModule, user]);
+
   // Set default view when entering Journal module
   useEffect(() => {
     if (activeModule === 'journal' && !loadingSchoolRoles) {
