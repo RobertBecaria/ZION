@@ -26328,7 +26328,8 @@ a,
 
 /* Task Create Modal */
 .task-create-modal,
-.task-complete-modal {
+.task-complete-modal,
+.template-manager-modal {
   background: white;
   border-radius: 16px;
   width: 90%;
@@ -26338,8 +26339,13 @@ a,
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
+.template-manager-modal {
+  max-width: 600px;
+}
+
 .task-create-modal .modal-header,
-.task-complete-modal .modal-header {
+.task-complete-modal .modal-header,
+.template-manager-modal .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26347,8 +26353,15 @@ a,
   border-bottom: 1px solid #e5e7eb;
 }
 
+.template-manager-modal .header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .task-create-modal .modal-header h2,
-.task-complete-modal .modal-header h2 {
+.task-complete-modal .modal-header h2,
+.template-manager-modal .modal-header h2 {
   display: flex;
   align-items: center;
   gap: 8px;
