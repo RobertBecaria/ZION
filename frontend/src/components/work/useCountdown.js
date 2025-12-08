@@ -1,32 +1,61 @@
 /**
  * useCountdown Hook
  * Real-time countdown timer for task deadlines
+ * Uses useSyncExternalStore pattern for proper React 18+ compatibility
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useSyncExternalStore, useCallback, useMemo } from 'react';
+
+// Create a timer store for countdown updates
+const createTimerStore = () => {
+  let listeners = [];
+  
+  const subscribe = (listener) => {
+    listeners.push(listener);
+    return () => {
+      listeners = listeners.filter(l => l !== listener);
+    };
+  };
+  
+  const notify = () => {
+    listeners.forEach(listener => listener());
+  };
+  
+  return { subscribe, notify };
+};
+
+const timerStore = createTimerStore();
+
+// Start a global timer that notifies every second
+let globalTimerStarted = false;
+const startGlobalTimer = () => {
+  if (globalTimerStarted) return;
+  globalTimerStarted = true;
+  
+  setInterval(() => {
+    timerStore.notify();
+  }, 1000);
+};
 
 const useCountdown = (deadline) => {
-  const [, forceUpdate] = useState(0);
-  const stateRef = useRef({
-    timeRemaining: null,
-    isOverdue: false,
-    urgencyLevel: 'normal'
-  });
+  // Ensure global timer is running
+  useMemo(() => {
+    startGlobalTimer();
+  }, []);
 
-  const calculateTimeRemaining = useCallback(() => {
+  const getSnapshot = useCallback(() => {
     if (!deadline) {
-      return {
+      return JSON.stringify({
         timeRemaining: null,
         isOverdue: false,
         urgencyLevel: 'normal'
-      };
+      });
     }
 
-    const now = new Date();
-    const deadlineDate = new Date(deadline);
-    const diff = deadlineDate - now;
+    const now = Date.now();
+    const deadlineTime = new Date(deadline).getTime();
+    const diff = deadlineTime - now;
 
     if (diff <= 0) {
-      // Calculate how long overdue
       const overdueDiff = Math.abs(diff);
       const days = Math.floor(overdueDiff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((overdueDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -35,11 +64,11 @@ const useCountdown = (deadline) => {
         ? `Просрочено на ${days}д ${hours}ч`
         : `Просрочено на ${hours}ч`;
       
-      return {
+      return JSON.stringify({
         timeRemaining: { text, isOverdue: true, isUrgent: false },
         isOverdue: true,
         urgencyLevel: 'overdue'
-      };
+      });
     }
 
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -47,7 +76,6 @@ const useCountdown = (deadline) => {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    // Determine urgency level
     let urgencyLevel = 'normal';
     if (days === 0 && hours < 1) {
       urgencyLevel = 'critical';
@@ -57,7 +85,6 @@ const useCountdown = (deadline) => {
       urgencyLevel = 'soon';
     }
 
-    // Format output
     let text;
     let isUrgent = false;
     
@@ -76,32 +103,20 @@ const useCountdown = (deadline) => {
       isUrgent = true;
     }
 
-    return {
+    return JSON.stringify({
       timeRemaining: { text, isOverdue: false, isUrgent },
       isOverdue: false,
       urgencyLevel
-    };
+    });
   }, [deadline]);
 
-  useEffect(() => {
-    // Update ref immediately
-    stateRef.current = calculateTimeRemaining();
+  const snapshot = useSyncExternalStore(
+    timerStore.subscribe,
+    getSnapshot,
+    getSnapshot
+  );
 
-    if (!deadline) return;
-
-    // Determine update interval based on urgency
-    const interval = stateRef.current.timeRemaining?.isUrgent ? 1000 : 60000;
-
-    const timer = setInterval(() => {
-      stateRef.current = calculateTimeRemaining();
-      forceUpdate(n => n + 1);
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [deadline, calculateTimeRemaining]);
-
-  // Return computed values from ref
-  return stateRef.current;
+  return useMemo(() => JSON.parse(snapshot), [snapshot]);
 };
 
 export default useCountdown;
