@@ -182,7 +182,7 @@ const WorkTaskCard = ({
 
   return (
     <div 
-      className={`task-card ${task.is_overdue ? 'overdue' : ''}`}
+      className={`task-card ${isOverdue ? 'overdue' : ''} ${urgencyLevel === 'critical' ? 'critical' : ''}`}
       style={{ borderLeftColor: priorityInfo.color }}
     >
       {/* Header */}
@@ -231,12 +231,22 @@ const WorkTaskCard = ({
           </span>
         </div>
 
-        {/* Deadline */}
-        {task.deadline && (
-          <div className={`task-meta-item ${task.is_overdue ? 'overdue' : ''}`}>
-            <Clock size={14} />
-            <span className="task-countdown">
-              {task.time_remaining}
+        {/* Real-time Countdown */}
+        {task.deadline && timeRemaining && (
+          <div 
+            className={`task-countdown-badge ${urgencyLevel}`}
+            style={{ 
+              color: getUrgencyColor(),
+              backgroundColor: isOverdue ? '#fef2f2' : urgencyLevel === 'critical' ? '#fef2f2' : urgencyLevel === 'warning' ? '#fffbeb' : '#f3f4f6'
+            }}
+          >
+            {isOverdue || urgencyLevel === 'critical' ? (
+              <AlertTriangle size={12} className="countdown-icon pulse" />
+            ) : (
+              <Timer size={12} className="countdown-icon" />
+            )}
+            <span className={isOverdue || urgencyLevel === 'critical' ? 'countdown-text pulse' : 'countdown-text'}>
+              {timeRemaining.text}
             </span>
           </div>
         )}
