@@ -1825,6 +1825,10 @@ class WorkPostResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime]
     
+    # Post Type & Task Metadata
+    post_type: str = "REGULAR"
+    task_metadata: Optional[Dict[str, Any]] = None
+    
     # Author details
     author: Dict[str, Any]
     organization: Dict[str, Any]
