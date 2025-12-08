@@ -15646,10 +15646,13 @@ async def update_task_status(
                 task_metadata={
                     "task_id": task_id,
                     "task_title": task["title"],
+                    "task_description": task.get("description"),
                     "completion_photos": status_update.completion_photo_ids,
                     "completion_note": status_update.completion_note,
                     "completed_by": current_user.id,
-                    "completed_by_name": f"{current_user.first_name} {current_user.last_name}"
+                    "completed_by_name": f"{current_user.first_name} {current_user.last_name}",
+                    "requires_photo_proof": task.get("requires_photo_proof", False),
+                    "has_photos": len(status_update.completion_photo_ids) > 0
                 }
             )
             
