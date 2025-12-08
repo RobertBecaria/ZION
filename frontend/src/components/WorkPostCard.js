@@ -90,10 +90,17 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
     }
   };
 
-  // Render task completion post
+  // Render task completion post - Option C: conditional display based on task settings
   const renderTaskCompletionPost = () => {
     const taskMeta = post.task_metadata || {};
     const photos = taskMeta.completion_photos || post.media_files || [];
+    const hasPhotos = photos.length > 0;
+    const requiresPhoto = taskMeta.requires_photo_proof;
+    
+    // Determine display mode:
+    // - Simple notification if no completion note and no photos
+    // - Full details if has completion note or photos
+    const isSimpleNotification = !taskMeta.completion_note && !hasPhotos;
     
     return (
       <div className="task-completion-post">
@@ -108,24 +115,41 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
           {taskMeta.task_title || 'Задача'}
         </h3>
         
-        {/* Completion Note */}
-        {taskMeta.completion_note && (
-          <p className="task-completion-note">{taskMeta.completion_note}</p>
-        )}
-        
-        {/* Completion Photos */}
-        {photos.length > 0 && (
-          <div className="task-completion-photos">
-            {photos.map((photoId, idx) => (
-              <div key={idx} className="completion-photo">
-                <img 
-                  src={`${process.env.REACT_APP_BACKEND_URL}/api/media/files/${photoId}`} 
-                  alt={`Фото ${idx + 1}`}
-                  onError={(e) => { e.target.style.display = 'none'; }}
-                />
+        {/* Simple notification mode */}
+        {isSimpleNotification ? (
+          <p className="task-simple-completion">
+            Задача успешно выполнена
+          </p>
+        ) : (
+          <>
+            {/* Full details mode */}
+            
+            {/* Completion Note */}
+            {taskMeta.completion_note && (
+              <p className="task-completion-note">{taskMeta.completion_note}</p>
+            )}
+            
+            {/* Completion Photos - only show if photos exist */}
+            {hasPhotos && (
+              <div className="task-completion-photos">
+                <div className="photos-header">
+                  <Image size={14} />
+                  <span>Фото подтверждение{requiresPhoto ? ' (обязательное)' : ''}</span>
+                </div>
+                <div className="photos-grid">
+                  {photos.map((photoId, idx) => (
+                    <div key={idx} className="completion-photo">
+                      <img 
+                        src={`${process.env.REACT_APP_BACKEND_URL}/api/media/files/${photoId}`} 
+                        alt={`Фото ${idx + 1}`}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
         
         {/* Completed By */}
