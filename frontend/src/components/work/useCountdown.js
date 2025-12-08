@@ -2,10 +2,14 @@
  * useCountdown Hook
  * Real-time countdown timer for task deadlines
  */
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 const useCountdown = (deadline) => {
-  const [tick, setTick] = useState(0);
+  const [countdownState, setCountdownState] = useState({
+    timeRemaining: null,
+    isOverdue: false,
+    urgencyLevel: 'normal'
+  });
 
   const calculateTimeRemaining = useCallback(() => {
     if (!deadline) return null;
@@ -24,13 +28,15 @@ const useCountdown = (deadline) => {
         return { 
           text: `Просрочено на ${days}д ${hours}ч`, 
           isOverdue: true,
-          urgencyLevel: 'overdue'
+          urgencyLevel: 'overdue',
+          isUrgent: false
         };
       }
       return { 
         text: `Просрочено на ${hours}ч`, 
         isOverdue: true,
-        urgencyLevel: 'overdue'
+        urgencyLevel: 'overdue',
+        isUrgent: false
       };
     }
 
@@ -71,31 +77,44 @@ const useCountdown = (deadline) => {
     return { text, isOverdue: false, isUrgent, urgencyLevel };
   }, [deadline]);
 
-  // Calculate derived values from tick
-  const result = useMemo(() => {
-    return calculateTimeRemaining();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [calculateTimeRemaining, tick]);
-
   useEffect(() => {
-    if (!deadline) return;
+    if (!deadline) {
+      setCountdownState({
+        timeRemaining: null,
+        isOverdue: false,
+        urgencyLevel: 'normal'
+      });
+      return;
+    }
+
+    // Initial calculation
+    const initialResult = calculateTimeRemaining();
+    if (initialResult) {
+      setCountdownState({
+        timeRemaining: initialResult,
+        isOverdue: initialResult.isOverdue,
+        urgencyLevel: initialResult.urgencyLevel
+      });
+    }
 
     // Determine update interval based on urgency
-    const currentResult = calculateTimeRemaining();
-    const interval = currentResult?.isUrgent ? 1000 : 60000;
+    const interval = initialResult?.isUrgent ? 1000 : 60000;
 
     const timer = setInterval(() => {
-      setTick(t => t + 1);
+      const result = calculateTimeRemaining();
+      if (result) {
+        setCountdownState({
+          timeRemaining: result,
+          isOverdue: result.isOverdue,
+          urgencyLevel: result.urgencyLevel
+        });
+      }
     }, interval);
 
     return () => clearInterval(timer);
   }, [deadline, calculateTimeRemaining]);
 
-  return { 
-    timeRemaining: result, 
-    isOverdue: result?.isOverdue || false, 
-    urgencyLevel: result?.urgencyLevel || 'normal' 
-  };
+  return countdownState;
 };
 
 export default useCountdown;
