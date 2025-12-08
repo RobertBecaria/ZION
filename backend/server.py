@@ -875,6 +875,11 @@ class WorkMember(BaseModel):
     class Config:
         populate_by_name = True
 
+class WorkPostType(str, Enum):
+    REGULAR = "REGULAR"
+    TASK_COMPLETION = "TASK_COMPLETION"
+    TASK_DISCUSSION = "TASK_DISCUSSION"
+
 class WorkPost(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     organization_id: str
@@ -883,6 +888,10 @@ class WorkPost(BaseModel):
     # Content
     title: Optional[str] = None
     content: str
+    
+    # Post Type & Task Metadata
+    post_type: WorkPostType = WorkPostType.REGULAR
+    task_metadata: Optional[Dict[str, Any]] = None  # {task_id, task_title, completion_photos, etc.}
     
     # Privacy
     privacy_level: str = "PUBLIC"  # PUBLIC, ORGANIZATION_ONLY, DEPARTMENT_ONLY
