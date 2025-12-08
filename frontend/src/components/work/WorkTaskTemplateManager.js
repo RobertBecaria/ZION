@@ -2,7 +2,7 @@
  * WorkTaskTemplateManager Component
  * Modal for managing task templates - view, edit, delete
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   X, Plus, Trash2, Edit2, FileText, AlertCircle, CheckCircle2,
   Image, User, Users, Building, Clock, Save, ChevronDown, ChevronUp
