@@ -15965,6 +15965,67 @@ async def delete_task_template(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
+@api_router.patch("/work/organizations/{organization_id}/task-templates/{template_id}")
+async def update_task_template(
+    organization_id: str,
+    template_id: str,
+    template_data: WorkTaskTemplateCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Update a task template"""
+    try:
+        template = await db.work_task_templates.find_one({
+            "id": template_id,
+            "organization_id": organization_id,
+            "is_active": True
+        })
+        
+        if not template:
+            raise HTTPException(status_code=404, detail="Шаблон не найден")
+        
+        # Check permissions
+        membership = await db.work_members.find_one({
+            "organization_id": organization_id,
+            "user_id": current_user.id,
+            "status": "ACTIVE"
+        })
+        
+        is_admin = membership and membership.get("role") in ["OWNER", "ADMIN", "MANAGER"]
+        is_creator = template["created_by"] == current_user.id
+        
+        if not (is_admin or is_creator):
+            raise HTTPException(status_code=403, detail="Нет прав на редактирование шаблона")
+        
+        # Update template
+        update_data = {
+            "name": template_data.name,
+            "title": template_data.title,
+            "description": template_data.description,
+            "priority": template_data.priority,
+            "subtasks": template_data.subtasks,
+            "requires_photo_proof": template_data.requires_photo_proof,
+            "default_assignment_type": template_data.default_assignment_type,
+            "updated_at": datetime.now(timezone.utc)
+        }
+        
+        await db.work_task_templates.update_one(
+            {"id": template_id},
+            {"$set": update_data}
+        )
+        
+        # Get updated template
+        updated_template = await db.work_task_templates.find_one({"id": template_id}, {"_id": 0})
+        creator = await db.users.find_one({"id": updated_template["created_by"]}, {"_id": 0})
+        updated_template["created_by_name"] = f"{creator['first_name']} {creator['last_name']}" if creator else "Unknown"
+        
+        return {"template": updated_template, "message": "Шаблон обновлён"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ===== END WORK TASK MANAGEMENT ENDPOINTS =====
 
 # ===== WEBSOCKET CHAT SYSTEM =====
