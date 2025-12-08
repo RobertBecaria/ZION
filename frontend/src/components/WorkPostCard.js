@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Trash2, User } from 'lucide-react';
+import { Heart, MessageCircle, Trash2, User, CheckCircle2, MessageSquarePlus, Clock, AlertTriangle, Image } from 'lucide-react';
 
 const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onComment }) => {
   const [showComments, setShowComments] = useState(false);
@@ -10,6 +10,10 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
 
   const isAuthor = post.author_id === currentUserId;
   const canDelete = isAuthor || isAdmin;
+  
+  const isTaskPost = post.post_type === 'TASK_COMPLETION' || post.post_type === 'TASK_DISCUSSION';
+  const isTaskCompletion = post.post_type === 'TASK_COMPLETION';
+  const isTaskDiscussion = post.post_type === 'TASK_DISCUSSION';
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -86,14 +90,112 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
     }
   };
 
+  // Render task completion post
+  const renderTaskCompletionPost = () => {
+    const taskMeta = post.task_metadata || {};
+    const photos = taskMeta.completion_photos || post.media_files || [];
+    
+    return (
+      <div className="task-completion-post">
+        {/* Task Completion Header */}
+        <div className="task-post-badge completion">
+          <CheckCircle2 size={16} />
+          <span>Задача выполнена</span>
+        </div>
+        
+        {/* Task Title */}
+        <h3 className="task-post-title">
+          {taskMeta.task_title || 'Задача'}
+        </h3>
+        
+        {/* Completion Note */}
+        {taskMeta.completion_note && (
+          <p className="task-completion-note">{taskMeta.completion_note}</p>
+        )}
+        
+        {/* Completion Photos */}
+        {photos.length > 0 && (
+          <div className="task-completion-photos">
+            {photos.map((photoId, idx) => (
+              <div key={idx} className="completion-photo">
+                <img 
+                  src={`${process.env.REACT_APP_BACKEND_URL}/api/media/files/${photoId}`} 
+                  alt={`Фото ${idx + 1}`}
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {/* Completed By */}
+        <div className="task-completed-by">
+          <User size={14} />
+          <span>Выполнил: {taskMeta.completed_by_name || post.author_name}</span>
+        </div>
+      </div>
+    );
+  };
+
+  // Render task discussion post
+  const renderTaskDiscussionPost = () => {
+    const taskMeta = post.task_metadata || {};
+    
+    return (
+      <div className="task-discussion-post">
+        {/* Task Discussion Header */}
+        <div className="task-post-badge discussion">
+          <MessageSquarePlus size={16} />
+          <span>Обсуждение задачи</span>
+        </div>
+        
+        {/* Task Title */}
+        <h3 className="task-post-title">
+          {taskMeta.task_title || 'Задача'}
+        </h3>
+        
+        {/* Task Status & Priority */}
+        <div className="task-meta-info">
+          {taskMeta.task_priority && (
+            <span className={`priority-badge ${taskMeta.task_priority.toLowerCase()}`}>
+              {taskMeta.task_priority === 'URGENT' && <AlertTriangle size={12} />}
+              {taskMeta.task_priority === 'HIGH' ? 'Высокий' : 
+               taskMeta.task_priority === 'MEDIUM' ? 'Средний' : 
+               taskMeta.task_priority === 'URGENT' ? 'Срочно' : 'Низкий'}
+            </span>
+          )}
+          {taskMeta.task_deadline && (
+            <span className="deadline-info">
+              <Clock size={12} />
+              {new Date(taskMeta.task_deadline).toLocaleDateString('ru-RU')}
+            </span>
+          )}
+        </div>
+        
+        {/* Original content (task description) */}
+        <p className="text-gray-700 mt-3">{post.content.replace(/💬 Обсуждение задачи:.*\n\n?/, '')}</p>
+      </div>
+    );
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <div className={`bg-white rounded-2xl shadow-md border overflow-hidden hover:shadow-lg transition-shadow duration-200 ${
+      isTaskCompletion ? 'border-green-200 task-post-card' : 
+      isTaskDiscussion ? 'border-blue-200 task-post-card' : 
+      'border-gray-100'
+    }`}>
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-400 to-orange-600 flex items-center justify-center">
-              <User className="w-6 h-6 text-white" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+              isTaskCompletion ? 'bg-gradient-to-br from-green-400 to-green-600' :
+              isTaskDiscussion ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
+              'bg-gradient-to-br from-orange-400 to-orange-600'
+            }`}>
+              {isTaskCompletion ? <CheckCircle2 className="w-6 h-6 text-white" /> :
+               isTaskDiscussion ? <MessageSquarePlus className="w-6 h-6 text-white" /> :
+               <User className="w-6 h-6 text-white" />}
             </div>
             <div>
               <h4 className="font-semibold text-gray-900">{post.author_name}</h4>
@@ -101,7 +203,7 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
             </div>
           </div>
 
-          {canDelete && (
+          {canDelete && !isTaskPost && (
             <button
               onClick={() => onDelete && onDelete(post.id)}
               className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all duration-200"
@@ -112,8 +214,11 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
           )}
         </div>
 
-        {/* Content */}
-        <p className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-4">{post.content}</p>
+        {/* Content - Different rendering based on post type */}
+        {isTaskCompletion ? renderTaskCompletionPost() : 
+         isTaskDiscussion ? renderTaskDiscussionPost() :
+         <p className="text-gray-800 leading-relaxed whitespace-pre-wrap mb-4">{post.content}</p>
+        }
 
         {/* Actions */}
         <div className="flex items-center gap-6 pt-4 border-t border-gray-100">
@@ -135,10 +240,13 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
 
           <button
             onClick={loadComments}
-            className="flex items-center gap-2 text-gray-600 hover:text-orange-600 font-medium transition-colors duration-200"
+            className={`flex items-center gap-2 font-medium transition-colors duration-200 ${
+              isTaskDiscussion ? 'text-blue-600 hover:text-blue-700' : 'text-gray-600 hover:text-orange-600'
+            }`}
           >
             <MessageCircle className="w-5 h-5" />
             <span>{post.comments_count || 0}</span>
+            {isTaskDiscussion && <span className="text-xs ml-1">Обсудить</span>}
           </button>
         </div>
 
@@ -152,13 +260,15 @@ const WorkPostCard = ({ post, currentUserId, isAdmin, onDelete, onLike, onCommen
                   type="text"
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Написать комментарий..."
+                  placeholder={isTaskDiscussion ? "Оставить комментарий к задаче..." : "Написать комментарий..."}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                 />
                 <button
                   type="submit"
                   disabled={!commentText.trim() || addingComment}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  className={`px-4 py-2 text-white rounded-lg transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed ${
+                    isTaskDiscussion ? 'bg-blue-500 hover:bg-blue-600' : 'bg-orange-500 hover:bg-orange-600'
+                  }`}
                 >
                   {addingComment ? '...' : 'Отправить'}
                 </button>
