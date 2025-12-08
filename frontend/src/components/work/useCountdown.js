@@ -2,17 +2,24 @@
  * useCountdown Hook
  * Real-time countdown timer for task deadlines
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const useCountdown = (deadline) => {
-  const [countdownState, setCountdownState] = useState({
+  const [, forceUpdate] = useState(0);
+  const stateRef = useRef({
     timeRemaining: null,
     isOverdue: false,
     urgencyLevel: 'normal'
   });
 
   const calculateTimeRemaining = useCallback(() => {
-    if (!deadline) return null;
+    if (!deadline) {
+      return {
+        timeRemaining: null,
+        isOverdue: false,
+        urgencyLevel: 'normal'
+      };
+    }
 
     const now = new Date();
     const deadlineDate = new Date(deadline);
@@ -24,19 +31,14 @@ const useCountdown = (deadline) => {
       const days = Math.floor(overdueDiff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((overdueDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       
-      if (days > 0) {
-        return { 
-          text: `Просрочено на ${days}д ${hours}ч`, 
-          isOverdue: true,
-          urgencyLevel: 'overdue',
-          isUrgent: false
-        };
-      }
-      return { 
-        text: `Просрочено на ${hours}ч`, 
+      const text = days > 0 
+        ? `Просрочено на ${days}д ${hours}ч`
+        : `Просрочено на ${hours}ч`;
+      
+      return {
+        timeRemaining: { text, isOverdue: true, isUrgent: false },
         isOverdue: true,
-        urgencyLevel: 'overdue',
-        isUrgent: false
+        urgencyLevel: 'overdue'
       };
     }
 
@@ -74,47 +76,32 @@ const useCountdown = (deadline) => {
       isUrgent = true;
     }
 
-    return { text, isOverdue: false, isUrgent, urgencyLevel };
+    return {
+      timeRemaining: { text, isOverdue: false, isUrgent },
+      isOverdue: false,
+      urgencyLevel
+    };
   }, [deadline]);
 
   useEffect(() => {
-    if (!deadline) {
-      setCountdownState({
-        timeRemaining: null,
-        isOverdue: false,
-        urgencyLevel: 'normal'
-      });
-      return;
-    }
+    // Update ref immediately
+    stateRef.current = calculateTimeRemaining();
 
-    // Initial calculation
-    const initialResult = calculateTimeRemaining();
-    if (initialResult) {
-      setCountdownState({
-        timeRemaining: initialResult,
-        isOverdue: initialResult.isOverdue,
-        urgencyLevel: initialResult.urgencyLevel
-      });
-    }
+    if (!deadline) return;
 
     // Determine update interval based on urgency
-    const interval = initialResult?.isUrgent ? 1000 : 60000;
+    const interval = stateRef.current.timeRemaining?.isUrgent ? 1000 : 60000;
 
     const timer = setInterval(() => {
-      const result = calculateTimeRemaining();
-      if (result) {
-        setCountdownState({
-          timeRemaining: result,
-          isOverdue: result.isOverdue,
-          urgencyLevel: result.urgencyLevel
-        });
-      }
+      stateRef.current = calculateTimeRemaining();
+      forceUpdate(n => n + 1);
     }, interval);
 
     return () => clearInterval(timer);
   }, [deadline, calculateTimeRemaining]);
 
-  return countdownState;
+  // Return computed values from ref
+  return stateRef.current;
 };
 
 export default useCountdown;
