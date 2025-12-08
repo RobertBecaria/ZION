@@ -5,10 +5,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Plus, Filter, Clock, CheckCircle2, Circle, AlertCircle,
-  ChevronDown, ChevronUp, MoreVertical, MessageSquare, User, Users, Building
+  ChevronDown, ChevronUp, MoreVertical, MessageSquare, User, Users, Building,
+  FileText
 } from 'lucide-react';
 import WorkTaskCard from './WorkTaskCard';
 import WorkTaskCreateModal from './WorkTaskCreateModal';
+import WorkTaskTemplateManager from './WorkTaskTemplateManager';
 
 const TASK_FILTERS = [
   { key: 'all', label: 'Все' },
@@ -28,6 +30,8 @@ const WorkTasksPanel = ({
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('my');
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showCompleted, setShowCompleted] = useState(false);
   const [expandedSection, setExpandedSection] = useState(true);
 
