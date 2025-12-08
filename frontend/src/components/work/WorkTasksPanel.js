@@ -116,13 +116,23 @@ const WorkTasksPanel = ({
           )}
           {expandedSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
         </div>
-        <button 
-          className="add-task-btn"
-          onClick={() => setShowCreateModal(true)}
-          style={{ color: moduleColor }}
-        >
-          <Plus size={18} />
-        </button>
+        <div className="tasks-panel-actions">
+          <button 
+            className="templates-btn"
+            onClick={() => setShowTemplateManager(true)}
+            title="Шаблоны задач"
+          >
+            <FileText size={16} />
+          </button>
+          <button 
+            className="add-task-btn"
+            onClick={() => setShowCreateModal(true)}
+            style={{ color: moduleColor }}
+            title="Создать задачу"
+          >
+            <Plus size={18} />
+          </button>
+        </div>
       </div>
 
       {expandedSection && (
