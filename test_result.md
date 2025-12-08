@@ -2,6 +2,31 @@
 
 ## Date: December 8, 2025
 
+### Frontend Testing Agent Login Issue - INVESTIGATION
+
+**Issue:** The frontend testing agent has been failing to log in during automated tests across multiple fork sessions.
+
+**Manual Verification (December 8, 2025):**
+- Login page loads correctly ✅
+- Login flow works with manual Playwright script ✅
+- Credentials work: admin@test.com / testpassword123 ✅
+- Dashboard loads after login ✅
+
+**Login Form Selectors (Verified Working):**
+- Email input: `input[type="email"]`
+- Password input: `input[type="password"]`
+- Login button: `button[type="submit"]`
+
+**Test Request for Frontend Testing Agent:**
+Please test the login flow and basic dashboard functionality:
+1. Navigate to the application
+2. Fill in email: admin@test.com
+3. Fill in password: testpassword123
+4. Click the login button
+5. Verify that the dashboard loads (user profile "Admin User" visible)
+
+---
+
 ### Phase 4: UI Polish & Countdown Timer - COMPLETE ✅
 
 **Features Implemented:**
