@@ -381,8 +381,8 @@ class TaskToPostIntegrationTester:
                         else:
                             success_checks.append("✗ post_id not returned")
                         
-                        # Check success message
-                        if "success" in message.lower():
+                        # Check success message (accept both English and Russian)
+                        if "success" in message.lower() or "создано" in message.lower():
                             success_checks.append(f"✓ Success message: {message}")
                         else:
                             success_checks.append(f"✗ Unexpected message: {message}")
