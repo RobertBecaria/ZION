@@ -227,8 +227,26 @@ const WorkTasksPanel = ({
           organizationId={organizationId}
           currentUser={currentUser}
           moduleColor={moduleColor}
-          onClose={() => setShowCreateModal(false)}
+          onClose={() => {
+            setShowCreateModal(false);
+            setSelectedTemplate(null);
+          }}
           onTaskCreated={handleTaskCreated}
+          initialTemplate={selectedTemplate}
+        />
+      )}
+
+      {/* Template Manager Modal */}
+      {showTemplateManager && (
+        <WorkTaskTemplateManager
+          organizationId={organizationId}
+          moduleColor={moduleColor}
+          onClose={() => setShowTemplateManager(false)}
+          onTemplateSelect={(template) => {
+            setSelectedTemplate(template);
+            setShowTemplateManager(false);
+            setShowCreateModal(true);
+          }}
         />
       )}
     </div>
