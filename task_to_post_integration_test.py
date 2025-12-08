@@ -163,13 +163,14 @@ class TaskToPostIntegrationTester:
             
             if response.status_code == 200:
                 result = response.json()
-                updated_status = result.get("status")
+                task_data = result.get("task", {})
+                updated_status = task_data.get("status")
                 
                 if updated_status == "IN_PROGRESS":
                     self.log_test("Task Status Update IN_PROGRESS", True, f"Task status updated to: {updated_status}")
                     return True
                 else:
-                    self.log_test("Task Status Update IN_PROGRESS", False, f"Status not updated correctly. Response: {result}")
+                    self.log_test("Task Status Update IN_PROGRESS", False, f"Status not updated correctly. Expected: IN_PROGRESS, Got: {updated_status}")
                     return False
             else:
                 self.log_test("Task Status Update IN_PROGRESS", False, f"Status: {response.status_code}, Response: {response.text}")
