@@ -204,6 +204,33 @@ const LeftSidebar = ({
             <div className="sidebar-divider"></div>
           </>
         )}
+
+        {/* ==================== NEWS MODULE ==================== */}
+        {activeModule === 'news' && (
+          <>
+            <div className="sidebar-divider" style={getDividerStyle('#1D4ED8')}></div>
+            
+            <button 
+              className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
+              style={getButtonStyle(activeView === 'wall' || activeView === 'feed', '#1D4ED8')}
+              onClick={() => setActiveView('feed')}
+            >
+              <Newspaper size={18} />
+              <span>МОЯ ЛЕНТА</span>
+            </button>
+            
+            <button 
+              className={`profile-btn ${activeView === 'channels' ? 'primary' : 'secondary'}`}
+              style={getButtonStyle(activeView === 'channels', '#1D4ED8')}
+              onClick={() => setActiveView('channels')}
+            >
+              <Tv size={18} />
+              <span>КАНАЛЫ</span>
+            </button>
+            
+            <div className="sidebar-divider"></div>
+          </>
+        )}
       </div>
 
       {/* Navigation Links */}
