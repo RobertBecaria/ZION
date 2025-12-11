@@ -6,6 +6,7 @@ import React from 'react';
 import { Search, Filter, Users, Briefcase, Building } from 'lucide-react';
 import { getModuleByKey, getSidebarTintStyle, FAMILY_FILTER_OPTIONS } from '../../config/moduleConfig';
 import JournalWorldZone from '../JournalWorldZone';
+import NewsWorldZone from '../NewsWorldZone';
 
 const RightSidebar = ({
   activeModule,
@@ -19,7 +20,11 @@ const RightSidebar = ({
   journalSchoolFilter,
   setJournalSchoolFilter,
   journalAudienceFilter,
-  setJournalAudienceFilter
+  setJournalAudienceFilter,
+  // News module handlers
+  onViewFriends,
+  onViewFollowers,
+  onViewFollowing
 }) => {
   const currentModule = getModuleByKey(activeModule);
   const sidebarTintStyle = getSidebarTintStyle(currentModule.color);
