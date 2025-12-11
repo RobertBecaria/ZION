@@ -29192,3 +29192,645 @@ a,
 /* ============================================
    END CHANNELS PAGE STYLES
 ============================================ */
+
+/* ============================================
+   NEWS FEED STYLES
+============================================ */
+
+.news-feed {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* Post Composer */
+.post-composer {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.composer-header {
+  display: flex;
+  gap: 12px;
+}
+
+.composer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.composer-avatar img,
+.composer-avatar .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.composer-input-wrapper {
+  flex: 1;
+}
+
+.composer-input-wrapper textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #1f2937;
+  font-family: inherit;
+}
+
+.composer-input-wrapper textarea::placeholder {
+  color: #9ca3af;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.composer-attachments {
+  display: flex;
+  gap: 4px;
+}
+
+.attachment-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.attachment-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.composer-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Visibility Selector */
+.visibility-selector {
+  position: relative;
+}
+
+.visibility-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.visibility-btn:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.visibility-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.visibility-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.visibility-option:hover {
+  background: #f9fafb;
+}
+
+.visibility-option.selected {
+  background: #eff6ff;
+}
+
+.visibility-option .option-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.visibility-option .option-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.visibility-option .option-desc {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.post-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.post-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.post-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Posts List */
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Post Card */
+.post-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 16px 0;
+}
+
+.post-author {
+  display: flex;
+  gap: 12px;
+}
+
+.author-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.author-avatar img,
+.author-avatar .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.author-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.channel-badge {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.post-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.post-date {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.visibility-badge {
+  color: #9ca3af;
+}
+
+.post-menu-wrapper {
+  position: relative;
+}
+
+.menu-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-btn:hover {
+  background: #f3f4f6;
+}
+
+.post-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  z-index: 10;
+}
+
+.post-menu .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  text-align: left;
+}
+
+.post-menu .menu-item:hover {
+  background: #f3f4f6;
+}
+
+.post-menu .menu-item.delete {
+  color: #ef4444;
+}
+
+.post-menu .menu-item.delete:hover {
+  background: #fef2f2;
+}
+
+.post-content {
+  padding: 12px 16px;
+}
+
+.post-content p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #1f2937;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.post-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 16px;
+}
+
+.post-actions .action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.post-actions .action-btn:hover {
+  background: #f3f4f6;
+}
+
+.post-actions .action-btn.liked {
+  color: #ef4444;
+}
+
+.load-more-btn {
+  display: block;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.load-more-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* ============================================
+   CHANNEL VIEW STYLES
+============================================ */
+
+.channel-view {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.channel-header-full {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+
+.channel-cover {
+  height: 180px;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+}
+
+.back-btn-overlay {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.back-btn-overlay:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.channel-info-full {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  margin-top: -40px;
+  position: relative;
+}
+
+.channel-avatar-large {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 4px solid white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.channel-avatar-large img,
+.channel-avatar-large .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.verified-badge-large {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 28px;
+  height: 28px;
+  background: #10b981;
+  border: 3px solid white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.channel-details {
+  flex: 1;
+  min-width: 0;
+  padding-top: 48px;
+}
+
+.channel-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.channel-title .official-icon {
+  color: #1D4ED8;
+}
+
+.channel-description-full {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.channel-stats {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 12px;
+}
+
+.channel-stats .stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.channel-stats .stat strong {
+  color: #1f2937;
+}
+
+.channel-categories-full {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.category-badge {
+  padding: 4px 12px;
+  background: #f3f4f6;
+  border-radius: 16px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.channel-actions-full {
+  display: flex;
+  gap: 8px;
+  padding-top: 48px;
+}
+
+.subscribe-btn-large {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.subscribe-btn-large:hover {
+  opacity: 0.9;
+}
+
+.subscribe-btn-large.subscribed {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.subscribe-btn-large.subscribed:hover {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.notification-btn,
+.share-btn,
+.settings-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-btn:hover,
+.share-btn:hover,
+.settings-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.channel-content {
+  padding: 0 16px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .channel-info-full {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .channel-details {
+    padding-top: 12px;
+  }
+  
+  .channel-actions-full {
+    padding-top: 12px;
+    justify-content: center;
+  }
+  
+  .channel-stats {
+    justify-content: center;
+  }
+  
+  .channel-categories-full {
+    justify-content: center;
+  }
+}
+
+/* ============================================
+   END NEWS FEED & CHANNEL VIEW STYLES
+============================================ */
