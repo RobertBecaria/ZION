@@ -75,6 +75,8 @@ import WorkCalendarWidget from './components/WorkCalendarWidget';
 // NEWS MODULE COMPONENTS
 import FriendsPage from './components/FriendsPage';
 import ChannelsPage from './components/ChannelsPage';
+import NewsFeed from './components/NewsFeed';
+import ChannelView from './components/ChannelView';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase, Eye
 } from 'lucide-react';
