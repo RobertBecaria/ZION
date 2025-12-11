@@ -848,8 +848,61 @@ function Dashboard() {
                           </>
                         )}
 
-                        {(activeModule === 'news' || 
-                          activeModule === 'services' || activeModule === 'marketplace' || 
+                        {(activeModule === 'news') && (
+                          <>
+                            {/* Feed View */}
+                            {(activeView === 'wall' || activeView === 'feed') && (
+                              <UniversalWall
+                                activeGroup={activeGroup}
+                                moduleColor={currentModule.color}
+                                moduleName={currentModule.name}
+                                activeModule={activeModule}
+                                user={user}
+                              />
+                            )}
+                            
+                            {/* Friends Page */}
+                            {(activeView === 'friends' || activeView === 'followers' || activeView === 'following') && (
+                              <FriendsPage
+                                user={user}
+                                moduleColor={currentModule.color}
+                                initialTab={activeView === 'followers' ? 'followers' : activeView === 'following' ? 'following' : 'friends'}
+                                onBack={() => setActiveView('feed')}
+                                onOpenChat={(person) => {
+                                  // TODO: Open chat with person
+                                  console.log('Open chat with', person);
+                                }}
+                              />
+                            )}
+                            
+                            {/* Channels Page */}
+                            {activeView === 'channels' && (
+                              <ChannelsPage
+                                user={user}
+                                moduleColor={currentModule.color}
+                                onViewChannel={(channel) => {
+                                  // TODO: Navigate to channel view
+                                  console.log('View channel', channel);
+                                }}
+                              />
+                            )}
+                            
+                            {/* Chat View */}
+                            {activeView === 'chat' && (
+                              <UniversalChatLayout
+                                activeGroup={activeGroup}
+                                activeDirectChat={activeDirectChat}
+                                chatGroups={chatGroups}
+                                onGroupSelect={handleGroupSelect}
+                                moduleColor={currentModule.color}
+                                onCreateGroup={handleCreateGroup}
+                                user={user}
+                              />
+                            )}
+                          </>
+                        )}
+
+                        {(activeModule === 'services' || activeModule === 'marketplace' || 
                           activeModule === 'finance' || activeModule === 'events') && (
                           <>
                             {(activeView === 'wall' || activeView === 'feed') ? (
