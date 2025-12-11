@@ -198,7 +198,7 @@ const RightSidebar = ({
       )}
 
       {/* Other modules - Default/placeholder content */}
-      {!['family', 'journal', 'organizations'].includes(activeModule) && (
+      {!['family', 'journal', 'organizations', 'news'].includes(activeModule) && (
         <div className="widget info-widget">
           <div className="widget-header">
             <span>Информация</span>
