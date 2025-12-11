@@ -26,7 +26,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://orgplanner.preview.emergentagent.com"
+BACKEND_URL = "https://planner-integration.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials
