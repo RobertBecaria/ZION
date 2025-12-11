@@ -17108,9 +17108,12 @@ async def get_channels(
     for channel in channels:
         owner = await db.users.find_one(
             {"id": channel["owner_id"]},
-            {"_id": 0, "password_hash": 0, "first_name": 1, "last_name": 1}
+            {"_id": 0, "password_hash": 0}
         )
-        channel["owner"] = owner
+        if owner:
+            channel["owner"] = {"first_name": owner.get("first_name"), "last_name": owner.get("last_name")}
+        else:
+            channel["owner"] = None
     
     return {"channels": channels}
 
