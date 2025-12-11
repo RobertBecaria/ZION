@@ -17170,10 +17170,11 @@ async def get_channel(
     }) is not None
     
     # Get owner info
-    owner = await db.users.find_one(
+    owner_data = await db.users.find_one(
         {"id": channel["owner_id"]},
-        {"_id": 0, "password_hash": 0, "first_name": 1, "last_name": 1}
+        {"_id": 0, "password_hash": 0}
     )
+    owner = {"first_name": owner_data.get("first_name"), "last_name": owner_data.get("last_name")} if owner_data else None
     
     return {
         **channel,
