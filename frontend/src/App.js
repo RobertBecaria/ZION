@@ -46,6 +46,7 @@ import ChatWorldZone from './components/ChatWorldZone';
 import InfoWorldZone from './components/InfoWorldZone';
 import FamilyProfileWorldZone from './components/FamilyProfileWorldZone';
 import WorkWorldZone from './components/WorkWorldZone';
+import NewsWorldZone from './components/NewsWorldZone';
 import AcademicCalendar from './components/AcademicCalendar';
 import EventPlanner from './components/EventPlanner';
 import ClassSchedule from './components/ClassSchedule';
