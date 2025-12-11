@@ -27040,8 +27040,8 @@ a,
 ============================================ */
 
 .work-universal-feed-layout {
-  display: grid !important;
-  grid-template-columns: 1fr 320px !important;
+  display: grid;
+  grid-template-columns: 1fr 320px;
   gap: 20px;
   width: 100%;
 }
