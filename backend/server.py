@@ -2502,6 +2502,38 @@ class NewsPostVisibility(str, Enum):
     FRIENDS_AND_FOLLOWERS = "FRIENDS_AND_FOLLOWERS"
     PUBLIC = "PUBLIC"
 
+class NewsPost(BaseModel):
+    """Post in the News module with social visibility settings"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # Author
+    channel_id: Optional[str] = None  # If posted to a channel
+    
+    # Content
+    content: str
+    media_files: List[str] = []  # MediaFile IDs
+    youtube_urls: List[str] = []
+    
+    # Visibility
+    visibility: NewsPostVisibility = NewsPostVisibility.PUBLIC
+    
+    # Engagement
+    likes_count: int = 0
+    comments_count: int = 0
+    shares_count: int = 0
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: Optional[datetime] = None
+    is_pinned: bool = False
+    is_active: bool = True
+
+class NewsPostCreate(BaseModel):
+    content: str
+    channel_id: Optional[str] = None
+    visibility: NewsPostVisibility = NewsPostVisibility.PUBLIC
+    media_files: List[str] = []
+    youtube_urls: List[str] = []
+
 # ===== END NEWS MODULE MODELS =====
 
 class ChatMessageCreate(BaseModel):
