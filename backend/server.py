@@ -16746,7 +16746,7 @@ async def unfollow_user(
     return {"message": "Unfollowed user"}
 
 @api_router.get("/users/{user_id}/follow/status")
-async def get_follow_status(
+async def get_user_follow_status(
     user_id: str,
     current_user: User = Depends(get_current_user)
 ):
