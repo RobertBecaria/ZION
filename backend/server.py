@@ -15514,6 +15514,16 @@ async def get_tasks_for_calendar(
             # Get organization info
             org = await db.work_organizations.find_one({"id": task["organization_id"]}, {"_id": 0})
             
+            # Check if task is overdue (handle both naive and aware datetimes)
+            is_overdue = False
+            if task.get("deadline") and task.get("status") != "DONE":
+                deadline = task.get("deadline")
+                now = datetime.now()
+                # Make comparison timezone-naive
+                if hasattr(deadline, 'tzinfo') and deadline.tzinfo is not None:
+                    deadline = deadline.replace(tzinfo=None)
+                is_overdue = deadline < now
+            
             calendar_task = {
                 "id": task["id"],
                 "title": task["title"],
@@ -15543,7 +15553,7 @@ async def get_tasks_for_calendar(
                 
                 # Flags
                 "requires_photo_proof": task.get("requires_photo_proof", False),
-                "is_overdue": task.get("deadline") and task.get("deadline") < datetime.now(timezone.utc) and task.get("status") != "DONE"
+                "is_overdue": is_overdue
             }
             calendar_tasks.append(calendar_task)
         
