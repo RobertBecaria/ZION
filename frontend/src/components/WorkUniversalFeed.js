@@ -284,7 +284,7 @@ const WorkUniversalFeed = ({ currentUserId }) => {
       </div>
 
       {/* Right Column - Tasks */}
-      <div className="work-feed-tasks" style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'sticky', top: '20px', alignSelf: 'start' }}>
+      <div className="work-feed-tasks">
         {/* Planner Quick Actions */}
         <div className="planner-widget" style={{ '--module-color': moduleColor }}>
           <div className="planner-header">
