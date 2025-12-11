@@ -17316,6 +17316,377 @@ async def delete_channel(
     
     return {"message": "Channel deleted successfully"}
 
+# ===== NEWS POSTS ENDPOINTS =====
+
+@api_router.post("/news/posts")
+async def create_news_post(
+    post_data: NewsPostCreate,
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new news post"""
+    # If posting to a channel, verify ownership
+    if post_data.channel_id:
+        channel = await db.news_channels.find_one({"id": post_data.channel_id})
+        if not channel:
+            raise HTTPException(status_code=404, detail="Channel not found")
+        if channel["owner_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="You can only post to your own channels")
+    
+    post = NewsPost(
+        user_id=current_user.id,
+        channel_id=post_data.channel_id,
+        content=post_data.content,
+        visibility=post_data.visibility,
+        media_files=post_data.media_files,
+        youtube_urls=post_data.youtube_urls
+    )
+    
+    await db.news_posts.insert_one(post.model_dump())
+    
+    # Update channel post count if applicable
+    if post_data.channel_id:
+        await db.news_channels.update_one(
+            {"id": post_data.channel_id},
+            {"$inc": {"posts_count": 1}}
+        )
+    
+    return {
+        "message": "Post created successfully",
+        "post_id": post.id,
+        "post": post.model_dump()
+    }
+
+@api_router.get("/news/posts/feed")
+async def get_news_feed(
+    limit: int = 20,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Get personalized news feed based on friends, following, and subscriptions"""
+    
+    # Get user's friends
+    friendships = await db.user_friendships.find({
+        "$or": [
+            {"user1_id": current_user.id},
+            {"user2_id": current_user.id}
+        ]
+    }).to_list(1000)
+    
+    friend_ids = set()
+    for f in friendships:
+        if f["user1_id"] == current_user.id:
+            friend_ids.add(f["user2_id"])
+        else:
+            friend_ids.add(f["user1_id"])
+    
+    # Get users I'm following
+    following = await db.user_follows.find({
+        "follower_id": current_user.id
+    }).to_list(1000)
+    following_ids = {f["target_id"] for f in following}
+    
+    # Get subscribed channels
+    subscriptions = await db.channel_subscriptions.find({
+        "subscriber_id": current_user.id
+    }).to_list(1000)
+    subscribed_channel_ids = [s["channel_id"] for s in subscriptions]
+    
+    # Build query for posts I can see
+    # 1. Public posts from anyone
+    # 2. Friends+Followers posts from people I follow or am friends with
+    # 3. Friends only posts from friends
+    # 4. My own posts
+    # 5. Posts from subscribed channels
+    
+    query = {
+        "is_active": True,
+        "$or": [
+            # Public posts
+            {"visibility": "PUBLIC"},
+            # My own posts
+            {"user_id": current_user.id},
+            # Friends only posts from friends
+            {
+                "visibility": "FRIENDS_ONLY",
+                "user_id": {"$in": list(friend_ids)}
+            },
+            # Friends and followers posts from friends or people I follow
+            {
+                "visibility": "FRIENDS_AND_FOLLOWERS",
+                "user_id": {"$in": list(friend_ids | following_ids)}
+            },
+            # Posts from subscribed channels
+            {"channel_id": {"$in": subscribed_channel_ids}}
+        ]
+    }
+    
+    posts = await db.news_posts.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich posts with author info
+    for post in posts:
+        author = await db.users.find_one(
+            {"id": post["user_id"]},
+            {"_id": 0, "password_hash": 0}
+        )
+        post["author"] = {
+            "id": author["id"] if author else None,
+            "first_name": author.get("first_name") if author else None,
+            "last_name": author.get("last_name") if author else None,
+            "profile_picture": author.get("profile_picture") if author else None
+        }
+        
+        # Add channel info if applicable
+        if post.get("channel_id"):
+            channel = await db.news_channels.find_one(
+                {"id": post["channel_id"]},
+                {"_id": 0, "name": 1, "avatar_url": 1, "is_verified": 1}
+            )
+            post["channel"] = channel
+        
+        # Check if current user liked this post
+        liked = await db.news_post_likes.find_one({
+            "post_id": post["id"],
+            "user_id": current_user.id
+        })
+        post["is_liked"] = liked is not None
+    
+    total = await db.news_posts.count_documents(query)
+    
+    return {
+        "posts": posts,
+        "total": total,
+        "has_more": offset + limit < total
+    }
+
+@api_router.get("/news/posts/channel/{channel_id}")
+async def get_channel_posts(
+    channel_id: str,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Get posts from a specific channel"""
+    channel = await db.news_channels.find_one({"id": channel_id})
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    posts = await db.news_posts.find(
+        {"channel_id": channel_id, "is_active": True},
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich posts with author info
+    for post in posts:
+        author = await db.users.find_one(
+            {"id": post["user_id"]},
+            {"_id": 0, "password_hash": 0}
+        )
+        post["author"] = {
+            "id": author["id"] if author else None,
+            "first_name": author.get("first_name") if author else None,
+            "last_name": author.get("last_name") if author else None,
+            "profile_picture": author.get("profile_picture") if author else None
+        }
+        
+        liked = await db.news_post_likes.find_one({
+            "post_id": post["id"],
+            "user_id": current_user.id
+        })
+        post["is_liked"] = liked is not None
+    
+    total = await db.news_posts.count_documents({"channel_id": channel_id, "is_active": True})
+    
+    return {
+        "channel": channel,
+        "posts": posts,
+        "total": total,
+        "has_more": offset + limit < total
+    }
+
+@api_router.get("/news/posts/user/{user_id}")
+async def get_user_news_posts(
+    user_id: str,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Get posts from a specific user (respecting visibility)"""
+    
+    # Determine relationship
+    is_friend = await db.user_friendships.find_one({
+        "$or": [
+            {"user1_id": min(current_user.id, user_id), "user2_id": max(current_user.id, user_id)}
+        ]
+    }) is not None
+    
+    is_following = await db.user_follows.find_one({
+        "follower_id": current_user.id,
+        "target_id": user_id
+    }) is not None
+    
+    is_self = user_id == current_user.id
+    
+    # Build visibility query based on relationship
+    visibility_conditions = [{"visibility": "PUBLIC"}]
+    
+    if is_self:
+        # Can see all own posts
+        visibility_conditions = [{}]  # No visibility filter
+    elif is_friend:
+        visibility_conditions.append({"visibility": "FRIENDS_ONLY"})
+        visibility_conditions.append({"visibility": "FRIENDS_AND_FOLLOWERS"})
+    elif is_following:
+        visibility_conditions.append({"visibility": "FRIENDS_AND_FOLLOWERS"})
+    
+    query = {
+        "user_id": user_id,
+        "is_active": True,
+        "channel_id": None,  # Personal posts, not channel posts
+        "$or": visibility_conditions
+    }
+    
+    posts = await db.news_posts.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich posts
+    for post in posts:
+        liked = await db.news_post_likes.find_one({
+            "post_id": post["id"],
+            "user_id": current_user.id
+        })
+        post["is_liked"] = liked is not None
+    
+    return {"posts": posts}
+
+@api_router.post("/news/posts/{post_id}/like")
+async def like_news_post(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Like a news post"""
+    post = await db.news_posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    # Check if already liked
+    existing = await db.news_post_likes.find_one({
+        "post_id": post_id,
+        "user_id": current_user.id
+    })
+    
+    if existing:
+        raise HTTPException(status_code=400, detail="Already liked")
+    
+    await db.news_post_likes.insert_one({
+        "id": str(uuid.uuid4()),
+        "post_id": post_id,
+        "user_id": current_user.id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    await db.news_posts.update_one(
+        {"id": post_id},
+        {"$inc": {"likes_count": 1}}
+    )
+    
+    return {"message": "Post liked"}
+
+@api_router.delete("/news/posts/{post_id}/like")
+async def unlike_news_post(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Unlike a news post"""
+    result = await db.news_post_likes.delete_one({
+        "post_id": post_id,
+        "user_id": current_user.id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Like not found")
+    
+    await db.news_posts.update_one(
+        {"id": post_id},
+        {"$inc": {"likes_count": -1}}
+    )
+    
+    return {"message": "Post unliked"}
+
+@api_router.delete("/news/posts/{post_id}")
+async def delete_news_post(
+    post_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a news post (author only)"""
+    post = await db.news_posts.find_one({"id": post_id})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    
+    if post["user_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Soft delete
+    await db.news_posts.update_one(
+        {"id": post_id},
+        {"$set": {"is_active": False}}
+    )
+    
+    # Update channel post count if applicable
+    if post.get("channel_id"):
+        await db.news_channels.update_one(
+            {"id": post["channel_id"]},
+            {"$inc": {"posts_count": -1}}
+        )
+    
+    return {"message": "Post deleted"}
+
+# ===== OFFICIAL CHANNELS (Organization-linked) =====
+
+@api_router.post("/news/channels/{channel_id}/link-organization")
+async def link_channel_to_organization(
+    channel_id: str,
+    organization_id: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    """Link a channel to an organization for verification (must be org admin)"""
+    channel = await db.news_channels.find_one({"id": channel_id})
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    if channel["owner_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not channel owner")
+    
+    # Check if user is admin of the organization
+    org = await db.work_organizations.find_one({"id": organization_id})
+    if not org:
+        raise HTTPException(status_code=404, detail="Organization not found")
+    
+    membership = await db.work_memberships.find_one({
+        "user_id": current_user.id,
+        "organization_id": organization_id,
+        "status": "ACTIVE"
+    })
+    
+    if not membership or membership.get("role") not in ["OWNER", "ADMIN"]:
+        raise HTTPException(status_code=403, detail="Must be organization admin")
+    
+    # Link channel to organization
+    await db.news_channels.update_one(
+        {"id": channel_id},
+        {"$set": {
+            "organization_id": organization_id,
+            "is_verified": True,
+            "is_official": True
+        }}
+    )
+    
+    return {"message": "Channel linked to organization and verified"}
+
 # ===== END NEWS MODULE ENDPOINTS =====
 
 @api_router.get("/health")
