@@ -16931,6 +16931,63 @@ async def get_user_suggestions(
     
     return {"suggestions": suggestions}
 
+@api_router.get("/users/search")
+async def search_users(
+    query: str,
+    limit: int = 20,
+    current_user: User = Depends(get_current_user)
+):
+    """Search users by name"""
+    if len(query) < 2:
+        return {"users": []}
+    
+    # Search by first_name or last_name (case-insensitive)
+    search_regex = {"$regex": query, "$options": "i"}
+    
+    users = await db.users.find(
+        {
+            "$and": [
+                {"id": {"$ne": current_user.id}},  # Exclude self
+                {
+                    "$or": [
+                        {"first_name": search_regex},
+                        {"last_name": search_regex},
+                        {"email": search_regex}
+                    ]
+                }
+            ]
+        },
+        {"_id": 0, "password_hash": 0}
+    ).limit(limit).to_list(limit)
+    
+    # Add relationship info to each user
+    for user in users:
+        # Check if friend
+        is_friend = await db.user_friendships.find_one({
+            "$or": [
+                {"user1_id": min(current_user.id, user["id"]), "user2_id": max(current_user.id, user["id"])}
+            ]
+        }) is not None
+        
+        # Check if following
+        is_following = await db.user_follows.find_one({
+            "follower_id": current_user.id,
+            "target_id": user["id"]
+        }) is not None
+        
+        # Check for pending request
+        pending_request = await db.friend_requests.find_one({
+            "sender_id": current_user.id,
+            "receiver_id": user["id"],
+            "status": "PENDING"
+        })
+        
+        user["is_friend"] = is_friend
+        user["is_following"] = is_following
+        user["request_sent"] = pending_request is not None
+    
+    return {"users": users}
+
 @api_router.get("/users/{user_id}/profile")
 async def get_user_public_profile(
     user_id: str,
