@@ -2497,6 +2497,18 @@ class ChannelSubscription(BaseModel):
     subscribed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     notifications_enabled: bool = True
 
+class ChannelModerator(BaseModel):
+    """Moderator assignment for a news channel"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    channel_id: str
+    user_id: str  # The moderator user
+    assigned_by: str  # Channel owner who assigned
+    assigned_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    can_post: bool = True  # Can create posts
+    can_delete_posts: bool = True  # Can delete posts
+    can_pin_posts: bool = True  # Can pin posts
+    is_active: bool = True
+
 class NewsPostVisibility(str, Enum):
     FRIENDS_ONLY = "FRIENDS_ONLY"
     FRIENDS_AND_FOLLOWERS = "FRIENDS_AND_FOLLOWERS"
