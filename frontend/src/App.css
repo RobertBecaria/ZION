@@ -29190,6 +29190,353 @@ a,
 }
 
 /* ============================================
+   OFFICIAL CHANNEL STYLES
+============================================ */
+
+/* Official Channel Card - Gold/Amber theme */
+.channel-card.official-channel {
+  border-color: #FCD34D;
+  background: linear-gradient(135deg, #FFFBEB 0%, white 50%);
+  position: relative;
+}
+
+.channel-card.official-channel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #F59E0B, #B45309);
+  border-radius: 12px 12px 0 0;
+}
+
+.channel-card.official-channel:hover {
+  border-color: #F59E0B;
+  box-shadow: 0 4px 16px rgba(180, 83, 9, 0.15);
+}
+
+/* Official Badge in Channel Name */
+.official-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #B45309;
+  margin-left: 4px;
+}
+
+.official-badge .verified-check {
+  color: #10b981;
+}
+
+/* Organization Name under channel name */
+.channel-org-name {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #B45309;
+  margin: 2px 0 6px 0;
+}
+
+/* Official hint in create modal */
+.form-hint.official-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #10b981;
+  font-size: 12px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #ECFDF5;
+  border-radius: 6px;
+}
+
+/* Organization Select Dropdown */
+.org-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background: white;
+  cursor: pointer;
+}
+
+.org-select:focus {
+  outline: none;
+  border-color: #B45309;
+}
+
+/* Label with icon */
+.label-icon {
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+/* Official Channel View Styling */
+.channel-view.official-channel-view .channel-cover {
+  background: linear-gradient(135deg, #B45309, #D97706) !important;
+}
+
+.official-banner-badge {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #B45309;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.official-title-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 8px;
+}
+
+.official-title-badge .verified-check {
+  color: #10b981;
+}
+
+.channel-organization-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #FFFBEB;
+  border: 1px solid #FCD34D;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #92400E;
+}
+
+.channel-organization-info strong {
+  color: #B45309;
+}
+
+/* ============================================
+   MODERATOR MODAL STYLES
+============================================ */
+
+.moderator-modal {
+  max-width: 500px;
+  width: 90%;
+}
+
+.moderator-modal .modal-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.moderator-modal .modal-body {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.search-section {
+  margin-bottom: 24px;
+}
+
+.search-section label,
+.moderators-section label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.search-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.search-input-row input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.search-input-row input:focus {
+  outline: none;
+  border-color: #1D4ED8;
+}
+
+.search-input-row button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-results {
+  margin-top: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-result-item,
+.moderator-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.search-result-item:last-child,
+.moderator-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item .user-info,
+.moderator-item .user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-result-item .user-avatar,
+.moderator-item .user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.search-result-item .user-avatar img,
+.search-result-item .user-avatar .avatar-placeholder,
+.moderator-item .user-avatar img,
+.moderator-item .user-avatar .avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+}
+
+.user-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.user-email {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.add-mod-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.add-mod-btn:disabled {
+  opacity: 0.7;
+}
+
+.remove-mod-btn {
+  padding: 8px;
+  border: none;
+  background: #fee2e2;
+  color: #dc2626;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.remove-mod-btn:hover {
+  background: #fecaca;
+}
+
+.moderators-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+}
+
+.moderators-list {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.mod-permissions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.permission-badge {
+  padding: 2px 6px;
+  background: #E0E7FF;
+  color: #4338CA;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.empty-state-small {
+  padding: 32px;
+  text-align: center;
+  color: #9CA3AF;
+}
+
+.empty-state-small p {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.moderator-modal .modal-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e5e7eb;
+  text-align: right;
+}
+
+.close-action-btn {
+  padding: 10px 20px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.close-action-btn:hover {
+  background: #e5e7eb;
+}
+
+/* ============================================
    END CHANNELS PAGE STYLES
 ============================================ */
 
