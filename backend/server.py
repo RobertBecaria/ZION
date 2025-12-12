@@ -17176,7 +17176,7 @@ async def get_channels(
         {"_id": 0}
     ).sort("subscribers_count", -1).limit(limit).to_list(limit)
     
-    # Add owner info
+    # Add owner info and organization info
     for channel in channels:
         owner = await db.users.find_one(
             {"id": channel["owner_id"]},
@@ -17186,6 +17186,16 @@ async def get_channels(
             channel["owner"] = {"first_name": owner.get("first_name"), "last_name": owner.get("last_name")}
         else:
             channel["owner"] = None
+        
+        # Add organization info for official channels
+        if channel.get("organization_id"):
+            org = await db.work_organizations.find_one(
+                {"id": channel["organization_id"]},
+                {"_id": 0, "id": 1, "name": 1, "logo_url": 1}
+            )
+            channel["organization"] = org
+        else:
+            channel["organization"] = None
     
     return {"channels": channels}
 
