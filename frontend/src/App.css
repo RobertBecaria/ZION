@@ -29545,9 +29545,14 @@ a,
 ============================================ */
 
 .news-feed {
-  max-width: 100%;
+  max-width: 680px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+/* Full width news feed when events panel is hidden (channels, friends view) */
+.main-content-area.full-width .news-feed {
+  max-width: 100%;
 }
 
 /* Post Composer */
