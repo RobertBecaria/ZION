@@ -17914,7 +17914,7 @@ async def get_my_admin_organizations(
     # Check for admin flag or executive roles
     admin_roles = ["OWNER", "ADMIN", "CEO", "CTO", "CFO", "COO", "FOUNDER", "CO_FOUNDER", "PRESIDENT"]
     
-    memberships = await db.work_memberships.find({
+    memberships = await db.work_members.find({
         "user_id": current_user.id,
         "status": "ACTIVE",
         "$or": [
