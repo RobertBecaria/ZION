@@ -17904,10 +17904,16 @@ async def get_my_admin_organizations(
     current_user: User = Depends(get_current_user)
 ):
     """Get organizations where the current user is admin or owner"""
+    # Check for admin flag or executive roles
+    admin_roles = ["OWNER", "ADMIN", "CEO", "CTO", "CFO", "COO", "FOUNDER", "CO_FOUNDER", "PRESIDENT"]
+    
     memberships = await db.work_memberships.find({
         "user_id": current_user.id,
         "status": "ACTIVE",
-        "role": {"$in": ["OWNER", "ADMIN"]}
+        "$or": [
+            {"is_admin": True},
+            {"role": {"$in": admin_roles}}
+        ]
     }, {"_id": 0}).to_list(100)
     
     org_ids = [m["organization_id"] for m in memberships]
