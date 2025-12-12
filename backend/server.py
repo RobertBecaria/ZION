@@ -17120,6 +17120,9 @@ async def create_channel(
     is_verified = False
     org_id = None
     
+    # Admin roles for official channel creation
+    admin_roles = ["OWNER", "ADMIN", "CEO", "CTO", "CFO", "COO", "FOUNDER", "CO_FOUNDER", "PRESIDENT"]
+    
     # If creating as official organization channel
     if channel_data.organization_id:
         # Verify user is admin/owner of the organization
@@ -17133,7 +17136,11 @@ async def create_channel(
             "status": "ACTIVE"
         })
         
-        if not membership or membership.get("role") not in ["OWNER", "ADMIN"]:
+        if not membership:
+            raise HTTPException(status_code=403, detail="Not a member of this organization")
+        
+        is_admin = membership.get("is_admin", False) or membership.get("role") in admin_roles
+        if not is_admin:
             raise HTTPException(status_code=403, detail="Must be organization admin/owner to create official channel")
         
         is_official = True
