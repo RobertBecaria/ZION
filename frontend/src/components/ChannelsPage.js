@@ -144,7 +144,7 @@ const ChannelsPage = ({
   const renderChannelCard = (channel, showSubscribeBtn = true) => (
     <div 
       key={channel.id} 
-      className="channel-card"
+      className={`channel-card ${channel.is_official ? 'official-channel' : ''}`}
       onClick={() => onViewChannel?.(channel)}
     >
       <div className="channel-avatar">
@@ -153,9 +153,9 @@ const ChannelsPage = ({
         ) : (
           <div 
             className="avatar-placeholder"
-            style={{ backgroundColor: moduleColor }}
+            style={{ backgroundColor: channel.is_official ? '#B45309' : moduleColor }}
           >
-            <Tv size={24} />
+            {channel.is_official ? <Building2 size={24} /> : <Tv size={24} />}
           </div>
         )}
         {channel.is_verified && (
@@ -170,10 +170,21 @@ const ChannelsPage = ({
           <h3 className="channel-name">
             {channel.name}
             {channel.is_official && (
-              <Building2 size={14} className="official-icon" title="Официальный канал" />
+              <span className="official-badge" title="Официальный канал организации">
+                <Building2 size={14} />
+                <Check size={10} className="verified-check" />
+              </span>
             )}
           </h3>
         </div>
+        
+        {/* Organization name for official channels */}
+        {channel.organization && (
+          <p className="channel-org-name">
+            <Building2 size={12} />
+            {channel.organization.name}
+          </p>
+        )}
         
         {channel.description && (
           <p className="channel-description">{channel.description}</p>
@@ -210,7 +221,7 @@ const ChannelsPage = ({
             <button 
               className="subscribe-btn"
               onClick={() => handleSubscribe(channel.id)}
-              style={{ backgroundColor: moduleColor }}
+              style={{ backgroundColor: channel.is_official ? '#B45309' : moduleColor }}
             >
               <Plus size={16} />
               <span>Подписаться</span>
