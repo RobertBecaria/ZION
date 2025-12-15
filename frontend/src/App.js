@@ -1108,10 +1108,8 @@ function Dashboard() {
                             setActiveView('channel-view');
                           }}
                           onNavigateToProfile={(creator) => {
-                            // For now, navigate to friends page with a search for this user
-                            // In the future, we can add a dedicated user profile view
-                            console.log('Navigate to profile:', creator);
-                            setActiveView('friends');
+                            setSelectedNewsUserId(creator.id);
+                            setActiveView('news-user-profile');
                           }}
                         />
                       ) : (
