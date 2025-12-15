@@ -30640,6 +30640,15 @@ a,
   border-color: #d1d5db;
 }
 
+/* Notification button active state */
+.notification-btn.active {
+  border-color: transparent;
+}
+
+.notification-btn.active:hover {
+  filter: brightness(1.1);
+}
+
 .channel-content {
   padding: 0 16px;
 }
