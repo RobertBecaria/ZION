@@ -32288,3 +32288,123 @@ a,
 .action-btn.comment-btn.active {
   color: #1d4ed8;
 }
+
+/* ========== POST EDIT & DELETE ========== */
+
+/* Post Menu */
+.post-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  padding: 6px;
+  min-width: 160px;
+  z-index: 100;
+}
+
+.post-menu .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.post-menu .menu-item:hover {
+  background: #f3f4f6;
+}
+
+.post-menu .menu-item.edit:hover {
+  color: #1d4ed8;
+}
+
+.post-menu .menu-item.delete {
+  color: #dc2626;
+}
+
+.post-menu .menu-item.delete:hover {
+  background: #fef2f2;
+}
+
+/* Post Edit Mode */
+.post-edit-mode {
+  padding: 0 16px 12px;
+}
+
+.post-edit-mode textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.post-edit-mode textarea:focus {
+  border-color: #1d4ed8;
+}
+
+.edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.cancel-edit-btn,
+.save-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-edit-btn {
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+.cancel-edit-btn:hover {
+  background: #e5e7eb;
+}
+
+.save-edit-btn {
+  border: none;
+  color: white;
+}
+
+.save-edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-edit-btn:not(:disabled):hover {
+  filter: brightness(1.1);
+}
+
+/* Edited indicator */
+.post-edited-badge {
+  font-size: 12px;
+  color: #9ca3af;
+  margin-left: 8px;
+}
