@@ -4663,12 +4663,12 @@ async def update_family_basic_info(
         print(f"Update family error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/users/search")
-async def search_users(
+@api_router.get("/users/search/basic")
+async def search_users_basic(
     query: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Search for users by name or email"""
+    """Search for users by name or email - basic version"""
     try:
         if len(query) < 2:
             return {"users": []}
