@@ -214,7 +214,10 @@ const LeftSidebar = ({
             <button 
               className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
               style={getButtonStyle(activeView === 'wall' || activeView === 'feed', '#1D4ED8')}
-              onClick={() => setActiveView('feed')}
+              onClick={() => {
+                setActiveView('feed');
+                if (setSelectedChannelId) setSelectedChannelId(null);
+              }}
             >
               <Newspaper size={18} />
               <span>МОЯ ЛЕНТА</span>
@@ -223,7 +226,10 @@ const LeftSidebar = ({
             <button 
               className={`profile-btn ${activeView === 'channels' ? 'primary' : 'secondary'}`}
               style={getButtonStyle(activeView === 'channels', '#1D4ED8')}
-              onClick={() => setActiveView('channels')}
+              onClick={() => {
+                setActiveView('channels');
+                if (setSelectedChannelId) setSelectedChannelId(null);
+              }}
             >
               <Tv size={18} />
               <span>КАНАЛЫ</span>
