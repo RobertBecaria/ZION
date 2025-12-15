@@ -60,6 +60,26 @@ const ChannelView = ({
     }
   };
 
+  const handleToggleNotifications = async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/news/channels/${channelId}/notifications`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChannel(prev => ({
+          ...prev,
+          notifications_enabled: data.notifications_enabled
+        }));
+      }
+    } catch (error) {
+      console.error('Error toggling notifications:', error);
+    }
+  };
+
   const handleSubscribe = async () => {
     try {
       const token = localStorage.getItem('zion_token');
@@ -74,6 +94,7 @@ const ChannelView = ({
         setChannel(prev => ({
           ...prev,
           is_subscribed: !prev.is_subscribed,
+          notifications_enabled: !prev.is_subscribed ? true : prev.notifications_enabled, // Enable notifications on subscribe
           subscribers_count: prev.is_subscribed 
             ? prev.subscribers_count - 1 
             : prev.subscribers_count + 1
