@@ -15,6 +15,7 @@ import UniversalCalendar from './components/UniversalCalendar';
 import UniversalWall from './components/UniversalWall';
 import ContentNavigation from './components/ContentNavigation';
 import UniversalEventsPanel from './components/UniversalEventsPanel';
+import NewsEventsPanel from './components/NewsEventsPanel';
 import MediaStorage from './components/MediaStorage';
 import MyProfile from './components/MyProfile';
 // NEW FAMILY SYSTEM COMPONENTS
