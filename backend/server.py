@@ -16988,10 +16988,15 @@ async def get_social_stats(
 
 @api_router.get("/users/suggestions")
 async def get_user_suggestions(
-    limit: int = 10,
+    limit: int = 20,
     current_user: User = Depends(get_current_user)
 ):
-    """Get suggested users to follow/friend (people you may know)"""
+    """Get suggested users to follow/friend (people you may know) with smart ranking"""
+    
+    # Get current user's profile info for matching
+    user_city = current_user.address_city
+    user_country = current_user.address_country
+    
     # Get current friends
     friendships = await db.user_friendships.find({
         "$or": [
@@ -17013,19 +17018,52 @@ async def get_user_suggestions(
     }).to_list(1000)
     following_ids = {f["target_id"] for f in following}
     
-    # Exclude self, friends, and already following
-    exclude_ids = friend_ids | following_ids | {current_user.id}
+    # Get pending friend requests (both sent and received)
+    pending_requests = await db.friend_requests.find({
+        "$or": [
+            {"sender_id": current_user.id, "status": "pending"},
+            {"receiver_id": current_user.id, "status": "pending"}
+        ]
+    }).to_list(1000)
+    pending_ids = {r["sender_id"] for r in pending_requests} | {r["receiver_id"] for r in pending_requests}
     
-    # Get suggested users (for now, just random users not in exclude list)
-    # In production, this could use mutual friends, same organizations, etc.
-    suggestions = await db.users.find(
+    # Exclude self, friends, already following, and pending requests
+    exclude_ids = friend_ids | following_ids | pending_ids | {current_user.id}
+    
+    # Get user's organizations
+    user_work_memberships = await db.work_members.find({
+        "user_id": current_user.id,
+        "status": "active"
+    }).to_list(100)
+    user_org_ids = [m["organization_id"] for m in user_work_memberships]
+    
+    # Get user's schools (as parent or teacher)
+    user_school_memberships = await db.school_memberships.find({
+        "user_id": current_user.id
+    }).to_list(100)
+    user_school_ids = [m["organization_id"] for m in user_school_memberships]
+    
+    # Get user's family members' schools (for parent connections)
+    user_children = await db.family_students.find({
+        "parent_ids": current_user.id
+    }).to_list(50)
+    child_school_ids = [c.get("organization_id") for c in user_children if c.get("organization_id")]
+    all_school_ids = list(set(user_school_ids + child_school_ids))
+    
+    # Get suggested users - fetch more than limit for scoring
+    suggestions_raw = await db.users.find(
         {"id": {"$nin": list(exclude_ids)}},
         {"_id": 0, "password_hash": 0}
-    ).limit(limit).to_list(limit)
+    ).limit(limit * 3).to_list(limit * 3)
     
-    # Add mutual friends count
-    for suggestion in suggestions:
-        # Check if this user has any friends in common
+    # Score and enrich each suggestion
+    scored_suggestions = []
+    
+    for suggestion in suggestions_raw:
+        score = 0
+        reasons = []
+        
+        # 1. Check mutual friends (most important)
         their_friendships = await db.user_friendships.find({
             "$or": [
                 {"user1_id": suggestion["id"]},
@@ -17041,12 +17079,77 @@ async def get_user_suggestions(
                 their_friends.add(f["user1_id"])
         
         mutual = friend_ids & their_friends
-        suggestion["mutual_friends_count"] = len(mutual)
+        mutual_count = len(mutual)
+        if mutual_count > 0:
+            score += mutual_count * 10  # High weight for mutual friends
+            if mutual_count == 1:
+                reasons.append("1 общий друг")
+            else:
+                reasons.append(f"{mutual_count} общих друзей")
+        
+        # 2. Check same city (good indicator)
+        if user_city and suggestion.get("address_city") == user_city:
+            score += 5
+            reasons.append(f"Живёт в {user_city}")
+        
+        # 3. Check same country (if not same city)
+        elif user_country and suggestion.get("address_country") == user_country:
+            score += 2
+            reasons.append(f"Из {user_country}")
+        
+        # 4. Check same organization (colleagues)
+        if user_org_ids:
+            their_memberships = await db.work_members.find({
+                "user_id": suggestion["id"],
+                "organization_id": {"$in": user_org_ids},
+                "status": "active"
+            }).to_list(10)
+            
+            if their_memberships:
+                score += 8
+                # Get org name
+                org = await db.work_organizations.find_one({"id": their_memberships[0]["organization_id"]})
+                if org:
+                    reasons.append(f"Коллега в {org.get('name', 'организации')}")
+        
+        # 5. Check same school (parents of classmates, teachers)
+        if all_school_ids:
+            # Check if they're in same school as teacher or parent
+            their_school_memberships = await db.school_memberships.find({
+                "user_id": suggestion["id"],
+                "organization_id": {"$in": all_school_ids}
+            }).to_list(10)
+            
+            their_children = await db.family_students.find({
+                "parent_ids": suggestion["id"],
+                "organization_id": {"$in": all_school_ids}
+            }).to_list(10)
+            
+            if their_school_memberships or their_children:
+                score += 7
+                reasons.append("Из той же школы")
+        
+        # 6. Check if they follow current user (potential mutual interest)
+        follows_me = await db.user_follows.find_one({
+            "follower_id": suggestion["id"],
+            "target_id": current_user.id
+        })
+        if follows_me:
+            score += 6
+            reasons.append("Подписан на вас")
+        
+        # Only include if there's at least one reason or some score
+        if score > 0 or len(scored_suggestions) < limit // 2:
+            suggestion["score"] = score
+            suggestion["mutual_friends_count"] = mutual_count
+            suggestion["suggestion_reasons"] = reasons[:3]  # Max 3 reasons
+            scored_suggestions.append(suggestion)
     
-    # Sort by mutual friends count
-    suggestions.sort(key=lambda x: x.get("mutual_friends_count", 0), reverse=True)
+    # Sort by score (highest first)
+    scored_suggestions.sort(key=lambda x: x.get("score", 0), reverse=True)
     
-    return {"suggestions": suggestions}
+    # Return top suggestions
+    return {"suggestions": scored_suggestions[:limit]}
 
 @api_router.get("/users/search")
 async def search_users(
