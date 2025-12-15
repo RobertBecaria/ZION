@@ -24,6 +24,8 @@ const FriendsPage = ({
   const [outgoingRequests, setOutgoingRequests] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     friends_count: 0,
@@ -36,6 +38,7 @@ const FriendsPage = ({
 
   useEffect(() => {
     loadAllData();
+    loadSuggestions();
   }, []);
 
   useEffect(() => {
@@ -45,6 +48,24 @@ const FriendsPage = ({
       setSearchResults([]);
     }
   }, [searchQuery]);
+
+  const loadSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/users/suggestions?limit=20`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setSuggestions(data.suggestions || []);
+      }
+    } catch (error) {
+      console.error('Error loading suggestions:', error);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
 
   const loadAllData = async () => {
     setLoading(true);
