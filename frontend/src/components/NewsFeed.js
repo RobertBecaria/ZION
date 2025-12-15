@@ -1,14 +1,14 @@
 /**
  * NewsFeed Component
  * News feed with post creation and visibility options
- * Enhanced with: Image Upload, YouTube Embedding, Link Preview, Comments
+ * Enhanced with: Image Upload, YouTube Embedding, Link Preview, Comments, Edit/Delete
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Users, Globe, Lock, UserCheck, Image, Video, Link2, 
   Heart, MessageCircle, Share2, MoreHorizontal, Send,
   Trash2, ChevronDown, X, Play, ExternalLink, Loader2,
-  Upload, Plus, Smile, CornerDownRight, ChevronUp
+  Upload, Plus, Smile, CornerDownRight, ChevronUp, Edit2, Check
 } from 'lucide-react';
 
 const VISIBILITY_OPTIONS = [
