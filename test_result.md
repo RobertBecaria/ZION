@@ -326,3 +326,21 @@ Enhanced Events panel (СОБЫТИЯ) in NEWS module with:
 - **Status**: All 8 core features working perfectly - no critical issues found
 - **Recommendation**: Feature is production-ready and fully functional
 - **Next Steps**: Main agent can proceed with summary and completion
+
+## Comments Feature Test - December 15, 2025
+
+### Features Implemented:
+1. **View Comments** - Click comment button to expand comments section
+2. **Add Comment** - Input field with send button
+3. **Reply to Comment** - Reply mode with indicator
+4. **Like Comment** - Heart button with count
+5. **Delete Comment** - Available for own comments
+6. **Nested Replies** - Show/hide replies toggle
+
+### Backend Endpoints Added:
+- GET /api/news/posts/{post_id}/comments
+- POST /api/news/posts/{post_id}/comments
+- DELETE /api/news/comments/{comment_id}
+- POST /api/news/comments/{comment_id}/like
+
+### Test Status: Visual testing passed - Comment added successfully
