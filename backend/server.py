@@ -14518,11 +14518,11 @@ async def get_user_notifications(
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.patch("/work/notifications/{notification_id}/read")
-async def mark_notification_read(
+async def mark_work_notification_read(
     notification_id: str,
     current_user: User = Depends(get_current_user)
 ):
-    """Mark a notification as read"""
+    """Mark a work notification as read"""
     try:
         result = await db.work_notifications.update_one(
             {"id": notification_id, "user_id": current_user.id},
