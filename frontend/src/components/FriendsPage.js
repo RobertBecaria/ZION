@@ -224,6 +224,8 @@ const FriendsPage = ({
         setSearchResults(prev => prev.map(u => 
           u.id === userId ? { ...u, request_sent: true } : u
         ));
+        // Update suggestions to reflect the change
+        setSuggestions(prev => prev.filter(u => u.id !== userId));
       }
     } catch (error) {
       console.error('Error sending request:', error);
@@ -232,11 +234,61 @@ const FriendsPage = ({
 
   const tabs = [
     { id: 'friends', label: 'Друзья', count: stats.friends_count, icon: Users },
+    { id: 'discover', label: 'Рекомендации', icon: UserPlus, highlight: true },
     { id: 'followers', label: 'Подписчики', count: stats.followers_count, icon: UserCheck },
     { id: 'following', label: 'Подписки', count: stats.following_count, icon: UserPlus },
     { id: 'requests', label: 'Заявки', count: stats.pending_friend_requests, icon: Clock },
     { id: 'search', label: 'Поиск', icon: Search }
   ];
+
+  const renderSuggestionCard = (person) => {
+    return (
+      <div key={person.id} className="suggestion-card">
+        <div className="suggestion-avatar">
+          {person.profile_picture ? (
+            <img src={person.profile_picture} alt="" />
+          ) : (
+            <div 
+              className="avatar-placeholder"
+              style={{ backgroundColor: moduleColor }}
+            >
+              {person.first_name?.[0] || '?'}
+            </div>
+          )}
+        </div>
+        
+        <div className="suggestion-info">
+          <h4 className="suggestion-name">{person.first_name} {person.last_name}</h4>
+          
+          {/* Suggestion Reasons */}
+          {person.suggestion_reasons && person.suggestion_reasons.length > 0 && (
+            <div className="suggestion-reasons">
+              {person.suggestion_reasons.map((reason, idx) => (
+                <span key={idx} className="reason-tag">
+                  {reason}
+                </span>
+              ))}
+            </div>
+          )}
+          
+          {person.address_city && !person.suggestion_reasons?.some(r => r.includes(person.address_city)) && (
+            <span className="suggestion-location">📍 {person.address_city}</span>
+          )}
+        </div>
+        
+        <div className="suggestion-actions">
+          <button
+            className="add-friend-btn"
+            onClick={() => handleSendRequest(person.id)}
+            style={{ backgroundColor: moduleColor }}
+          >
+            <UserPlus size={16} />
+            Добавить
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   const renderUserCard = (person, type) => {
     const isFriend = friends.some(f => f.id === person.id);
