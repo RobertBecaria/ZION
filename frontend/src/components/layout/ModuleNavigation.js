@@ -10,6 +10,7 @@ const ModuleNavigation = ({
   activeModule, 
   setActiveModule, 
   setActiveView,
+  moduleViewHistory = {},
   user,
   onLogout,
   currentTime,
@@ -21,7 +22,9 @@ const ModuleNavigation = ({
 
   const handleModuleClick = (moduleKey) => {
     setActiveModule(moduleKey);
-    setActiveView(MODULE_DEFAULT_VIEWS[moduleKey] || 'wall');
+    // Use saved view from history, or fall back to default
+    const savedView = moduleViewHistory[moduleKey];
+    setActiveView(savedView || MODULE_DEFAULT_VIEWS[moduleKey] || 'wall');
   };
 
   return (
