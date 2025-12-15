@@ -15518,7 +15518,7 @@ async def create_task(
         
         # Send notification to assigned user
         if task_data.assigned_to and task_data.assigned_to != current_user.id:
-            org = await db.work_organizations.find_one({"id": organization_id})
+            _org = await db.work_organizations.find_one({"id": organization_id})
             notification = WorkNotification(
                 user_id=task_data.assigned_to,
                 organization_id=organization_id,
