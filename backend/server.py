@@ -14540,10 +14540,10 @@ async def mark_work_notification_read(
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.patch("/work/notifications/read-all")
-async def mark_all_notifications_read(
+async def mark_all_work_notifications_read(
     current_user: User = Depends(get_current_user)
 ):
-    """Mark all notifications as read for current user"""
+    """Mark all work notifications as read for current user"""
     try:
         result = await db.work_notifications.update_many(
             {"user_id": current_user.id, "is_read": False},
