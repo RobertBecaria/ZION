@@ -78,6 +78,7 @@ import FriendsPage from './components/FriendsPage';
 import ChannelsPage from './components/ChannelsPage';
 import NewsFeed from './components/NewsFeed';
 import ChannelView from './components/ChannelView';
+import NewsUserProfile from './components/NewsUserProfile';  // NEW: User profile in News context
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase, Eye
 } from 'lucide-react';
