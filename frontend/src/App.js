@@ -1102,6 +1102,16 @@ function Dashboard() {
                         <NewsEventsPanel
                           user={user}
                           moduleColor={currentModule.color}
+                          onNavigateToChannel={(channel) => {
+                            setSelectedChannelId(channel.id);
+                            setActiveView('channel-view');
+                          }}
+                          onNavigateToProfile={(creator) => {
+                            // For now, navigate to friends page with a search for this user
+                            // In the future, we can add a dedicated user profile view
+                            console.log('Navigate to profile:', creator);
+                            setActiveView('friends');
+                          }}
                         />
                       ) : (
                         /* Regular Events Panel for other views */
