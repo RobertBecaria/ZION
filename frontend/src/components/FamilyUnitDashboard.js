@@ -12,12 +12,6 @@ const FamilyUnitDashboard = ({ familyUnit, user, allFamilyUnits, onSelectFamily,
 
   const isHead = familyUnit.user_role === 'HEAD';
 
-  useEffect(() => {
-    if (isHead) {
-      fetchPendingRequests();
-    }
-  }, [isHead, familyUnit.id]);
-
   const fetchPendingRequests = async () => {
     try {
       const token = localStorage.getItem('zion_token');
@@ -40,6 +34,12 @@ const FamilyUnitDashboard = ({ familyUnit, user, allFamilyUnits, onSelectFamily,
       console.error('Error fetching pending requests:', err);
     }
   };
+
+  useEffect(() => {
+    if (isHead) {
+      fetchPendingRequests();
+    }
+  }, [isHead, familyUnit.id]);
 
   const handleVoteSubmitted = () => {
     fetchPendingRequests();
