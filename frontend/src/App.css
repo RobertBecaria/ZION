@@ -30024,6 +30024,382 @@ a,
 ============================================ */
 
 /* ============================================
+   NEWS EVENTS PANEL STYLES
+============================================ */
+
+.news-events-panel {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.news-events-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.news-events-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.create-event-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.create-event-btn:hover {
+  filter: brightness(1.1);
+  transform: scale(1.05);
+}
+
+.news-events-list {
+  padding: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.events-loading,
+.events-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  color: #9ca3af;
+  text-align: center;
+  gap: 8px;
+}
+
+.events-loading .spin {
+  animation: spin 1s linear infinite;
+}
+
+.events-empty p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.create-first-event-btn {
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 8px;
+  text-decoration: underline;
+}
+
+.events-section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+/* Event Card */
+.news-event-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.news-event-card:hover {
+  background: #f3f4f6;
+  transform: translateX(2px);
+}
+
+.news-event-card:last-child {
+  margin-bottom: 0;
+}
+
+.event-type-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  color: white;
+  flex-shrink: 0;
+}
+
+.event-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-source {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.event-source .channel-name {
+  color: #1D4ED8;
+}
+
+.event-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.event-attendees {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attend-btn,
+.remind-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  background: white;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.attend-btn:hover,
+.remind-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.attend-btn.active,
+.remind-btn.active {
+  border-color: transparent;
+}
+
+/* Create Event Modal */
+.news-event-modal {
+  max-width: 500px;
+  width: 95%;
+}
+
+.event-type-selection {
+  padding: 8px 0;
+}
+
+.event-type-selection label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 16px;
+}
+
+.event-types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.event-type-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #374151;
+}
+
+.event-type-btn:hover {
+  border-color: var(--type-color);
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.event-type-btn .type-emoji {
+  font-size: 24px;
+}
+
+.event-type-btn .type-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.event-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.selected-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.selected-type-badge button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  border-radius: 50%;
+  padding: 2px;
+  cursor: pointer;
+  color: white;
+  margin-left: 4px;
+}
+
+.selected-type-badge button:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.event-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.event-form .form-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.event-form .form-group input,
+.event-form .form-group textarea,
+.event-form .form-group select {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.event-form .form-group input:focus,
+.event-form .form-group textarea:focus,
+.event-form .form-group select:focus {
+  outline: none;
+  border-color: #1D4ED8;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+}
+
+.form-row .form-group {
+  flex: 1;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.form-actions .cancel-btn {
+  padding: 10px 20px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.form-actions .cancel-btn:hover {
+  background: #e5e7eb;
+}
+
+.form-actions .submit-btn {
+  padding: 10px 24px;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-actions .submit-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.form-actions .submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   END NEWS EVENTS PANEL STYLES
+============================================ */
+
+/* ============================================
    END CHANNELS PAGE STYLES
 ============================================ */
 
