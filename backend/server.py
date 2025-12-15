@@ -17365,6 +17365,39 @@ async def unsubscribe_from_channel(
     
     return {"message": "Unsubscribed successfully"}
 
+@api_router.put("/news/channels/{channel_id}/notifications")
+async def toggle_channel_notifications(
+    channel_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Toggle notification settings for a subscribed channel"""
+    # Check channel exists
+    channel = await db.news_channels.find_one({"id": channel_id})
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not found")
+    
+    # Check if user is subscribed
+    subscription = await db.channel_subscriptions.find_one({
+        "channel_id": channel_id,
+        "subscriber_id": current_user.id
+    })
+    
+    if not subscription:
+        raise HTTPException(status_code=400, detail="You must be subscribed to toggle notifications")
+    
+    # Toggle notifications
+    new_status = not subscription.get("notifications_enabled", True)
+    
+    await db.channel_subscriptions.update_one(
+        {"channel_id": channel_id, "subscriber_id": current_user.id},
+        {"$set": {"notifications_enabled": new_status}}
+    )
+    
+    return {
+        "message": "Notification settings updated",
+        "notifications_enabled": new_status
+    }
+
 @api_router.put("/news/channels/{channel_id}")
 async def update_channel(
     channel_id: str,
