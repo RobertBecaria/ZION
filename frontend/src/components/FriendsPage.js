@@ -554,7 +554,7 @@ const FriendsPage = ({
                     <p>Найдите друзей через поиск или примите заявки</p>
                     <button 
                       className="cta-btn"
-                      onClick={() => setActiveTab('search')}
+                      onClick={() => setActiveTab('discover')}
                       style={{ backgroundColor: moduleColor }}
                     >
                       Найти друзей
@@ -563,6 +563,52 @@ const FriendsPage = ({
                 ) : (
                   <div className="friends-grid">
                     {friends.map(friend => renderUserCard(friend, 'friend'))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Discover/Suggestions Tab */}
+            {activeTab === 'discover' && (
+              <div className="discover-container">
+                <div className="discover-header">
+                  <h2>🔍 Люди, которых вы можете знать</h2>
+                  <p>Рекомендации основаны на общих друзьях, местоположении и интересах</p>
+                </div>
+                
+                {loadingSuggestions ? (
+                  <div className="loading-state">
+                    <div className="spinner"></div>
+                    <p>Ищем рекомендации...</p>
+                  </div>
+                ) : suggestions.length === 0 ? (
+                  <div className="empty-state">
+                    <UserPlus size={48} color="#9CA3AF" />
+                    <h3>Нет рекомендаций</h3>
+                    <p>Попробуйте найти людей через поиск</p>
+                    <button 
+                      className="cta-btn"
+                      onClick={() => setActiveTab('search')}
+                      style={{ backgroundColor: moduleColor }}
+                    >
+                      Перейти к поиску
+                    </button>
+                  </div>
+                ) : (
+                  <div className="suggestions-grid">
+                    {suggestions.map(person => renderSuggestionCard(person))}
+                  </div>
+                )}
+                
+                {suggestions.length > 0 && (
+                  <div className="refresh-suggestions">
+                    <button 
+                      className="refresh-btn"
+                      onClick={loadSuggestions}
+                      disabled={loadingSuggestions}
+                    >
+                      🔄 Показать ещё
+                    </button>
                   </div>
                 )}
               </div>
