@@ -272,8 +272,13 @@ const ChannelView = ({
                 </button>
                 
                 {channel.is_subscribed && (
-                  <button className="notification-btn" title="Уведомления">
-                    <Bell size={18} />
+                  <button 
+                    className={`notification-btn ${channel.notifications_enabled ? 'active' : ''}`}
+                    onClick={handleToggleNotifications}
+                    title={channel.notifications_enabled ? 'Уведомления включены' : 'Уведомления выключены'}
+                    style={channel.notifications_enabled ? { backgroundColor: accentColor, color: 'white' } : {}}
+                  >
+                    {channel.notifications_enabled ? <Bell size={18} /> : <BellOff size={18} />}
                   </button>
                 )}
               </>
