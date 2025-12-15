@@ -432,7 +432,7 @@ function Dashboard() {
         <LeftSidebar
           activeModule={activeModule}
           activeView={activeView}
-          setActiveView={setActiveView}
+          setActiveView={handleSetActiveView}
           user={user}
           schoolRoles={schoolRoles}
           loadingSchoolRoles={loadingSchoolRoles}
