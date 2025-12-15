@@ -439,6 +439,7 @@ function Dashboard() {
           schoolRole={schoolRole}
           setSchoolRole={setSchoolRole}
           setSelectedSchool={setSelectedSchool}
+          setSelectedChannelId={setSelectedChannelId}
         />
 
         {/* Central Content Area */}
