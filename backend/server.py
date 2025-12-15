@@ -18320,7 +18320,7 @@ async def create_news_post_comment(
     
     if notification_user_id != current_user.id:
         notification = {
-            "id": str(uuid4()),
+            "id": str(uuid.uuid4()),
             "user_id": notification_user_id,
             "sender_id": current_user.id,
             "type": "reply" if comment_data.parent_comment_id else "comment",
