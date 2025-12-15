@@ -18285,7 +18285,7 @@ async def create_news_post_comment(
     
     # Create comment
     new_comment = {
-        "id": str(uuid4()),
+        "id": str(uuid.uuid4()),
         "post_id": post_id,
         "user_id": current_user.id,
         "content": comment_data.content,
