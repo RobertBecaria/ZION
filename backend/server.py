@@ -13288,15 +13288,15 @@ async def get_journal_posts(
         
         # Determine what user can see based on their role
         if membership and membership.get("is_admin"):
-            user_role = "admin"
+            _user_role = "admin"
             allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.TEACHERS, 
                                JournalAudienceType.PARENTS, JournalAudienceType.STUDENTS_PARENTS, 
                                JournalAudienceType.ADMINS]
         elif membership and membership.get("is_teacher"):
-            user_role = "teacher"
+            _user_role = "teacher"
             allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.TEACHERS]
         elif has_children > 0:
-            user_role = "parent"
+            _user_role = "parent"
             allowed_audiences = [JournalAudienceType.PUBLIC, JournalAudienceType.PARENTS, 
                                JournalAudienceType.STUDENTS_PARENTS]
         else:
