@@ -17174,6 +17174,122 @@ async def get_user_public_profile(
         "is_self": user_id == current_user.id
     }
 
+# ===== LINK PREVIEW ENDPOINT =====
+
+class LinkPreviewRequest(BaseModel):
+    url: str
+
+class LinkPreviewResponse(BaseModel):
+    url: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    image: Optional[str] = None
+    site_name: Optional[str] = None
+    is_youtube: bool = False
+    youtube_id: Optional[str] = None
+
+@api_router.post("/utils/link-preview")
+async def get_link_preview(
+    request: LinkPreviewRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """Fetch OpenGraph metadata for a URL to generate link preview"""
+    import aiohttp
+    from urllib.parse import urlparse, parse_qs
+    
+    url = request.url.strip()
+    
+    # Check if it's a YouTube URL
+    youtube_id = None
+    is_youtube = False
+    
+    # YouTube URL patterns
+    youtube_patterns = [
+        r'(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})',
+    ]
+    
+    parsed_url = urlparse(url)
+    
+    # Check for youtube.com/watch?v=
+    if 'youtube.com' in parsed_url.netloc and '/watch' in parsed_url.path:
+        query_params = parse_qs(parsed_url.query)
+        if 'v' in query_params:
+            youtube_id = query_params['v'][0]
+            is_youtube = True
+    # Check for youtu.be/
+    elif 'youtu.be' in parsed_url.netloc:
+        youtube_id = parsed_url.path.strip('/')
+        is_youtube = True
+    # Check for youtube.com/embed/
+    elif 'youtube.com' in parsed_url.netloc and '/embed/' in parsed_url.path:
+        youtube_id = parsed_url.path.split('/embed/')[1].split('?')[0]
+        is_youtube = True
+    
+    if is_youtube and youtube_id:
+        return {
+            "url": url,
+            "title": "YouTube Video",
+            "description": None,
+            "image": f"https://img.youtube.com/vi/{youtube_id}/hqdefault.jpg",
+            "site_name": "YouTube",
+            "is_youtube": True,
+            "youtube_id": youtube_id
+        }
+    
+    # For non-YouTube URLs, try to fetch OpenGraph metadata
+    try:
+        async with aiohttp.ClientSession() as session:
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (compatible; ZionBot/1.0)'
+            }
+            async with session.get(url, headers=headers, timeout=aiohttp.ClientTimeout(total=5)) as response:
+                if response.status != 200:
+                    return {"url": url, "title": None, "description": None, "image": None, "site_name": None, "is_youtube": False, "youtube_id": None}
+                
+                html = await response.text()
+                
+                # Simple regex-based OG tag extraction
+                import re
+                
+                def extract_og_tag(html, property_name):
+                    patterns = [
+                        rf'<meta[^>]*property=["\']og:{property_name}["\'][^>]*content=["\']([^"\']*)["\']',
+                        rf'<meta[^>]*content=["\']([^"\']*)["\'][^>]*property=["\']og:{property_name}["\']',
+                    ]
+                    for pattern in patterns:
+                        match = re.search(pattern, html, re.IGNORECASE)
+                        if match:
+                            return match.group(1)
+                    return None
+                
+                def extract_title(html):
+                    # Try og:title first
+                    og_title = extract_og_tag(html, 'title')
+                    if og_title:
+                        return og_title
+                    # Fall back to <title> tag
+                    match = re.search(r'<title[^>]*>([^<]*)</title>', html, re.IGNORECASE)
+                    return match.group(1) if match else None
+                
+                title = extract_title(html)
+                description = extract_og_tag(html, 'description')
+                image = extract_og_tag(html, 'image')
+                site_name = extract_og_tag(html, 'site_name')
+                
+                return {
+                    "url": url,
+                    "title": title,
+                    "description": description,
+                    "image": image,
+                    "site_name": site_name,
+                    "is_youtube": False,
+                    "youtube_id": None
+                }
+                
+    except Exception as e:
+        logger.error(f"Error fetching link preview: {e}")
+        return {"url": url, "title": None, "description": None, "image": None, "site_name": None, "is_youtube": False, "youtube_id": None}
+
 # ===== NEWS CHANNELS ENDPOINTS =====
 
 class ChannelCreate(BaseModel):
