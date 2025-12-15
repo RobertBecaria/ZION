@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, Calendar, Clock, X, Check, Bell, BellOff,
   Film, Video, Mic, Globe, Megaphone, MessageCircle,
-  Users, ExternalLink, ChevronRight, Loader2
+  Users, ExternalLink, ChevronRight, Loader2, User
 } from 'lucide-react';
 
 // Event type configurations
@@ -24,7 +24,9 @@ const NewsEventsPanel = ({
   user,
   moduleColor = "#1D4ED8",
   channelId = null,  // If showing events for a specific channel
-  onEventClick = null
+  onEventClick = null,
+  onNavigateToChannel = null,  // NEW: Callback for channel navigation
+  onNavigateToProfile = null   // NEW: Callback for user profile navigation
 }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -175,6 +177,23 @@ const NewsEventsPanel = ({
     }
   };
 
+  // NEW: Handle navigation to channel or profile
+  const handleNavigate = (event, e) => {
+    e.stopPropagation();
+    
+    if (event.channel && event.channel_id) {
+      // Navigate to channel
+      if (onNavigateToChannel) {
+        onNavigateToChannel(event.channel);
+      }
+    } else if (event.creator && event.creator_id) {
+      // Navigate to user profile
+      if (onNavigateToProfile) {
+        onNavigateToProfile(event.creator);
+      }
+    }
+  };
+
   const resetForm = () => {
     setEventForm({
       title: '',
@@ -221,6 +240,16 @@ const NewsEventsPanel = ({
     }));
   };
 
+  // Determine if event is from a channel or a person
+  const getEventSource = (event) => {
+    if (event.channel && event.channel_id) {
+      return { type: 'channel', data: event.channel };
+    } else if (event.creator) {
+      return { type: 'person', data: event.creator };
+    }
+    return null;
+  };
+
   return (
     <div className="news-events-panel">
       <div className="news-events-header">
@@ -262,6 +291,7 @@ const NewsEventsPanel = ({
             {events.map(event => {
               const typeConfig = EVENT_TYPES[event.event_type] || EVENT_TYPES.ANNOUNCEMENT;
               const TypeIcon = typeConfig.icon;
+              const source = getEventSource(event);
               
               return (
                 <div 
@@ -278,15 +308,46 @@ const NewsEventsPanel = ({
                   
                   <div className="event-content">
                     <div className="event-title">{event.title}</div>
-                    <div className="event-source">
-                      {event.channel ? (
-                        <span className="channel-name">{event.channel.name}</span>
-                      ) : event.creator ? (
-                        <span className="creator-name">
-                          {event.creator.first_name} {event.creator.last_name}
-                        </span>
+                    
+                    {/* NEW: Visual source indicator with avatar */}
+                    <div className="event-source-info">
+                      {source?.type === 'channel' ? (
+                        <div className="event-source-row">
+                          {source.data.avatar_url ? (
+                            <img 
+                              src={source.data.avatar_url} 
+                              alt="" 
+                              className="event-source-avatar"
+                            />
+                          ) : (
+                            <div className="event-source-avatar event-source-avatar-placeholder channel">
+                              📺
+                            </div>
+                          )}
+                          <span className="event-source-name channel-source">
+                            {source.data.name}
+                          </span>
+                        </div>
+                      ) : source?.type === 'person' ? (
+                        <div className="event-source-row">
+                          {source.data.profile_picture ? (
+                            <img 
+                              src={source.data.profile_picture} 
+                              alt="" 
+                              className="event-source-avatar"
+                            />
+                          ) : (
+                            <div className="event-source-avatar event-source-avatar-placeholder person">
+                              <User size={12} />
+                            </div>
+                          )}
+                          <span className="event-source-name person-source">
+                            {source.data.first_name} {source.data.last_name}
+                          </span>
+                        </div>
                       ) : null}
                     </div>
+                    
                     <div className="event-time">
                       <Clock size={12} />
                       {formatEventDate(event.event_date)}
@@ -297,6 +358,18 @@ const NewsEventsPanel = ({
                         <Users size={12} />
                         <span>{event.attendees_count} участников</span>
                       </div>
+                    )}
+                    
+                    {/* NEW: Navigate button */}
+                    {source && (onNavigateToChannel || onNavigateToProfile) && (
+                      <button
+                        className="event-navigate-btn"
+                        onClick={(e) => handleNavigate(event, e)}
+                        style={{ color: moduleColor }}
+                      >
+                        {source.type === 'channel' ? 'Перейти в канал' : 'Перейти в профиль'}
+                        <ChevronRight size={14} />
+                      </button>
                     )}
                   </div>
                   
