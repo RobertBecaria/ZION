@@ -1,45 +1,44 @@
-# Test Results - NEWS Module Phase 5: Notification Settings
+# Test Results - NEWS Module Phase 5: Events Enhancement
 
 ## Date: December 15, 2025
 
-## Testing Status: ✅ ALL TESTS PASSED
+## Testing Status: IN PROGRESS
 
-### Phase 5: Notification Settings for Subscribers
+### Phase 5: News Events Enhancement (Phase 2A + 2B)
 
 #### New Features Added
-1. **Notification Toggle API** - `PUT /api/news/channels/{channel_id}/notifications`
-   - Toggle notifications on/off for subscribed channels
-   - Returns new notification status
-2. **Updated Channel Response** - `GET /api/news/channels/{channel_id}`
-   - Now includes `notifications_enabled` field for subscribers
-3. **Frontend Notification Toggle**
-   - Bell icon button for subscribed channels (non-owners)
-   - Filled bell (blue background) = notifications enabled
-   - Slashed bell (gray background) = notifications disabled
-   - Click to toggle
+1. **Backend: News Events Model & API**
+   - NewsEvent model with 6 event types
+   - POST /api/news/events - Create event
+   - GET /api/news/events - Get events (personal + channel + friends)
+   - GET /api/news/events/{id} - Get single event
+   - POST /api/news/events/{id}/attend - Toggle attendance
+   - POST /api/news/events/{id}/remind - Toggle reminder
+   - DELETE /api/news/events/{id} - Delete event
+
+2. **Frontend: NewsEventsPanel Component**
+   - Shows events from subscribed channels, friends, personal events
+   - Create event modal with 6 event types:
+     - 🎬 Премьера (Premiere)
+     - 📺 Стрим (Stream)
+     - 🎤 Эфир (Broadcast)
+     - 🎪 Онлайн-событие (Online Event)
+     - 📢 Анонс (Announcement)
+     - ❓ AMA/Q&A
+   - Event form with title, description, date/time, link, duration
+   - RSVP (Attend) and Remind buttons on event cards
 
 ### Test Credentials
 - Admin User: admin@test.com / testpassword123
 - Test User: testuser@test.com / testpassword123
 
-### Test Results
-
-#### Backend Tests: ✅ ALL PASSED
-- [x] Toggle notifications API works correctly
-- [x] Channel response includes notifications_enabled
-- [x] Non-subscribers get 400 error when toggling
-- [x] Notifications toggle on/off correctly
-
-#### Frontend Tests: ✅ ALL PASSED
-- [x] Notification button appears for subscribed channels (non-owners)
-- [x] Bell icon shows correct state (filled/blue = ON, slashed/gray = OFF)
-- [x] Clicking bell toggles notification state
-- [x] Button style changes on toggle (blue background when enabled)
-
-### Test Summary
-- **Total Tests**: 8
-- **Passed**: 8 ✅
-- **Failed**: 0 ❌
-- **Success Rate**: 100%
-
-### Production Status: 🎉 READY
+### Test Cases to Verify
+- [x] Backend: Create event API works
+- [x] Backend: Get events API works
+- [ ] Backend: Toggle attendance works
+- [ ] Backend: Toggle reminder works
+- [x] Frontend: Events panel shows in News module
+- [x] Frontend: Create event modal opens
+- [x] Frontend: Event type selection works
+- [x] Frontend: Event form shows correct fields
+- [x] Frontend: Created events appear in panel
