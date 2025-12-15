@@ -35,10 +35,85 @@
 ### Test Cases to Verify
 - [x] Backend: Create event API works
 - [x] Backend: Get events API works
-- [ ] Backend: Toggle attendance works
-- [ ] Backend: Toggle reminder works
+- [x] Backend: Toggle attendance works
+- [x] Backend: Toggle reminder works
+- [x] Backend: Delete event works
+- [x] Backend: All 6 event types supported
 - [x] Frontend: Events panel shows in News module
 - [x] Frontend: Create event modal opens
 - [x] Frontend: Event type selection works
 - [x] Frontend: Event form shows correct fields
 - [x] Frontend: Created events appear in panel
+
+## Backend Testing Results (December 15, 2025)
+
+### ✅ ALL BACKEND TESTS PASSED (8/8 - 100%)
+
+**Comprehensive API Testing Completed:**
+
+1. **POST /api/news/events - Create Event** ✅
+   - Successfully created 6 events with different types
+   - All event types supported: PREMIERE, STREAM, BROADCAST, ONLINE_EVENT, ANNOUNCEMENT, AMA
+   - Proper validation and response format
+   - Event IDs returned correctly
+
+2. **GET /api/news/events - Get Events List** ✅
+   - Retrieved events with proper enrichment
+   - Creator and channel information included
+   - Attendees count and user status (is_attending, has_reminder) working
+   - Proper sorting by event_date
+
+3. **GET /api/news/events/{id} - Get Single Event** ✅
+   - Single event retrieval working
+   - All required fields present
+   - Enriched with creator info and attendees preview
+   - Proper error handling for non-existent events
+
+4. **POST /api/news/events/{id}/attend - Toggle Attendance** ✅
+   - Successfully toggles attendance on/off
+   - Proper response with is_attending status
+   - Attendees count updates correctly
+   - Database operations working (MongoDB $addToSet/$pull)
+
+5. **POST /api/news/events/{id}/remind - Toggle Reminder** ✅
+   - Successfully toggles reminder on/off
+   - Proper response with has_reminder status
+   - Reminder status persists correctly
+   - Database operations working
+
+6. **DELETE /api/news/events/{id} - Delete Event** ✅
+   - Creator can delete their own events
+   - Soft delete (is_active: false) working
+   - Proper 404 response for deleted events
+   - Authorization working (403 for non-creators)
+
+7. **Event Types Validation** ✅
+   - All 6 event types found in system:
+     - 🎬 PREMIERE (Премьера)
+     - 📺 STREAM (Стрим) 
+     - 🎤 BROADCAST (Эфир)
+     - 🎪 ONLINE_EVENT (Онлайн-событие)
+     - 📢 ANNOUNCEMENT (Анонс)
+     - ❓ AMA (AMA/Q&A)
+
+8. **Security & Authorization** ✅
+   - JWT authentication working
+   - Proper error handling for unauthorized access
+   - 404 responses for non-existent resources
+
+### 🔧 Technical Details Verified:
+- **Database**: MongoDB operations working correctly
+- **Authentication**: JWT Bearer token authentication
+- **Data Enrichment**: Events enriched with creator and channel info
+- **Response Format**: Consistent JSON responses
+- **Error Handling**: Proper HTTP status codes (200, 404, 403)
+- **Field Validation**: All required fields present in responses
+- **Date Handling**: ISO datetime format working
+- **User Context**: is_attending and has_reminder flags working
+
+### 📊 Test Data Created:
+- 6 test events created with different types
+- Events scheduled for future dates (1-10 days ahead)
+- Various durations (30-120 minutes)
+- Event links and descriptions included
+- All events properly stored and retrievable
