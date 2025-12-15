@@ -6400,10 +6400,10 @@ async def get_typing_status(
     }, {"_id": 0}).to_list(10)
     
     # Get user names for typing users
-    for status in typing_users:
-        user = await get_user_by_id(status["user_id"])
+    for typing_status in typing_users:
+        user = await get_user_by_id(typing_status["user_id"])
         if user:
-            status["user_name"] = f"{user.first_name} {user.last_name}"
+            typing_status["user_name"] = f"{user.first_name} {user.last_name}"
     
     return {"typing_users": typing_users}
 
