@@ -172,5 +172,44 @@ Enhanced Events panel (СОБЫТИЯ) in NEWS module with:
 - GET /api/users/{user_id}/profile - returns profile with social stats
 - Profile navigation working with proper relationship identification
 
-### Frontend Test Required
-Test navigation flow: NEWS → Events Panel → Profile → Back
+### Frontend Test Results ✅
+
+**Navigation Flow Test Completed Successfully (December 15, 2025)**
+
+✅ **ALL FRONTEND NAVIGATION TESTS PASSED (8/8 - 100%)**
+
+**Test Flow: NEWS → Events Panel → Profile → Back**
+
+1. **Login & Navigation** ✅
+   - Successfully logged in with admin@test.com / testpassword123
+   - Successfully navigated to НОВОСТИ (NEWS) module
+   - Events panel (СОБЫТИЯ) found on right side
+
+2. **Events Panel Visual Verification** ✅
+   - Found 6 event cards in the panel
+   - Events show proper visual indicators:
+     - Green circle avatar with user icon for personal events ✅
+     - Person name in green text ("Admin User") ✅
+     - "Перейти в профиль" button present ✅
+
+3. **Profile Navigation** ✅
+   - Successfully clicked "Перейти в профиль" button
+   - User Profile page loaded correctly with:
+     - "← Назад" (Back) button ✅
+     - User name displayed ✅
+     - Profile stats (friends, followers, following) ✅
+     - События section visible ✅
+
+4. **Return Navigation** ✅
+   - Successfully clicked "Назад" button
+   - Properly returned to NEWS feed ✅
+   - Events panel still visible and functional ✅
+
+**Technical Verification:**
+- All existing events are personal (created by Admin User) ✅
+- Green-colored source names indicating person-created events ✅
+- Navigation callbacks working properly ✅
+- Profile API integration functional ✅
+- Back navigation preserving state ✅
+
+**Note:** No channel events exist currently, so "Перейти в канал" button testing not applicable (as expected per requirements)
