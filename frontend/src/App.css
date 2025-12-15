@@ -30195,6 +30195,87 @@ a,
   color: #1D4ED8;
 }
 
+/* NEW: Event source info with avatar */
+.event-source-info {
+  margin-bottom: 6px;
+}
+
+.event-source-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-source-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.event-source-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+}
+
+.event-source-avatar-placeholder.channel {
+  background: linear-gradient(135deg, #1D4ED8 0%, #3B82F6 100%);
+  color: white;
+}
+
+.event-source-avatar-placeholder.person {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  color: white;
+}
+
+.event-source-name {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.event-source-name.channel-source {
+  color: #1D4ED8;
+}
+
+.event-source-name.person-source {
+  color: #059669;
+}
+
+/* NEW: Navigate button */
+.event-navigate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  margin-top: 6px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.event-navigate-btn:hover {
+  background: #e5e7eb;
+}
+
+.event-navigate-btn svg {
+  transition: transform 0.2s;
+}
+
+.event-navigate-btn:hover svg {
+  transform: translateX(2px);
+}
+
 .event-time {
   display: flex;
   align-items: center;
