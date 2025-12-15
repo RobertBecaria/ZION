@@ -14961,13 +14961,13 @@ async def delete_organization_event(
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/work/organizations/{organization_id}/events/{event_id}/rsvp")
-async def rsvp_to_event(
+async def rsvp_to_work_event(
     organization_id: str,
     event_id: str,
     rsvp_data: WorkEventRSVP,
     current_user: User = Depends(get_current_user)
 ):
-    """RSVP to an event"""
+    """RSVP to a work event"""
     try:
         # Verify membership
         membership = await db.work_members.find_one({
