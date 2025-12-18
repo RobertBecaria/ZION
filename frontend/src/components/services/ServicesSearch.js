@@ -1,13 +1,59 @@
 /**
  * ServicesSearch Component
- * Main search and discovery page for services
+ * Main search and discovery page for services with map integration
  */
-import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, MapPin, Grid, List, X, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Search, Filter, MapPin, Grid, List, X, ChevronDown, Map as MapIcon, Navigation } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import ServiceCard from './ServiceCard';
 import ServiceCategories from './ServiceCategories';
+import 'leaflet/dist/leaflet.css';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+// Fix Leaflet default marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+});
+
+// Custom marker icon for services
+const createServiceIcon = (color = '#B91C1C') => {
+  return L.divIcon({
+    className: 'custom-service-marker',
+    html: `<div style="
+      background: ${color};
+      width: 32px;
+      height: 32px;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 2px solid white;
+    ">
+      <span style="transform: rotate(45deg); color: white; font-size: 14px;">📍</span>
+    </div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+  });
+};
+
+// Map recenter component
+const MapController = ({ center, zoom }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, zoom || 12);
+    }
+  }, [center, zoom, map]);
+  return null;
+};
 
 const ServicesSearch = ({ 
   user, 
@@ -22,9 +68,32 @@ const ServicesSearch = ({
   const [selectedSubcategory, setSelectedSubcategory] = useState(null);
   const [cityFilter, setCityFilter] = useState('');
   const [sortBy, setSortBy] = useState('rating');
-  const [viewMode, setViewMode] = useState('grid');
+  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'map'
   const [showFilters, setShowFilters] = useState(false);
   const [total, setTotal] = useState(0);
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapCenter, setMapCenter] = useState([55.7558, 37.6173]); // Moscow default
+  const [selectedMapListing, setSelectedMapListing] = useState(null);
+
+  // Create service icon
+  const serviceIcon = useMemo(() => createServiceIcon(moduleColor), [moduleColor]);
+
+  // Get user location
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+          setMapCenter([latitude, longitude]);
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+          // Default to Moscow if geolocation fails
+        }
+      );
+    }
+  }, []);
 
   // Fetch categories
   useEffect(() => {
@@ -52,7 +121,7 @@ const ServicesSearch = ({
       if (selectedSubcategory) params.append('subcategory_id', selectedSubcategory);
       if (cityFilter) params.append('city', cityFilter);
       params.append('sort_by', sortBy);
-      params.append('limit', '20');
+      params.append('limit', '50');
 
       const response = await fetch(`${BACKEND_URL}/api/services/listings?${params}`);
       if (response.ok) {
@@ -83,6 +152,43 @@ const ServicesSearch = ({
     setCityFilter('');
     setSortBy('rating');
   };
+
+  const handleLocateMe = () => {
+    if (userLocation) {
+      setMapCenter(userLocation);
+    } else if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+          setMapCenter([latitude, longitude]);
+        }
+      );
+    }
+  };
+
+  // Filter listings that have coordinates for map view
+  const listingsWithCoords = useMemo(() => {
+    return listings.filter(l => l.latitude && l.longitude);
+  }, [listings]);
+
+  // Generate mock coordinates for listings without them (for demo purposes)
+  const listingsForMap = useMemo(() => {
+    return listings.map((listing, index) => {
+      if (listing.latitude && listing.longitude) {
+        return listing;
+      }
+      // Generate coordinates around Moscow for demo
+      const baseLatitude = mapCenter[0] || 55.7558;
+      const baseLongitude = mapCenter[1] || 37.6173;
+      const offset = 0.02;
+      return {
+        ...listing,
+        latitude: baseLatitude + (Math.random() - 0.5) * offset * 2,
+        longitude: baseLongitude + (Math.random() - 0.5) * offset * 2,
+      };
+    });
+  }, [listings, mapCenter]);
 
   return (
     <div className="services-search">
@@ -174,14 +280,24 @@ const ServicesSearch = ({
           <button 
             className={viewMode === 'grid' ? 'active' : ''}
             onClick={() => setViewMode('grid')}
+            title="Сетка"
           >
             <Grid size={18} />
           </button>
           <button 
             className={viewMode === 'list' ? 'active' : ''}
             onClick={() => setViewMode('list')}
+            title="Список"
           >
             <List size={18} />
+          </button>
+          <button 
+            className={viewMode === 'map' ? 'active' : ''}
+            onClick={() => setViewMode('map')}
+            title="Карта"
+            style={viewMode === 'map' ? { backgroundColor: moduleColor, color: 'white' } : {}}
+          >
+            <MapIcon size={18} />
           </button>
         </div>
       </div>
@@ -197,6 +313,130 @@ const ServicesSearch = ({
           <span style={{ fontSize: '4rem' }}>🔍</span>
           <h3>Услуги не найдены</h3>
           <p>Попробуйте изменить параметры поиска</p>
+        </div>
+      ) : viewMode === 'map' ? (
+        <div className="services-map-container">
+          <div className="map-wrapper">
+            <MapContainer
+              center={mapCenter}
+              zoom={13}
+              scrollWheelZoom={true}
+              className="services-leaflet-map"
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <MapController center={mapCenter} zoom={13} />
+              
+              {/* User location marker */}
+              {userLocation && (
+                <Marker 
+                  position={userLocation}
+                  icon={L.divIcon({
+                    className: 'user-location-marker',
+                    html: `<div style="
+                      width: 16px;
+                      height: 16px;
+                      background: #3B82F6;
+                      border: 3px solid white;
+                      border-radius: 50%;
+                      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+                    "></div>`,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8],
+                  })}
+                >
+                  <Popup>
+                    <strong>Вы здесь</strong>
+                  </Popup>
+                </Marker>
+              )}
+              
+              {/* Service markers */}
+              {listingsForMap.map(listing => (
+                <Marker
+                  key={listing.id}
+                  position={[listing.latitude, listing.longitude]}
+                  icon={serviceIcon}
+                  eventHandlers={{
+                    click: () => setSelectedMapListing(listing)
+                  }}
+                >
+                  <Popup>
+                    <div className="map-popup-content">
+                      <h4>{listing.name}</h4>
+                      <p className="popup-category">{listing.category_id}</p>
+                      {listing.price_from && (
+                        <p className="popup-price">
+                          от {listing.price_from.toLocaleString()} ₽
+                        </p>
+                      )}
+                      <p className="popup-rating">
+                        ⭐ {listing.rating?.toFixed(1) || '0.0'} ({listing.review_count || 0} отзывов)
+                      </p>
+                      <button 
+                        className="popup-view-btn"
+                        onClick={() => onViewListing && onViewListing(listing)}
+                        style={{ backgroundColor: moduleColor }}
+                      >
+                        Подробнее
+                      </button>
+                    </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
+            
+            {/* Map controls */}
+            <div className="map-controls">
+              <button 
+                className="locate-btn"
+                onClick={handleLocateMe}
+                title="Моё местоположение"
+              >
+                <Navigation size={20} />
+              </button>
+            </div>
+          </div>
+          
+          {/* Side panel with listing cards */}
+          <div className="map-sidebar">
+            <h4>Услуги на карте ({listingsForMap.length})</h4>
+            <div className="map-sidebar-list">
+              {listingsForMap.map(listing => (
+                <div 
+                  key={listing.id}
+                  className={`map-sidebar-item ${selectedMapListing?.id === listing.id ? 'selected' : ''}`}
+                  onClick={() => {
+                    setSelectedMapListing(listing);
+                    setMapCenter([listing.latitude, listing.longitude]);
+                  }}
+                >
+                  <div className="sidebar-item-content">
+                    <h5>{listing.name}</h5>
+                    <p className="sidebar-item-org">{listing.organization_name}</p>
+                    <div className="sidebar-item-meta">
+                      <span className="sidebar-item-rating">⭐ {listing.rating?.toFixed(1) || '0.0'}</span>
+                      {listing.price_from && (
+                        <span className="sidebar-item-price">от {listing.price_from.toLocaleString()} ₽</span>
+                      )}
+                    </div>
+                  </div>
+                  <button 
+                    className="sidebar-item-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewListing && onViewListing(listing);
+                    }}
+                    style={{ color: moduleColor }}
+                  >
+                    →
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       ) : (
         <div className={`services-grid ${viewMode}`}>
