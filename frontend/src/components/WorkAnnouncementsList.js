@@ -352,7 +352,7 @@ function WorkAnnouncementsList({ organizationId, onBack, currentUserId, moduleCo
         />
       )}
 
-      <style jsx>{`
+      <style>{`
         .announcements-list-page {
           padding: 1.5rem;
           max-width: 1200px;

@@ -154,7 +154,7 @@ function WorkDepartmentNavigator({ organizationId, activeDepartmentId, onDepartm
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .department-navigator-widget {
           margin-bottom: 1rem;
         }

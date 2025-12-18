@@ -204,7 +204,7 @@ const RightSidebar = ({
             <span>Информация</span>
           </div>
           <p style={{ padding: '12px', fontSize: '14px', color: '#6B7280' }}>
-            Контент для модуля "{currentModule.name}" скоро появится
+            Контент для модуля &ldquo;{currentModule.name}&rdquo; скоро появится
           </p>
         </div>
       )}

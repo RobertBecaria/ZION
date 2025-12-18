@@ -382,7 +382,7 @@ function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .department-manager-overlay {
           position: fixed;
           top: 0;

@@ -237,7 +237,7 @@ function WorkAnnouncementCard({ announcement, onEdit, onDelete, onPin, onReact, 
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .announcement-card {
           background: white;
           border-radius: 12px;

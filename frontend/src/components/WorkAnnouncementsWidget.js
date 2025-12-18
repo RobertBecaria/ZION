@@ -177,7 +177,7 @@ function WorkAnnouncementsWidget({ organizationId, departmentId = null, onViewAl
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .announcements-widget {
           margin-bottom: 1rem;
         }

@@ -293,7 +293,7 @@ function WorkOrganizationPublicProfile({ organizationId, onBack, currentUserId, 
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .work-organization-public-profile {
           max-width: 1000px;
           margin: 0 auto;

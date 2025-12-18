@@ -691,7 +691,7 @@ function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .dept-management-page {
           padding: 2rem;
           max-width: 1400px;

@@ -348,7 +348,7 @@ const StudentsList = ({ selectedSchool, role, onBack, moduleColor = '#6D28D9' })
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .students-list {
           padding: 24px;
           max-width: 1200px;

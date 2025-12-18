@@ -229,7 +229,7 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
         </div>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .announcement-composer-overlay {
           position: fixed;
           top: 0;
