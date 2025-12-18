@@ -27,7 +27,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://news-social-update.preview.emergentagent.com"
+BACKEND_URL = "https://newschat-enhance.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials
