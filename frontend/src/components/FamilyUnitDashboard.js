@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Home, Users, Vote, MessageSquare, ChevronDown } from 'lucide-react';
 import JoinRequestCard from './JoinRequestCard';
 import FamilyPostComposer from './FamilyPostComposer';
@@ -12,7 +12,7 @@ const FamilyUnitDashboard = ({ familyUnit, user, allFamilyUnits, onSelectFamily,
 
   const isHead = familyUnit.user_role === 'HEAD';
 
-  const fetchPendingRequests = async () => {
+  const fetchPendingRequests = useCallback(async () => {
     try {
       const token = localStorage.getItem('zion_token');
       const response = await fetch(
@@ -33,13 +33,13 @@ const FamilyUnitDashboard = ({ familyUnit, user, allFamilyUnits, onSelectFamily,
     } catch (err) {
       console.error('Error fetching pending requests:', err);
     }
-  };
+  }, [familyUnit.id]);
 
   useEffect(() => {
     if (isHead) {
       fetchPendingRequests();
     }
-  }, [isHead, familyUnit.id]);
+  }, [isHead, fetchPendingRequests]);
 
   const handleVoteSubmitted = () => {
     fetchPendingRequests();
