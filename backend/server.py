@@ -18132,7 +18132,7 @@ async def get_channel_posts(
     current_user: User = Depends(get_current_user)
 ):
     """Get posts from a specific channel"""
-    channel = await db.news_channels.find_one({"id": channel_id})
+    channel = await db.news_channels.find_one({"id": channel_id}, {"_id": 0})
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
     
