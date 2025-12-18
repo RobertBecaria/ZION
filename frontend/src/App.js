@@ -69,6 +69,8 @@ import ChannelsPage from './components/ChannelsPage';
 import NewsFeed from './components/NewsFeed';
 import ChannelView from './components/ChannelView';
 import NewsUserProfile from './components/NewsUserProfile';  // NEW: User profile in News context
+// SERVICES MODULE COMPONENTS
+import { ServicesSearch, ServiceProviderProfile } from './components/services';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
 } from 'lucide-react';
