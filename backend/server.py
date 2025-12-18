@@ -19391,19 +19391,31 @@ async def create_service_booking(
             raise HTTPException(status_code=400, detail="This service does not accept online booking")
         
         # Check for conflicts (same time slot)
-        booking_end = booking_data.booking_date + timedelta(minutes=listing.get("booking_duration_minutes", 60))
+        duration_minutes = listing.get("booking_duration_minutes", 60)
+        booking_start_str = booking_data.booking_date.isoformat()
+        booking_end = booking_data.booking_date + timedelta(minutes=duration_minutes)
+        booking_end_str = booking_end.isoformat()
         
-        conflict = await db.service_bookings.find_one({
+        # Get all bookings for this service on this day that are pending or confirmed
+        existing_bookings = await db.service_bookings.find({
             "service_id": booking_data.service_id,
-            "status": {"$in": [BookingStatus.PENDING, BookingStatus.CONFIRMED]},
-            "booking_date": {"$lt": booking_end.isoformat()},
-            "$expr": {
-                "$gt": [
-                    {"$add": ["$booking_date", {"$multiply": ["$duration_minutes", 60000]}]},
-                    booking_data.booking_date.isoformat()
-                ]
-            }
-        })
+            "status": {"$in": [BookingStatus.PENDING, BookingStatus.CONFIRMED]}
+        }, {"_id": 0, "booking_date": 1, "duration_minutes": 1}).to_list(100)
+        
+        # Check for overlap with existing bookings
+        conflict = False
+        for existing in existing_bookings:
+            try:
+                existing_start = datetime.fromisoformat(existing["booking_date"].replace("Z", "+00:00"))
+                existing_duration = existing.get("duration_minutes", 60)
+                existing_end = existing_start + timedelta(minutes=existing_duration)
+                
+                # Check overlap: new booking overlaps if it starts before existing ends AND ends after existing starts
+                if booking_data.booking_date < existing_end and booking_end > existing_start:
+                    conflict = True
+                    break
+            except (ValueError, TypeError):
+                continue
         
         if conflict:
             raise HTTPException(status_code=400, detail="This time slot is not available")
