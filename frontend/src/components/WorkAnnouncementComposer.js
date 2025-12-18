@@ -14,11 +14,32 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
     is_pinned: editingAnnouncement?.is_pinned || false
   });
 
+  const fetchDepartments = async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDepartments(data.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
+
   useEffect(() => {
     fetchDepartments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
-  const fetchDepartments = async () => {
+  // Removed duplicate fetchDepartments - it's now declared above useEffect
+  const fetchDepartmentsPlaceholder = async () => {
     try {
       const token = localStorage.getItem('zion_token');
       const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
