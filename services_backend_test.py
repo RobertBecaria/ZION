@@ -89,10 +89,11 @@ class ServicesModuleTester:
                 
                 # Look for an organization where user is a member
                 for org in organizations:
-                    if org.get("user_is_member", False) or org.get("user_role"):
+                    if org.get("user_role"):  # If user has a role, they are a member
                         self.organization_id = org.get("id")
                         org_name = org.get("name", "Unknown")
-                        self.log(f"✅ Found organization where user is member: {org_name} (ID: {self.organization_id})")
+                        user_role = org.get("user_role", "Unknown")
+                        self.log(f"✅ Found organization where user is member: {org_name} (Role: {user_role}, ID: {self.organization_id})")
                         return True
                 
                 # If no membership found, try to create a new organization
