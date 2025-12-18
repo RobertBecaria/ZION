@@ -3624,6 +3624,7 @@ body {
   border: 1px solid #E4E6EA;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   overflow: hidden;
+  position: relative;
 }
 
 .universal-chat-layout {
