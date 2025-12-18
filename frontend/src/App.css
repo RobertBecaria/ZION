@@ -32251,8 +32251,118 @@ a,
   color: #ef4444;
 }
 
-.comment-action-btn.delete:hover {
+.comment-action-btn.delete-btn:hover {
   color: #ef4444;
+}
+
+/* Enhanced Comment Action Buttons */
+.comment-action-btn.like-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.comment-action-btn.like-btn:hover {
+  color: #ef4444;
+}
+
+.comment-action-btn.like-btn.liked {
+  color: #ef4444;
+}
+
+.comment-action-btn.reply-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.comment-action-btn.reply-btn:hover {
+  color: #1d4ed8;
+}
+
+.comment-action-btn.edit-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.comment-action-btn.edit-btn:hover {
+  opacity: 1;
+  color: #2563eb;
+}
+
+.comment-action-btn.delete-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.comment-action-btn.delete-btn:hover {
+  opacity: 1;
+  color: #ef4444;
+}
+
+/* Comment Edited Badge */
+.comment-edited-badge {
+  display: inline-block;
+  font-size: 11px;
+  color: #9ca3af;
+  margin-left: 8px;
+  font-style: italic;
+}
+
+/* Comment Edit Inline */
+.comment-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.comment-edit-inline .comment-edit-input {
+  flex: 1;
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 16px;
+  font-size: 14px;
+  outline: none;
+}
+
+.comment-edit-inline .comment-edit-input:focus {
+  border-color: #3b82f6;
+}
+
+.comment-edit-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.comment-edit-buttons button {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.comment-edit-buttons .save-btn {
+  background: #ecfdf5;
+}
+
+.comment-edit-buttons .save-btn:hover {
+  background: #d1fae5;
+}
+
+.comment-edit-buttons .cancel-btn {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.comment-edit-buttons .cancel-btn:hover {
+  background: #fee2e2;
 }
 
 /* Comment Replies */
