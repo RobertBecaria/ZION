@@ -23417,6 +23417,45 @@ a,
   color: #8696a0;
 }
 
+/* Infinite Scroll Loading Indicators */
+.loading-more-messages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  color: #667781;
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #059669;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.load-more-hint {
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px;
+  margin-bottom: 8px;
+}
+
+.load-more-hint span {
+  font-size: 12px;
+  color: #8696a0;
+  background: rgba(225, 218, 208, 0.6);
+  padding: 4px 12px;
+  border-radius: 12px;
+}
+
 /* Date Separator */
 .date-separator {
   display: flex;
