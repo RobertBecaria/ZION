@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 """
-Backend Testing for ZION.CITY Application - Critical Bug Fix Verification
-Testing the Channel Posts Endpoint Fix and Core Functionality
+Backend Testing for ZION.CITY Application - Enhanced Comments Feature Testing
+Testing the Enhanced Comments feature in the NEWS module
 
 Test Focus:
-1. Channel Posts Endpoint Fix - /api/news/posts/channel/{channel_id}
-2. News Feed functionality
-3. Channel View functionality  
-4. People Discovery / Recommendations endpoint
+1. Comment CRUD Operations (Create, Get, Edit, Delete)
+2. Replies Feature (nested comments with parent_comment_id)
+3. Like Comment functionality (toggle like with count updates)
+
+Test Scenarios:
+- Create Comment: POST /api/news/posts/{post_id}/comments
+- Get Comments: GET /api/news/posts/{post_id}/comments  
+- Edit Comment: PUT /api/news/comments/{comment_id}
+- Delete Comment: DELETE /api/news/comments/{comment_id}
+- Like Comment: POST /api/news/comments/{comment_id}/like
 
 Test Credentials:
 - Admin: admin@test.com / testpassword123
