@@ -1,4 +1,40 @@
 backend:
+  - task: "Service Booking Calendar - Available Slots API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "GET /api/services/bookings/available-slots/{service_id}?date={date} returns 9 slots from 09:00-17:00 for services without working_hours set (uses default 9-18). Fixed null working_hours handling."
+
+  - task: "Service Booking Creation API"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "POST /api/services/bookings creates booking successfully. Fixed conflict detection query that was failing with MongoDB $add on string dates. Now uses Python-side overlap check. Also fixed ObjectId serialization in response."
+
+  - task: "Service Reviews Reply API"
+    implemented: true
+    working: "needs_testing"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "POST /api/services/reviews/{review_id}/reply allows providers to reply to reviews. POST /api/services/reviews/{review_id}/helpful toggles helpful count."
+
   - task: "Services Categories API"
     implemented: true
     working: true
