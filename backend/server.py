@@ -19553,9 +19553,10 @@ async def get_available_slots(
         target_date = datetime.strptime(date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
         day_of_week = target_date.strftime("%A").lower()
         
-        # Get working hours for this day
-        working_hours = listing.get("working_hours", {})
-        day_hours = working_hours.get(day_of_week, {"open": "09:00", "close": "18:00"})
+        # Get working hours for this day (default to 9-18 if not set)
+        working_hours = listing.get("working_hours") or {}
+        default_hours = {"open": "09:00", "close": "18:00"}
+        day_hours = working_hours.get(day_of_week, default_hours) if working_hours else default_hours
         
         if not day_hours or day_hours.get("closed"):
             return {"slots": [], "message": "Closed on this day"}
