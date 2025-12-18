@@ -75,7 +75,9 @@ import {
   ServiceProviderProfile, 
   ServiceBookingModal,
   ServicesMyProfile,
-  ServicesBookings 
+  ServicesBookings,
+  ServiceBookingCalendar,
+  ServicesReviews
 } from './components/services';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
