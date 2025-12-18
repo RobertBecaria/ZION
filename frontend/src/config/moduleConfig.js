@@ -39,7 +39,7 @@ export const MODULE_DEFAULT_VIEWS = {
   family: 'wall',
   news: 'wall',
   journal: 'wall',
-  services: 'wall',
+  services: 'services-search',
   organizations: 'my-work',
   marketplace: 'wall',
   finance: 'wall',
