@@ -16,8 +16,8 @@ const NewChatModal = ({ onClose, onChatCreated, moduleColor }) => {
     try {
       const token = localStorage.getItem('zion_token');
       const url = searchQuery 
-        ? `${BACKEND_URL}/api/users/search?q=${encodeURIComponent(searchQuery)}`
-        : `${BACKEND_URL}/api/friends`;
+        ? `${process.env.REACT_APP_BACKEND_URL}/api/users/search?q=${encodeURIComponent(searchQuery)}`
+        : `${process.env.REACT_APP_BACKEND_URL}/api/friends`;
       
       const response = await fetch(url, {
         headers: {
