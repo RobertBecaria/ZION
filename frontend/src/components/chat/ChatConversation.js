@@ -591,11 +591,16 @@ const ChatConversation = ({
     inputRef.current?.focus();
   };
 
-  // Handle scroll to detect when to show scroll button
+  // Handle scroll to detect when to show scroll button AND trigger infinite scroll
   const handleScroll = (e) => {
     const container = e.target;
     const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
     setShowScrollButton(distanceFromBottom > 200);
+    
+    // Infinite scroll: load more messages when scrolled near the top
+    if (container.scrollTop < 100 && hasMoreMessages && !loadingMore) {
+      loadMoreMessages();
+    }
   };
 
   // Send voice message
