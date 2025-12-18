@@ -146,7 +146,15 @@ class ChatBackendTester:
             
             if response.status_code == 200:
                 chat_data = response.json()
-                self.test_chat_id = chat_data.get('chat', {}).get('id')
+                self.log(f"   Full response: {json.dumps(chat_data, indent=2)}")
+                
+                # Try different possible response structures
+                if 'chat' in chat_data and 'id' in chat_data['chat']:
+                    self.test_chat_id = chat_data['chat']['id']
+                elif 'id' in chat_data:
+                    self.test_chat_id = chat_data['id']
+                elif 'chat_id' in chat_data:
+                    self.test_chat_id = chat_data['chat_id']
                 
                 self.log(f"✅ Direct chat creation successful")
                 self.log(f"   Chat ID: {self.test_chat_id}")
