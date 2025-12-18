@@ -156,11 +156,11 @@ class ZionCityTester:
     
     def test_news_feed(self):
         """Test 3: Verify news feed loads correctly"""
-        self.log("📰 Testing GET /api/news/posts (News Feed)")
+        self.log("📰 Testing GET /api/news/posts/feed (News Feed)")
         
         try:
             response = self.session.get(
-                f"{BACKEND_URL}/news/posts",
+                f"{BACKEND_URL}/news/posts/feed",
                 headers=self.get_auth_headers()
             )
             
