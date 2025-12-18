@@ -286,12 +286,14 @@ class ZionCityTester:
         test_results["channels_list"] = channels_success
         
         # 3. Test channel posts endpoint (CRITICAL FIX)
-        if channels_success and channels_data:
-            channel_id = channels_data[0].get("id") if channels_data else None
+        if channels_success and channels_data and len(channels_data) > 0:
+            channel_id = channels_data[0].get("id")
             if channel_id:
                 test_results["channel_posts_fix"] = self.test_channel_posts_endpoint(channel_id)
             else:
                 self.log("⚠️ No channel ID available for testing channel posts", "WARNING")
+        else:
+            self.log("⚠️ Cannot test channel posts - no channels available", "WARNING")
         
         # 4. Test news feed
         test_results["news_feed"] = self.test_news_feed()
