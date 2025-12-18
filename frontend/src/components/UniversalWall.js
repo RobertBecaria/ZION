@@ -785,7 +785,7 @@ function UniversalWall({
                 </div>
                 <div className="form-author-info">
                   <h5>{user?.first_name} {user?.last_name}</h5>
-                  <p>Публикуется в модуле "{moduleName}"</p>
+                  <p>Публикуется в модуле &ldquo;{moduleName}&rdquo;</p>
                 </div>
               </div>
 
