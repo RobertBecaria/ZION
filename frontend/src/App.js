@@ -969,8 +969,26 @@ function Dashboard() {
                               <ServiceProviderProfile
                                 listing={selectedServiceListing}
                                 onBack={() => setActiveView('services-search')}
+                                onBookAppointment={(listing) => {
+                                  setSelectedServiceListing(listing);
+                                  setActiveView('services-booking');
+                                }}
                                 moduleColor={currentModule.color}
                                 user={user}
+                              />
+                            ) : activeView === 'services-my-profile' ? (
+                              <ServicesMyProfile
+                                user={user}
+                                moduleColor={currentModule.color}
+                                onViewListing={(listing) => {
+                                  setSelectedServiceListing(listing);
+                                  setActiveView('services-listing-detail');
+                                }}
+                              />
+                            ) : activeView === 'services-bookings' ? (
+                              <ServicesBookings
+                                user={user}
+                                moduleColor={currentModule.color}
                               />
                             ) : activeView === 'services-feed' ? (
                               <UniversalWall
