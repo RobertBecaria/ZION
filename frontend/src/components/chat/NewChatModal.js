@@ -39,7 +39,6 @@ const NewChatModal = ({ onClose, onChatCreated, moduleColor }) => {
 
   useEffect(() => {
     fetchContacts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
   const startChat = async (recipientId) => {

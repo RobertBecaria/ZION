@@ -35,7 +35,6 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
 
   useEffect(() => {
     fetchDepartments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
   const priorities = [
