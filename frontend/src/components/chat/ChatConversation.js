@@ -198,8 +198,9 @@ const ChatConversation = ({
       // Initial load - scroll to bottom with a small delay to ensure DOM is ready
       initialScrollDoneRef.current = true;
       setTimeout(() => {
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: 'auto' });
+        // Use container scroll instead of scrollIntoView to prevent header from scrolling out
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         }
       }, 100);
     }
