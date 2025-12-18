@@ -649,3 +649,31 @@ The ObjectId serialization error in `/api/news/posts/channel/{channel_id}` endpo
 - **ObjectId Fix**: Confirmed working - channel pages now load without errors
 - **Recommendation**: All tested features are production-ready and fully functional
 - **Next Steps**: Main agent can proceed with summary and completion
+
+---
+
+## Enhanced Comments Feature - December 18, 2025
+
+### Features Implemented
+1. **Nested Replies** - Users can reply to comments, with visual indentation
+2. **Comment Likes** - Heart icon with toggle state and like count
+3. **Edit Comments** - Authors can edit their own comments with inline editing
+4. **"Edited" Badge** - Shows "изменено" badge for edited comments
+5. **Enhanced UI** - Better visual styling with icons for all actions
+
+### Backend Changes
+- Added `PUT /api/news/comments/{comment_id}` endpoint for editing comments
+- Added `is_edited` and `edited_at` fields to comments
+
+### Frontend Changes
+- Enhanced `CommentItem` component with edit mode
+- Added `handleEditComment` function in PostCard
+- Improved action buttons with icons (Heart, Edit2, Trash2, CornerDownRight)
+- Added CSS for inline editing and edited badge
+
+### Testing Status
+- ✅ Edit comment endpoint works (tested via curl)
+- ✅ Edited badge shows correctly
+- ✅ Reply mode activates with visual indicator
+- ✅ Replies are stored with parent_comment_id
+- ✅ Comment actions (like, reply, edit, delete) all visible
