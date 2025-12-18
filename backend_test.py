@@ -325,9 +325,13 @@ class ZionCityTester:
             if response.status_code == 200:
                 data = response.json()
                 
-                if data.get("user_liked") == True:
+                # Check both possible field names for liked status
+                user_liked = data.get("user_liked") or data.get("liked")
+                like_count_field = "like_count" if "like_count" in data else "likes_count"
+                
+                if user_liked == True:
                     self.log("✅ Comment liked successfully")
-                    like_count_1 = data.get("like_count", 0)
+                    like_count_1 = data.get(like_count_field, 0)
                     self.log(f"✅ Like count: {like_count_1}")
                     
                     # Test unlike (toggle)
@@ -338,10 +342,11 @@ class ZionCityTester:
                     
                     if response2.status_code == 200:
                         data2 = response2.json()
+                        user_liked_2 = data2.get("user_liked") or data2.get("liked")
                         
-                        if data2.get("user_liked") == False:
+                        if user_liked_2 == False:
                             self.log("✅ Comment unliked successfully (toggle working)")
-                            like_count_2 = data2.get("like_count", 0)
+                            like_count_2 = data2.get(like_count_field, 0)
                             self.log(f"✅ Like count after unlike: {like_count_2}")
                             
                             if like_count_2 < like_count_1:
@@ -357,7 +362,8 @@ class ZionCityTester:
                         self.log(f"❌ Unlike comment failed: {response2.status_code}", "ERROR")
                         return False
                 else:
-                    self.log("❌ Comment not liked (user_liked not true)", "ERROR")
+                    self.log(f"❌ Comment not liked (expected true, got: {user_liked})", "ERROR")
+                    self.log(f"Response data: {data}")
                     return False
             else:
                 self.log(f"❌ Like comment failed: {response.status_code} - {response.text}", "ERROR")
