@@ -19700,6 +19700,110 @@ async def get_service_reviews(
         logger.error(f"Error getting reviews: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+class ProviderReplyRequest(BaseModel):
+    response: str
+
+@api_router.post("/services/reviews/{review_id}/reply")
+async def reply_to_review(
+    review_id: str,
+    reply_data: ProviderReplyRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Provider replies to a review"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Get review
+        review = await db.service_reviews.find_one({"id": review_id})
+        if not review:
+            raise HTTPException(status_code=404, detail="Review not found")
+        
+        # Check if user is the provider (owns the listing or organization)
+        listing = await db.service_listings.find_one({"id": review["service_id"]})
+        if not listing:
+            raise HTTPException(status_code=404, detail="Service not found")
+        
+        # Check if user is a member of the organization with admin rights
+        member = await db.work_organization_members.find_one({
+            "organization_id": listing["organization_id"],
+            "user_id": user_id,
+            "is_active": True
+        })
+        
+        if not member:
+            raise HTTPException(status_code=403, detail="Not authorized to reply")
+        
+        # Update review with provider response
+        await db.service_reviews.update_one(
+            {"id": review_id},
+            {
+                "$set": {
+                    "provider_response": reply_data.response,
+                    "provider_response_at": datetime.now(timezone.utc).isoformat(),
+                    "provider_response_by": user_id
+                }
+            }
+        )
+        
+        return {"success": True}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error replying to review: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/services/reviews/{review_id}/helpful")
+async def mark_review_helpful(
+    review_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Mark a review as helpful"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Get review
+        review = await db.service_reviews.find_one({"id": review_id})
+        if not review:
+            raise HTTPException(status_code=404, detail="Review not found")
+        
+        # Check if user already marked as helpful
+        helpful_by = review.get("helpful_by", [])
+        if user_id in helpful_by:
+            # Remove helpful vote
+            await db.service_reviews.update_one(
+                {"id": review_id},
+                {
+                    "$pull": {"helpful_by": user_id},
+                    "$inc": {"helpful_count": -1}
+                }
+            )
+            return {"success": True, "action": "removed"}
+        else:
+            # Add helpful vote
+            await db.service_reviews.update_one(
+                {"id": review_id},
+                {
+                    "$push": {"helpful_by": user_id},
+                    "$inc": {"helpful_count": 1}
+                }
+            )
+            return {"success": True, "action": "added"}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error marking helpful: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ===== END SERVICES MODULE =====
 
 @api_router.get("/health")
