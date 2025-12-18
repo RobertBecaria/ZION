@@ -38,26 +38,6 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [organizationId]);
 
-  // Removed duplicate fetchDepartments - it's now declared above useEffect
-  const fetchDepartmentsPlaceholder = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/organizations/${organizationId}/departments`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDepartments(data.data || []);
-      }
-    } catch (error) {
-      console.error('Error fetching departments:', error);
-    }
-  };
-
   const priorities = [
     { value: 'NORMAL', label: 'Обычно', color: '#059669', bg: '#D1FAE5', icon: Info },
     { value: 'IMPORTANT', label: 'Важно', color: '#F59E0B', bg: '#FEF3C7', icon: AlertCircle },
