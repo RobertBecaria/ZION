@@ -1140,178 +1140,47 @@ function Dashboard() {
         </main>
 
         {/* Right Sidebar - "World" Zone - Context-Specific */}
-        <aside className="right-sidebar" style={sidebarTintStyle}>
-          {/* Hide default header for Chat module - it has its own header */}
-          {activeView !== 'chat' && (
-            <div className="sidebar-header">
-              <h3>Мировая Зона</h3>
-            </div>
-          )}
-          
-          {/* JOURNAL Module - Feed View Filters */}
-          {activeModule === 'journal' && (activeView === 'wall' || activeView === 'feed') && (
-            <JournalWorldZone
-              inFeedView={true}
-              schoolRoles={schoolRoles}
-              schoolFilter={journalSchoolFilter}
-              onSchoolFilterChange={setJournalSchoolFilter}
-              audienceFilter={journalAudienceFilter}
-              onAudienceFilterChange={setJournalAudienceFilter}
-              onOpenEventPlanner={() => setActiveView('event-planner')}
-            />
-          )}
-          
-          {/* JOURNAL Module - School Selected Navigation */}
-          {activeModule === 'journal' && selectedSchool && (
-            <JournalWorldZone
-              selectedSchool={selectedSchool}
-              role={schoolRole}
-              onNavigate={(view) => {
-                if (view === 'school-list') {
-                  setSelectedSchool(null);
-                  setActiveView('journal-school-tiles');
-                } else {
-                  setActiveView(`journal-${view}`);
-                }
-              }}
-            />
-          )}
-          
-          {/* WALL and FEED Views - Wall-specific widgets (Family module only) */}
-          {activeModule === 'family' && (activeView === 'wall' || activeView === 'feed') && (
-            <FamilyWorldZone
-              moduleColor={currentModule.color}
-              activeFilters={activeFilters}
-              setActiveFilters={setActiveFilters}
-              user={user}
-            />
-          )}
-
-          {/* NEWS Module - Social World Zone */}
-          {activeModule === 'news' && (
-            <NewsWorldZone
-              user={user}
-              moduleColor={currentModule.color}
-              onViewFriends={() => setActiveView('friends')}
-              onViewFollowers={() => setActiveView('followers')}
-              onViewFollowing={() => setActiveView('following')}
-            />
-          )}
-
-          {/* Public View Button - Only when viewing "МОЯ СЕМЬЯ" */}
-          {activeModule === 'family' && userFamily && activeView === 'my-family-profile' && (
-            <div className="widget public-view-widget">
-              <div className="widget-header">
-                <Eye size={16} />
-                <span>Публичный просмотр</span>
-              </div>
-              <button 
-                className="public-view-button"
-                onClick={() => setActiveView('family-public-view')}
-                style={{ 
-                  backgroundColor: activeView === 'family-public-view' ? currentModule.color : 'white',
-                  color: activeView === 'family-public-view' ? 'white' : currentModule.color,
-                  borderColor: currentModule.color
-                }}
-              >
-                <Eye size={18} />
-                Как видят другие
-              </button>
-              <p className="widget-hint">Посмотрите, как ваша семья отображается для других пользователей</p>
-            </div>
-          )}
-
-          {/* ORGANIZATIONS Module - Department & Announcements Widgets */}
-          {/* Only show when viewing a specific organization profile, not in general feed */}
-          {activeModule === 'organizations' && selectedOrganizationId && activeView === 'work-org-profile' && (
-            <>
-              {/* Next Event Countdown Widget */}
-              <WorkNextEventWidget
-                organizationId={selectedOrganizationId}
-              />
-
-              {/* Upcoming Events List Widget */}
-              <WorkUpcomingEventsList
-                organizationId={selectedOrganizationId}
-                maxEvents={5}
-              />
-
-              {/* Calendar Widget */}
-              <WorkCalendarWidget
-                organizationId={selectedOrganizationId}
-              />
-
-              {/* Department Navigator Widget */}
-              <WorkDepartmentNavigator
-                organizationId={selectedOrganizationId}
-                activeDepartmentId={activeDepartmentId}
-                onDepartmentSelect={setActiveDepartmentId}
-                onCreateDepartment={() => setShowDepartmentManager(true)}
-                moduleColor={currentModule.color}
-                refreshTrigger={departmentRefreshTrigger}
-              />
-
-              {/* Announcements Widget */}
-              <WorkAnnouncementsWidget
-                organizationId={selectedOrganizationId}
-                departmentId={activeDepartmentId}
-                onViewAll={() => {
-                  setActiveView('work-announcements');
-                }}
-                moduleColor={currentModule.color}
-              />
-            </>
-          )}
-
-          {/* MEDIA Views - Media-specific controls */}
-          {(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') && (
-            <MediaWorldZone
-              activeView={activeView}
-              moduleColor={currentModule.color}
-              mediaStats={mediaStats}
-              selectedModuleFilter={selectedModuleFilter}
-              setSelectedModuleFilter={setSelectedModuleFilter}
-            />
-          )}
-
-          {/* FAMILY PROFILE Views - Family-specific controls */}
-          {(activeView === 'family-profiles' || activeView === 'family-create' || activeView === 'family-view' || activeView === 'family-invitations') && (
-            <FamilyProfileWorldZone
-              moduleColor={currentModule.color}
-              setActiveView={setActiveView}
-            />
-          )}
-
-          {/* CHAT View - Chat-specific widgets */}
-          {activeView === 'chat' && (
-            <ChatWorldZone
-              moduleColor={currentModule.color}
-              chatGroups={chatGroups}
-              activeGroup={activeGroup}
-              handleGroupSelect={handleGroupSelect}
-              handleCreateGroup={handleCreateGroup}
-              user={user}
-              activeDirectChat={activeDirectChat}
-              setActiveDirectChat={setActiveDirectChat}
-              onRefreshGroups={fetchChatGroups}
-            />
-          )}
-
-          {/* ORGANIZATIONS Module - Work WorldZone */}
-          {activeModule === 'organizations' && (
-            <WorkWorldZone
-              organizations={myOrganizations}
-              selectedOrg={selectedOrganizationId}
-              onOrgChange={setSelectedOrganizationId}
-              moduleColor={currentModule?.color || '#C2410C'}
-            />
-          )}
-
-          {/* MY DOCUMENTS & MY INFO Views - Info widgets */}
-          {(activeView === 'my-documents' || activeView === 'my-info') && (
-            <InfoWorldZone activeView={activeView} />
-          )}
-        </aside>
+        <RightSidebar
+          activeModule={activeModule}
+          activeView={activeView}
+          user={user}
+          currentModule={currentModule}
+          sidebarTintStyle={sidebarTintStyle}
+          // Family module
+          activeFilters={activeFilters}
+          setActiveFilters={setActiveFilters}
+          userFamily={userFamily}
+          setActiveView={setActiveView}
+          // Journal module
+          schoolRoles={schoolRoles}
+          journalSchoolFilter={journalSchoolFilter}
+          setJournalSchoolFilter={setJournalSchoolFilter}
+          journalAudienceFilter={journalAudienceFilter}
+          setJournalAudienceFilter={setJournalAudienceFilter}
+          selectedSchool={selectedSchool}
+          setSelectedSchool={setSelectedSchool}
+          schoolRole={schoolRole}
+          // Organizations module
+          selectedOrganizationId={selectedOrganizationId}
+          setSelectedOrganizationId={setSelectedOrganizationId}
+          activeDepartmentId={activeDepartmentId}
+          setActiveDepartmentId={setActiveDepartmentId}
+          setShowDepartmentManager={setShowDepartmentManager}
+          departmentRefreshTrigger={departmentRefreshTrigger}
+          myOrganizations={myOrganizations}
+          // Media module
+          mediaStats={mediaStats}
+          selectedModuleFilter={selectedModuleFilter}
+          setSelectedModuleFilter={setSelectedModuleFilter}
+          // Chat
+          chatGroups={chatGroups}
+          activeGroup={activeGroup}
+          handleGroupSelect={handleGroupSelect}
+          handleCreateGroup={handleCreateGroup}
+          activeDirectChat={activeDirectChat}
+          setActiveDirectChat={setActiveDirectChat}
+          fetchChatGroups={fetchChatGroups}
+        />
       </div>
 
       {/* Gender Update Modal - MANDATORY on First Login if no gender */}
