@@ -19296,7 +19296,7 @@ async def update_service_listing(
     """Update a service listing"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         # Verify ownership
         listing = await db.service_listings.find_one({"id": listing_id})
@@ -19337,7 +19337,7 @@ async def get_my_service_listings(
     """Get all service listings owned by the current user or their organizations"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         # Get user's organizations
         memberships = await db.work_organization_members.find({
@@ -19376,7 +19376,7 @@ async def create_service_booking(
     """Create a new service booking"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         # Get listing
         listing = await db.service_listings.find_one({"id": booking_data.service_id})
@@ -19452,7 +19452,7 @@ async def get_my_bookings(
     """Get bookings - either as client or as provider"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         query = {}
         if as_provider:
@@ -19491,7 +19491,7 @@ async def update_booking_status(
     """Update booking status (confirm, cancel, complete)"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         booking = await db.service_bookings.find_one({"id": booking_id})
         if not booking:
@@ -19613,7 +19613,7 @@ async def create_service_review(
     """Create a review for a service"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = payload.get("user_id")
+        user_id = payload.get("sub")
         
         # Get listing
         listing = await db.service_listings.find_one({"id": review_data.service_id})
