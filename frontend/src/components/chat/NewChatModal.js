@@ -11,11 +11,39 @@ const NewChatModal = ({ onClose, onChatCreated, moduleColor }) => {
   const [loading, setLoading] = useState(false);
   const [creating, setCreating] = useState(false);
 
+  const fetchContacts = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('zion_token');
+      const url = searchQuery 
+        ? `${BACKEND_URL}/api/users/search?q=${encodeURIComponent(searchQuery)}`
+        : `${BACKEND_URL}/api/friends`;
+      
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setContacts(data.users || data.friends || []);
+      }
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchContacts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery]);
 
-  const fetchContacts = async () => {
+  // Function declaration removed - moved above useEffect
+  const fetchContactsRemoved = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
