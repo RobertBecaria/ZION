@@ -19171,7 +19171,8 @@ async def create_service_listing(
         await db.service_listings.insert_one(listing_dict)
         
         # Return without _id
-        del listing_dict["_id"] if "_id" in listing_dict else None
+        if "_id" in listing_dict:
+            del listing_dict["_id"]
         
         return {"success": True, "listing": listing_dict}
         
