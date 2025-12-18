@@ -5,7 +5,7 @@ import json
 import time
 
 def test_rejection_status():
-    base_url = "https://newschat-enhance.preview.emergentagent.com"
+    base_url = "https://bookme-12.preview.emergentagent.com"
     
     # Login as admin
     login_data = {"email": "admintest@example.com", "password": "admin123"}

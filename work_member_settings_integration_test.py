@@ -7,7 +7,7 @@ from datetime import datetime
 import uuid
 
 class WorkMemberSettingsIntegrationTester:
-    def __init__(self, base_url="https://newschat-enhance.preview.emergentagent.com"):
+    def __init__(self, base_url="https://bookme-12.preview.emergentagent.com"):
         self.base_url = base_url
         self.admin_token = None
         self.admin_user_id = None

@@ -5,7 +5,7 @@ import json
 
 def test_family_profile_system():
     """Simple test of Family Profile System core functionality"""
-    base_url = "https://newschat-enhance.preview.emergentagent.com/api"
+    base_url = "https://bookme-12.preview.emergentagent.com/api"
     
     # Login
     print("🔍 Testing login...")
