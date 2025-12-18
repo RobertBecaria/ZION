@@ -53,6 +53,96 @@ function UniversalWall({
     nextImage,
     prevImage
   } = useLightbox();
+  
+  // Get backend URL properly
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  // Popular emojis for quick reaction
+  const popularEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
+  const allEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "🤔", "💯"];
+
+  // Main data fetching effect - must be before conditional returns
+  useEffect(() => {
+    // Skip fetching for modules that render different components
+    if (activeModule === 'organizations' || activeModule === 'journal') {
+      return;
+    }
+    
+    // Fetch posts function (inline to avoid dependency issues)
+    const fetchPostsData = async () => {
+      try {
+        const token = localStorage.getItem('zion_token');
+        let url = `${backendUrl}/api/posts?module=${activeModule}`;
+        
+        if (activeModule === 'family' && activeFilters.length > 0) {
+          activeFilters.forEach(filter => {
+            if (filter === 'my-family' && userFamilyId) {
+              url += `&family_id=${userFamilyId}`;
+            } else if (filter === 'subscribed') {
+              url += `&filter=subscribed`;
+            } else if (filter === 'public') {
+              url += `&visibility=PUBLIC`;
+            } else if (filter === 'household') {
+              url += `&visibility=HOUSEHOLD_ONLY`;
+            } else if (filter === 'gender-male') {
+              url += `&visibility=GENDER_MALE`;
+            } else if (filter === 'gender-female') {
+              url += `&visibility=GENDER_FEMALE`;
+            } else if (filter === 'gender-it') {
+              url += `&visibility=GENDER_IT`;
+            }
+          });
+        }
+        
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const postsData = await response.json();
+          setPosts(postsData);
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+      }
+    };
+    
+    // Fetch notifications function (inline)
+    const fetchNotificationsData = async () => {
+      try {
+        const token = localStorage.getItem('zion_token');
+        const response = await fetch(`${backendUrl}/api/notifications?unread_only=true`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const notificationsData = await response.json();
+          setNotifications(notificationsData);
+        }
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+    
+    fetchPostsData();
+    fetchNotificationsData();
+    
+    // Add keyboard event listeners for modal
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        const modal = document.querySelector('.post-composer-modal');
+        if (modal && modal.style.display === 'flex') {
+          modal.style.display = 'none';
+        }
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [activeGroup, activeModule, activeFilters, backendUrl, userFamilyId]);
 
   // CONDITIONAL RETURNS - Must come AFTER all hooks
   // If this is the organizations/work module, show WorkUniversalFeed
@@ -72,35 +162,6 @@ function UniversalWall({
       />
     );
   }
-  
-  // Get backend URL properly
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-  // Popular emojis for quick reaction
-  const popularEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡"];
-  const allEmojis = ["👍", "❤️", "😂", "😮", "😢", "😡", "🔥", "👏", "🤔", "💯"];
-
-  useEffect(() => {
-    fetchPosts();
-    fetchNotifications();
-    
-    // Add keyboard event listeners for modal
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        const modal = document.querySelector('.post-composer-modal');
-        if (modal && modal.style.display === 'flex') {
-          modal.style.display = 'none';
-        }
-      }
-    };
-    
-    document.addEventListener('keydown', handleKeyDown);
-    
-    // Cleanup
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [activeGroup, activeModule, activeFilters]); // Re-fetch posts when filters change
 
   const fetchPosts = async () => {
     try {
