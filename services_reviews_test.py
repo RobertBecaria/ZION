@@ -156,8 +156,8 @@ class ServicesReviewsTester:
                     # Check if reply data is returned
                     reply = data.get("reply")
                     if reply:
-                        reply_text = reply.get("reply_text")
-                        if reply_text == reply_data["reply_text"]:
+                        reply_text = reply.get("response")
+                        if reply_text == reply_data["response"]:
                             self.log("✅ Reply text matches")
                         else:
                             self.log("⚠️ Reply text mismatch", "WARNING")
