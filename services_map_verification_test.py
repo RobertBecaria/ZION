@@ -123,16 +123,6 @@ class ServicesMapVerificationTest:
     def test_available_slots_api(self):
         """Test Available Slots API - Required for booking functionality in map view"""
         try:
-            # First, get a service ID from listings (if any exist)
-            listings_response = self.session.get(f"{BACKEND_URL}/services/listings", timeout=10)
-            
-            if listings_response.status_code != 200:
-                self.log_result("Available Slots API - Prerequisites", False, 
-                              "Could not fetch service listings to get service ID")
-                return False
-            
-            listings_data = listings_response.json()
-            
             # Test with a known service ID from previous tests
             test_service_id = "c5aa409c-d881-4c2e-b388-515cfb7b5b94"  # From test history
             test_date = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -146,15 +136,27 @@ class ServicesMapVerificationTest:
             if response.status_code == 200:
                 data = response.json()
                 
-                # Verify response structure for slots
-                if not isinstance(data, list):
+                # Verify response structure - should have 'slots' key
+                if "slots" not in data:
                     self.log_result("Available Slots API - Structure", False, 
-                                  "Response is not a list of slots")
+                                  "Response missing 'slots' key")
+                    return False
+                
+                slots = data["slots"]
+                if not isinstance(slots, list):
+                    self.log_result("Available Slots API - Structure", False, 
+                                  "slots field is not a list")
+                    return False
+                
+                # Verify duration_minutes field exists
+                if "duration_minutes" not in data:
+                    self.log_result("Available Slots API - Structure", False, 
+                                  "Response missing 'duration_minutes' key")
                     return False
                 
                 # If slots exist, verify slot structure
-                if len(data) > 0:
-                    slot = data[0]
+                if len(slots) > 0:
+                    slot = slots[0]
                     required_slot_fields = ["start", "end", "available"]
                     missing_fields = [field for field in required_slot_fields if field not in slot]
                     
@@ -175,8 +177,8 @@ class ServicesMapVerificationTest:
                     return False
                 
                 self.log_result("Available Slots API", True, 
-                              f"API working correctly. Service {test_service_id} has {len(data)} slots "
-                              f"for {test_date}. Error handling working (404 for invalid ID)")
+                              f"API working correctly. Service {test_service_id} has {len(slots)} slots "
+                              f"for {test_date}, duration: {data['duration_minutes']} minutes. Error handling working (404 for invalid ID)")
                 return True
                 
             elif response.status_code == 404:
