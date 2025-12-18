@@ -37,7 +37,6 @@ const FamilyUnitDashboard = ({ familyUnit, user, allFamilyUnits, onSelectFamily,
 
   useEffect(() => {
     if (isHead) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchPendingRequests();
     }
   }, [isHead, fetchPendingRequests]);
