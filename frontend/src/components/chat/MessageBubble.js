@@ -152,13 +152,21 @@ const MessageBubble = ({
     );
   }
 
+  // Build group classes for message spacing
+  const groupClasses = [
+    !isFirstInGroup && 'grouped',
+    isFirstInGroup && 'first-in-group',
+    isLastInGroup && 'last-in-group',
+    !isFirstInGroup && !isLastInGroup && 'middle-in-group'
+  ].filter(Boolean).join(' ');
+
   return (
     <div 
-      className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'}`}
+      className={`message-bubble-wrapper ${isOwn ? 'own' : 'other'} ${groupClasses}`}
       onContextMenu={handleContextMenu}
     >
       <div 
-        className={`message-bubble ${isOwn ? 'own-bubble' : 'other-bubble'} ${isVoiceMessage ? 'voice-bubble' : ''}`}
+        className={`message-bubble ${isOwn ? 'own-bubble' : 'other-bubble'} ${isVoiceMessage ? 'voice-bubble' : ''} ${groupClasses}`}
         style={isOwn ? { backgroundColor: isVoiceMessage ? moduleColor : `${moduleColor}20` } : {}}
       >
         {/* Reply reference */}
