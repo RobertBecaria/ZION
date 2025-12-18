@@ -126,6 +126,30 @@ backend:
         comment: "Available slots API 100% success. Endpoint responds correctly with 404 for invalid service IDs, indicating proper error handling and validation is implemented."
 
 frontend:
+  - task: "ServiceBookingCalendar Component - Phase 3"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/services/ServiceBookingCalendar.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "main"
+        comment: "FullCalendar integration complete. Features: Weekly/Monthly/Daily views, time slots panel showing available slots, booking modal with form fields (name, phone, email, notes), provider settings modal. Calendar shows existing bookings, unavailable slots marked as 'Занято'."
+
+  - task: "ServicesReviews Component - Phase 3"
+    implemented: true
+    working: "needs_testing"
+    file: "/app/frontend/src/components/services/ServicesReviews.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Reviews component with star ratings, stats overview with rating distribution bars, review list, write review modal, provider reply functionality. Needs UI testing."
+
   - task: "Chat Header Visibility"
     implemented: true
     working: true
