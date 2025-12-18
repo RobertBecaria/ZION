@@ -83,7 +83,8 @@ class ZionCityTester:
             )
             
             if response.status_code == 200:
-                channels = response.json()
+                data = response.json()
+                channels = data.get("channels", [])  # Handle wrapped response
                 self.log(f"✅ Channels list retrieved successfully - Found {len(channels)} channels")
                 
                 if channels and len(channels) > 0:
@@ -158,7 +159,8 @@ class ZionCityTester:
             )
             
             if response.status_code == 200:
-                posts = response.json()
+                data = response.json()
+                posts = data.get("posts", [])  # Handle wrapped response
                 self.log(f"✅ News feed loaded successfully - Found {len(posts)} posts")
                 
                 if posts and len(posts) > 0:
@@ -192,7 +194,8 @@ class ZionCityTester:
             )
             
             if response.status_code == 200:
-                suggestions = response.json()
+                data = response.json()
+                suggestions = data.get("suggestions", [])  # Handle wrapped response
                 self.log(f"✅ User suggestions loaded successfully - Found {len(suggestions)} suggestions")
                 
                 if suggestions and len(suggestions) > 0:
@@ -206,7 +209,7 @@ class ZionCityTester:
                     else:
                         self.log("✅ User suggestion structure validation passed")
                 else:
-                    self.log("⚠️ No user suggestions found", "WARNING")
+                    self.log("⚠️ No user suggestions found (empty list)", "WARNING")
                         
                 return True
             else:
