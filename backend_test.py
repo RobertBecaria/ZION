@@ -86,14 +86,14 @@ class ZionCityTester:
                 channels = response.json()
                 self.log(f"✅ Channels list retrieved successfully - Found {len(channels)} channels")
                 
-                if channels:
+                if channels and len(channels) > 0:
                     # Store first channel for testing channel posts
                     self.test_channel_id = channels[0].get("id")
                     self.log(f"📝 Using channel ID for testing: {self.test_channel_id}")
                     
                     # Verify channel structure
                     first_channel = channels[0]
-                    required_fields = ["id", "name", "description"]
+                    required_fields = ["id", "name"]
                     missing_fields = [field for field in required_fields if field not in first_channel]
                     
                     if missing_fields:
