@@ -773,6 +773,19 @@ const ChatConversation = ({
           </div>
         ) : (
           <>
+            {/* Infinite scroll loading indicator */}
+            {loadingMore && (
+              <div className="loading-more-messages">
+                <div className="loading-spinner"></div>
+                <span>Загрузка предыдущих сообщений...</span>
+              </div>
+            )}
+            {/* Show "Load more" hint when there are more messages */}
+            {hasMoreMessages && !loadingMore && messages.length > 0 && (
+              <div className="load-more-hint">
+                <span>↑ Прокрутите вверх для загрузки старых сообщений</span>
+              </div>
+            )}
             {messages.map((message, index) => {
               const isOwn = message.user_id === user?.id;
               const showSender = chatType === 'group' && !isOwn;
