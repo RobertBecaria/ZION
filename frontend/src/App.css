@@ -23444,6 +23444,54 @@ a,
   justify-content: flex-start;
 }
 
+/* Message Grouping - Reduced spacing for consecutive messages */
+.message-bubble-wrapper.grouped {
+  margin-bottom: 1px;
+}
+
+.message-bubble-wrapper.first-in-group {
+  margin-top: 8px;
+}
+
+.message-bubble-wrapper.last-in-group {
+  margin-bottom: 8px;
+}
+
+.message-bubble-wrapper.middle-in-group {
+  margin-bottom: 1px;
+}
+
+/* Grouped bubble corner adjustments */
+.message-bubble-wrapper.own.grouped .message-bubble,
+.message-bubble-wrapper.own.middle-in-group .message-bubble {
+  border-top-right-radius: 7.5px;
+}
+
+.message-bubble-wrapper.own.first-in-group .message-bubble {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 7.5px;
+}
+
+.message-bubble-wrapper.own.last-in-group .message-bubble {
+  border-top-right-radius: 7.5px;
+  border-bottom-right-radius: 0;
+}
+
+.message-bubble-wrapper.other.grouped .message-bubble,
+.message-bubble-wrapper.other.middle-in-group .message-bubble {
+  border-top-left-radius: 7.5px;
+}
+
+.message-bubble-wrapper.other.first-in-group .message-bubble {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 7.5px;
+}
+
+.message-bubble-wrapper.other.last-in-group .message-bubble {
+  border-top-left-radius: 7.5px;
+  border-bottom-left-radius: 0;
+}
+
 .message-bubble {
   max-width: 65%;
   padding: 6px 7px 8px 9px;
