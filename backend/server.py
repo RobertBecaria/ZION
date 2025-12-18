@@ -19429,6 +19429,9 @@ async def create_service_booking(
         
         await db.service_bookings.insert_one(booking_dict)
         
+        # Remove _id added by MongoDB for response
+        booking_dict.pop("_id", None)
+        
         # Increment booking count
         await db.service_listings.update_one(
             {"id": booking_data.service_id},
