@@ -2730,6 +2730,54 @@ body {
   font-size: 13px;
 }
 
+/* Post Link Preview in Feed */
+.post-link-preview {
+  margin-top: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.post-link-preview .link-preview-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  text-decoration: none;
+  background: #f9fafb;
+  transition: background 0.2s;
+}
+
+.post-link-preview .link-preview-card:hover {
+  background: #f3f4f6;
+}
+
+/* YouTube Embed in Feed */
+.post-youtube {
+  margin-top: 12px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.youtube-embed {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
 .form-actions {
   display: flex;
   align-items: center;
