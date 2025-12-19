@@ -311,6 +311,8 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Enhanced Post Composer Feature"
+    - "ServicesReviews Component - Phase 3"
     - "Services Categories API"
     - "Services Listings API"
     - "Create Service Listing API"
