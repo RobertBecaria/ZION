@@ -289,7 +289,8 @@ const MediaStorage = ({
 
   useEffect(() => {
     fetchMedia();
-  }, [fetchMedia, selectedModuleFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mediaType, selectedModuleFilter]);
 
   // Filter files by search term and selected module
   const filteredFiles = mediaFiles.filter(file => {
