@@ -92,6 +92,8 @@ import {
   MyThings,
   MyThingsItemForm
 } from './components/marketplace';
+// FINANCES MODULE COMPONENTS (ФИНАНСЫ)
+import { WalletDashboard } from './components/finances';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
 } from 'lucide-react';
