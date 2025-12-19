@@ -27,6 +27,7 @@ const ChannelView = ({
   useEffect(() => {
     loadChannel();
   }, [channelId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const loadChannel = async () => {
     try {
@@ -355,6 +356,7 @@ const ModeratorModal = ({ channelId, accentColor, onClose }) => {
   useEffect(() => {
     loadModerators();
   }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const loadModerators = async () => {
     try {

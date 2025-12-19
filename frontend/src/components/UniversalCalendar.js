@@ -98,6 +98,7 @@ function UniversalCalendar({
   useEffect(() => {
     fetchScheduledActions();
   }, [currentDate, activeModule]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (activeModule === 'organizations') {

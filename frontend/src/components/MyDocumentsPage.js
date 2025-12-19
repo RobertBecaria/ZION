@@ -53,6 +53,7 @@ const MyDocumentsPage = () => {
   useEffect(() => {
     fetchDocuments();
   }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const fetchDocuments = async () => {
     try {

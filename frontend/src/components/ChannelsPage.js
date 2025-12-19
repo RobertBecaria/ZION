@@ -57,6 +57,7 @@ const ChannelsPage = ({
   useEffect(() => {
     loadChannels();
   }, [selectedCategory]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const loadChannels = async () => {
     setLoading(true);

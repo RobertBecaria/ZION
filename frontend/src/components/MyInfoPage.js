@@ -25,6 +25,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   useEffect(() => {
     fetchMyInfo();
   }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const fetchMyInfo = async () => {
     try {

@@ -34,6 +34,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
   useEffect(() => {
     loadFamilyMembers();
   }, [family?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // Load family members from database
   const loadFamilyMembers = async () => {

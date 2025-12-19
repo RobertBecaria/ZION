@@ -8,6 +8,7 @@ const FamilyFeed = ({ familyUnitId, refreshTrigger }) => {
   useEffect(() => {
     fetchPosts();
   }, [familyUnitId, refreshTrigger]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
   const fetchPosts = async () => {
     setLoading(true);
