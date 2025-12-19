@@ -94,6 +94,18 @@ import {
 } from './components/marketplace';
 // FINANCES MODULE COMPONENTS (ФИНАНСЫ)
 import { WalletDashboard } from './components/finances';
+// GOOD WILL MODULE COMPONENTS (ДОБРАЯ ВОЛЯ)
+import {
+  GoodWillSearch,
+  GoodWillEventCard,
+  GoodWillEventDetail,
+  GoodWillEventForm,
+  GoodWillCalendar,
+  GoodWillOrganizerProfile,
+  GoodWillMyEvents,
+  GoodWillInvitations,
+  GoodWillGroups
+} from './components/goodwill';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
 } from 'lucide-react';
