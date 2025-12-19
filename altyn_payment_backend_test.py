@@ -248,15 +248,16 @@ class AltynPaymentTester:
         self.log("🪙 Initializing tokens for test user")
         
         try:
-            init_data = {
+            # Use query parameters as expected by the endpoint
+            params = {
                 "user_email": "testuser@test.com",
-                "altyn_tokens": 1000,  # Give 1000 tokens
-                "altyn_coins": 500     # Give 500 coins
+                "token_amount": 1000,  # Give 1000 tokens
+                "coin_amount": 500     # Give 500 coins
             }
             
             response = self.session.post(
                 f"{BACKEND_URL}/finance/admin/initialize-tokens",
-                json=init_data,
+                params=params,
                 headers=self.get_auth_headers("admin")
             )
             
