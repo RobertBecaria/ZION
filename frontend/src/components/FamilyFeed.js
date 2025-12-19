@@ -5,10 +5,11 @@ const FamilyFeed = ({ familyUnitId, refreshTrigger }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchPosts();
   }, [familyUnitId, refreshTrigger]);
-     
+
 
   const fetchPosts = async () => {
     setLoading(true);
