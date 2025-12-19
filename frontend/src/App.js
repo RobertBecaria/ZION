@@ -975,6 +975,10 @@ function Dashboard() {
                                   setSelectedServiceListing(listing);
                                   setActiveView('services-booking-calendar');
                                 }}
+                                onViewReviews={(listing) => {
+                                  setSelectedServiceListing(listing);
+                                  setActiveView('services-reviews');
+                                }}
                                 moduleColor={currentModule.color}
                                 user={user}
                               />
