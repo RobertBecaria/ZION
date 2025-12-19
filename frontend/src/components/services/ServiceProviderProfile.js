@@ -103,6 +103,49 @@ const ServiceProviderProfile = ({
     }
   };
 
+  const handleAltynPayment = async () => {
+    if (!token || !listing?.altyn_price) return;
+    
+    setPaymentLoading(true);
+    setPaymentError(null);
+    
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/finance/services/pay`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          service_id: listing.id,
+          amount: listing.altyn_price,
+          description: `Оплата услуги: ${listing.name}`
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setPaymentSuccess(true);
+        setPaymentReceipt(data.receipt);
+        // Refresh wallet balance
+        const walletRes = await fetch(`${BACKEND_URL}/api/finance/wallet`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (walletRes.ok) {
+          const walletData = await walletRes.json();
+          setWalletBalance(walletData.wallet?.coin_balance || 0);
+        }
+      } else {
+        setPaymentError(data.detail || 'Ошибка оплаты');
+      }
+    } catch (error) {
+      setPaymentError('Ошибка подключения к серверу');
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const formatPrice = () => {
     if (!listing?.price_from && !listing?.price_to) return 'Цена по запросу';
     if (listing?.price_type === 'from') return `от ${listing.price_from?.toLocaleString()} ₽`;
