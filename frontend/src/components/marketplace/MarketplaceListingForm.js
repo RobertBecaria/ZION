@@ -26,6 +26,8 @@ const MarketplaceListingForm = ({
     category: '',
     subcategory: '',
     price: '',
+    altyn_price: '',  // ALTYN COIN price
+    accept_altyn: false,  // Accept ALTYN payment
     negotiable: false,
     condition: 'good',
     city: user?.city || '',
