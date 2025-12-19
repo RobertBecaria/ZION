@@ -289,7 +289,7 @@ const MediaStorage = ({
 
   useEffect(() => {
     fetchMedia();
-  }, [mediaType, selectedModuleFilter]);
+  }, [fetchMedia, selectedModuleFilter]);
 
   // Filter files by search term and selected module
   const filteredFiles = mediaFiles.filter(file => {
