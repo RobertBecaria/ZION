@@ -75,7 +75,11 @@ const ServicesReviews = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [serviceId, sortBy]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
 
   const handleSubmitReview = async () => {
     if (!newReview.content.trim()) return;
