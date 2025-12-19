@@ -346,7 +346,7 @@ class AltynPaymentTester:
         
         try:
             response = self.session.get(
-                f"{BACKEND_URL}/work/organizations/my",
+                f"{BACKEND_URL}/work/organizations",
                 headers=self.get_auth_headers("admin")
             )
             
