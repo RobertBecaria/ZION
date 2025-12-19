@@ -418,17 +418,17 @@ class ReviewsModuleTester:
         # 4. Test get reviews
         test_results["get_reviews"] = self.test_get_reviews()
         
-        # 5. Test provider reply (only if review was created)
-        if test_results["create_review"]:
+        # 5. Test provider reply (if we have a review ID)
+        if self.test_review_id:
             test_results["provider_reply"] = self.test_provider_reply()
         else:
-            self.log("⚠️ Skipping provider reply test - no review created", "WARNING")
+            self.log("⚠️ Skipping provider reply test - no review ID available", "WARNING")
         
-        # 6. Test mark helpful (only if review was created)
-        if test_results["create_review"]:
+        # 6. Test mark helpful (if we have a review ID)
+        if self.test_review_id:
             test_results["mark_helpful"] = self.test_mark_helpful()
         else:
-            self.log("⚠️ Skipping helpful test - no review created", "WARNING")
+            self.log("⚠️ Skipping helpful test - no review ID available", "WARNING")
         
         # 7. Test service rating update
         test_results["rating_update"] = self.test_service_rating_update()
