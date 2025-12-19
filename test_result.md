@@ -487,3 +487,39 @@ backend:
 - Transfer functionality: ✅ VERIFIED (validation working)
 - Transaction history: ✅ VERIFIED
 - Access control: ✅ VERIFIED
+
+## UniversalWall.js Refactoring Tests
+
+### Refactoring Summary:
+- **Original file size:** ~1486 lines
+- **New file size:** ~285 lines (80% reduction)
+- **New components created:**
+  - `/app/frontend/src/components/wall/PostComposer.js` - Post creation form
+  - `/app/frontend/src/components/wall/PostItem.js` - Individual post rendering
+  - `/app/frontend/src/components/wall/PostActions.js` - Like, comment, reaction buttons
+  - `/app/frontend/src/components/wall/PostMedia.js` - Media display (images, YouTube, links)
+  - `/app/frontend/src/components/wall/CommentSection.js` - Comments container
+  - `/app/frontend/src/components/wall/CommentItem.js` - Individual comment rendering
+  - `/app/frontend/src/components/wall/utils/postUtils.js` - Shared utility functions
+  - `/app/frontend/src/components/wall/index.js` - Barrel export
+
+### Frontend Components to Test:
+1. PostComposer - Post creation with visibility selector
+2. PostItem - Post display with media, stats, and actions
+3. PostActions - Like, comment, and reaction functionality
+4. PostMedia - Image lightbox, YouTube embeds, link previews
+5. CommentSection - Comment input and list rendering
+6. CommentItem - Comment display with edit/delete/reply
+
+### Test Scenarios:
+1. View posts in the feed
+2. Open post composer modal
+3. Create a new post with text
+4. Like a post
+5. Add a reaction to a post
+6. Open comments section
+7. Add a comment
+8. Reply to a comment
+
+### Test Credentials:
+- Admin: admin@test.com / testpassword123
