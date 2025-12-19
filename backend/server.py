@@ -21225,6 +21225,12 @@ async def get_treasury_stats(credentials: HTTPAuthorizationCredentials = Depends
     """Get platform treasury statistics"""
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user is admin
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1})
+        if not user or user.get("role") != "ADMIN":
+            raise HTTPException(status_code=403, detail="Admin access required")
         
         treasury = await get_or_create_treasury()
         
