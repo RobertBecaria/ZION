@@ -211,13 +211,18 @@ class ReviewsModuleTester:
                     else:
                         self.log("⚠️ User name not enriched", "WARNING")
                     
-                    # Check if our created review is present
+                    # Store the first review ID for testing other endpoints
+                    if not self.test_review_id and reviews:
+                        self.test_review_id = reviews[0].get("id")
+                        self.log(f"✅ Using existing review for testing: {self.test_review_id}")
+                    
+                    # Check if our created review is present (if we created one)
                     if self.test_review_id:
                         our_review = next((r for r in reviews if r.get("id") == self.test_review_id), None)
                         if our_review:
-                            self.log("✅ Created review found in list")
+                            self.log("✅ Test review found in list")
                         else:
-                            self.log("⚠️ Created review not found in list", "WARNING")
+                            self.log("⚠️ Test review not found in list", "WARNING")
                 
                 return True
             else:
