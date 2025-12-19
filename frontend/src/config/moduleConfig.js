@@ -42,7 +42,7 @@ export const MODULE_DEFAULT_VIEWS = {
   services: 'services-search',
   organizations: 'my-work',
   marketplace: 'marketplace-search',
-  finance: 'wall',
+  finance: 'wallet',
   events: 'wall'
 };
 
