@@ -30,8 +30,8 @@ const NewsWorldZone = ({
 
   useEffect(() => {
     loadSocialData();
-  }, []);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadSocialData = async () => {
     try {
