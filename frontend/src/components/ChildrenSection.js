@@ -21,7 +21,7 @@ const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
   useEffect(() => {
     fetchChildren();
   }, []);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
 
   const fetchChildren = async () => {
     try {

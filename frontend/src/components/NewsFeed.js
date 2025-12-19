@@ -100,7 +100,7 @@ const NewsFeed = ({
   useEffect(() => {
     loadPosts(true);
   }, [channelId]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
 
   // Handle image selection
   const handleImageSelect = (e) => {

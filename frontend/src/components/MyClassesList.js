@@ -14,7 +14,7 @@ const MyClassesList = ({ selectedSchool, role, onBack, onSelectClass, moduleColo
   useEffect(() => {
     fetchClasses();
   }, [selectedSchool]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
 
   const fetchClasses = async () => {
     if (!selectedSchool?.organization_id) {

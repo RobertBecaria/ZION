@@ -39,7 +39,7 @@ const JournalUniversalFeed = ({
   useEffect(() => {
     fetchPosts();
   }, [schoolFilter, externalAudienceFilter]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
 
   const fetchPosts = async () => {
     try {
