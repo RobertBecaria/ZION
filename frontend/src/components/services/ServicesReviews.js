@@ -38,7 +38,7 @@ const ServicesReviews = ({
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  const fetchReviews = useCallback(async () => {
+  const fetchReviews = async () => {
     if (!serviceId) {
       setLoading(false);
       return;
@@ -75,11 +75,12 @@ const ServicesReviews = ({
     } finally {
       setLoading(false);
     }
-  }, [serviceId, sortBy]);
+  };
 
   useEffect(() => {
     fetchReviews();
-  }, [fetchReviews]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceId, sortBy]);
 
   const handleSubmitReview = async () => {
     if (!newReview.content.trim()) return;
