@@ -372,11 +372,8 @@ class GoodWillPhase2Tester:
         
         # Test add co-organizer (organizer only)
         try:
-            co_organizer_data = {
-                "user_id_to_add": self.user_id  # Add self as co-organizer for testing
-            }
-            
-            response = self.session.post(f"{BASE_URL}/goodwill/events/{self.test_event_id}/co-organizers", json=co_organizer_data)
+            # user_id_to_add is a query parameter, not in request body
+            response = self.session.post(f"{BASE_URL}/goodwill/events/{self.test_event_id}/co-organizers?user_id_to_add={self.user_id}")
             
             if response.status_code == 200:
                 data = response.json()
