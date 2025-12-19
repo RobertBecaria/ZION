@@ -291,10 +291,12 @@ class GoodWillTester:
             response = self.session.get(f"{BACKEND_URL}/goodwill/groups")
             
             if response.status_code == 200:
-                groups = response.json()
+                data = response.json()
+                groups = data.get('groups', [])
+                total = data.get('total', 0)
                 if isinstance(groups, list):
                     self.log_result("Interest Groups API", True, 
-                                  f"Found {len(groups)} interest groups")
+                                  f"Found {total} interest groups (returned {len(groups)} groups)")
                 else:
                     self.log_result("Interest Groups API", False, error="Invalid groups response format")
             else:
