@@ -429,19 +429,26 @@ class AltynPaymentTester:
             
             if response.status_code == 200:
                 data = response.json()
-                self.test_service_id = data.get("id")
+                # Debug: Print the actual response
+                self.log(f"Service creation response: {data}")
+                
+                # Check if response is nested under "listing" or "service"
+                service = data.get("listing", data.get("service", data))
+                self.test_service_id = service.get("id")
                 
                 # Verify ALTYN payment fields
-                if (data.get("accept_altyn") == True and 
-                    data.get("altyn_price") == 50 and
-                    data.get("name") == service_data["name"]):
+                if (service.get("accept_altyn") == True and 
+                    service.get("altyn_price") == 50 and
+                    service.get("name") == service_data["name"]):
                     
                     self.log(f"✅ Service created with ALTYN payment - ID: {self.test_service_id}")
-                    self.log(f"✅ ALTYN price: {data.get('altyn_price')} AC")
-                    self.log(f"✅ Accept ALTYN: {data.get('accept_altyn')}")
+                    self.log(f"✅ ALTYN price: {service.get('altyn_price')} AC")
+                    self.log(f"✅ Accept ALTYN: {service.get('accept_altyn')}")
                     return True
                 else:
                     self.log("❌ Service created but ALTYN payment fields incorrect", "ERROR")
+                    self.log(f"Expected: accept_altyn=True, altyn_price=50, name='{service_data['name']}'")
+                    self.log(f"Actual: accept_altyn={service.get('accept_altyn')}, altyn_price={service.get('altyn_price')}, name='{service.get('name')}'")
                     return False
             else:
                 self.log(f"❌ Create service failed: {response.status_code} - {response.text}", "ERROR")
