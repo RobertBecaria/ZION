@@ -2,10 +2,10 @@
  * AcademicCalendar Component
  * Calendar view for school events, holidays, and important dates
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Calendar, ChevronLeft, ChevronRight, Plus, X, Clock, MapPin,
-  GraduationCap, FileText, Users, Award, BookOpen, PartyPopper
+  Users
 } from 'lucide-react';
 
 const EVENT_TYPES = [
