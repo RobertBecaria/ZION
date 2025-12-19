@@ -248,7 +248,7 @@ class GoodWillPhase2Tester:
         # Test POST photo (requires auth and attendance)
         try:
             photo_data = {
-                "image_url": "https://example.com/test-photo.jpg",
+                "photo_url": "https://example.com/test-photo.jpg",
                 "caption": "Тестовое фото с мероприятия"
             }
             
