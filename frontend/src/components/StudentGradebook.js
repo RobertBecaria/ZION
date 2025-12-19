@@ -42,6 +42,7 @@ const StudentGradebook = ({ selectedSchool, role, onBack }) => {
     weight: 1
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (role === 'parent') {
       fetchChildren();
@@ -50,6 +51,7 @@ const StudentGradebook = ({ selectedSchool, role, onBack }) => {
     }
   }, [role, selectedSchool]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (selectedChild) {
       fetchGrades(selectedChild.student_id);

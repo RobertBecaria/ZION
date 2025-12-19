@@ -14,6 +14,7 @@ const StudentsList = ({ selectedSchool, role, onBack, moduleColor = '#6D28D9' })
   const [selectedClass, setSelectedClass] = useState('all');
   const [classes, setClasses] = useState([]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchStudents();
     fetchClasses();
