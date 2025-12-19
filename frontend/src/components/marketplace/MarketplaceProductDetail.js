@@ -22,6 +22,7 @@ const CONDITION_LABELS = {
 const MarketplaceProductDetail = ({
   productId,
   token,
+  user,
   moduleColor = '#BE185D',
   onBack,
   onContactSeller,
@@ -32,6 +33,11 @@ const MarketplaceProductDetail = ({
   const [isFavorite, setIsFavorite] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPhone, setShowPhone] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [paymentError, setPaymentError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
