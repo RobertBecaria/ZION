@@ -2,9 +2,9 @@
  * ServicesReviews Component
  * Display and manage service reviews
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
-  Star, ThumbsUp, MessageCircle, Flag, ChevronDown,
+  Star, ThumbsUp, MessageCircle, 
   Loader2, User, Calendar, Check, X, Edit2
 } from 'lucide-react';
 
@@ -38,11 +38,7 @@ const ServicesReviews = ({
   const [replyingTo, setReplyingTo] = useState(null);
   const [replyText, setReplyText] = useState('');
 
-  useEffect(() => {
-    fetchReviews();
-  }, [serviceId, sortBy]);
-
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     if (!serviceId) {
       setLoading(false);
       return;
