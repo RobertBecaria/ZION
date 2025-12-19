@@ -172,8 +172,8 @@ class AltynPaymentTester:
                 "accept_altyn": True,
                 "altyn_price": 100,  # AC
                 "category": "Electronics",
-                "condition": "NEW",
-                "location": "Test Location"
+                "condition": "new",
+                "city": "Test City"
             }
             
             response = self.session.post(
