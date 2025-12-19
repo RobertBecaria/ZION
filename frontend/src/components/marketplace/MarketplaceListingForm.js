@@ -83,6 +83,8 @@ const MarketplaceListingForm = ({
         category: editProduct.category || '',
         subcategory: editProduct.subcategory || '',
         price: editProduct.price?.toString() || '',
+        altyn_price: editProduct.altyn_price?.toString() || '',
+        accept_altyn: editProduct.accept_altyn || false,
         negotiable: editProduct.negotiable || false,
         condition: editProduct.condition || 'good',
         city: editProduct.city || '',
