@@ -75,6 +75,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
     }
   }, [family?.id]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     // Only run once on mount or when family ID changes
     if (!initializedRef.current || (familyData && family && familyData.id !== family.id)) {
