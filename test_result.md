@@ -388,3 +388,25 @@ backend:
 - Wallet balance endpoint may not reflect immediate changes after payment, but payment processing and receipt generation work correctly
 - This is likely due to caching or eventual consistency in the wallet system
 - Core payment functionality is fully operational
+
+## Corporate Finance Accounts Tests
+
+### Backend API Tests:
+1. GET /api/finance/corporate/wallets - Get user's corporate wallets list
+2. POST /api/finance/corporate-wallet - Create corporate wallet for organization
+3. GET /api/finance/corporate/wallet/{org_id} - Get corporate wallet details
+4. POST /api/finance/corporate/transfer - Transfer from corporate wallet
+5. GET /api/finance/corporate/transactions/{org_id} - Get corporate transactions
+
+### Test Credentials:
+- Admin: admin@test.com / testpassword123 (has 5 organizations)
+
+### Frontend Components:
+- CorporateWallets.js - Full corporate wallet management UI
+- WalletDashboard.js - Added "Бизнес" tab for corporate wallets
+
+### Test Status:
+- Corporate wallet creation: ✅ VERIFIED (ZION.CITY)
+- Corporate wallet list view: ✅ VERIFIED (screenshot)
+- Corporate wallet detail view: ✅ VERIFIED (screenshot)
+- Transfer functionality: NEEDS TESTING
