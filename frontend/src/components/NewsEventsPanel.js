@@ -49,7 +49,7 @@ const NewsEventsPanel = ({
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
@@ -70,11 +70,12 @@ const NewsEventsPanel = ({
     } finally {
       setLoading(false);
     }
-  }, [channelId, BACKEND_URL]);
+  };
 
   useEffect(() => {
     fetchEvents();
-  }, [fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [channelId]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
