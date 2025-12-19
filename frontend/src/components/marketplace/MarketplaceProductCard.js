@@ -79,6 +79,26 @@ const MarketplaceProductCard = ({
           {product.negotiable && <span className="negotiable-tag">Торг</span>}
         </div>
         
+        {/* ALTYN Price Badge */}
+        {product.accept_altyn && product.altyn_price && (
+          <div className="altyn-price-badge" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            marginTop: '6px',
+            padding: '4px 8px',
+            background: '#FEF3C7',
+            borderRadius: '6px',
+            fontSize: '12px',
+            fontWeight: '600',
+            color: '#92400E',
+            width: 'fit-content'
+          }}>
+            <Coins size={14} />
+            {product.altyn_price.toLocaleString('ru-RU')} AC
+          </div>
+        )}
+        
         <div className="product-meta">
           {product.city && (
             <span className="meta-item">
