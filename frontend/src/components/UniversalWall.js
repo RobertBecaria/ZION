@@ -1282,6 +1282,43 @@ function UniversalWall({
                     })}
                   </div>
                 )}
+                
+                {/* Display single YouTube video from youtube_video_id */}
+                {post.youtube_video_id && !post.youtube_urls?.length && (
+                  <div className="post-youtube">
+                    <div className="youtube-embed">
+                      <iframe
+                        width="100%"
+                        height="315"
+                        src={`https://www.youtube.com/embed/${post.youtube_video_id}`}
+                        title="YouTube video"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Display Link Preview */}
+                {post.link_url && !post.youtube_video_id && (
+                  <div className="post-link-preview">
+                    <a 
+                      href={post.link_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="link-preview-card"
+                    >
+                      <div className="link-preview-content">
+                        <div className="link-domain">{post.link_domain || new URL(post.link_url).hostname}</div>
+                        <div className="link-url">{post.link_url}</div>
+                      </div>
+                      <div className="link-preview-icon">
+                        <Share2 size={20} />
+                      </div>
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Post Stats */}
