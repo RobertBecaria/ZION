@@ -22511,6 +22511,8 @@ async def create_organizer_profile(
         
         await db.event_organizer_profiles.insert_one(profile_dict)
         
+        # Remove MongoDB _id before returning
+        profile_dict.pop("_id", None)
         return {"success": True, "profile": profile_dict}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
