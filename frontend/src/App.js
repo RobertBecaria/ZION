@@ -390,6 +390,7 @@ function Dashboard() {
   };
 
   // Load chat groups and fetch media stats when dashboard loads
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (user) {
       fetchChatGroups();
