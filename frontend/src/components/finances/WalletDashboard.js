@@ -258,13 +258,21 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
           <DollarSign size={18} />
           Курсы
         </button>
+        <button 
+          className={`tab ${activeTab === 'corporate' ? 'active' : ''}`}
+          onClick={() => setActiveTab('corporate')}
+          style={activeTab === 'corporate' ? { borderColor: moduleColor, color: moduleColor } : {}}
+        >
+          <Building2 size={18} />
+          Бизнес
+        </button>
         {isAdmin && (
           <button 
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
             onClick={() => setActiveTab('admin')}
-            style={activeTab === 'admin' ? { borderColor: moduleColor, color: moduleColor } : {}}
+            style={activeTab === 'admin' ? { borderColor: '#DC2626', color: '#DC2626' } : {}}
           >
-            <Building2 size={18} />
+            ⚙️
             Админ
           </button>
         )}
