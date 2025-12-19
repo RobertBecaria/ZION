@@ -22771,6 +22771,8 @@ async def create_event(
             {"$inc": {"events_count": 1}}
         )
         
+        # Remove MongoDB _id before returning
+        event_dict.pop("_id", None)
         return {"success": True, "event": event_dict}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
