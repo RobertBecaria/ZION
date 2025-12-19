@@ -297,7 +297,7 @@ const NewsWorldZone = ({
             <span>ВОЗМОЖНЫЕ ДРУЗЬЯ</span>
           </div>
           <div className="suggestions-list">
-            {suggestions.map(suggestion => (
+            {suggestions.slice(0, 3).map(suggestion => (
               <div key={suggestion.id} className="suggestion-item">
                 <div className="suggestion-avatar">
                   {suggestion.profile_picture ? (
@@ -315,7 +315,11 @@ const NewsWorldZone = ({
                   <span className="suggestion-name">
                     {suggestion.first_name} {suggestion.last_name}
                   </span>
-                  {suggestion.mutual_friends_count > 0 && (
+                  {suggestion.suggestion_reasons && suggestion.suggestion_reasons.length > 0 ? (
+                    <span className="mutual-count">
+                      {suggestion.suggestion_reasons[0]}
+                    </span>
+                  ) : suggestion.mutual_friends_count > 0 && (
                     <span className="mutual-count">
                       {suggestion.mutual_friends_count} общих друзей
                     </span>
@@ -339,6 +343,16 @@ const NewsWorldZone = ({
               </div>
             ))}
           </div>
+          {onViewPeopleDiscovery && (
+            <button 
+              className="view-all-btn"
+              onClick={onViewPeopleDiscovery}
+              style={{ color: moduleColor }}
+            >
+              Показать все рекомендации
+              <ChevronRight size={16} />
+            </button>
+          )}
         </div>
       )}
 
