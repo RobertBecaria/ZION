@@ -137,6 +137,9 @@ function Dashboard() {
   const [departmentRefreshTrigger, setDepartmentRefreshTrigger] = useState(0);
   const [myOrganizations, setMyOrganizations] = useState([]);
   
+  // Good Will Module State (Добрая Воля)
+  const [selectedGoodWillEventId, setSelectedGoodWillEventId] = useState(null);
+  
   // Setup window function for opening full department management
   useEffect(() => {
     window.openDepartmentManagement = () => {
