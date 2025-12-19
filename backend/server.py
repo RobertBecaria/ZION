@@ -233,6 +233,9 @@ class Post(BaseModel):
     family_id: Optional[str] = None  # NEW: Which family this post belongs to
     media_files: List[str] = []  # List of MediaFile IDs
     youtube_urls: List[str] = []  # Extracted YouTube URLs
+    youtube_video_id: Optional[str] = None  # Single YouTube video ID
+    link_url: Optional[str] = None  # Link preview URL
+    link_domain: Optional[str] = None  # Link preview domain
     likes_count: int = 0
     comments_count: int = 0
     is_published: bool = True
