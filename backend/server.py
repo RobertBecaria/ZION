@@ -19940,6 +19940,8 @@ class MarketplaceProductCreate(BaseModel):
     subcategory: Optional[str] = None
     price: float
     currency: str = "RUB"
+    altyn_price: Optional[float] = None  # Price in ALTYN COIN (optional)
+    accept_altyn: bool = False  # Whether to accept ALTYN COIN payment
     negotiable: bool = False
     condition: ProductCondition = ProductCondition.GOOD
     city: Optional[str] = None
