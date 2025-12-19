@@ -58,6 +58,25 @@ const ServiceProviderProfile = ({
     }
   }, [listing?.id]);
 
+  // Fetch wallet balance for ALTYN payment
+  useEffect(() => {
+    const fetchWallet = async () => {
+      if (!token) return;
+      try {
+        const response = await fetch(`${BACKEND_URL}/api/finance/wallet`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setWalletBalance(data.wallet?.coin_balance || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching wallet:', error);
+      }
+    };
+    fetchWallet();
+  }, [token]);
+
   const fetchListing = async () => {
     try {
       const response = await fetch(`${BACKEND_URL}/api/services/listings/${listingId}`);
