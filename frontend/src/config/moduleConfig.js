@@ -11,7 +11,7 @@ export const MODULES = [
   { key: 'organizations', name: 'Организации', color: '#C2410C', icon: 'Building2' },
   { key: 'marketplace', name: 'Вещи', color: '#BE185D', icon: 'Package' },
   { key: 'finance', name: 'Финансы', color: '#A16207', icon: 'DollarSign' },
-  { key: 'events', name: 'Мероприятия', color: '#7E22CE', icon: 'Calendar' }
+  { key: 'events', name: 'Добрая Воля', color: '#8B5CF6', icon: 'Heart' }
 ];
 
 export const getModuleByKey = (key) => {
