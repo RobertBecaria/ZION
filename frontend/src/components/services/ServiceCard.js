@@ -82,6 +82,24 @@ const ServiceCard = ({
             <span><Eye size={12} /> {listing.view_count || 0}</span>
           </div>
         </div>
+        
+        {/* ALTYN Price Badge */}
+        {listing.accept_altyn && listing.altyn_price && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 12px',
+            background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+            borderRadius: '0 0 12px 12px',
+            borderTop: '1px solid #F59E0B'
+          }}>
+            <span style={{ fontSize: '14px' }}>💰</span>
+            <span style={{ fontSize: '14px', fontWeight: '600', color: '#92400E' }}>
+              {listing.altyn_price?.toLocaleString('ru-RU')} AC
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
