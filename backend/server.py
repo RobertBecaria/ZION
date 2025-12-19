@@ -21261,6 +21261,8 @@ async def get_treasury_stats(credentials: HTTPAuthorizationCredentials = Depends
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Error getting treasury stats: {e}")
         raise HTTPException(status_code=500, detail=str(e))
