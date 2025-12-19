@@ -23783,11 +23783,23 @@ async def get_event_qr_code(
             checkin_code = f"EVT-{event_id[:8].upper()}-{str(uuid.uuid4())[:4].upper()}"
             await db.goodwill_events.update_one({"id": event_id}, {"$set": {"checkin_code": checkin_code}})
         
-        # Return QR data (frontend will generate QR image)
+        # Generate QR code image
+        qr_data = f"goodwill://checkin/{event_id}/{checkin_code}"
+        qr = qrcode.QRCode(version=1, box_size=10, border=4)
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convert to base64
+        buffer = BytesIO()
+        qr_img.save(buffer, format="PNG")
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+        
         return {
             "success": True,
             "checkin_code": checkin_code,
-            "qr_data": f"goodwill://checkin/{event_id}/{checkin_code}",
+            "qr_data": qr_data,
+            "qr_image": f"data:image/png;base64,{qr_base64}",
             "event_title": event["title"]
         }
     except jwt.ExpiredSignatureError:
