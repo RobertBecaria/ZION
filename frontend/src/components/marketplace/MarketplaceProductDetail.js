@@ -408,6 +408,207 @@ const MarketplaceProductDetail = ({
           </div>
         </div>
       </div>
+      
+      {/* ALTYN Payment Modal */}
+      {showPaymentModal && product?.accept_altyn && (
+        <div className="payment-modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div className="payment-modal" style={{
+            background: 'white',
+            borderRadius: '20px',
+            width: '100%',
+            maxWidth: '440px',
+            padding: '0',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1px solid #e2e8f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Coins size={24} style={{ color: '#F59E0B' }} />
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Оплата ALTYN COIN</h3>
+              </div>
+              <button onClick={() => {
+                setShowPaymentModal(false);
+                setPaymentSuccess(false);
+                setPaymentError(null);
+              }} style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '4px'
+              }}>
+                <X size={20} style={{ color: '#64748b' }} />
+              </button>
+            </div>
+            
+            {/* Modal Body */}
+            <div style={{ padding: '24px' }}>
+              {paymentSuccess ? (
+                <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                  <CheckCircle size={64} style={{ color: '#10B981', marginBottom: '16px' }} />
+                  <h4 style={{ margin: '0 0 8px 0', fontSize: '20px', color: '#1e293b' }}>Оплата успешна!</h4>
+                  <p style={{ color: '#64748b', margin: '0 0 20px 0' }}>Товар "{product.title}" успешно оплачен</p>
+                  <button
+                    onClick={() => {
+                      setShowPaymentModal(false);
+                      setPaymentSuccess(false);
+                    }}
+                    style={{
+                      padding: '12px 24px',
+                      background: '#10B981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '10px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Отлично!
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {paymentError && (
+                    <div style={{
+                      padding: '12px 16px',
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      borderRadius: '10px',
+                      color: '#DC2626',
+                      marginBottom: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <AlertCircle size={18} />
+                      {paymentError}
+                    </div>
+                  )}
+                  
+                  {/* Product Info */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    padding: '16px',
+                    background: '#f8fafc',
+                    borderRadius: '12px',
+                    marginBottom: '20px'
+                  }}>
+                    {product.images?.[0] ? (
+                      <img src={product.images[0]} alt="" style={{ width: '60px', height: '60px', borderRadius: '10px', objectFit: 'cover' }} />
+                    ) : (
+                      <div style={{ width: '60px', height: '60px', borderRadius: '10px', background: '#e2e8f0' }} />
+                    )}
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#1e293b', marginBottom: '4px' }}>{product.title}</div>
+                      <div style={{ fontSize: '14px', color: '#64748b' }}>Продавец: {product.seller_name}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Payment Details */}
+                  <div style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b' }}>Сумма</span>
+                      <span style={{ fontWeight: '600' }}>{product.altyn_price?.toLocaleString('ru-RU')} AC</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b' }}>Комиссия (0.1%)</span>
+                      <span style={{ fontWeight: '600' }}>{(product.altyn_price * 0.001).toFixed(2)} AC</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontWeight: '700', fontSize: '18px' }}>
+                      <span style={{ color: '#1e293b' }}>Итого</span>
+                      <span style={{ color: '#F59E0B' }}>{product.altyn_price?.toLocaleString('ru-RU')} AC</span>
+                    </div>
+                  </div>
+                  
+                  {/* Wallet Balance */}
+                  <div style={{
+                    padding: '16px',
+                    background: walletBalance >= product.altyn_price ? '#F0FDF4' : '#FEF2F2',
+                    borderRadius: '12px',
+                    marginBottom: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Wallet size={20} style={{ color: walletBalance >= product.altyn_price ? '#10B981' : '#DC2626' }} />
+                      <span style={{ color: '#64748b' }}>Ваш баланс:</span>
+                    </div>
+                    <span style={{ fontWeight: '700', color: walletBalance >= product.altyn_price ? '#10B981' : '#DC2626' }}>
+                      {walletBalance.toLocaleString('ru-RU')} AC
+                    </span>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => setShowPaymentModal(false)}
+                      style={{
+                        flex: 1,
+                        padding: '14px',
+                        background: '#f1f5f9',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontWeight: '600',
+                        color: '#64748b',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Отмена
+                    </button>
+                    <button
+                      onClick={handleAltynPayment}
+                      disabled={paymentLoading || walletBalance < product.altyn_price}
+                      style={{
+                        flex: 1,
+                        padding: '14px',
+                        background: walletBalance >= product.altyn_price ? 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)' : '#9CA3AF',
+                        border: 'none',
+                        borderRadius: '10px',
+                        fontWeight: '600',
+                        color: 'white',
+                        cursor: walletBalance >= product.altyn_price && !paymentLoading ? 'pointer' : 'not-allowed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                    >
+                      {paymentLoading ? 'Оплата...' : (
+                        walletBalance < product.altyn_price ? 'Недостаточно средств' : (
+                          <>
+                            <Coins size={18} />
+                            Оплатить
+                          </>
+                        )
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
