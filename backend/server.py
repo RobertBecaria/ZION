@@ -22473,6 +22473,8 @@ class CreateEventRequest(BaseModel):
     title: str
     description: str
     category_id: str
+    cover_image: Optional[str] = None
+    youtube_url: Optional[str] = None
     city: str
     address: Optional[str] = None
     venue_name: Optional[str] = None
@@ -22489,6 +22491,21 @@ class CreateEventRequest(BaseModel):
     is_free: bool = True
     ticket_types: List[Dict] = []
     tags: List[str] = []
+    is_recurring: bool = False
+    recurrence_pattern: Optional[str] = None
+    recurrence_end_date: Optional[datetime] = None
+    co_organizer_ids: List[str] = []
+
+class AddReviewRequest(BaseModel):
+    rating: int
+    comment: Optional[str] = None
+
+class AddPhotoRequest(BaseModel):
+    photo_url: str
+    caption: Optional[str] = None
+
+class EventChatRequest(BaseModel):
+    message: str
 
 class RSVPRequest(BaseModel):
     status: RSVPStatus
