@@ -21631,6 +21631,10 @@ async def pay_for_product(
             {"$set": {"status": "SOLD", "buyer_id": buyer_id, "sold_at": datetime.now(timezone.utc).isoformat()}}
         )
         
+        # Get buyer and seller names for receipt
+        buyer_user = await db.users.find_one({"id": buyer_id}, {"_id": 0, "first_name": 1, "last_name": 1})
+        seller_user = await db.users.find_one({"id": product["seller_id"]}, {"_id": 0, "first_name": 1, "last_name": 1})
+        
         return {
             "success": True,
             "payment": {
@@ -21638,7 +21642,23 @@ async def pay_for_product(
                 "amount": request.amount,
                 "fee": fee_amount,
                 "seller_received": net_amount,
-                "product_title": product.get("title")
+                "product_title": product.get("title"),
+                "product_id": request.product_id
+            },
+            "receipt": {
+                "receipt_id": tx.id,
+                "date": datetime.now(timezone.utc).isoformat(),
+                "type": "MARKETPLACE_PURCHASE",
+                "buyer_name": f"{buyer_user.get('first_name', '')} {buyer_user.get('last_name', '')}".strip() if buyer_user else "Unknown",
+                "seller_name": f"{seller_user.get('first_name', '')} {seller_user.get('last_name', '')}".strip() if seller_user else "Unknown",
+                "item_title": product.get("title"),
+                "item_price": request.amount,
+                "fee_amount": fee_amount,
+                "fee_rate": "0.1%",
+                "total_paid": request.amount,
+                "seller_received": net_amount,
+                "currency": "ALTYN COIN (AC)",
+                "status": "COMPLETED"
             }
         }
         
