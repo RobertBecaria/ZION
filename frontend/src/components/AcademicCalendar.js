@@ -55,7 +55,7 @@ const AcademicCalendar = ({ organizationId, schoolRoles, user }) => {
   const isTeacher = schoolRoles?.is_teacher && 
     schoolRoles?.schools_as_teacher?.some(s => s.organization_id === organizationId);
 
-  const fetchEvents = useCallback(async () => {
+  const fetchEvents = async () => {
     if (!organizationId) return;
     
     try {
@@ -80,13 +80,14 @@ const AcademicCalendar = ({ organizationId, schoolRoles, user }) => {
     } finally {
       setLoading(false);
     }
-  }, [organizationId, currentDate, BACKEND_URL]);
+  };
 
   useEffect(() => {
     if (organizationId) {
       fetchEvents();
     }
-  }, [organizationId, fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [organizationId, currentDate]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
