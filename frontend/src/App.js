@@ -81,6 +81,17 @@ import {
   ServiceBookingCalendar,
   ServicesReviews
 } from './components/services';
+// MARKETPLACE MODULE COMPONENTS (ВЕЩИ)
+import {
+  MarketplaceSearch,
+  MarketplaceProductCard,
+  MarketplaceProductDetail,
+  MarketplaceListingForm,
+  MyListings,
+  MarketplaceFavorites,
+  MyThings,
+  MyThingsItemForm
+} from './components/marketplace';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
 } from 'lucide-react';
