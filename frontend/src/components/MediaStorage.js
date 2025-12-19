@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Image, FileText, Video, Grid, List, Upload, 
   Download, Trash2, Search, Calendar, ZoomIn, FolderPlus
