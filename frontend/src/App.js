@@ -33,6 +33,8 @@ import InvitationManager from './components/InvitationManager';
 import MyInfoPage from './components/MyInfoPage';
 import MyDocumentsPage from './components/MyDocumentsPage';
 import FamilySetupPage from './components/FamilySetupPage';
+// PEOPLE DISCOVERY
+import PeopleDiscovery from './components/PeopleDiscovery';
 // SCHOOL MODULE COMPONENTS
 import SchoolDashboard from './components/SchoolDashboard';
 import ParentChildrenDashboard from './components/ParentChildrenDashboard';
