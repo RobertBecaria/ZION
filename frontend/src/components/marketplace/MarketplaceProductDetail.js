@@ -267,6 +267,53 @@ const MarketplaceProductDetail = ({
               {formatPrice(product.price)}
               {product.negotiable && <span className="negotiable-tag">Торг уместен</span>}
             </div>
+            
+            {/* ALTYN COIN Price */}
+            {product.accept_altyn && product.altyn_price && (
+              <div className="altyn-price-section" style={{ 
+                marginTop: '12px', 
+                padding: '12px 16px', 
+                background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', 
+                borderRadius: '12px',
+                border: '1px solid #F59E0B',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Coins size={24} style={{ color: '#B45309' }} />
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: '700', color: '#92400E' }}>
+                      {product.altyn_price.toLocaleString('ru-RU')} AC
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#B45309' }}>
+                      ALTYN COIN ≈ ${product.altyn_price.toLocaleString('en-US')} USD
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowPaymentModal(true)}
+                  disabled={product.status === 'SOLD' || (user && product.seller_id === user.id)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 20px',
+                    background: product.status === 'SOLD' ? '#9CA3AF' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: '600',
+                    cursor: product.status === 'SOLD' ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  <Wallet size={18} />
+                  {product.status === 'SOLD' ? 'Продано' : 'Оплатить ALTYN'}
+                </button>
+              </div>
+            )}
 
             <div className="product-badges">
               <span className="badge condition" data-condition={product.condition}>
