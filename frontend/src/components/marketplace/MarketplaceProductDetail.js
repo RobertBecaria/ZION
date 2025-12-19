@@ -119,6 +119,7 @@ const MarketplaceProductDetail = ({
       
       if (response.ok) {
         setPaymentSuccess(true);
+        setPaymentReceipt(data.receipt);
         // Refresh wallet balance
         const walletRes = await fetch(`${BACKEND_URL}/api/finance/wallet`, {
           headers: { 'Authorization': `Bearer ${token}` }
