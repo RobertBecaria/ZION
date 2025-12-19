@@ -131,6 +131,7 @@ const RightSidebar = ({
           onViewFriends={() => setActiveView('friends')}
           onViewFollowers={() => setActiveView('followers')}
           onViewFollowing={() => setActiveView('following')}
+          onViewPeopleDiscovery={() => setActiveView('people-discovery')}
         />
       )}
 
