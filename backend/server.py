@@ -20234,7 +20234,9 @@ async def create_marketplace_product(
             images=product_data.images,
             contact_phone=product_data.contact_phone or user.get("phone"),
             contact_method=product_data.contact_method,
-            tags=product_data.tags
+            tags=product_data.tags,
+            altyn_price=product_data.altyn_price,
+            accept_altyn=product_data.accept_altyn
         )
         
         await db.marketplace_products.insert_one(product.dict())
