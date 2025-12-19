@@ -6,6 +6,7 @@ function PublicFamilyProfile({ user, familyId, onBack, moduleColor = '#059669' }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (familyId) {
       loadPublicProfile();
