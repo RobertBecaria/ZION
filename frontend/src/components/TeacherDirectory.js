@@ -17,6 +17,7 @@ const TeacherDirectory = React.memo(function TeacherDirectory({ organizationId, 
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchSchoolConstants();
     fetchTeachers();
