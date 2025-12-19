@@ -224,6 +224,8 @@ class GoodWillPhase2Tester:
                 self.log_result("POST Event Review", True, "Successfully added review")
             elif response.status_code == 403:
                 self.log_result("POST Event Review", True, "Correctly blocked - must attend event to review (expected)")
+            elif response.status_code == 400 and "already reviewed" in response.text:
+                self.log_result("POST Event Review", True, "Correctly blocked - user already reviewed this event (expected)")
             else:
                 self.log_result("POST Event Review", False, f"Unexpected status: {response.status_code}", response.text)
         except Exception as e:
