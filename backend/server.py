@@ -19859,6 +19859,912 @@ async def mark_review_helpful(
 
 # ===== END SERVICES MODULE =====
 
+# ===== MARKETPLACE MODULE (ВЕЩИ) =====
+
+# Marketplace Enums
+class ProductCondition(str, Enum):
+    NEW = "new"
+    LIKE_NEW = "like_new"
+    GOOD = "good"
+    FAIR = "fair"
+    POOR = "poor"
+
+class ProductStatus(str, Enum):
+    ACTIVE = "active"
+    SOLD = "sold"
+    RESERVED = "reserved"
+    ARCHIVED = "archived"
+
+class SellerType(str, Enum):
+    INDIVIDUAL = "individual"
+    ORGANIZATION = "organization"
+
+class InventoryCategory(str, Enum):
+    SMART_THINGS = "smart_things"
+    WARDROBE = "wardrobe"
+    GARAGE = "garage"
+    HOME = "home"
+    ELECTRONICS = "electronics"
+    COLLECTION = "collection"
+
+# Marketplace Product Model
+class MarketplaceProduct(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    seller_id: str  # User ID
+    seller_type: SellerType = SellerType.INDIVIDUAL
+    organization_id: Optional[str] = None  # If seller is organization
+    
+    # Basic Info
+    title: str
+    description: str
+    category: str  # e.g., "electronics", "clothing", etc.
+    subcategory: Optional[str] = None
+    
+    # Pricing
+    price: float
+    currency: str = "RUB"
+    negotiable: bool = False
+    
+    # Condition
+    condition: ProductCondition = ProductCondition.GOOD
+    
+    # Location
+    city: Optional[str] = None
+    address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    
+    # Media
+    images: List[str] = []
+    
+    # Contact
+    contact_phone: Optional[str] = None
+    contact_method: str = "message"  # "message", "phone", "both"
+    
+    # Status
+    status: ProductStatus = ProductStatus.ACTIVE
+    view_count: int = 0
+    favorite_count: int = 0
+    
+    # Timestamps
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    # Tags
+    tags: List[str] = []
+
+class MarketplaceProductCreate(BaseModel):
+    title: str
+    description: str
+    category: str
+    subcategory: Optional[str] = None
+    price: float
+    currency: str = "RUB"
+    negotiable: bool = False
+    condition: ProductCondition = ProductCondition.GOOD
+    city: Optional[str] = None
+    address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    images: List[str] = []
+    contact_phone: Optional[str] = None
+    contact_method: str = "message"
+    tags: List[str] = []
+    organization_id: Optional[str] = None  # If selling as organization
+
+class MarketplaceProductUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[str] = None
+    subcategory: Optional[str] = None
+    price: Optional[float] = None
+    negotiable: Optional[bool] = None
+    condition: Optional[ProductCondition] = None
+    city: Optional[str] = None
+    address: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    images: Optional[List[str]] = None
+    contact_phone: Optional[str] = None
+    contact_method: Optional[str] = None
+    status: Optional[ProductStatus] = None
+    tags: Optional[List[str]] = None
+
+# User Inventory Item Model (My Things)
+class InventoryItem(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    
+    # Basic Info
+    name: str
+    description: Optional[str] = None
+    category: InventoryCategory
+    subcategory: Optional[str] = None
+    
+    # Purchase Info
+    purchase_date: Optional[datetime] = None
+    purchase_price: Optional[float] = None
+    purchase_location: Optional[str] = None
+    
+    # Warranty
+    warranty_expires: Optional[datetime] = None
+    warranty_info: Optional[str] = None
+    
+    # Value Tracking
+    current_value: Optional[float] = None
+    
+    # Media
+    images: List[str] = []
+    
+    # Custom Fields
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    serial_number: Optional[str] = None
+    color: Optional[str] = None
+    size: Optional[str] = None
+    
+    # Smart Things specific
+    is_smart: bool = False
+    smart_platform: Optional[str] = None  # e.g., "Apple HomeKit", "Google Home"
+    
+    # Tags
+    tags: List[str] = []
+    
+    # Status
+    is_for_sale: bool = False
+    marketplace_listing_id: Optional[str] = None
+    
+    # Timestamps
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class InventoryItemCreate(BaseModel):
+    name: str
+    description: Optional[str] = None
+    category: InventoryCategory
+    subcategory: Optional[str] = None
+    purchase_date: Optional[datetime] = None
+    purchase_price: Optional[float] = None
+    purchase_location: Optional[str] = None
+    warranty_expires: Optional[datetime] = None
+    warranty_info: Optional[str] = None
+    current_value: Optional[float] = None
+    images: List[str] = []
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    serial_number: Optional[str] = None
+    color: Optional[str] = None
+    size: Optional[str] = None
+    is_smart: bool = False
+    smart_platform: Optional[str] = None
+    tags: List[str] = []
+
+class InventoryItemUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category: Optional[InventoryCategory] = None
+    subcategory: Optional[str] = None
+    purchase_date: Optional[datetime] = None
+    purchase_price: Optional[float] = None
+    purchase_location: Optional[str] = None
+    warranty_expires: Optional[datetime] = None
+    warranty_info: Optional[str] = None
+    current_value: Optional[float] = None
+    images: Optional[List[str]] = None
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    serial_number: Optional[str] = None
+    color: Optional[str] = None
+    size: Optional[str] = None
+    is_smart: Optional[bool] = None
+    smart_platform: Optional[str] = None
+    tags: Optional[List[str]] = None
+
+# Marketplace Favorites Model
+class MarketplaceFavorite(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    product_id: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# Marketplace Categories
+MARKETPLACE_CATEGORIES = {
+    "electronics": {
+        "name": "Электроника",
+        "icon": "📱",
+        "subcategories": ["Телефоны", "Компьютеры", "Планшеты", "Фото и видео", "Аудио", "ТВ и проекторы", "Игровые консоли", "Аксессуары"]
+    },
+    "clothing": {
+        "name": "Одежда и Обувь",
+        "icon": "👕",
+        "subcategories": ["Мужская одежда", "Женская одежда", "Детская одежда", "Обувь", "Аксессуары", "Спортивная одежда"]
+    },
+    "home_garden": {
+        "name": "Дом и Сад",
+        "icon": "🏠",
+        "subcategories": ["Мебель", "Бытовая техника", "Посуда", "Декор", "Освещение", "Текстиль", "Сад и огород", "Инструменты"]
+    },
+    "auto_moto": {
+        "name": "Авто и Мото",
+        "icon": "🚗",
+        "subcategories": ["Автомобили", "Мотоциклы", "Запчасти", "Аксессуары", "Шины и диски", "Автозвук"]
+    },
+    "kids": {
+        "name": "Детские товары",
+        "icon": "👶",
+        "subcategories": ["Игрушки", "Коляски", "Автокресла", "Мебель", "Одежда", "Питание", "Школьные товары"]
+    },
+    "sports_leisure": {
+        "name": "Спорт и Отдых",
+        "icon": "⚽",
+        "subcategories": ["Тренажеры", "Велосипеды", "Туризм", "Рыбалка", "Охота", "Зимний спорт", "Водный спорт"]
+    },
+    "books_hobbies": {
+        "name": "Книги и Хобби",
+        "icon": "📚",
+        "subcategories": ["Книги", "Музыкальные инструменты", "Коллекционирование", "Рукоделие", "Настольные игры", "Антиквариат"]
+    }
+}
+
+# Inventory Categories Config
+INVENTORY_CATEGORIES = {
+    "smart_things": {
+        "name": "Умные Вещи",
+        "icon": "🔌",
+        "description": "IoT устройства и умный дом"
+    },
+    "wardrobe": {
+        "name": "Мой Гардероб",
+        "icon": "👔",
+        "description": "Одежда, обувь и аксессуары"
+    },
+    "garage": {
+        "name": "Мой Гараж",
+        "icon": "🚗",
+        "description": "Транспорт, инструменты и запчасти"
+    },
+    "home": {
+        "name": "Мой Дом",
+        "icon": "🏠",
+        "description": "Мебель, техника и декор"
+    },
+    "electronics": {
+        "name": "Моя Электроника",
+        "icon": "💻",
+        "description": "Телефоны, компьютеры и гаджеты"
+    },
+    "collection": {
+        "name": "Моя Коллекция",
+        "icon": "🎨",
+        "description": "Коллекционные предметы и хобби"
+    }
+}
+
+# === MARKETPLACE API ENDPOINTS ===
+
+@api_router.get("/marketplace/categories")
+async def get_marketplace_categories():
+    """Get all marketplace categories with subcategories"""
+    return {"categories": MARKETPLACE_CATEGORIES}
+
+@api_router.get("/marketplace/inventory-categories")
+async def get_inventory_categories():
+    """Get all inventory (My Things) categories"""
+    return {"categories": INVENTORY_CATEGORIES}
+
+@api_router.post("/marketplace/products")
+async def create_marketplace_product(
+    product_data: MarketplaceProductCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new marketplace product listing"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Get user info
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check if user has family setup (required for individual sellers)
+        if not product_data.organization_id:
+            family = await db.families.find_one({"owner_user_id": user_id}, {"_id": 0})
+            if not family:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="Для продажи необходимо создать семейный профиль в разделе СЕМЬЯ"
+                )
+        
+        # Determine seller type
+        seller_type = SellerType.ORGANIZATION if product_data.organization_id else SellerType.INDIVIDUAL
+        
+        # If organization, verify membership
+        if product_data.organization_id:
+            org = await db.organizations.find_one({"id": product_data.organization_id}, {"_id": 0})
+            if not org:
+                raise HTTPException(status_code=404, detail="Organization not found")
+            # Check if user is member
+            is_member = any(m.get("user_id") == user_id for m in org.get("members", []))
+            if org.get("owner_id") != user_id and not is_member:
+                raise HTTPException(status_code=403, detail="Not a member of this organization")
+        
+        product = MarketplaceProduct(
+            seller_id=user_id,
+            seller_type=seller_type,
+            organization_id=product_data.organization_id,
+            title=product_data.title,
+            description=product_data.description,
+            category=product_data.category,
+            subcategory=product_data.subcategory,
+            price=product_data.price,
+            currency=product_data.currency,
+            negotiable=product_data.negotiable,
+            condition=product_data.condition,
+            city=product_data.city or user.get("city"),
+            address=product_data.address,
+            latitude=product_data.latitude,
+            longitude=product_data.longitude,
+            images=product_data.images,
+            contact_phone=product_data.contact_phone or user.get("phone"),
+            contact_method=product_data.contact_method,
+            tags=product_data.tags
+        )
+        
+        await db.marketplace_products.insert_one(product.dict())
+        
+        return {"success": True, "product": product.dict()}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating product: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/marketplace/products")
+async def get_marketplace_products(
+    search: Optional[str] = None,
+    category: Optional[str] = None,
+    subcategory: Optional[str] = None,
+    city: Optional[str] = None,
+    condition: Optional[ProductCondition] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    seller_type: Optional[SellerType] = None,
+    sort_by: str = "newest",  # newest, price_asc, price_desc, popular
+    skip: int = 0,
+    limit: int = 20
+):
+    """Get marketplace products with filters"""
+    try:
+        query = {"status": ProductStatus.ACTIVE}
+        
+        if search:
+            query["$or"] = [
+                {"title": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}},
+                {"tags": {"$in": [search.lower()]}}
+            ]
+        
+        if category:
+            query["category"] = category
+        if subcategory:
+            query["subcategory"] = subcategory
+        if city:
+            query["city"] = {"$regex": city, "$options": "i"}
+        if condition:
+            query["condition"] = condition
+        if seller_type:
+            query["seller_type"] = seller_type
+        if min_price is not None:
+            query["price"] = query.get("price", {})
+            query["price"]["$gte"] = min_price
+        if max_price is not None:
+            query["price"] = query.get("price", {})
+            query["price"]["$lte"] = max_price
+        
+        # Sorting
+        sort = [("created_at", -1)]  # Default: newest
+        if sort_by == "price_asc":
+            sort = [("price", 1)]
+        elif sort_by == "price_desc":
+            sort = [("price", -1)]
+        elif sort_by == "popular":
+            sort = [("view_count", -1)]
+        
+        products = await db.marketplace_products.find(query, {"_id": 0}).sort(sort).skip(skip).limit(limit).to_list(limit)
+        total = await db.marketplace_products.count_documents(query)
+        
+        # Enrich with seller info
+        for product in products:
+            seller = await db.users.find_one({"id": product["seller_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+            if seller:
+                product["seller_name"] = f"{seller.get('first_name', '')} {seller.get('last_name', '')}".strip()
+                product["seller_avatar"] = seller.get("profile_picture")
+            
+            if product.get("organization_id"):
+                org = await db.organizations.find_one({"id": product["organization_id"]}, {"_id": 0, "name": 1, "logo": 1})
+                if org:
+                    product["organization_name"] = org.get("name")
+                    product["organization_logo"] = org.get("logo")
+        
+        return {"products": products, "total": total}
+        
+    except Exception as e:
+        logger.error(f"Error fetching products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/marketplace/products/{product_id}")
+async def get_marketplace_product(product_id: str):
+    """Get a single marketplace product by ID"""
+    try:
+        product = await db.marketplace_products.find_one({"id": product_id}, {"_id": 0})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # Increment view count
+        await db.marketplace_products.update_one(
+            {"id": product_id},
+            {"$inc": {"view_count": 1}}
+        )
+        
+        # Enrich with seller info
+        seller = await db.users.find_one({"id": product["seller_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1, "phone": 1})
+        if seller:
+            product["seller_name"] = f"{seller.get('first_name', '')} {seller.get('last_name', '')}".strip()
+            product["seller_avatar"] = seller.get("profile_picture")
+        
+        if product.get("organization_id"):
+            org = await db.organizations.find_one({"id": product["organization_id"]}, {"_id": 0, "name": 1, "logo": 1})
+            if org:
+                product["organization_name"] = org.get("name")
+                product["organization_logo"] = org.get("logo")
+        
+        return product
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching product: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/marketplace/products/{product_id}")
+async def update_marketplace_product(
+    product_id: str,
+    update_data: MarketplaceProductUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update a marketplace product"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        product = await db.marketplace_products.find_one({"id": product_id})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        if product["seller_id"] != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to update this product")
+        
+        update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+        update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        await db.marketplace_products.update_one(
+            {"id": product_id},
+            {"$set": update_dict}
+        )
+        
+        updated = await db.marketplace_products.find_one({"id": product_id}, {"_id": 0})
+        return {"success": True, "product": updated}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating product: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/marketplace/products/{product_id}")
+async def delete_marketplace_product(
+    product_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete a marketplace product"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        product = await db.marketplace_products.find_one({"id": product_id})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        if product["seller_id"] != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to delete this product")
+        
+        await db.marketplace_products.delete_one({"id": product_id})
+        
+        # Also remove from favorites
+        await db.marketplace_favorites.delete_many({"product_id": product_id})
+        
+        return {"success": True}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting product: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/marketplace/my-products")
+async def get_my_marketplace_products(
+    status: Optional[ProductStatus] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get current user's marketplace products"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        query = {"seller_id": user_id}
+        if status:
+            query["status"] = status
+        
+        products = await db.marketplace_products.find(query, {"_id": 0}).sort("created_at", -1).to_list(100)
+        
+        return {"products": products}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error fetching my products: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Favorites
+@api_router.post("/marketplace/favorites/{product_id}")
+async def toggle_favorite(
+    product_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Toggle favorite status for a product"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if product exists
+        product = await db.marketplace_products.find_one({"id": product_id})
+        if not product:
+            raise HTTPException(status_code=404, detail="Product not found")
+        
+        # Check existing favorite
+        existing = await db.marketplace_favorites.find_one({"user_id": user_id, "product_id": product_id})
+        
+        if existing:
+            # Remove favorite
+            await db.marketplace_favorites.delete_one({"id": existing["id"]})
+            await db.marketplace_products.update_one({"id": product_id}, {"$inc": {"favorite_count": -1}})
+            return {"success": True, "is_favorite": False}
+        else:
+            # Add favorite
+            favorite = MarketplaceFavorite(user_id=user_id, product_id=product_id)
+            await db.marketplace_favorites.insert_one(favorite.dict())
+            await db.marketplace_products.update_one({"id": product_id}, {"$inc": {"favorite_count": 1}})
+            return {"success": True, "is_favorite": True}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error toggling favorite: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/marketplace/favorites")
+async def get_favorites(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get user's favorite products"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        favorites = await db.marketplace_favorites.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+        
+        # Get product details
+        products = []
+        for fav in favorites:
+            product = await db.marketplace_products.find_one({"id": fav["product_id"]}, {"_id": 0})
+            if product:
+                product["favorited_at"] = fav["created_at"]
+                products.append(product)
+        
+        return {"products": products}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error fetching favorites: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# === INVENTORY (MY THINGS) API ENDPOINTS ===
+
+@api_router.post("/inventory/items")
+async def create_inventory_item(
+    item_data: InventoryItemCreate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new inventory item"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        item = InventoryItem(
+            user_id=user_id,
+            **item_data.dict()
+        )
+        
+        await db.inventory_items.insert_one(item.dict())
+        
+        return {"success": True, "item": item.dict()}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error creating inventory item: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/inventory/items")
+async def get_inventory_items(
+    category: Optional[InventoryCategory] = None,
+    search: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get user's inventory items"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        query = {"user_id": user_id}
+        
+        if category:
+            query["category"] = category
+        
+        if search:
+            query["$or"] = [
+                {"name": {"$regex": search, "$options": "i"}},
+                {"description": {"$regex": search, "$options": "i"}},
+                {"brand": {"$regex": search, "$options": "i"}},
+                {"model": {"$regex": search, "$options": "i"}}
+            ]
+        
+        items = await db.inventory_items.find(query, {"_id": 0}).sort("created_at", -1).to_list(500)
+        
+        # Get summary by category
+        pipeline = [
+            {"$match": {"user_id": user_id}},
+            {"$group": {
+                "_id": "$category",
+                "count": {"$sum": 1},
+                "total_value": {"$sum": {"$ifNull": ["$current_value", 0]}}
+            }}
+        ]
+        summary = await db.inventory_items.aggregate(pipeline).to_list(10)
+        
+        return {"items": items, "summary": summary}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error fetching inventory: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/inventory/items/{item_id}")
+async def get_inventory_item(
+    item_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get a single inventory item"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        item = await db.inventory_items.find_one({"id": item_id, "user_id": user_id}, {"_id": 0})
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        return item
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching inventory item: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/inventory/items/{item_id}")
+async def update_inventory_item(
+    item_id: str,
+    update_data: InventoryItemUpdate,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update an inventory item"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        item = await db.inventory_items.find_one({"id": item_id, "user_id": user_id})
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
+        update_dict["updated_at"] = datetime.now(timezone.utc).isoformat()
+        
+        await db.inventory_items.update_one(
+            {"id": item_id},
+            {"$set": update_dict}
+        )
+        
+        updated = await db.inventory_items.find_one({"id": item_id}, {"_id": 0})
+        return {"success": True, "item": updated}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating inventory item: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/inventory/items/{item_id}")
+async def delete_inventory_item(
+    item_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Delete an inventory item"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        item = await db.inventory_items.find_one({"id": item_id, "user_id": user_id})
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        await db.inventory_items.delete_one({"id": item_id})
+        
+        return {"success": True}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting inventory item: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/inventory/items/{item_id}/list-for-sale")
+async def list_item_for_sale(
+    item_id: str,
+    price: float,
+    description: Optional[str] = None,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """List an inventory item for sale on marketplace"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        item = await db.inventory_items.find_one({"id": item_id, "user_id": user_id}, {"_id": 0})
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        
+        if item.get("is_for_sale"):
+            raise HTTPException(status_code=400, detail="Item is already listed for sale")
+        
+        # Map inventory category to marketplace category
+        category_map = {
+            "smart_things": "electronics",
+            "wardrobe": "clothing",
+            "garage": "auto_moto",
+            "home": "home_garden",
+            "electronics": "electronics",
+            "collection": "books_hobbies"
+        }
+        
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        
+        # Create marketplace listing
+        product = MarketplaceProduct(
+            seller_id=user_id,
+            seller_type=SellerType.INDIVIDUAL,
+            title=item["name"],
+            description=description or item.get("description", ""),
+            category=category_map.get(item["category"], "home_garden"),
+            price=price,
+            condition=ProductCondition.GOOD,
+            city=user.get("city") if user else None,
+            images=item.get("images", []),
+            tags=item.get("tags", [])
+        )
+        
+        await db.marketplace_products.insert_one(product.dict())
+        
+        # Update inventory item
+        await db.inventory_items.update_one(
+            {"id": item_id},
+            {"$set": {
+                "is_for_sale": True,
+                "marketplace_listing_id": product.id,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {"success": True, "product_id": product.id}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error listing item for sale: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/inventory/expiring-warranties")
+async def get_expiring_warranties(
+    days: int = 30,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get items with warranties expiring soon"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        cutoff_date = datetime.now(timezone.utc) + timedelta(days=days)
+        
+        items = await db.inventory_items.find({
+            "user_id": user_id,
+            "warranty_expires": {"$lte": cutoff_date.isoformat(), "$gte": datetime.now(timezone.utc).isoformat()}
+        }, {"_id": 0}).to_list(100)
+        
+        return {"items": items}
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Error fetching expiring warranties: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== END MARKETPLACE MODULE =====
+
 @api_router.get("/health")
 async def health_check():
     return {
