@@ -736,6 +736,87 @@ const GoodWillEventForm = ({
           </label>
         </div>
 
+        {/* Recurring Events */}
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          border: '1px solid #e2e8f0',
+          marginBottom: '20px'
+        }}>
+          <h4 style={{ margin: '0 0 16px 0', color: '#1e293b' }}>
+            <RefreshCw size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            Повторяющееся мероприятие
+          </h4>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={formData.is_recurring}
+                onChange={(e) => setFormData({ ...formData, is_recurring: e.target.checked })}
+                style={{ width: '18px', height: '18px', accentColor: moduleColor }}
+              />
+              Повторять это мероприятие
+            </label>
+          </div>
+
+          {formData.is_recurring && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Частота повторения</label>
+              <select
+                value={formData.recurrence_pattern}
+                onChange={(e) => setFormData({ ...formData, recurrence_pattern: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: '10px',
+                  fontSize: '15px',
+                  background: 'white'
+                }}
+              >
+                <option value="">Выберите частоту</option>
+                <option value="DAILY">Ежедневно</option>
+                <option value="WEEKLY">Еженедельно</option>
+                <option value="BIWEEKLY">Раз в две недели</option>
+                <option value="MONTHLY">Ежемесячно</option>
+              </select>
+            </div>
+          )}
+        </div>
+
+        {/* Co-Organizers */}
+        <div style={{
+          background: 'white',
+          borderRadius: '16px',
+          padding: '24px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          border: '1px solid #e2e8f0',
+          marginBottom: '20px'
+        }}>
+          <h4 style={{ margin: '0 0 16px 0', color: '#1e293b' }}>
+            <Users size={18} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+            Соорганизаторы (опционально)
+          </h4>
+          <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '12px' }}>
+            Соорганизаторы смогут управлять мероприятием вместе с вами
+          </p>
+          <div style={{
+            padding: '24px',
+            background: '#f8fafc',
+            borderRadius: '12px',
+            textAlign: 'center',
+            color: '#64748b'
+          }}>
+            <Users size={32} color="#cbd5e1" style={{ marginBottom: '8px' }} />
+            <p style={{ margin: 0, fontSize: '14px' }}>
+              Соорганизаторов можно добавить после создания мероприятия
+            </p>
+          </div>
+        </div>
+
         {/* Tickets */}
         <div style={{
           background: 'white',
