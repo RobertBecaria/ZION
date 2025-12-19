@@ -19071,6 +19071,8 @@ class ServiceListingUpdate(BaseModel):
     price_from: Optional[float] = None
     price_to: Optional[float] = None
     price_type: Optional[str] = None
+    altyn_price: Optional[float] = None  # Price in ALTYN COIN
+    accept_altyn: Optional[bool] = None  # Whether to accept ALTYN COIN payment
     address: Optional[str] = None
     city: Optional[str] = None
     latitude: Optional[float] = None
