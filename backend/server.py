@@ -21636,6 +21636,113 @@ async def pay_for_product(
         logger.error(f"Error processing payment: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+class ServicePaymentRequest(BaseModel):
+    """Request to pay for a service booking"""
+    service_id: str
+    booking_id: Optional[str] = None
+    amount: float
+    description: Optional[str] = None
+
+@api_router.post("/finance/services/pay")
+async def pay_for_service(
+    request: ServicePaymentRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Pay for a service with ALTYN COINS"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        buyer_id = payload.get("sub")
+        
+        # Get service
+        service = await db.service_listings.find_one({"id": request.service_id}, {"_id": 0})
+        if not service:
+            raise HTTPException(status_code=404, detail="Service not found")
+        
+        # Check if service accepts ALTYN
+        if not service.get("accept_altyn"):
+            raise HTTPException(status_code=400, detail="This service does not accept ALTYN COIN payments")
+        
+        seller_id = service["owner_user_id"]
+        
+        if seller_id == buyer_id:
+            raise HTTPException(status_code=400, detail="Cannot pay for your own service")
+        
+        # Get wallets
+        buyer_wallet = await get_or_create_wallet(buyer_id)
+        seller_wallet = await get_or_create_wallet(seller_id)
+        treasury = await get_or_create_treasury()
+        
+        # Check balance
+        if buyer_wallet["coin_balance"] < request.amount:
+            raise HTTPException(status_code=400, detail="Insufficient ALTYN COIN balance")
+        
+        # Calculate fee (0.1%)
+        fee_amount = request.amount * TRANSACTION_FEE_RATE
+        net_amount = request.amount - fee_amount
+        
+        # Update balances
+        await db.wallets.update_one(
+            {"user_id": buyer_id},
+            {"$inc": {"coin_balance": -request.amount}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        await db.wallets.update_one(
+            {"user_id": seller_id},
+            {"$inc": {"coin_balance": net_amount}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        await db.wallets.update_one(
+            {"is_treasury": True},
+            {"$inc": {"coin_balance": fee_amount}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        # Record transaction
+        tx = Transaction(
+            from_wallet_id=buyer_wallet["id"],
+            to_wallet_id=seller_wallet["id"],
+            from_user_id=buyer_id,
+            to_user_id=seller_id,
+            amount=request.amount,
+            asset_type=AssetType.COIN,
+            transaction_type=TransactionType.PAYMENT,
+            fee_amount=fee_amount,
+            description=request.description or f"Payment for service: {service.get('name', 'Service')}"
+        )
+        tx_dict = tx.dict()
+        tx_dict["created_at"] = tx_dict["created_at"].isoformat()
+        tx_dict["service_id"] = request.service_id
+        if request.booking_id:
+            tx_dict["booking_id"] = request.booking_id
+        await db.transactions.insert_one(tx_dict)
+        
+        # Update booking if provided
+        if request.booking_id:
+            await db.service_bookings.update_one(
+                {"id": request.booking_id},
+                {"$set": {"payment_status": "PAID", "payment_transaction_id": tx.id, "paid_at": datetime.now(timezone.utc).isoformat()}}
+            )
+        
+        return {
+            "success": True,
+            "payment": {
+                "transaction_id": tx.id,
+                "amount": request.amount,
+                "fee": fee_amount,
+                "seller_received": net_amount,
+                "service_name": service.get("name")
+            }
+        }
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error processing service payment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @api_router.post("/finance/corporate-wallet")
 async def create_corporate_wallet(
     organization_id: str,
