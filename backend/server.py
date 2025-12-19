@@ -23453,6 +23453,428 @@ async def toggle_favorite_event(
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
 
+# --- Event Reviews ---
+
+@api_router.post("/goodwill/events/{event_id}/reviews")
+async def add_event_review(
+    event_id: str,
+    request: AddReviewRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add a review to an event (only after attending)"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user attended the event
+        attendance = await db.event_attendees.find_one({
+            "event_id": event_id, 
+            "user_id": user_id,
+            "status": "GOING"
+        })
+        if not attendance:
+            raise HTTPException(status_code=403, detail="You must attend the event to review it")
+        
+        # Check if already reviewed
+        existing = await db.event_reviews.find_one({"event_id": event_id, "user_id": user_id})
+        if existing:
+            raise HTTPException(status_code=400, detail="You already reviewed this event")
+        
+        review = EventReview(
+            event_id=event_id,
+            user_id=user_id,
+            rating=max(1, min(5, request.rating)),
+            comment=request.comment
+        )
+        review_dict = review.dict()
+        review_dict["created_at"] = review_dict["created_at"].isoformat()
+        
+        await db.event_reviews.insert_one(review_dict)
+        
+        # Update event stats
+        all_reviews = await db.event_reviews.find({"event_id": event_id}, {"_id": 0, "rating": 1}).to_list(1000)
+        avg_rating = sum(r["rating"] for r in all_reviews) / len(all_reviews) if all_reviews else 0
+        
+        await db.goodwill_events.update_one(
+            {"id": event_id},
+            {"$set": {"reviews_count": len(all_reviews), "average_rating": round(avg_rating, 1)}}
+        )
+        
+        review_dict.pop("_id", None)
+        return {"success": True, "review": review_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/goodwill/events/{event_id}/reviews")
+async def get_event_reviews(event_id: str, limit: int = 20, offset: int = 0):
+    """Get reviews for an event"""
+    reviews = await db.event_reviews.find(
+        {"event_id": event_id}, {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    # Enrich with user info
+    for review in reviews:
+        user = await db.users.find_one({"id": review["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+        review["user"] = user
+    
+    return {"reviews": reviews}
+
+# --- Event Photo Gallery ---
+
+@api_router.post("/goodwill/events/{event_id}/photos")
+async def add_event_photo(
+    event_id: str,
+    request: AddPhotoRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add a photo to event gallery (attendees only)"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user attended
+        attendance = await db.event_attendees.find_one({
+            "event_id": event_id,
+            "user_id": user_id,
+            "status": "GOING"
+        })
+        if not attendance:
+            raise HTTPException(status_code=403, detail="Only attendees can add photos")
+        
+        photo = EventPhoto(
+            event_id=event_id,
+            user_id=user_id,
+            photo_url=request.photo_url,
+            caption=request.caption
+        )
+        photo_dict = photo.dict()
+        photo_dict["created_at"] = photo_dict["created_at"].isoformat()
+        
+        await db.event_photos.insert_one(photo_dict)
+        
+        # Update photo count
+        await db.goodwill_events.update_one(
+            {"id": event_id},
+            {"$inc": {"photos_count": 1}}
+        )
+        
+        photo_dict.pop("_id", None)
+        return {"success": True, "photo": photo_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/events/{event_id}/photos")
+async def get_event_photos(event_id: str, limit: int = 50, offset: int = 0):
+    """Get photos from event gallery"""
+    photos = await db.event_photos.find(
+        {"event_id": event_id}, {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+    
+    for photo in photos:
+        user = await db.users.find_one({"id": photo["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+        photo["user"] = user
+    
+    return {"photos": photos}
+
+# --- Event Chat ---
+
+@api_router.post("/goodwill/events/{event_id}/chat")
+async def send_chat_message(
+    event_id: str,
+    request: EventChatRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Send a message in event chat (attendees only)"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user is attendee or organizer
+        attendance = await db.event_attendees.find_one({
+            "event_id": event_id,
+            "user_id": user_id
+        })
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0})
+        
+        is_organizer = organizer and organizer.get("user_id") == user_id
+        is_co_organizer = user_id in event.get("co_organizer_ids", [])
+        
+        if not attendance and not is_organizer and not is_co_organizer:
+            raise HTTPException(status_code=403, detail="Only participants can chat")
+        
+        message = EventChatMessage(
+            event_id=event_id,
+            user_id=user_id,
+            message=request.message
+        )
+        msg_dict = message.dict()
+        msg_dict["created_at"] = msg_dict["created_at"].isoformat()
+        
+        await db.event_chat.insert_one(msg_dict)
+        
+        msg_dict.pop("_id", None)
+        
+        # Get user info
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+        msg_dict["user"] = user
+        
+        return {"success": True, "message": msg_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/events/{event_id}/chat")
+async def get_chat_messages(
+    event_id: str,
+    limit: int = 50,
+    offset: int = 0,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get chat messages for an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        messages = await db.event_chat.find(
+            {"event_id": event_id}, {"_id": 0}
+        ).sort("created_at", 1).skip(offset).limit(limit).to_list(limit)
+        
+        for msg in messages:
+            user = await db.users.find_one({"id": msg["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+            msg["user"] = user
+        
+        return {"messages": messages}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- Event Sharing ---
+
+@api_router.post("/goodwill/events/{event_id}/share")
+async def share_event_to_feed(
+    event_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Share an event to user's feed"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Create a post about the event
+        post = {
+            "id": str(uuid.uuid4()),
+            "author_id": user_id,
+            "content": f"🎉 Приглашаю на мероприятие!\n\n📌 {event['title']}\n📅 {event['start_date'][:10]}\n📍 {event.get('city', 'Онлайн')}",
+            "source_module": "community",
+            "visibility": "PUBLIC",
+            "shared_event_id": event_id,
+            "likes_count": 0,
+            "comments_count": 0,
+            "reactions": {},
+            "youtube_urls": [],
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.posts.insert_one(post)
+        post.pop("_id", None)
+        
+        return {"success": True, "post": post, "share_url": f"/events/{event_id}"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- Event Reminders ---
+
+@api_router.post("/goodwill/events/{event_id}/reminder")
+async def set_event_reminder(
+    event_id: str,
+    hours_before: int = 24,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Set a reminder for an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        reminder = {
+            "id": str(uuid.uuid4()),
+            "event_id": event_id,
+            "user_id": user_id,
+            "hours_before": hours_before,
+            "remind_at": (datetime.fromisoformat(event["start_date"].replace("Z", "+00:00")) - timedelta(hours=hours_before)).isoformat(),
+            "is_sent": False,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        # Remove existing reminder for this event/user
+        await db.event_reminders.delete_many({"event_id": event_id, "user_id": user_id})
+        await db.event_reminders.insert_one(reminder)
+        
+        return {"success": True, "reminder": {"remind_at": reminder["remind_at"], "hours_before": hours_before}}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.delete("/goodwill/events/{event_id}/reminder")
+async def remove_event_reminder(
+    event_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Remove a reminder for an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        await db.event_reminders.delete_many({"event_id": event_id, "user_id": user_id})
+        
+        return {"success": True}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- QR Check-in ---
+
+@api_router.get("/goodwill/events/{event_id}/qr-code")
+async def get_event_qr_code(
+    event_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get QR code for event check-in (organizer only)"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Check if organizer
+        organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0})
+        if not organizer or (organizer.get("user_id") != user_id and user_id not in event.get("co_organizer_ids", [])):
+            raise HTTPException(status_code=403, detail="Only organizers can access QR code")
+        
+        # Generate or get existing checkin code
+        checkin_code = event.get("checkin_code")
+        if not checkin_code:
+            checkin_code = f"EVT-{event_id[:8].upper()}-{str(uuid.uuid4())[:4].upper()}"
+            await db.goodwill_events.update_one({"id": event_id}, {"$set": {"checkin_code": checkin_code}})
+        
+        # Return QR data (frontend will generate QR image)
+        return {
+            "success": True,
+            "checkin_code": checkin_code,
+            "qr_data": f"goodwill://checkin/{event_id}/{checkin_code}",
+            "event_title": event["title"]
+        }
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.post("/goodwill/events/checkin")
+async def checkin_to_event(
+    checkin_code: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Check in to an event using QR code"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"checkin_code": checkin_code}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Invalid check-in code")
+        
+        # Check if user is registered
+        attendance = await db.event_attendees.find_one({
+            "event_id": event["id"],
+            "user_id": user_id
+        })
+        
+        if not attendance:
+            raise HTTPException(status_code=400, detail="You are not registered for this event")
+        
+        # Update attendance with check-in time
+        await db.event_attendees.update_one(
+            {"event_id": event["id"], "user_id": user_id},
+            {"$set": {"checked_in_at": datetime.now(timezone.utc).isoformat()}}
+        )
+        
+        return {"success": True, "message": "Check-in successful!", "event_title": event["title"]}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- Co-organizers ---
+
+@api_router.post("/goodwill/events/{event_id}/co-organizers")
+async def add_co_organizer(
+    event_id: str,
+    user_id_to_add: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Add a co-organizer to an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Check if main organizer
+        organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0})
+        if not organizer or organizer.get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Only main organizer can add co-organizers")
+        
+        co_organizers = event.get("co_organizer_ids", [])
+        if user_id_to_add not in co_organizers:
+            co_organizers.append(user_id_to_add)
+            await db.goodwill_events.update_one(
+                {"id": event_id},
+                {"$set": {"co_organizer_ids": co_organizers}}
+            )
+        
+        return {"success": True, "co_organizer_ids": co_organizers}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.delete("/goodwill/events/{event_id}/co-organizers/{co_organizer_id}")
+async def remove_co_organizer(
+    event_id: str,
+    co_organizer_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Remove a co-organizer from an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0})
+        if not organizer or organizer.get("user_id") != user_id:
+            raise HTTPException(status_code=403, detail="Only main organizer can remove co-organizers")
+        
+        co_organizers = event.get("co_organizer_ids", [])
+        if co_organizer_id in co_organizers:
+            co_organizers.remove(co_organizer_id)
+            await db.goodwill_events.update_one(
+                {"id": event_id},
+                {"$set": {"co_organizer_ids": co_organizers}}
+            )
+        
+        return {"success": True, "co_organizer_ids": co_organizers}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
 
 
 # Include the router in the main app
