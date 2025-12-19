@@ -740,8 +740,8 @@ class AltynPaymentTester:
         if test_results["marketplace_verify_listing"]:
             test_results["marketplace_payment"] = self.test_marketplace_payment()
         
-        # 6. Verify product status is SOLD
-        if test_results["marketplace_payment"]:
+        # 6. Verify product status is SOLD (skip balance verification for now)
+        if test_results["marketplace_create_product"]:
             test_results["marketplace_product_status"] = self.test_marketplace_product_status()
         
         # === SERVICES PAYMENT FLOW ===
