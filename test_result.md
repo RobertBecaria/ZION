@@ -279,6 +279,18 @@ frontend:
         agent: "testing"
         comment: "Infinite scroll 33% success. Messages container found but loading indicator and load hint not appearing when scrolling to top. May indicate no more messages to load or loading mechanism not triggering properly."
 
+  - task: "Clickable Events Feature in News Module"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/NewsEventsPanel.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE UI TESTING 100% SUCCESS: All clickable events functionality working perfectly. Login successful with admin@test.com, News module navigation working, Events panel (СОБЫТИЯ) visible in right sidebar, found 3 clickable creator names with proper hover effects (gray background, underline, link icon), navigation to user profile working correctly, profile displays user info and statistics, back navigation working. Fixed minor React hooks issue. Feature fully functional and production-ready."
+
 metadata:
   created_by: "testing_agent"
   version: "1.2"
