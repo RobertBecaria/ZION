@@ -34,6 +34,7 @@ function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnno
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchDepartments();
   }, [organizationId]);
 
