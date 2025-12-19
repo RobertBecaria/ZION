@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, X, Edit2, Save } from 'lucide-react';
 
 const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {

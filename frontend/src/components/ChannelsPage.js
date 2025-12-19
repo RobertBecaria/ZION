@@ -2,7 +2,7 @@
  * ChannelsPage Component
  * News channels listing and management
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Tv, Plus, Search, Users, Hash, Check, Bell, 
   ChevronRight, Star, Building2, Globe, Lock

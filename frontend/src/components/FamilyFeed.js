@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { MessageSquare, Users, Home, Globe, Clock } from 'lucide-react';
 
 const FamilyFeed = ({ familyUnitId, refreshTrigger }) => {
