@@ -136,11 +136,11 @@ const ServicesSearch = ({
 
   // Generate coordinates for listings (demo purposes)
   const listingsForMap = useMemo(() => {
-    return listings.map((listing, index) => {
+    return listings.map((listing) => {
       if (listing.latitude && listing.longitude) {
         return listing;
       }
-      // Generate coordinates around Moscow for demo
+      // Generate coordinates around map center for demo
       const baseLatitude = mapCenter[0] || 55.7558;
       const baseLongitude = mapCenter[1] || 37.6173;
       const offset = 0.02;
@@ -151,107 +151,6 @@ const ServicesSearch = ({
       };
     });
   }, [listings, mapCenter]);
-
-  // Initialize 2GIS Map
-  useEffect(() => {
-    if (viewMode !== 'map' || !mapContainerRef.current) return;
-
-    let map = null;
-
-    const initMap = async () => {
-      try {
-        // Load 2GIS MapGL API
-        const mapglAPI = await load();
-        mapglAPIRef.current = mapglAPI;
-
-        // Create map instance
-        map = new mapglAPI.Map(mapContainerRef.current, {
-          center: [mapCenter[1], mapCenter[0]], // 2GIS uses [lng, lat]
-          zoom: 13,
-          key: '4e76a044-3c62-4710-8ee6-a846c68fd68b', // Demo key for 2GIS
-        });
-
-        mapInstanceRef.current = map;
-
-        // Add markers for listings
-        addMarkers(mapglAPI, map);
-
-        // Add user location marker if available
-        if (userLocation) {
-          new mapglAPI.Marker(map, {
-            coordinates: [userLocation[1], userLocation[0]],
-            icon: 'https://docs.2gis.com/img/mapgl/marker.svg',
-          });
-        }
-
-      } catch (error) {
-        console.error('Error initializing 2GIS map:', error);
-      }
-    };
-
-    initMap();
-
-    // Cleanup
-    return () => {
-      if (markersRef.current) {
-        markersRef.current.forEach(marker => marker.destroy());
-        markersRef.current = [];
-      }
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.destroy();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, [viewMode, mapCenter, userLocation]);
-
-  // Update markers when listings change
-  useEffect(() => {
-    if (viewMode !== 'map' || !mapInstanceRef.current || !mapglAPIRef.current) return;
-    
-    addMarkers(mapglAPIRef.current, mapInstanceRef.current);
-  }, [listingsForMap, viewMode]);
-
-  const addMarkers = (mapglAPI, map) => {
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.destroy());
-    markersRef.current = [];
-
-    // Add new markers
-    listingsForMap.forEach((listing, index) => {
-      if (!listing.latitude || !listing.longitude) return;
-
-      const marker = new mapglAPI.Marker(map, {
-        coordinates: [listing.longitude, listing.latitude],
-        label: {
-          text: listing.name.substring(0, 20),
-          offset: [0, -60],
-          relativeAnchor: [0.5, 0],
-        },
-      });
-
-      marker.on('click', () => {
-        setSelectedMapListing(listing);
-        
-        // Show popup
-        const popup = new mapglAPI.HtmlMarker(map, {
-          coordinates: [listing.longitude, listing.latitude],
-          html: `
-            <div class="gis-popup">
-              <h4>${listing.name}</h4>
-              <p class="popup-org">${listing.organization_name || ''}</p>
-              <p class="popup-rating">⭐ ${listing.rating?.toFixed(1) || '0.0'}</p>
-              ${listing.price_from ? `<p class="popup-price">от ${listing.price_from.toLocaleString()} ₽</p>` : ''}
-            </div>
-          `,
-        });
-
-        // Remove popup after 5 seconds
-        setTimeout(() => popup.destroy(), 5000);
-      });
-
-      markersRef.current.push(marker);
-    });
-  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -267,18 +166,15 @@ const ServicesSearch = ({
   };
 
   const handleLocateMe = () => {
-    if (userLocation && mapInstanceRef.current) {
-      mapInstanceRef.current.setCenter([userLocation[1], userLocation[0]]);
-      mapInstanceRef.current.setZoom(15);
-    } else if (navigator.geolocation) {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
           setUserLocation([latitude, longitude]);
-          if (mapInstanceRef.current) {
-            mapInstanceRef.current.setCenter([longitude, latitude]);
-            mapInstanceRef.current.setZoom(15);
-          }
+          setMapCenter([latitude, longitude]);
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
         }
       );
     }
@@ -286,10 +182,6 @@ const ServicesSearch = ({
 
   const handleSidebarItemClick = (listing) => {
     setSelectedMapListing(listing);
-    if (mapInstanceRef.current && listing.latitude && listing.longitude) {
-      mapInstanceRef.current.setCenter([listing.longitude, listing.latitude]);
-      mapInstanceRef.current.setZoom(16);
-    }
   };
 
   return (
