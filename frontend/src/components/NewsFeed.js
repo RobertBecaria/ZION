@@ -97,10 +97,11 @@ const NewsFeed = ({
     }
   }, [BACKEND_URL, channelId, offset]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadPosts(true);
   }, [channelId]);
-     
+
 
   // Handle image selection
   const handleImageSelect = (e) => {
