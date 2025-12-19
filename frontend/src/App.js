@@ -1307,6 +1307,7 @@ function Dashboard() {
                                 token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 onBack={() => setActiveView('goodwill-search')}
+                                currentUser={user}
                               />
                             )}
                             
