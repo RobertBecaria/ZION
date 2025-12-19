@@ -312,11 +312,15 @@ class GoodWillTester:
             response = self.session.get(f"{BACKEND_URL}/goodwill/calendar?month=12&year=2025")
             
             if response.status_code == 200:
-                calendar_data = response.json()
+                data = response.json()
+                calendar_data = data.get('calendar', {})
+                month = data.get('month')
+                year = data.get('year')
+                
                 if isinstance(calendar_data, dict):
-                    total_events = sum(len(events) for events in calendar_data.values())
+                    total_events = sum(len(events) for events in calendar_data.values() if isinstance(events, list))
                     self.log_result("Calendar API", True, 
-                                  f"Calendar data retrieved for December 2025, {total_events} events found")
+                                  f"Calendar data retrieved for {month}/{year}, {total_events} events found across {len(calendar_data)} dates")
                 else:
                     self.log_result("Calendar API", False, error="Invalid calendar response format")
             else:
