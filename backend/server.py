@@ -3118,6 +3118,20 @@ def extract_youtube_urls(text: str) -> List[str]:
     
     return list(set(urls))  # Remove duplicates
 
+def extract_youtube_id_from_url(url: str) -> Optional[str]:
+    """Extract YouTube video ID from a URL"""
+    youtube_patterns = [
+        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([a-zA-Z0-9_-]+)',
+        r'(?:https?://)?(?:www\.)?youtu\.be/([a-zA-Z0-9_-]+)',
+        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([a-zA-Z0-9_-]+)'
+    ]
+    
+    for pattern in youtube_patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+    return None
+
 def get_file_type(mime_type: str) -> str:
     """Determine file type based on MIME type"""
     if mime_type in ALLOWED_IMAGE_TYPES:
