@@ -18995,6 +18995,8 @@ class ServiceListing(BaseModel):
     price_to: Optional[float] = None
     price_type: str = "fixed"  # "fixed", "hourly", "from", "negotiable"
     currency: str = "RUB"
+    altyn_price: Optional[float] = None  # Price in ALTYN COIN
+    accept_altyn: bool = False  # Whether to accept ALTYN COIN payment
     
     # Location
     address: Optional[str] = None
