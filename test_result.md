@@ -223,11 +223,11 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Login and Navigate to Finance Module"
-    - "Balance Cards Display"
-    - "Navigation Tabs Functionality"
-    - "Send Modal Functionality"
-    - "Admin Panel Access and Features"
+    - "Marketplace Product Creation with ALTYN"
+    - "Marketplace ALTYN Payment Flow"
+    - "Services Listing Creation with ALTYN"
+    - "Services ALTYN Payment Flow"
+    - "Receipt Generation and Validation"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
