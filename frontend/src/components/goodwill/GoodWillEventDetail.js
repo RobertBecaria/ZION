@@ -1451,15 +1451,26 @@ const GoodWillEventDetail = ({
               background: '#f8fafc',
               borderRadius: '16px',
               padding: '24px',
-              marginBottom: '16px'
+              marginBottom: '16px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
             }}>
-              <QrCode size={120} color={moduleColor} style={{ marginBottom: '12px' }} />
+              {qrCode.qr_image ? (
+                <img 
+                  src={qrCode.qr_image} 
+                  alt="QR Code" 
+                  style={{ width: '200px', height: '200px', marginBottom: '12px' }}
+                />
+              ) : (
+                <QrCode size={120} color={moduleColor} style={{ marginBottom: '12px' }} />
+              )}
               <p style={{ margin: 0, fontSize: '14px', color: '#64748b' }}>
                 Код мероприятия: <strong>{qrCode.checkin_code}</strong>
               </p>
             </div>
             <p style={{ margin: '0 0 16px 0', fontSize: '13px', color: '#64748b' }}>
-              Покажите этот код участникам для отметки на входе
+              Покажите этот QR-код участникам для отметки на входе
             </p>
             <button
               onClick={() => setShowQRModal(false)}
