@@ -34,6 +34,7 @@ export const useLightbox = () => {
   };
 
   // Keyboard event handlers
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (lightboxImage) {
