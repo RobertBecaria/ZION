@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   ArrowLeft, Star, MapPin, Phone, Mail, Globe, Clock,
-  Calendar, MessageCircle, Share2, Heart, ChevronRight
+  Calendar, MessageCircle, Share2, Heart, ChevronRight, Coins, Wallet, CheckCircle, X, AlertCircle
 } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
