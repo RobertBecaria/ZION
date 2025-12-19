@@ -3,7 +3,7 @@
  * Displays a product card in the marketplace
  */
 import React from 'react';
-import { Heart, MapPin, Eye, Clock, Building2, User } from 'lucide-react';
+import { Heart, MapPin, Eye, Clock, Building2, User, Coins } from 'lucide-react';
 
 const CONDITION_LABELS = {
   new: 'Новый',
