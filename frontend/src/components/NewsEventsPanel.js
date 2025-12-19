@@ -74,8 +74,7 @@ const NewsEventsPanel = ({
 
   useEffect(() => {
     fetchEvents();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId]);
+  }, [channelId, BACKEND_URL]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
