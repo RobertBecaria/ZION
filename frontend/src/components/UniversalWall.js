@@ -169,19 +169,6 @@ function UniversalWall({
     );
   }
 
-  // YouTube URL detection
-  const extractYouTubeId = (text) => {
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
-    ];
-    for (const pattern of patterns) {
-      const match = text.match(pattern);
-      if (match) return match[1];
-    }
-    return null;
-  };
-
   // Generic URL detection
   const extractUrl = (text) => {
     const urlPattern = /(https?:\/\/[^\s]+)/g;
@@ -201,8 +188,8 @@ function UniversalWall({
     const text = e.target.value;
     setNewPost(text);
     
-    // Detect YouTube
-    const youtubeId = extractYouTubeId(text);
+    // Detect YouTube (use existing extractYouTubeId function below)
+    const youtubeId = extractYouTubeIdFromText(text);
     if (youtubeId && youtubeId !== detectedYouTube) {
       setDetectedYouTube(youtubeId);
       setDetectedLink(null);
@@ -222,6 +209,19 @@ function UniversalWall({
         setLinkPreview(null);
       }
     }
+  };
+
+  // Extract YouTube ID from text (for post composer)
+  const extractYouTubeIdFromText = (text) => {
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/
+    ];
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
   };
 
   // Fetch link preview (simple client-side approach)
