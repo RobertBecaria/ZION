@@ -49,11 +49,7 @@ const NewsEventsPanel = ({
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-  useEffect(() => {
-    fetchEvents();
-  }, [channelId]);
-
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
@@ -74,7 +70,11 @@ const NewsEventsPanel = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [channelId, BACKEND_URL]);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
 
   const handleCreateEvent = async (e) => {
     e.preventDefault();
