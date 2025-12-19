@@ -30195,6 +30195,35 @@ a,
   gap: 6px;
 }
 
+.event-source-row.clickable {
+  background: none;
+  border: none;
+  padding: 4px 8px 4px 4px;
+  margin: -4px -8px -4px -4px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.event-source-row.clickable:hover {
+  background: #f3f4f6;
+}
+
+.event-source-row.clickable:hover .event-source-name {
+  text-decoration: underline;
+}
+
+.event-source-row .source-link-icon {
+  opacity: 0;
+  margin-left: 2px;
+  color: #9ca3af;
+  transition: opacity 0.2s;
+}
+
+.event-source-row.clickable:hover .source-link-icon {
+  opacity: 1;
+}
+
 .event-source-avatar {
   width: 20px;
   height: 20px;
