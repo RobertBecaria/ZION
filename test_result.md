@@ -180,6 +180,18 @@ backend:
         comment: "PHASE 3 BOOKING CALENDAR TESTING: Update booking status API 100% success. PUT /api/services/bookings/{booking_id}/status?new_status=CONFIRMED successfully updates booking status. Minor: Updated booking not returned in response but status update confirmed."
 
 frontend:
+  - task: "Enhanced Post Composer Feature"
+    implemented: true
+    working: true
+    file: "/app/frontend/src/components/UniversalWall.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: true
+        agent: "testing"
+        comment: "COMPREHENSIVE TESTING 100% SUCCESS: All Enhanced Post Composer features working perfectly. ✅ YouTube Video Embedding: Auto-detects YouTube URLs, shows iframe preview with correct video ID (dQw4w9WgXcQ), X button removes preview successfully. ✅ Link Preview: Auto-detects non-YouTube URLs, displays domain (github.com) and full URL, X button removes preview successfully. ✅ Combined Content: Text + YouTube URL works perfectly, preserves both text and video preview. ✅ Publishing: Posts publish successfully with embedded YouTube videos appearing in feed. ✅ Post Composer Modal: Opens via 'Что у Вас нового?' placeholder, all functionality accessible. Feature is production-ready and fully functional."
+
   - task: "ServiceBookingCalendar Component - Phase 3"
     implemented: true
     working: true
