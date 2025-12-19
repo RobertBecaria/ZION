@@ -4483,6 +4483,10 @@ async def create_family_with_members(
             
             await db.family_members.insert_one(family_member)
         
+        # Remove _id if present to avoid serialization issues
+        if "_id" in new_family:
+            del new_family["_id"]
+        
         return {
             "success": True,
             "family": new_family,
