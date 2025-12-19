@@ -29,7 +29,7 @@ const EventDetailsModal = React.memo(({ event, onClose, timeLeft, onRSVPUpdate }
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
         
         // Update local state
         const oldStatus = userRSVP;
