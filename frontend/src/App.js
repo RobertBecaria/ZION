@@ -1084,7 +1084,7 @@ function Dashboard() {
                             {(activeView === 'marketplace-search' || activeView === 'wall' || activeView === 'feed') && !selectedMarketplaceProduct && (
                               <MarketplaceSearch
                                 user={user}
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 onViewProduct={(product) => {
                                   setSelectedMarketplaceProduct(product);
@@ -1101,7 +1101,7 @@ function Dashboard() {
                             {activeView === 'marketplace-product-detail' && selectedMarketplaceProduct && (
                               <MarketplaceProductDetail
                                 productId={selectedMarketplaceProduct.id}
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 onBack={() => {
                                   setSelectedMarketplaceProduct(null);
@@ -1118,7 +1118,7 @@ function Dashboard() {
                             {activeView === 'marketplace-create-listing' && (
                               <MarketplaceListingForm
                                 user={user}
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 editProduct={editMarketplaceProduct}
                                 onBack={() => {
@@ -1135,7 +1135,7 @@ function Dashboard() {
                             {/* My Listings */}
                             {activeView === 'marketplace-my-listings' && (
                               <MyListings
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 onCreateNew={() => {
                                   setEditMarketplaceProduct(null);
@@ -1155,7 +1155,7 @@ function Dashboard() {
                             {/* Favorites */}
                             {activeView === 'marketplace-favorites' && (
                               <MarketplaceFavorites
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 onViewProduct={(product) => {
                                   setSelectedMarketplaceProduct(product);
@@ -1174,7 +1174,7 @@ function Dashboard() {
                               activeView === 'my-things-collection') && !editInventoryItem && !listForSaleItem && (
                               <MyThings
                                 user={user}
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 selectedCategory={
                                   activeView === 'my-things-smart' ? 'smart_things' :
@@ -1222,7 +1222,7 @@ function Dashboard() {
                             {/* Add/Edit Inventory Item */}
                             {activeView === 'my-things-add-item' && (
                               <MyThingsItemForm
-                                token={localStorage.getItem('token')}
+                                token={localStorage.getItem('zion_token')}
                                 moduleColor={currentModule.color}
                                 editItem={editInventoryItem}
                                 defaultCategory={selectedInventoryCategory}
