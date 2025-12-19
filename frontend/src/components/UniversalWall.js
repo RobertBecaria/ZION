@@ -948,12 +948,74 @@ function UniversalWall({
               {/* Enhanced Textarea */}
               <textarea
                 value={newPost}
-                onChange={(e) => setNewPost(e.target.value)}
-                placeholder="Что у Вас нового?"
+                onChange={handlePostTextChange}
+                placeholder="Что у Вас нового? Вставьте ссылку на YouTube или любой сайт для превью"
                 className="post-textarea"
                 rows="3"
                 autoFocus
               />
+              
+              {/* YouTube Preview */}
+              {detectedYouTube && (
+                <div className="youtube-preview">
+                  <div className="preview-header">
+                    <span className="preview-label">🎬 YouTube видео</span>
+                    <button 
+                      type="button" 
+                      className="remove-preview-btn"
+                      onClick={removeYouTubePreview}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="youtube-embed-container">
+                    <iframe
+                      src={`https://www.youtube.com/embed/${detectedYouTube}`}
+                      title="YouTube video"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="youtube-iframe"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Link Preview */}
+              {linkPreview && !detectedYouTube && (
+                <div className="link-preview">
+                  <div className="preview-header">
+                    <span className="preview-label">🔗 Ссылка</span>
+                    <button 
+                      type="button" 
+                      className="remove-preview-btn"
+                      onClick={removeLinkPreview}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <a 
+                    href={linkPreview.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="link-preview-card"
+                  >
+                    <div className="link-preview-content">
+                      <div className="link-domain">{linkPreview.domain}</div>
+                      <div className="link-url">{linkPreview.url}</div>
+                    </div>
+                    <div className="link-preview-icon">
+                      <Share2 size={20} />
+                    </div>
+                  </a>
+                </div>
+              )}
+              
+              {loadingLinkPreview && (
+                <div className="link-preview-loading">
+                  Загрузка превью...
+                </div>
+              )}
               
               {/* File Previews */}
               {selectedFiles.length > 0 && (
