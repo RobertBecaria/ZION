@@ -389,6 +389,9 @@ function UniversalWall({
         setNewPost('');
         setSelectedFiles([]);
         setUploadedMediaIds([]);
+        setDetectedYouTube(null);
+        setDetectedLink(null);
+        setLinkPreview(null);
         
         // Always refetch posts to ensure module consistency
         fetchPosts();
