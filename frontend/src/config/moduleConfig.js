@@ -41,7 +41,7 @@ export const MODULE_DEFAULT_VIEWS = {
   journal: 'wall',
   services: 'services-search',
   organizations: 'my-work',
-  marketplace: 'wall',
+  marketplace: 'marketplace-search',
   finance: 'wall',
   events: 'wall'
 };
