@@ -22266,6 +22266,1132 @@ async def health_check():
         "version": "1.0.0"
     }
 
+# ===== GOOD WILL MODULE - ДОБРАЯ ВОЛЯ (Events & Gatherings) =====
+
+class EventVisibility(str, Enum):
+    PUBLIC = "PUBLIC"  # Anyone can see
+    PRIVATE = "PRIVATE"  # Invite only
+    GROUP_ONLY = "GROUP_ONLY"  # Visible to group members only
+
+class EventStatus(str, Enum):
+    DRAFT = "DRAFT"
+    UPCOMING = "UPCOMING"
+    ONGOING = "ONGOING"
+    COMPLETED = "COMPLETED"
+    CANCELLED = "CANCELLED"
+
+class RSVPStatus(str, Enum):
+    GOING = "GOING"
+    MAYBE = "MAYBE"
+    NOT_GOING = "NOT_GOING"
+    WAITLIST = "WAITLIST"
+
+class OrganizerRole(str, Enum):
+    OWNER = "OWNER"
+    ADMIN = "ADMIN"
+    MODERATOR = "MODERATOR"
+    HELPER = "HELPER"
+
+# Predefined Interest Categories
+INTEREST_CATEGORIES = [
+    {"id": "volunteering", "name": "Волонтёрство", "icon": "🤝", "color": "#10B981"},
+    {"id": "car_clubs", "name": "Автоклубы", "icon": "🚗", "color": "#EF4444"},
+    {"id": "sports", "name": "Спорт и Фитнес", "icon": "🏃", "color": "#3B82F6"},
+    {"id": "art", "name": "Творчество", "icon": "🎨", "color": "#8B5CF6"},
+    {"id": "ecology", "name": "Экология", "icon": "🌿", "color": "#22C55E"},
+    {"id": "family", "name": "Семейные", "icon": "👨‍👩‍👧‍👦", "color": "#F59E0B"},
+    {"id": "education", "name": "Образование", "icon": "📚", "color": "#06B6D4"},
+    {"id": "music", "name": "Музыка и Развлечения", "icon": "🎵", "color": "#EC4899"},
+    {"id": "business", "name": "Бизнес и Нетворкинг", "icon": "💼", "color": "#6366F1"},
+    {"id": "charity", "name": "Благотворительность", "icon": "❤️", "color": "#F43F5E"},
+]
+
+class EventOrganizerProfile(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    organization_id: Optional[str] = None  # If company organizer
+    name: str
+    description: Optional[str] = None
+    logo: Optional[str] = None
+    cover_image: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+    website: Optional[str] = None
+    social_links: Dict[str, str] = {}
+    categories: List[str] = []  # Interest category IDs
+    is_verified: bool = False
+    is_active: bool = True
+    followers_count: int = 0
+    events_count: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class OrganizerTeamMember(BaseModel):
+    user_id: str
+    role: OrganizerRole = OrganizerRole.HELPER
+    added_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class InterestGroup(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    description: Optional[str] = None
+    category_id: str  # From INTEREST_CATEGORIES
+    cover_image: Optional[str] = None
+    creator_id: str
+    is_public: bool = True
+    members_count: int = 0
+    events_count: int = 0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class EventTicketType(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str  # e.g., "Стандарт", "VIP"
+    price: float = 0.0  # Price in RUB
+    altyn_price: Optional[float] = None  # Price in ALTYN COIN
+    quantity: int = 0  # 0 = unlimited
+    sold: int = 0
+    description: Optional[str] = None
+
+class Event(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    organizer_profile_id: str
+    group_id: Optional[str] = None  # Interest group if applicable
+    title: str
+    description: str
+    category_id: str
+    cover_image: Optional[str] = None
+    images: List[str] = []
+    
+    # Location
+    city: str
+    address: Optional[str] = None
+    venue_name: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    is_online: bool = False
+    online_link: Optional[str] = None
+    
+    # Date & Time
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    timezone: str = "Europe/Moscow"
+    
+    # Settings
+    visibility: EventVisibility = EventVisibility.PUBLIC
+    status: EventStatus = EventStatus.UPCOMING
+    capacity: int = 0  # 0 = unlimited
+    enable_waitlist: bool = True
+    registration_deadline: Optional[datetime] = None
+    
+    # Tickets
+    is_free: bool = True
+    ticket_types: List[EventTicketType] = []
+    
+    # Stats
+    attendees_count: int = 0
+    maybe_count: int = 0
+    waitlist_count: int = 0
+    view_count: int = 0
+    
+    tags: List[str] = []
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class EventAttendee(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    user_id: str
+    status: RSVPStatus = RSVPStatus.GOING
+    ticket_type_id: Optional[str] = None
+    ticket_price_paid: float = 0.0
+    payment_transaction_id: Optional[str] = None
+    registered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class EventInvitation(BaseModel):
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    event_id: str
+    inviter_id: str
+    invitee_id: str
+    message: Optional[str] = None
+    status: str = "pending"  # pending, accepted, declined
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+# === Pydantic Request/Response Models ===
+
+class CreateOrganizerProfileRequest(BaseModel):
+    name: str
+    description: Optional[str] = None
+    organization_id: Optional[str] = None
+    contact_email: Optional[str] = None
+    contact_phone: Optional[str] = None
+    website: Optional[str] = None
+    categories: List[str] = []
+
+class CreateEventRequest(BaseModel):
+    organizer_profile_id: str
+    group_id: Optional[str] = None
+    title: str
+    description: str
+    category_id: str
+    city: str
+    address: Optional[str] = None
+    venue_name: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    is_online: bool = False
+    online_link: Optional[str] = None
+    start_date: datetime
+    end_date: Optional[datetime] = None
+    visibility: EventVisibility = EventVisibility.PUBLIC
+    capacity: int = 0
+    enable_waitlist: bool = True
+    registration_deadline: Optional[datetime] = None
+    is_free: bool = True
+    ticket_types: List[Dict] = []
+    tags: List[str] = []
+
+class RSVPRequest(BaseModel):
+    status: RSVPStatus
+    ticket_type_id: Optional[str] = None
+
+class PurchaseTicketRequest(BaseModel):
+    event_id: str
+    ticket_type_id: str
+    pay_with_altyn: bool = False
+
+class CreateGroupRequest(BaseModel):
+    name: str
+    description: Optional[str] = None
+    category_id: str
+    is_public: bool = True
+
+class InviteToEventRequest(BaseModel):
+    event_id: str
+    invitee_ids: List[str]
+    message: Optional[str] = None
+
+# === API Endpoints ===
+
+@api_router.get("/goodwill/categories")
+async def get_interest_categories():
+    """Get all predefined interest categories"""
+    return {"categories": INTEREST_CATEGORIES}
+
+# --- Organizer Profiles ---
+
+@api_router.post("/goodwill/organizer-profile")
+async def create_organizer_profile(
+    request: CreateOrganizerProfileRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create an event organizer profile"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user already has a profile
+        existing = await db.event_organizer_profiles.find_one({"user_id": user_id}, {"_id": 0})
+        if existing:
+            raise HTTPException(status_code=400, detail="You already have an organizer profile")
+        
+        profile = EventOrganizerProfile(
+            user_id=user_id,
+            organization_id=request.organization_id,
+            name=request.name,
+            description=request.description,
+            contact_email=request.contact_email,
+            contact_phone=request.contact_phone,
+            website=request.website,
+            categories=request.categories
+        )
+        
+        profile_dict = profile.dict()
+        profile_dict["created_at"] = profile_dict["created_at"].isoformat()
+        profile_dict["updated_at"] = profile_dict["updated_at"].isoformat()
+        
+        await db.event_organizer_profiles.insert_one(profile_dict)
+        
+        return {"success": True, "profile": profile_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/goodwill/organizer-profile")
+async def get_my_organizer_profile(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get current user's organizer profile"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        profile = await db.event_organizer_profiles.find_one({"user_id": user_id}, {"_id": 0})
+        
+        return {"success": True, "profile": profile}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/organizer-profile/{profile_id}")
+async def get_organizer_profile(profile_id: str):
+    """Get a specific organizer profile by ID"""
+    profile = await db.event_organizer_profiles.find_one({"id": profile_id}, {"_id": 0})
+    if not profile:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    
+    # Get user info
+    user = await db.users.find_one({"id": profile["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+    profile["user"] = user
+    
+    return {"success": True, "profile": profile}
+
+@api_router.put("/goodwill/organizer-profile")
+async def update_organizer_profile(
+    request: CreateOrganizerProfileRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update organizer profile"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await db.event_organizer_profiles.update_one(
+            {"user_id": user_id},
+            {"$set": {
+                "name": request.name,
+                "description": request.description,
+                "contact_email": request.contact_email,
+                "contact_phone": request.contact_phone,
+                "website": request.website,
+                "categories": request.categories,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Profile not found")
+        
+        profile = await db.event_organizer_profiles.find_one({"user_id": user_id}, {"_id": 0})
+        return {"success": True, "profile": profile}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- Interest Groups ---
+
+@api_router.post("/goodwill/groups")
+async def create_interest_group(
+    request: CreateGroupRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create an interest group"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        group = InterestGroup(
+            name=request.name,
+            description=request.description,
+            category_id=request.category_id,
+            creator_id=user_id,
+            is_public=request.is_public,
+            members_count=1
+        )
+        
+        group_dict = group.dict()
+        group_dict["created_at"] = group_dict["created_at"].isoformat()
+        
+        await db.interest_groups.insert_one(group_dict)
+        
+        # Add creator as member
+        await db.group_members.insert_one({
+            "group_id": group.id,
+            "user_id": user_id,
+            "role": "owner",
+            "joined_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+        return {"success": True, "group": group_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/groups")
+async def list_interest_groups(
+    category_id: Optional[str] = None,
+    search: Optional[str] = None,
+    limit: int = 20,
+    offset: int = 0
+):
+    """List interest groups"""
+    query = {"is_public": True}
+    
+    if category_id:
+        query["category_id"] = category_id
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]
+    
+    groups = await db.interest_groups.find(query, {"_id": 0}).sort("members_count", -1).skip(offset).limit(limit).to_list(limit)
+    total = await db.interest_groups.count_documents(query)
+    
+    # Enrich with category info
+    for group in groups:
+        category = next((c for c in INTEREST_CATEGORIES if c["id"] == group.get("category_id")), None)
+        group["category"] = category
+    
+    return {"groups": groups, "total": total}
+
+@api_router.post("/goodwill/groups/{group_id}/join")
+async def join_group(
+    group_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Join an interest group"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        group = await db.interest_groups.find_one({"id": group_id}, {"_id": 0})
+        if not group:
+            raise HTTPException(status_code=404, detail="Group not found")
+        
+        # Check if already member
+        existing = await db.group_members.find_one({"group_id": group_id, "user_id": user_id})
+        if existing:
+            raise HTTPException(status_code=400, detail="Already a member")
+        
+        await db.group_members.insert_one({
+            "group_id": group_id,
+            "user_id": user_id,
+            "role": "member",
+            "joined_at": datetime.now(timezone.utc).isoformat()
+        })
+        
+        await db.interest_groups.update_one(
+            {"id": group_id},
+            {"$inc": {"members_count": 1}}
+        )
+        
+        return {"success": True, "message": "Joined group successfully"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/my-groups")
+async def get_my_groups(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get groups the user is a member of"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        memberships = await db.group_members.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+        group_ids = [m["group_id"] for m in memberships]
+        
+        groups = await db.interest_groups.find({"id": {"$in": group_ids}}, {"_id": 0}).to_list(100)
+        
+        for group in groups:
+            category = next((c for c in INTEREST_CATEGORIES if c["id"] == group.get("category_id")), None)
+            group["category"] = category
+            membership = next((m for m in memberships if m["group_id"] == group["id"]), None)
+            group["my_role"] = membership.get("role") if membership else None
+        
+        return {"groups": groups}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+# --- Events ---
+
+@api_router.post("/goodwill/events")
+async def create_event(
+    request: CreateEventRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Create a new event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Verify organizer profile ownership
+        profile = await db.event_organizer_profiles.find_one({"id": request.organizer_profile_id}, {"_id": 0})
+        if not profile or profile["user_id"] != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to use this organizer profile")
+        
+        # Create ticket types
+        ticket_types = []
+        for tt in request.ticket_types:
+            ticket_type = EventTicketType(
+                name=tt.get("name", "Стандарт"),
+                price=tt.get("price", 0),
+                altyn_price=tt.get("altyn_price"),
+                quantity=tt.get("quantity", 0),
+                description=tt.get("description")
+            )
+            ticket_types.append(ticket_type.dict())
+        
+        event = Event(
+            organizer_profile_id=request.organizer_profile_id,
+            group_id=request.group_id,
+            title=request.title,
+            description=request.description,
+            category_id=request.category_id,
+            city=request.city,
+            address=request.address,
+            venue_name=request.venue_name,
+            latitude=request.latitude,
+            longitude=request.longitude,
+            is_online=request.is_online,
+            online_link=request.online_link,
+            start_date=request.start_date,
+            end_date=request.end_date,
+            visibility=request.visibility,
+            capacity=request.capacity,
+            enable_waitlist=request.enable_waitlist,
+            registration_deadline=request.registration_deadline,
+            is_free=request.is_free,
+            ticket_types=ticket_types,
+            tags=request.tags
+        )
+        
+        event_dict = event.dict()
+        event_dict["start_date"] = event_dict["start_date"].isoformat()
+        if event_dict["end_date"]:
+            event_dict["end_date"] = event_dict["end_date"].isoformat()
+        if event_dict["registration_deadline"]:
+            event_dict["registration_deadline"] = event_dict["registration_deadline"].isoformat()
+        event_dict["created_at"] = event_dict["created_at"].isoformat()
+        event_dict["updated_at"] = event_dict["updated_at"].isoformat()
+        
+        await db.goodwill_events.insert_one(event_dict)
+        
+        # Update organizer profile events count
+        await db.event_organizer_profiles.update_one(
+            {"id": request.organizer_profile_id},
+            {"$inc": {"events_count": 1}}
+        )
+        
+        return {"success": True, "event": event_dict}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/goodwill/events")
+async def list_events(
+    category_id: Optional[str] = None,
+    city: Optional[str] = None,
+    search: Optional[str] = None,
+    status: Optional[str] = None,
+    visibility: Optional[str] = None,
+    group_id: Optional[str] = None,
+    start_from: Optional[str] = None,
+    start_to: Optional[str] = None,
+    is_free: Optional[bool] = None,
+    limit: int = 20,
+    offset: int = 0,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(lambda: None)
+):
+    """List events with filters"""
+    query = {}
+    
+    # Default to public events if not authenticated
+    user_id = None
+    user_groups = []
+    if credentials:
+        try:
+            payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+            # Get user's groups for GROUP_ONLY visibility
+            memberships = await db.group_members.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+            user_groups = [m["group_id"] for m in memberships]
+        except:
+            pass
+    
+    # Visibility filter
+    if user_id:
+        query["$or"] = [
+            {"visibility": "PUBLIC"},
+            {"visibility": "PRIVATE", "organizer_profile_id": {"$in": await get_user_organizer_ids(user_id)}},
+            {"visibility": "GROUP_ONLY", "group_id": {"$in": user_groups}}
+        ]
+    else:
+        query["visibility"] = "PUBLIC"
+    
+    if category_id:
+        query["category_id"] = category_id
+    if city:
+        query["city"] = {"$regex": city, "$options": "i"}
+    if search:
+        query["$and"] = query.get("$and", []) + [{"$or": [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}}
+        ]}]
+    if status:
+        query["status"] = status
+    else:
+        query["status"] = {"$in": ["UPCOMING", "ONGOING"]}
+    if group_id:
+        query["group_id"] = group_id
+    if is_free is not None:
+        query["is_free"] = is_free
+    if start_from:
+        query["start_date"] = {"$gte": start_from}
+    if start_to:
+        query.setdefault("start_date", {})["$lte"] = start_to
+    
+    events = await db.goodwill_events.find(query, {"_id": 0}).sort("start_date", 1).skip(offset).limit(limit).to_list(limit)
+    total = await db.goodwill_events.count_documents(query)
+    
+    # Enrich events with organizer info and category
+    for event in events:
+        category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+        event["category"] = category
+        
+        organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0, "name": 1, "logo": 1})
+        event["organizer"] = organizer
+        
+        # Check if user is attending
+        if user_id:
+            attendance = await db.event_attendees.find_one({"event_id": event["id"], "user_id": user_id}, {"_id": 0})
+            event["my_rsvp"] = attendance.get("status") if attendance else None
+    
+    return {"events": events, "total": total}
+
+async def get_user_organizer_ids(user_id: str) -> List[str]:
+    """Get all organizer profile IDs the user owns or is part of"""
+    profiles = await db.event_organizer_profiles.find({"user_id": user_id}, {"_id": 0, "id": 1}).to_list(100)
+    return [p["id"] for p in profiles]
+
+@api_router.get("/goodwill/events/{event_id}")
+async def get_event(
+    event_id: str,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(lambda: None)
+):
+    """Get event details"""
+    event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # Increment view count
+    await db.goodwill_events.update_one({"id": event_id}, {"$inc": {"view_count": 1}})
+    
+    # Get organizer info
+    organizer = await db.event_organizer_profiles.find_one({"id": event.get("organizer_profile_id")}, {"_id": 0})
+    if organizer:
+        user = await db.users.find_one({"id": organizer.get("user_id")}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+        organizer["user"] = user
+    event["organizer"] = organizer
+    
+    # Get category
+    category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+    event["category"] = category
+    
+    # Check user's RSVP status
+    user_id = None
+    if credentials:
+        try:
+            payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+            user_id = payload.get("sub")
+            attendance = await db.event_attendees.find_one({"event_id": event_id, "user_id": user_id}, {"_id": 0})
+            event["my_rsvp"] = attendance.get("status") if attendance else None
+            event["my_attendance"] = attendance
+        except:
+            pass
+    
+    # Get attendees preview
+    attendees = await db.event_attendees.find(
+        {"event_id": event_id, "status": "GOING"},
+        {"_id": 0}
+    ).limit(10).to_list(10)
+    
+    for att in attendees:
+        user = await db.users.find_one({"id": att["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+        att["user"] = user
+    
+    event["attendees_preview"] = attendees
+    
+    return {"success": True, "event": event}
+
+@api_router.post("/goodwill/events/{event_id}/rsvp")
+async def rsvp_to_event(
+    event_id: str,
+    request: RSVPRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """RSVP to an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        # Check capacity for GOING status
+        if request.status == RSVPStatus.GOING:
+            if event.get("capacity", 0) > 0 and event.get("attendees_count", 0) >= event["capacity"]:
+                if event.get("enable_waitlist"):
+                    request.status = RSVPStatus.WAITLIST
+                else:
+                    raise HTTPException(status_code=400, detail="Event is at full capacity")
+        
+        # Check existing RSVP
+        existing = await db.event_attendees.find_one({"event_id": event_id, "user_id": user_id})
+        old_status = existing.get("status") if existing else None
+        
+        if existing:
+            await db.event_attendees.update_one(
+                {"event_id": event_id, "user_id": user_id},
+                {"$set": {"status": request.status.value, "ticket_type_id": request.ticket_type_id}}
+            )
+        else:
+            attendee = EventAttendee(
+                event_id=event_id,
+                user_id=user_id,
+                status=request.status,
+                ticket_type_id=request.ticket_type_id
+            )
+            att_dict = attendee.dict()
+            att_dict["registered_at"] = att_dict["registered_at"].isoformat()
+            await db.event_attendees.insert_one(att_dict)
+        
+        # Update event counts
+        update_ops = {}
+        if request.status == RSVPStatus.GOING:
+            update_ops["$inc"] = {"attendees_count": 1}
+            if old_status == "MAYBE":
+                update_ops["$inc"]["maybe_count"] = -1
+            elif old_status == "WAITLIST":
+                update_ops["$inc"]["waitlist_count"] = -1
+        elif request.status == RSVPStatus.MAYBE:
+            update_ops["$inc"] = {"maybe_count": 1}
+            if old_status == "GOING":
+                update_ops["$inc"]["attendees_count"] = -1
+            elif old_status == "WAITLIST":
+                update_ops["$inc"]["waitlist_count"] = -1
+        elif request.status == RSVPStatus.WAITLIST:
+            update_ops["$inc"] = {"waitlist_count": 1}
+            if old_status == "GOING":
+                update_ops["$inc"]["attendees_count"] = -1
+            elif old_status == "MAYBE":
+                update_ops["$inc"]["maybe_count"] = -1
+        elif request.status == RSVPStatus.NOT_GOING:
+            if old_status == "GOING":
+                update_ops["$inc"] = {"attendees_count": -1}
+            elif old_status == "MAYBE":
+                update_ops["$inc"] = {"maybe_count": -1}
+            elif old_status == "WAITLIST":
+                update_ops["$inc"] = {"waitlist_count": -1}
+        
+        if update_ops:
+            await db.goodwill_events.update_one({"id": event_id}, update_ops)
+        
+        return {"success": True, "status": request.status.value, "message": "RSVP updated"}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.post("/goodwill/events/{event_id}/purchase-ticket")
+async def purchase_event_ticket(
+    event_id: str,
+    request: PurchaseTicketRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Purchase a ticket for an event with ALTYN COIN"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        if event.get("is_free"):
+            raise HTTPException(status_code=400, detail="This is a free event")
+        
+        # Find ticket type
+        ticket_type = None
+        for tt in event.get("ticket_types", []):
+            if tt["id"] == request.ticket_type_id:
+                ticket_type = tt
+                break
+        
+        if not ticket_type:
+            raise HTTPException(status_code=404, detail="Ticket type not found")
+        
+        # Check availability
+        if ticket_type.get("quantity", 0) > 0 and ticket_type.get("sold", 0) >= ticket_type["quantity"]:
+            raise HTTPException(status_code=400, detail="Tickets sold out")
+        
+        # Get price
+        if request.pay_with_altyn:
+            if not ticket_type.get("altyn_price"):
+                raise HTTPException(status_code=400, detail="ALTYN payment not available for this ticket")
+            price = ticket_type["altyn_price"]
+        else:
+            price = ticket_type.get("price", 0)
+        
+        # Process ALTYN payment
+        if request.pay_with_altyn and price > 0:
+            buyer_wallet = await get_or_create_wallet(user_id)
+            if buyer_wallet["coin_balance"] < price:
+                raise HTTPException(status_code=400, detail="Insufficient ALTYN COIN balance")
+            
+            # Get organizer's user_id for payment
+            organizer = await db.event_organizer_profiles.find_one({"id": event["organizer_profile_id"]}, {"_id": 0})
+            if not organizer:
+                raise HTTPException(status_code=500, detail="Organizer not found")
+            
+            seller_id = organizer["user_id"]
+            seller_wallet = await get_or_create_wallet(seller_id)
+            treasury = await get_or_create_treasury()
+            
+            # Calculate fee
+            fee_amount = price * TRANSACTION_FEE_RATE
+            net_amount = price - fee_amount
+            
+            # Update balances
+            await db.wallets.update_one(
+                {"user_id": user_id},
+                {"$inc": {"coin_balance": -price}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            await db.wallets.update_one(
+                {"user_id": seller_id},
+                {"$inc": {"coin_balance": net_amount}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            await db.wallets.update_one(
+                {"is_treasury": True},
+                {"$inc": {"coin_balance": fee_amount}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}}
+            )
+            
+            # Record transaction
+            tx_id = str(uuid.uuid4())
+            tx = {
+                "id": tx_id,
+                "from_wallet_id": buyer_wallet["id"],
+                "to_wallet_id": seller_wallet["id"],
+                "from_user_id": user_id,
+                "to_user_id": seller_id,
+                "amount": price,
+                "asset_type": "COIN",
+                "transaction_type": "PAYMENT",
+                "fee_amount": fee_amount,
+                "description": f"Event ticket: {event['title']} - {ticket_type['name']}",
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            await db.transactions.insert_one(tx)
+            
+            # Record attendance
+            attendee = EventAttendee(
+                event_id=event_id,
+                user_id=user_id,
+                status=RSVPStatus.GOING,
+                ticket_type_id=request.ticket_type_id,
+                ticket_price_paid=price,
+                payment_transaction_id=tx_id
+            )
+            att_dict = attendee.dict()
+            att_dict["registered_at"] = att_dict["registered_at"].isoformat()
+            
+            # Check if already registered
+            existing = await db.event_attendees.find_one({"event_id": event_id, "user_id": user_id})
+            if existing:
+                await db.event_attendees.update_one(
+                    {"event_id": event_id, "user_id": user_id},
+                    {"$set": att_dict}
+                )
+            else:
+                await db.event_attendees.insert_one(att_dict)
+                await db.goodwill_events.update_one({"id": event_id}, {"$inc": {"attendees_count": 1}})
+            
+            # Update ticket sold count
+            for i, tt in enumerate(event["ticket_types"]):
+                if tt["id"] == request.ticket_type_id:
+                    event["ticket_types"][i]["sold"] = tt.get("sold", 0) + 1
+                    break
+            await db.goodwill_events.update_one({"id": event_id}, {"$set": {"ticket_types": event["ticket_types"]}})
+            
+            # Get names for receipt
+            buyer_user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1})
+            
+            return {
+                "success": True,
+                "payment": {
+                    "transaction_id": tx_id,
+                    "amount": price,
+                    "fee": fee_amount,
+                    "organizer_received": net_amount
+                },
+                "receipt": {
+                    "receipt_id": tx_id,
+                    "date": datetime.now(timezone.utc).isoformat(),
+                    "type": "EVENT_TICKET",
+                    "buyer_name": f"{buyer_user.get('first_name', '')} {buyer_user.get('last_name', '')}".strip() if buyer_user else "Unknown",
+                    "event_title": event["title"],
+                    "ticket_type": ticket_type["name"],
+                    "item_price": price,
+                    "fee_amount": fee_amount,
+                    "fee_rate": "0.1%",
+                    "total_paid": price,
+                    "currency": "ALTYN COIN (AC)",
+                    "status": "COMPLETED"
+                }
+            }
+        
+        raise HTTPException(status_code=400, detail="Non-ALTYN payments not implemented yet")
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/goodwill/my-events")
+async def get_my_events(
+    as_organizer: bool = False,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get events the user is attending or organizing"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        if as_organizer:
+            # Get user's organizer profiles
+            profiles = await db.event_organizer_profiles.find({"user_id": user_id}, {"_id": 0}).to_list(10)
+            profile_ids = [p["id"] for p in profiles]
+            
+            events = await db.goodwill_events.find(
+                {"organizer_profile_id": {"$in": profile_ids}},
+                {"_id": 0}
+            ).sort("start_date", -1).to_list(100)
+        else:
+            # Get events user is attending
+            attendances = await db.event_attendees.find(
+                {"user_id": user_id, "status": {"$in": ["GOING", "MAYBE", "WAITLIST"]}},
+                {"_id": 0}
+            ).to_list(100)
+            event_ids = [a["event_id"] for a in attendances]
+            
+            events = await db.goodwill_events.find(
+                {"id": {"$in": event_ids}},
+                {"_id": 0}
+            ).sort("start_date", 1).to_list(100)
+            
+            # Add attendance info
+            for event in events:
+                att = next((a for a in attendances if a["event_id"] == event["id"]), None)
+                event["my_rsvp"] = att.get("status") if att else None
+        
+        # Enrich with category
+        for event in events:
+            category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+            event["category"] = category
+        
+        return {"events": events}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/calendar")
+async def get_events_calendar(
+    month: int,
+    year: int,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(lambda: None)
+):
+    """Get events for calendar view"""
+    start_date = datetime(year, month, 1, tzinfo=timezone.utc)
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        end_date = datetime(year, month + 1, 1, tzinfo=timezone.utc)
+    
+    query = {
+        "start_date": {"$gte": start_date.isoformat(), "$lt": end_date.isoformat()},
+        "status": {"$in": ["UPCOMING", "ONGOING"]},
+        "visibility": "PUBLIC"
+    }
+    
+    events = await db.goodwill_events.find(query, {"_id": 0}).sort("start_date", 1).to_list(100)
+    
+    # Group by date
+    calendar_data = {}
+    for event in events:
+        date_str = event["start_date"][:10]  # YYYY-MM-DD
+        if date_str not in calendar_data:
+            calendar_data[date_str] = []
+        
+        category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+        calendar_data[date_str].append({
+            "id": event["id"],
+            "title": event["title"],
+            "start_date": event["start_date"],
+            "category": category,
+            "city": event.get("city"),
+            "is_free": event.get("is_free", True)
+        })
+    
+    return {"calendar": calendar_data, "month": month, "year": year}
+
+# --- Invitations ---
+
+@api_router.post("/goodwill/invitations")
+async def invite_to_event(
+    request: InviteToEventRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Invite users to an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        event = await db.goodwill_events.find_one({"id": request.event_id}, {"_id": 0})
+        if not event:
+            raise HTTPException(status_code=404, detail="Event not found")
+        
+        invitations = []
+        for invitee_id in request.invitee_ids:
+            # Check if already invited
+            existing = await db.event_invitations.find_one({
+                "event_id": request.event_id,
+                "invitee_id": invitee_id
+            })
+            if existing:
+                continue
+            
+            invitation = EventInvitation(
+                event_id=request.event_id,
+                inviter_id=user_id,
+                invitee_id=invitee_id,
+                message=request.message
+            )
+            inv_dict = invitation.dict()
+            inv_dict["created_at"] = inv_dict["created_at"].isoformat()
+            await db.event_invitations.insert_one(inv_dict)
+            invitations.append(inv_dict)
+        
+        return {"success": True, "invitations_sent": len(invitations)}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/my-invitations")
+async def get_my_invitations(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get invitations sent to the user"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        invitations = await db.event_invitations.find(
+            {"invitee_id": user_id, "status": "pending"},
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(50)
+        
+        # Enrich with event and inviter info
+        for inv in invitations:
+            event = await db.goodwill_events.find_one({"id": inv["event_id"]}, {"_id": 0, "title": 1, "start_date": 1, "city": 1, "category_id": 1})
+            if event:
+                category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+                event["category"] = category
+            inv["event"] = event
+            
+            inviter = await db.users.find_one({"id": inv["inviter_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "profile_picture": 1})
+            inv["inviter"] = inviter
+        
+        return {"invitations": invitations}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.put("/goodwill/invitations/{invitation_id}")
+async def respond_to_invitation(
+    invitation_id: str,
+    accept: bool,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Accept or decline an invitation"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        invitation = await db.event_invitations.find_one({"id": invitation_id, "invitee_id": user_id}, {"_id": 0})
+        if not invitation:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+        
+        new_status = "accepted" if accept else "declined"
+        await db.event_invitations.update_one(
+            {"id": invitation_id},
+            {"$set": {"status": new_status}}
+        )
+        
+        # If accepted, add to attendees
+        if accept:
+            event = await db.goodwill_events.find_one({"id": invitation["event_id"]}, {"_id": 0})
+            if event:
+                existing = await db.event_attendees.find_one({"event_id": invitation["event_id"], "user_id": user_id})
+                if not existing:
+                    attendee = EventAttendee(
+                        event_id=invitation["event_id"],
+                        user_id=user_id,
+                        status=RSVPStatus.GOING
+                    )
+                    att_dict = attendee.dict()
+                    att_dict["registered_at"] = att_dict["registered_at"].isoformat()
+                    await db.event_attendees.insert_one(att_dict)
+                    await db.goodwill_events.update_one({"id": invitation["event_id"]}, {"$inc": {"attendees_count": 1}})
+        
+        return {"success": True, "status": new_status}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.get("/goodwill/favorites")
+async def get_favorite_events(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get user's favorite events"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        favorites = await db.event_favorites.find({"user_id": user_id}, {"_id": 0}).to_list(100)
+        event_ids = [f["event_id"] for f in favorites]
+        
+        events = await db.goodwill_events.find({"id": {"$in": event_ids}}, {"_id": 0}).to_list(100)
+        
+        for event in events:
+            category = next((c for c in INTEREST_CATEGORIES if c["id"] == event.get("category_id")), None)
+            event["category"] = category
+        
+        return {"events": events}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+@api_router.post("/goodwill/favorites/{event_id}")
+async def toggle_favorite_event(
+    event_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Toggle favorite status for an event"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        existing = await db.event_favorites.find_one({"event_id": event_id, "user_id": user_id})
+        
+        if existing:
+            await db.event_favorites.delete_one({"event_id": event_id, "user_id": user_id})
+            return {"success": True, "is_favorite": False}
+        else:
+            await db.event_favorites.insert_one({
+                "event_id": event_id,
+                "user_id": user_id,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            return {"success": True, "is_favorite": True}
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+
+
+
 # Include the router in the main app
 app.include_router(api_router)
 
