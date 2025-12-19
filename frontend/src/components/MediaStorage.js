@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Image, FileText, Video, Grid, List, Upload, 
-  Download, Trash2, Search, Calendar, ZoomIn
+  Download, Trash2, Search, Calendar, ZoomIn, FolderPlus
 } from 'lucide-react';
 import { useLightbox } from '../hooks/useLightbox';
 import LightboxModal from './LightboxModal';
