@@ -189,8 +189,10 @@ class MarketplaceTester:
             # According to the requirement, this should return 400 if user has no family setup
             if response.status_code == 400:
                 error_data = response.json()
-                if "family" in error_data.get("detail", "").lower():
+                error_detail = error_data.get("detail", "")
+                if "семейный" in error_detail.lower() or "family" in error_detail.lower():
                     self.log("✅ Product creation correctly requires family setup (400 error as expected)")
+                    self.log(f"✅ Error message: {error_detail}")
                     return True
                 else:
                     self.log(f"❌ Unexpected 400 error: {error_data}", "ERROR")
