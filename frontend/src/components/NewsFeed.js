@@ -1262,6 +1262,162 @@ const PostCard = ({
           )}
         </div>
       )}
+
+      {/* Enhanced Action Styles */}
+      <style jsx="true">{`
+        .enhanced-post-actions-news {
+          border-top: 1px solid #e5e7eb;
+          padding-top: 8px;
+          margin-top: 12px;
+        }
+
+        .reaction-summary-bar-news {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 4px;
+          font-size: 14px;
+          color: #65676b;
+        }
+
+        .reaction-summary-left-news {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .like-indicator-news {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .reaction-emoji-news {
+          font-size: 16px;
+          margin-left: -4px;
+        }
+
+        .reaction-count-news {
+          color: #65676b;
+          cursor: pointer;
+          margin-left: 4px;
+        }
+
+        .comments-count-link-news {
+          color: #65676b;
+          cursor: pointer;
+        }
+
+        .comments-count-link-news:hover {
+          text-decoration: underline;
+        }
+
+        .action-buttons-row-news {
+          display: flex;
+          border-top: 1px solid #e5e7eb;
+          padding-top: 4px;
+          margin-top: 4px;
+        }
+
+        .action-button-container-news {
+          flex: 1;
+          position: relative;
+        }
+
+        .action-button-news {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 8px;
+          background: transparent;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 15px;
+          font-weight: 500;
+          color: #65676b;
+          transition: all 0.2s ease;
+          width: 100%;
+        }
+
+        .action-button-news:hover {
+          background: #f0f2f5;
+        }
+
+        .action-button-news.active {
+          font-weight: 600;
+        }
+
+        .user-reaction-emoji-news {
+          font-size: 20px;
+        }
+
+        .quick-reaction-picker-news {
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: white;
+          border-radius: 40px;
+          padding: 8px 12px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+          display: flex;
+          gap: 4px;
+          margin-bottom: 8px;
+          z-index: 100;
+          animation: popInNews 0.2s ease-out;
+        }
+
+        @keyframes popInNews {
+          0% {
+            opacity: 0;
+            transform: translateX(-50%) scale(0.8) translateY(10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(-50%) scale(1) translateY(0);
+          }
+        }
+
+        .quick-reaction-btn-news {
+          width: 40px;
+          height: 40px;
+          border: none;
+          background: transparent;
+          border-radius: 50%;
+          font-size: 24px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: bounceInNews 0.3s ease-out backwards;
+        }
+
+        @keyframes bounceInNews {
+          0% {
+            opacity: 0;
+            transform: scale(0);
+          }
+          50% {
+            transform: scale(1.2);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .quick-reaction-btn-news:hover {
+          background: #f0f2f5;
+          transform: scale(1.3) translateY(-5px);
+        }
+      `}</style>
     </div>
   );
 };
