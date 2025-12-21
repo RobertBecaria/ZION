@@ -114,19 +114,24 @@ function PostActions({
           onMouseLeave={handleLikeLeave}
         >
           <button 
-            className={`action-button ${post.user_liked ? 'active' : ''}`}
+            className={`action-button ${post.user_liked || post.user_reaction ? 'active' : ''}`}
             onClick={handleLikeClick}
             style={{ 
-              color: post.user_liked ? moduleColor : undefined,
-              background: post.user_liked ? `${moduleColor}15` : undefined
+              color: (post.user_liked || post.user_reaction) ? moduleColor : undefined,
+              background: (post.user_liked || post.user_reaction) ? `${moduleColor}15` : undefined
             }}
           >
             {post.user_reaction ? (
-              <span className="user-reaction-emoji">{post.user_reaction}</span>
+              <>
+                <span className="user-reaction-emoji">{post.user_reaction}</span>
+                <span>Реакция</span>
+              </>
             ) : (
-              <ThumbsUp size={20} fill={post.user_liked ? moduleColor : 'none'} />
+              <>
+                <ThumbsUp size={20} fill={post.user_liked ? moduleColor : 'none'} />
+                <span>{post.user_liked ? 'Нравится' : 'Нравится'}</span>
+              </>
             )}
-            <span>{post.user_reaction || (post.user_liked ? 'Нравится' : 'Нравится')}</span>
           </button>
 
           {/* Quick Reaction Picker */}
