@@ -140,9 +140,11 @@ class GoodWillPermissionTester:
             user_response = requests.get(f"{BASE_URL}/auth/me", headers=self.get_headers(self.user_token))
             if user_response.status_code == 200:
                 user_id = user_response.json().get("id")
-                co_org_data = {"user_id_to_add": user_id}
-                response = requests.post(f"{BASE_URL}/goodwill/events/{self.test_event_id}/co-organizers", 
-                                       json=co_org_data, headers=headers)
+                # Store user_id for later use in co-organizer tests
+                self.test_user_id = user_id
+                # API expects user_id_to_add as query parameter
+                response = requests.post(f"{BASE_URL}/goodwill/events/{self.test_event_id}/co-organizers?user_id_to_add={user_id}", 
+                                       headers=headers)
                 self.log_result(
                     "Organizer Add Co-organizer", 
                     200, 
