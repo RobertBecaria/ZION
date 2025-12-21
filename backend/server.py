@@ -23618,8 +23618,9 @@ async def send_chat_message(
         
         is_organizer = organizer and organizer.get("user_id") == user_id
         is_co_organizer = user_id in event.get("co_organizer_ids", [])
+        is_attending = attendance and attendance.get("status") == "GOING"
         
-        if not attendance and not is_organizer and not is_co_organizer:
+        if not is_attending and not is_organizer and not is_co_organizer:
             raise HTTPException(status_code=403, detail="Only participants can chat")
         
         message = EventChatMessage(
