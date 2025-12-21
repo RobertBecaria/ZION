@@ -866,7 +866,7 @@ const GoodWillEventDetail = ({
                 <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: 0 }}>
                   Фотогалерея
                 </h2>
-                {token && (event.my_rsvp === 'GOING' || event.my_attendance) && (
+                {token && (event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING') && (
                   <>
                     <input
                       type="file"
