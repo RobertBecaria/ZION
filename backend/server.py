@@ -39,6 +39,7 @@ api_router = APIRouter(prefix="/api")
 
 # Security
 security = HTTPBearer()
+optional_security = HTTPBearer(auto_error=False)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = os.environ.get('JWT_SECRET_KEY', 'fallback-secret-key-for-development')  # Fallback for compatibility
 ALGORITHM = "HS256"
