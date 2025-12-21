@@ -635,6 +635,7 @@ const NewsFeed = ({
                 currentUser={user}
                 moduleColor={moduleColor}
                 onLike={handleLike}
+                onReaction={handleReaction}
                 onDelete={handleDelete}
                 onEdit={handleEdit}
                 onCommentAdded={handleCommentAdded}
