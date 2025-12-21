@@ -28,6 +28,7 @@ class GoodWillPermissionTester:
         self.admin_token = None
         self.user_token = None
         self.test_event_id = None
+        self.test_user_id = None
         self.results = []
         
     def log_result(self, test_name, expected, actual, details=""):
