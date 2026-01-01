@@ -27,7 +27,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://goodwill-events.preview.emergentagent.com"
+BACKEND_URL = "https://empathysocial.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials

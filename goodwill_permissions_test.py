@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timedelta
 
 # API Configuration
-BASE_URL = "https://goodwill-events.preview.emergentagent.com/api"
+BASE_URL = "https://empathysocial.preview.emergentagent.com/api"
 
 # Test Credentials
 ADMIN_CREDENTIALS = {
