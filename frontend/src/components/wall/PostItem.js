@@ -220,6 +220,12 @@ function PostItem({
           flex-direction: column;
           gap: 2px;
         }
+        
+        .author-name-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
 
         .author-name {
           font-size: 15px;
@@ -231,6 +237,12 @@ function PostItem({
 
         .author-name:hover {
           text-decoration: underline;
+        }
+        
+        .channel-badge {
+          font-size: 13px;
+          color: #65676b;
+          font-weight: 400;
         }
 
         .post-meta {
@@ -244,6 +256,10 @@ function PostItem({
         .meta-dot {
           font-size: 10px;
         }
+        
+        .post-menu-wrapper {
+          position: relative;
+        }
 
         .post-menu-btn {
           background: none;
@@ -256,6 +272,45 @@ function PostItem({
 
         .post-menu-btn:hover {
           background: #f0f2f5;
+        }
+        
+        .post-menu-dropdown {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+          padding: 4px;
+          min-width: 180px;
+          z-index: 100;
+        }
+        
+        .menu-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          padding: 10px 12px;
+          background: none;
+          border: none;
+          border-radius: 6px;
+          font-size: 14px;
+          color: #1c1e21;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        
+        .menu-item:hover {
+          background: #f0f2f5;
+        }
+        
+        .menu-item.delete {
+          color: #dc2626;
+        }
+        
+        .menu-item.delete:hover {
+          background: #fef2f2;
         }
 
         .post-content {
