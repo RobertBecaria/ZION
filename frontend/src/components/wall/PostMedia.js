@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FileText, Share2, Download, ZoomIn, Play } from 'lucide-react';
 import { extractYouTubeId } from './utils/postUtils';
 
 function PostMedia({ post, backendUrl, onImageClick }) {
+  const [playingVideo, setPlayingVideo] = useState(null);
+  
   // Helper to get media URL - handles both object format and string ID format
   const getMediaUrl = (media) => {
     // If media is just a string (ID), use the /api/media/{id} endpoint
@@ -24,6 +26,12 @@ function PostMedia({ post, backendUrl, onImageClick }) {
   const isImage = (media) => {
     if (typeof media === 'string') return true; // Assume IDs are images by default
     return media.file_type === 'image';
+  };
+  
+  // Helper to extract YouTube ID from URL
+  const getYoutubeId = (url) => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
   };
 
   return (
@@ -89,41 +97,69 @@ function PostMedia({ post, backendUrl, onImageClick }) {
         </div>
       )}
 
-      {/* Display YouTube Videos from youtube_urls array */}
+      {/* Display YouTube Videos from youtube_urls array - with click-to-play */}
       {post.youtube_urls && post.youtube_urls.length > 0 && (
-        <div className="post-youtube">
+        <div className="post-youtube-embeds">
           {post.youtube_urls.map((url, index) => {
-            const videoId = extractYouTubeId(url);
-            return videoId ? (
+            const youtubeId = getYoutubeId(url) || extractYouTubeId(url);
+            if (!youtubeId) return null;
+            
+            return (
               <div key={index} className="youtube-embed">
-                <iframe
-                  width="100%"
-                  height="315"
-                  src={`https://www.youtube.com/embed/${videoId}`}
-                  title={`YouTube video ${index + 1}`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                ></iframe>
+                {playingVideo === youtubeId ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1`}
+                    title="YouTube video"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <div 
+                    className="youtube-thumbnail-wrapper"
+                    onClick={() => setPlayingVideo(youtubeId)}
+                  >
+                    <img 
+                      src={`https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`}
+                      alt="YouTube thumbnail"
+                    />
+                    <div className="play-button">
+                      <Play size={48} fill="white" />
+                    </div>
+                  </div>
+                )}
               </div>
-            ) : null;
+            );
           })}
         </div>
       )}
       
       {/* Display single YouTube video from youtube_video_id */}
       {post.youtube_video_id && !post.youtube_urls?.length && (
-        <div className="post-youtube">
+        <div className="post-youtube-embeds">
           <div className="youtube-embed">
-            <iframe
-              width="100%"
-              height="315"
-              src={`https://www.youtube.com/embed/${post.youtube_video_id}`}
-              title="YouTube video"
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            ></iframe>
+            {playingVideo === post.youtube_video_id ? (
+              <iframe
+                src={`https://www.youtube.com/embed/${post.youtube_video_id}?autoplay=1`}
+                title="YouTube video"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <div 
+                className="youtube-thumbnail-wrapper"
+                onClick={() => setPlayingVideo(post.youtube_video_id)}
+              >
+                <img 
+                  src={`https://img.youtube.com/vi/${post.youtube_video_id}/hqdefault.jpg`}
+                  alt="YouTube thumbnail"
+                />
+                <div className="play-button">
+                  <Play size={48} fill="white" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -147,6 +183,223 @@ function PostMedia({ post, backendUrl, onImageClick }) {
           </a>
         </div>
       )}
+      
+      {/* Styles for media gallery and YouTube */}
+      <style jsx="true">{`
+        .post-media-gallery {
+          display: grid;
+          gap: 4px;
+          border-radius: 12px;
+          overflow: hidden;
+          margin-bottom: 8px;
+        }
+        
+        .post-media-gallery.gallery-1 {
+          grid-template-columns: 1fr;
+        }
+        
+        .post-media-gallery.gallery-2 {
+          grid-template-columns: 1fr 1fr;
+        }
+        
+        .post-media-gallery.gallery-3 {
+          grid-template-columns: 1fr 1fr;
+        }
+        
+        .post-media-gallery.gallery-3 .media-item:first-child {
+          grid-column: span 2;
+        }
+        
+        .post-media-gallery.gallery-4 {
+          grid-template-columns: 1fr 1fr;
+        }
+        
+        .post-media-gallery .media-item {
+          position: relative;
+          aspect-ratio: 16/9;
+          overflow: hidden;
+        }
+        
+        .post-media-gallery .image-container {
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+          position: relative;
+        }
+        
+        .post-media-gallery .media-image {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .post-media-gallery .image-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: all 0.2s;
+        }
+        
+        .post-media-gallery .image-container:hover .image-overlay {
+          background: rgba(0, 0, 0, 0.3);
+          opacity: 1;
+        }
+        
+        .post-media-gallery .more-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 24px;
+          font-weight: 600;
+        }
+        
+        .post-youtube-embeds {
+          margin-bottom: 8px;
+        }
+        
+        .youtube-embed {
+          position: relative;
+          width: 100%;
+          padding-bottom: 56.25%;
+          border-radius: 12px;
+          overflow: hidden;
+          background: #000;
+        }
+        
+        .youtube-embed iframe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+        
+        .youtube-thumbnail-wrapper {
+          position: absolute;
+          inset: 0;
+          cursor: pointer;
+        }
+        
+        .youtube-thumbnail-wrapper img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .youtube-thumbnail-wrapper .play-button {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 68px;
+          height: 48px;
+          background: rgba(0, 0, 0, 0.8);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+        }
+        
+        .youtube-thumbnail-wrapper:hover .play-button {
+          background: #ff0000;
+        }
+        
+        .media-document {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px;
+          background: #f0f2f5;
+          border-radius: 8px;
+          margin-bottom: 8px;
+        }
+        
+        .doc-info {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .doc-name {
+          display: block;
+          font-size: 14px;
+          font-weight: 500;
+          color: #1c1e21;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        .doc-size {
+          display: block;
+          font-size: 12px;
+          color: #65676b;
+        }
+        
+        .doc-download-btn {
+          padding: 8px;
+          background: white;
+          border-radius: 50%;
+          color: #65676b;
+          transition: all 0.2s;
+        }
+        
+        .doc-download-btn:hover {
+          background: #e4e6e9;
+        }
+        
+        .post-link-preview {
+          margin-bottom: 8px;
+        }
+        
+        .link-preview-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 16px;
+          background: #f0f2f5;
+          border-radius: 8px;
+          text-decoration: none;
+          transition: background 0.2s;
+        }
+        
+        .link-preview-card:hover {
+          background: #e4e6e9;
+        }
+        
+        .link-preview-content {
+          flex: 1;
+          min-width: 0;
+        }
+        
+        .link-domain {
+          font-size: 12px;
+          color: #65676b;
+          text-transform: uppercase;
+        }
+        
+        .link-url {
+          font-size: 14px;
+          color: #1c1e21;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        
+        .link-preview-icon {
+          color: #65676b;
+          margin-left: 12px;
+        }
+      `}</style>
     </>
   );
 }
