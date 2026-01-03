@@ -921,12 +921,14 @@ class ERICAgent:
         # Keywords that trigger search
         search_keywords = ["найди", "найти", "поиск", "ищу", "где", "какой", "какая", "лучший", "лучшая", "рекомендуй", "посоветуй"]
         should_search = any(kw in message.lower() for kw in search_keywords)
+        print(f"[ERIC Search] message: {message}, should_search: {should_search}")
         
         search_context = ""
         found_results = False
         if should_search:
             # Extract search query from message
             search_result = await self.search_platform(user_id, message, "all", limit=5)
+            print(f"[ERIC Search] Results count: {len(search_result.get('results', []))}")
             if search_result.get("results"):
                 found_results = True
                 results_formatted = []
