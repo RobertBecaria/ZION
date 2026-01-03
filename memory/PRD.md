@@ -77,6 +77,13 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - ✅ Image & Document Processing with Claude Sonnet 4.5 via Emergent LLM Key
 - ✅ Image upload in ERIC chat widget
 - ✅ Backend APIs: analyze-image, analyze-document, chat-with-image
+- ✅ Platform Media Picker - browse photos/documents from Journal storage
+
+## Key Files Modified This Session
+- `/app/backend/eric_agent.py` - Added vision capabilities with Claude Sonnet
+- `/app/backend/server.py` - New endpoints for image/document analysis
+- `/app/frontend/src/components/eric/ERICChatWidget.js` - Image upload + media picker
+- `/app/frontend/src/components/eric/MediaPicker.js` - NEW: Platform media browser
 
 ### P3 (Low Priority)
 - ERIC-powered platform search
