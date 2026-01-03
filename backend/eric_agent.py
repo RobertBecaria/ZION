@@ -690,12 +690,14 @@ class ERICAgent:
                     })
             
             # Search Services/Marketplace
-            if search_type in ["all", "services", "products"]:
-                services = await self.db.services.find({
+            # Search Services (service_listings collection)
+            if search_type in ["all", "services"]:
+                services = await self.db.service_listings.find({
                     "$or": [
                         {"name": {"$regex": query, "$options": "i"}},
                         {"description": {"$regex": query, "$options": "i"}},
-                        {"category": {"$regex": query, "$options": "i"}}
+                        {"category": {"$regex": query, "$options": "i"}},
+                        {"subcategory": {"$regex": query, "$options": "i"}}
                     ],
                     "is_active": True
                 }).limit(limit).to_list(limit)
@@ -708,17 +710,22 @@ class ERICAgent:
                         "description": svc.get("description"),
                         "metadata": {
                             "category": svc.get("category"),
+                            "subcategory": svc.get("subcategory"),
                             "price": svc.get("price"),
-                            "rating": svc.get("rating")
+                            "price_type": svc.get("price_type"),
+                            "rating": svc.get("average_rating"),
+                            "review_count": svc.get("review_count", 0),
+                            "location": svc.get("location")
                         }
                     })
             
-            # Search Products in Marketplace
+            # Search Products in Marketplace (marketplace_products collection)
             if search_type in ["all", "products"]:
-                products = await self.db.marketplace_items.find({
+                products = await self.db.marketplace_products.find({
                     "$or": [
-                        {"title": {"$regex": query, "$options": "i"}},
-                        {"description": {"$regex": query, "$options": "i"}}
+                        {"name": {"$regex": query, "$options": "i"}},
+                        {"description": {"$regex": query, "$options": "i"}},
+                        {"category": {"$regex": query, "$options": "i"}}
                     ],
                     "status": "available"
                 }).limit(limit).to_list(limit)
@@ -727,12 +734,13 @@ class ERICAgent:
                     search_results.append({
                         "id": prod.get("id"),
                         "type": "product",
-                        "name": prod.get("title"),
+                        "name": prod.get("name"),
                         "description": prod.get("description"),
                         "metadata": {
                             "price": prod.get("price"),
                             "currency": prod.get("currency", "RUB"),
-                            "condition": prod.get("condition")
+                            "condition": prod.get("condition"),
+                            "category": prod.get("category")
                         }
                     })
             
