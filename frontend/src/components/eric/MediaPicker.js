@@ -243,6 +243,7 @@ const MediaPicker = ({
         </div>
       </div>
 
+      {/* eslint-disable-next-line react/no-unknown-property */}
       <style jsx="true">{`
         .media-picker-overlay {
           position: fixed;
