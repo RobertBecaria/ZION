@@ -18065,6 +18065,15 @@ async def create_news_post(
     
     await db.news_posts.insert_one(post.model_dump())
     
+    # Check for @ERIC mention and trigger AI response
+    if '@eric' in post_data.content.lower() or '@ERIC' in post_data.content:
+        asyncio.create_task(process_eric_mention_for_news_post(
+            post_id=post.id,
+            post_content=post_data.content,
+            author_name=f"{current_user.first_name} {current_user.last_name}",
+            user_id=current_user.id
+        ))
+    
     # Update channel post count if applicable
     if post_data.channel_id:
         await db.news_channels.update_one(
