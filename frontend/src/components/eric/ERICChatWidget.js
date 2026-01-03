@@ -215,8 +215,8 @@ const ERICChatWidget = ({ user }) => {
         
         clearSelectedImage();
       } else {
-        // Regular text chat
-        response = await fetch(`${BACKEND_URL}/api/agent/chat`, {
+        // Regular text chat with search capabilities
+        response = await fetch(`${BACKEND_URL}/api/agent/chat-with-search`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`,
