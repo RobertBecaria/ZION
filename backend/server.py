@@ -7755,14 +7755,22 @@ async def get_post_comments(
     for comment in comments:
         comment.pop("_id", None)
         
-        # Get author info
-        author = await get_user_by_id(comment["user_id"])
-        comment["author"] = {
-            "id": author.id,
-            "first_name": author.first_name,
-            "last_name": author.last_name,
-            "profile_picture": author.profile_picture
-        } if author else {}
+        # Get author info - handle ERIC AI special case
+        if comment["user_id"] == "eric-ai":
+            comment["author"] = {
+                "id": "eric-ai",
+                "first_name": "ERIC",
+                "last_name": "AI",
+                "profile_picture": "/eric-avatar.jpg"
+            }
+        else:
+            author = await get_user_by_id(comment["user_id"])
+            comment["author"] = {
+                "id": author.id,
+                "first_name": author.first_name,
+                "last_name": author.last_name,
+                "profile_picture": author.profile_picture
+            } if author else {}
         
         comment["replies"] = []
         comments_dict[comment["id"]] = comment
