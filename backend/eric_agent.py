@@ -1146,6 +1146,51 @@ class ERICAgent:
 
 ВАЖНО: Ты ДОЛЖЕН использовать эти результаты в своём ответе. Представь их кратко и дружелюбно. Пользователь увидит интерактивные карточки с кнопками действий.
 """
+            
+            # Add business recommendations from inter-agent queries
+            if business_recommendations:
+                business_context = "\n## РЕКОМЕНДАЦИИ ОТ БИЗНЕС-ERIC (запросы к бизнес-помощникам):\n"
+                for br in business_recommendations:
+                    org_name = br.get("organization_name", "Неизвестно")
+                    data = br.get("data", {})
+                    business_context += f"\n### {org_name}"
+                    if br.get("city"):
+                        business_context += f" ({br['city']})"
+                    business_context += "\n"
+                    
+                    if data.get("company_info"):
+                        info = data["company_info"]
+                        if info.get("description"):
+                            business_context += f"- {info['description'][:150]}\n"
+                    
+                    if data.get("ratings"):
+                        ratings = data["ratings"]
+                        business_context += f"- Рейтинг: {ratings.get('average_rating', 'N/A')}⭐ ({ratings.get('review_count', 0)} отзывов)\n"
+                    
+                    if data.get("promotions") and len(data["promotions"]) > 0:
+                        business_context += f"- 🎁 Есть активные акции!\n"
+                    
+                    # Add action card for this business
+                    action_cards.append({
+                        "id": br.get("organization_id"),
+                        "type": "recommendation",
+                        "name": org_name,
+                        "description": data.get("company_info", {}).get("description", "")[:100] if data.get("company_info") else "",
+                        "metadata": {
+                            "city": br.get("city"),
+                            "rating": data.get("ratings", {}).get("average_rating"),
+                            "industry": br.get("industry"),
+                            "has_promotions": bool(data.get("promotions"))
+                        },
+                        "action": {
+                            "label": "Подробнее",
+                            "icon": "star",
+                            "route": f"/organizations/{br.get('organization_id')}",
+                            "type": "navigate"
+                        }
+                    })
+                
+                search_context += business_context
         
         # Get user settings
         settings_doc = await self.db.agent_settings.find_one(
