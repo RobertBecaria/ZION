@@ -426,7 +426,14 @@ function PostComposer({
                   <option value="GENDER_MALE">♂️ Только мужчины</option>
                   <option value="GENDER_FEMALE">♀️ Только женщины</option>
                   <option value="GENDER_IT">🤖 Только IT/AI</option>
+                  <option value="ERIC_AI">✨ Спросить ERIC AI</option>
                 </select>
+                {postVisibility === 'ERIC_AI' && (
+                  <div className="eric-visibility-hint">
+                    <Sparkles size={14} />
+                    <span>ERIC проанализирует ваш пост и ответит персональным комментарием</span>
+                  </div>
+                )}
               </div>
               
               <button 
