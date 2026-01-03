@@ -24359,7 +24359,11 @@ async def get_business_eric_settings(
             "is_admin": True
         })
         
-        if not membership:
+        # Also check if user is the organization creator/owner
+        org = await db.work_organizations.find_one({"id": organization_id})
+        is_creator = org and (org.get("created_by") == user_id or org.get("owner_user_id") == user_id)
+        
+        if not membership and not is_creator:
             raise HTTPException(status_code=403, detail="Only admins can access ERIC settings")
         
         settings = await eric_agent.get_business_settings(organization_id)
@@ -24396,7 +24400,11 @@ async def update_business_eric_settings(
             "is_admin": True
         })
         
-        if not membership:
+        # Also check if user is the organization creator/owner
+        org = await db.work_organizations.find_one({"id": organization_id})
+        is_creator = org and (org.get("created_by") == user_id or org.get("owner_user_id") == user_id)
+        
+        if not membership and not is_creator:
             raise HTTPException(status_code=403, detail="Only admins can update ERIC settings")
         
         from eric_agent import BusinessERICSettings
