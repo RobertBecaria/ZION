@@ -78,12 +78,18 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - ✅ Image upload in ERIC chat widget
 - ✅ Backend APIs: analyze-image, analyze-document, chat-with-image
 - ✅ Platform Media Picker - browse photos/documents from Journal storage
+- ✅ "ERIC AI" post visibility option - alternative to @ERIC mentions
+- ✅ ERIC Platform Search API - search services, products, people, organizations
+- ✅ Business ERIC Settings - per-organization AI configuration
+- ✅ Inter-Agent Query System - User ERIC can query Business ERIC
 
 ## Key Files Modified This Session
-- `/app/backend/eric_agent.py` - Added vision capabilities with Claude Sonnet
-- `/app/backend/server.py` - New endpoints for image/document analysis
+- `/app/backend/eric_agent.py` - Added vision, search, business ERIC capabilities
+- `/app/backend/server.py` - New endpoints for image/document analysis, search, business settings
 - `/app/frontend/src/components/eric/ERICChatWidget.js` - Image upload + media picker
 - `/app/frontend/src/components/eric/MediaPicker.js` - NEW: Platform media browser
+- `/app/frontend/src/components/BusinessERICSettings.js` - NEW: Business ERIC settings UI
+- `/app/frontend/src/components/WorkOrganizationSettings.js` - Added ERIC AI tab
 
 ### P3 (Low Priority)
 - ERIC-powered platform search
