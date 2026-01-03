@@ -18066,8 +18066,9 @@ async def create_news_post(
     
     await db.news_posts.insert_one(post.model_dump())
     
-    # Check for @ERIC mention and trigger AI response
-    if '@eric' in post_data.content.lower() or '@ERIC' in post_data.content:
+    # Check for @ERIC mention or ERIC_AI visibility and trigger AI response
+    should_trigger_eric = '@eric' in post_data.content.lower() or '@ERIC' in post_data.content or post_data.visibility == 'ERIC_AI'
+    if should_trigger_eric:
         asyncio.create_task(process_eric_mention_for_news_post(
             post_id=post.id,
             post_content=post_data.content,
