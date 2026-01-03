@@ -726,24 +726,27 @@ class ERICAgent:
             if search_type in ["all", "products"]:
                 products = await self.db.marketplace_products.find({
                     "$or": [
-                        {"name": {"$regex": query, "$options": "i"}},
+                        {"title": {"$regex": query, "$options": "i"}},
                         {"description": {"$regex": query, "$options": "i"}},
                         {"category": {"$regex": query, "$options": "i"}}
                     ],
-                    "status": "available"
+                    "status": {"$in": ["available", "AVAILABLE"]}
                 }).limit(limit).to_list(limit)
                 
                 for prod in products:
                     search_results.append({
                         "id": prod.get("id"),
                         "type": "product",
-                        "name": prod.get("name"),
+                        "name": prod.get("title"),
                         "description": prod.get("description"),
                         "metadata": {
                             "price": prod.get("price"),
                             "currency": prod.get("currency", "RUB"),
                             "condition": prod.get("condition"),
-                            "category": prod.get("category")
+                            "category": prod.get("category"),
+                            "city": prod.get("city"),
+                            "accept_altyn": prod.get("accept_altyn", False),
+                            "altyn_price": prod.get("altyn_price")
                         }
                     })
             
