@@ -173,30 +173,31 @@ const ERICChatWidget = ({ user }) => {
 
   return (
     <>
-      {/* Floating Button */}
-      {!isOpen && (
-        <button 
-          className="eric-widget-button"
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsOpen(true);
-          }}
-          title="Поговорить с ERIC"
-          type="button"
-        >
-          <img 
-            src="/eric-avatar.jpg" 
-            alt="ERIC" 
-            className="eric-button-avatar" 
-            style={{ pointerEvents: 'none' }}
-          />
-          <span className="eric-button-badge" style={{ pointerEvents: 'none' }}>AI</span>
-        </button>
-      )}
+      {/* Floating Button - Always rendered, visibility controlled via CSS */}
+      <button 
+        className={`eric-widget-button ${isOpen ? 'hidden' : ''}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setIsOpen(true);
+        }}
+        title="Поговорить с ERIC"
+        type="button"
+        data-testid="eric-widget-button"
+      >
+        <img 
+          src="/eric-avatar.jpg" 
+          alt="ERIC" 
+          className="eric-button-avatar" 
+          style={{ pointerEvents: 'none' }}
+        />
+        <span className="eric-button-badge" style={{ pointerEvents: 'none' }}>AI</span>
+      </button>
 
       {/* Chat Window */}
-      {isOpen && (
-        <div className={`eric-chat-window ${isMinimized ? 'minimized' : ''}`}>
+      <div 
+        className={`eric-chat-window ${isMinimized ? 'minimized' : ''} ${isOpen ? 'open' : 'closed'}`}
+        data-testid="eric-chat-window"
+      >
           {/* Header */}
           <div className="eric-chat-header">
             <div className="eric-header-left">
@@ -367,7 +368,6 @@ const ERICChatWidget = ({ user }) => {
             </>
           )}
         </div>
-      )}
     </>
   );
 };
