@@ -69,9 +69,14 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - Add "ERIC AI" as post visibility option
 
 ### P2 (Medium Priority)
-- Image & Document Processing with Sonnet 4.5
 - Advanced Financial Advice features
 - AI Assistant Settings Page (control data access)
+- Drag-and-drop image upload for ERIC chat
+
+### Completed (2025-01-03)
+- ✅ Image & Document Processing with Claude Sonnet 4.5 via Emergent LLM Key
+- ✅ Image upload in ERIC chat widget
+- ✅ Backend APIs: analyze-image, analyze-document, chat-with-image
 
 ### P3 (Low Priority)
 - ERIC-powered platform search
