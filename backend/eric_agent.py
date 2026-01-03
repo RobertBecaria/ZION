@@ -955,6 +955,7 @@ class ERICAgent:
         
         search_context = ""
         found_results = False
+        action_cards = []  # Initialize action cards
         if should_search:
             # Try searching with each expanded term until we find results
             all_results = []
@@ -972,7 +973,6 @@ class ERICAgent:
             if all_results:
                 found_results = True
                 results_formatted = []
-                action_cards = []  # Store action cards for frontend
                 
                 for r in all_results[:5]:
                     result_str = f"- **{r['type'].upper()}**: {r['name']}"
