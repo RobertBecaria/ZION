@@ -1,0 +1,141 @@
+/**
+ * ERIC Search Result Cards Styles
+ */
+
+.eric-search-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.eric-search-card {
+  background: white;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-left: 3px solid var(--card-color, #6B7280);
+  transition: all 0.2s ease;
+}
+
+.eric-search-card:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.eric-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.eric-card-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.eric-card-body {
+  margin-bottom: 10px;
+}
+
+.eric-card-title {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+  line-height: 1.3;
+}
+
+.eric-card-description {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.eric-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.eric-card-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  color: #6b7280;
+}
+
+.eric-card-meta-item.rating {
+  color: #F59E0B;
+}
+
+.eric-card-meta-item.price {
+  color: #10B981;
+  font-weight: 500;
+}
+
+.eric-card-action {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.eric-card-action:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.eric-card-action:active {
+  transform: translateY(0);
+}
+
+/* Scrollable container for many results */
+.eric-search-cards-scroll {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.eric-search-cards-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.eric-search-cards-scroll::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 2px;
+}
+
+.eric-search-cards-scroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.eric-search-cards-scroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
