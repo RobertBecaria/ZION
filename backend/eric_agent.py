@@ -644,3 +644,351 @@ class ERICAgent:
                 message=error_message,
                 suggested_actions=[]
             )
+
+    # ===== SEARCH FUNCTIONALITY =====
+    
+    async def search_platform(self, user_id: str, query: str, search_type: str = "all", location: Optional[str] = None, limit: int = 10) -> Dict[str, Any]:
+        """
+        Search across the ZION.CITY platform for services, products, people, and organizations.
+        Uses both database search and AI-powered relevance ranking.
+        """
+        results = {
+            "query": query,
+            "search_type": search_type,
+            "results": [],
+            "ai_summary": ""
+        }
+        
+        try:
+            search_results = []
+            query_lower = query.lower()
+            
+            # Search Organizations/Businesses
+            if search_type in ["all", "organizations", "services"]:
+                orgs = await self.db.work_organizations.find({
+                    "$or": [
+                        {"name": {"$regex": query, "$options": "i"}},
+                        {"description": {"$regex": query, "$options": "i"}},
+                        {"industry": {"$regex": query, "$options": "i"}}
+                    ],
+                    "is_active": True,
+                    "is_private": False
+                }).limit(limit).to_list(limit)
+                
+                for org in orgs:
+                    search_results.append({
+                        "id": org.get("id"),
+                        "type": "organization",
+                        "name": org.get("name"),
+                        "description": org.get("description"),
+                        "industry": org.get("industry"),
+                        "metadata": {
+                            "member_count": org.get("member_count", 0),
+                            "founded_year": org.get("founded_year"),
+                            "logo_url": org.get("logo_url")
+                        }
+                    })
+            
+            # Search Services/Marketplace
+            if search_type in ["all", "services", "products"]:
+                services = await self.db.services.find({
+                    "$or": [
+                        {"name": {"$regex": query, "$options": "i"}},
+                        {"description": {"$regex": query, "$options": "i"}},
+                        {"category": {"$regex": query, "$options": "i"}}
+                    ],
+                    "is_active": True
+                }).limit(limit).to_list(limit)
+                
+                for svc in services:
+                    search_results.append({
+                        "id": svc.get("id"),
+                        "type": "service",
+                        "name": svc.get("name"),
+                        "description": svc.get("description"),
+                        "metadata": {
+                            "category": svc.get("category"),
+                            "price": svc.get("price"),
+                            "rating": svc.get("rating")
+                        }
+                    })
+            
+            # Search Products in Marketplace
+            if search_type in ["all", "products"]:
+                products = await self.db.marketplace_items.find({
+                    "$or": [
+                        {"title": {"$regex": query, "$options": "i"}},
+                        {"description": {"$regex": query, "$options": "i"}}
+                    ],
+                    "status": "available"
+                }).limit(limit).to_list(limit)
+                
+                for prod in products:
+                    search_results.append({
+                        "id": prod.get("id"),
+                        "type": "product",
+                        "name": prod.get("title"),
+                        "description": prod.get("description"),
+                        "metadata": {
+                            "price": prod.get("price"),
+                            "currency": prod.get("currency", "RUB"),
+                            "condition": prod.get("condition")
+                        }
+                    })
+            
+            # Search People (public profiles only)
+            if search_type in ["all", "people"]:
+                users = await self.db.users.find({
+                    "$or": [
+                        {"first_name": {"$regex": query, "$options": "i"}},
+                        {"last_name": {"$regex": query, "$options": "i"}},
+                        {"bio": {"$regex": query, "$options": "i"}}
+                    ]
+                }, {"_id": 0, "password_hash": 0}).limit(limit).to_list(limit)
+                
+                for user in users:
+                    # Check privacy settings
+                    privacy = user.get("privacy_settings", {})
+                    if privacy.get("profile_visibility", "public") == "public":
+                        search_results.append({
+                            "id": user.get("id"),
+                            "type": "person",
+                            "name": f"{user.get('first_name', '')} {user.get('last_name', '')}".strip(),
+                            "description": user.get("bio"),
+                            "metadata": {
+                                "profile_picture": user.get("profile_picture")
+                            }
+                        })
+            
+            results["results"] = search_results
+            results["total_count"] = len(search_results)
+            
+            # Generate AI summary if results found
+            if search_results and DEEPSEEK_API_KEY:
+                summary_prompt = f"""На основе результатов поиска по запросу "{query}", дай краткую рекомендацию пользователю.
+                
+Найдено {len(search_results)} результатов:
+{[f"- {r['type']}: {r['name']}" for r in search_results[:5]]}
+
+Ответь кратко (2-3 предложения) на русском языке."""
+
+                try:
+                    response = await deepseek_client.chat.completions.create(
+                        model=self.model,
+                        messages=[
+                            {"role": "system", "content": "Ты помощник поиска ZION.CITY. Давай краткие и полезные рекомендации."},
+                            {"role": "user", "content": summary_prompt}
+                        ],
+                        max_tokens=150,
+                        temperature=0.7
+                    )
+                    results["ai_summary"] = response.choices[0].message.content
+                except:
+                    results["ai_summary"] = f"Найдено {len(search_results)} результатов по вашему запросу."
+            
+            return results
+            
+        except Exception as e:
+            return {
+                "query": query,
+                "search_type": search_type,
+                "results": [],
+                "error": str(e)
+            }
+
+    # ===== BUSINESS ERIC SETTINGS =====
+    
+    async def get_business_settings(self, organization_id: str) -> Optional[BusinessERICSettings]:
+        """Get ERIC settings for a business/organization"""
+        settings_doc = await self.db.business_eric_settings.find_one(
+            {"organization_id": organization_id},
+            {"_id": 0}
+        )
+        if settings_doc:
+            return BusinessERICSettings(**settings_doc)
+        return None
+    
+    async def save_business_settings(self, settings: BusinessERICSettings) -> BusinessERICSettings:
+        """Save or update ERIC settings for a business/organization"""
+        settings.updated_at = datetime.now(timezone.utc).isoformat()
+        await self.db.business_eric_settings.update_one(
+            {"organization_id": settings.organization_id},
+            {"$set": settings.dict()},
+            upsert=True
+        )
+        return settings
+    
+    async def query_business_eric(self, user_id: str, organization_id: str, query: str) -> Dict[str, Any]:
+        """
+        Query a business's ERIC agent for information.
+        Respects the business's privacy settings.
+        """
+        # Get business ERIC settings
+        settings = await self.get_business_settings(organization_id)
+        if not settings:
+            # Create default settings
+            settings = BusinessERICSettings(organization_id=organization_id)
+            await self.save_business_settings(settings)
+        
+        # Check if queries are allowed
+        if not settings.allow_user_eric_queries:
+            return {
+                "success": False,
+                "error": "Этот бизнес не принимает запросы от ERIC-помощников"
+            }
+        
+        # Get organization info
+        org = await self.db.work_organizations.find_one(
+            {"id": organization_id},
+            {"_id": 0}
+        )
+        if not org:
+            return {
+                "success": False,
+                "error": "Организация не найдена"
+            }
+        
+        # Build response based on allowed data
+        response_data = {}
+        
+        if settings.share_public_data:
+            response_data["company_info"] = {
+                "name": org.get("name"),
+                "description": org.get("description"),
+                "industry": org.get("industry"),
+                "website": org.get("website"),
+                "email": org.get("official_email")
+            }
+        
+        if settings.share_promotions:
+            # Get active promotions
+            promos = await self.db.promotions.find({
+                "organization_id": organization_id,
+                "is_active": True
+            }, {"_id": 0}).to_list(10)
+            response_data["promotions"] = promos
+        
+        if settings.share_aggregated_analytics and settings.share_repeat_customer_stats:
+            # This would be calculated from transaction data
+            # For now, return placeholder
+            response_data["analytics"] = {
+                "repeat_customer_rate": "Данные недоступны",
+                "note": "Агрегированная аналитика"
+            }
+        
+        if settings.share_ratings_reviews:
+            # Get average rating
+            reviews = await self.db.reviews.find({
+                "organization_id": organization_id
+            }).to_list(100)
+            if reviews:
+                avg_rating = sum(r.get("rating", 0) for r in reviews) / len(reviews)
+                response_data["ratings"] = {
+                    "average_rating": round(avg_rating, 1),
+                    "review_count": len(reviews)
+                }
+        
+        return {
+            "success": True,
+            "organization_id": organization_id,
+            "organization_name": org.get("name"),
+            "data": response_data,
+            "settings_active": settings.is_active
+        }
+
+    async def chat_with_search(self, user_id: str, message: str, conversation_id: Optional[str] = None) -> ChatResponse:
+        """
+        Enhanced chat that can perform platform searches when needed.
+        ERIC will automatically search when user asks about finding services, products, people.
+        """
+        # Keywords that trigger search
+        search_keywords = ["найди", "найти", "поиск", "ищу", "где", "какой", "какая", "лучший", "лучшая", "рекомендуй", "посоветуй"]
+        should_search = any(kw in message.lower() for kw in search_keywords)
+        
+        search_context = ""
+        if should_search:
+            # Extract search query from message
+            search_result = await self.search_platform(user_id, message, "all", limit=5)
+            if search_result.get("results"):
+                search_context = f"""
+## Результаты поиска по платформе:
+{chr(10).join([f"- **{r['type'].upper()}**: {r['name']} - {r.get('description', 'Нет описания')[:100]}" for r in search_result['results'][:5]])}
+
+Используй эти результаты чтобы дать пользователю конкретные рекомендации.
+"""
+        
+        # Get user settings
+        settings_doc = await self.db.agent_settings.find_one(
+            {"user_id": user_id},
+            {"_id": 0}
+        )
+        settings = AgentSettings(**settings_doc) if settings_doc else AgentSettings(user_id=user_id)
+        
+        # Get or create conversation
+        conversation = await self.get_or_create_conversation(user_id, conversation_id)
+        
+        # Add user message
+        user_message = AgentMessage(role="user", content=message)
+        conversation.messages.append(user_message)
+        
+        # Build context
+        user_context = await self.get_user_context(user_id, settings)
+        
+        # Enhanced system prompt with search context
+        enhanced_prompt = ERIC_SYSTEM_PROMPT + f"""
+
+## Дополнительный контекст:
+{user_context}
+
+{search_context}
+
+## Важно о поиске:
+- Если пользователь ищет услуги или товары, используй результаты поиска выше
+- Давай конкретные рекомендации на основе найденных данных
+- Если ничего не найдено, предложи альтернативы или уточни запрос
+"""
+        
+        # Build messages for API
+        api_messages = [{"role": "system", "content": enhanced_prompt}]
+        for msg in conversation.messages[-10:]:
+            api_messages.append({"role": msg.role, "content": msg.content})
+        
+        try:
+            response = await deepseek_client.chat.completions.create(
+                model=self.model,
+                messages=api_messages,
+                max_tokens=1000,
+                temperature=0.7
+            )
+            
+            assistant_content = response.choices[0].message.content
+            assistant_message = AgentMessage(role="assistant", content=assistant_content)
+            conversation.messages.append(assistant_message)
+            
+            # Update conversation
+            if len(conversation.messages) == 2:
+                conversation.title = message[:50] + "..." if len(message) > 50 else message
+            
+            conversation.updated_at = datetime.now(timezone.utc).isoformat()
+            await self.db.agent_conversations.update_one(
+                {"id": conversation.id},
+                {"$set": conversation.dict()},
+                upsert=True
+            )
+            
+            return ChatResponse(
+                conversation_id=conversation.id,
+                message=assistant_message,
+                suggested_actions=[]
+            )
+            
+        except Exception as e:
+            error_message = AgentMessage(
+                role="assistant",
+                content=f"Извините, произошла ошибка: {str(e)}"
+            )
+            return ChatResponse(
+                conversation_id=conversation_id or str(uuid4()),
+                message=error_message,
+                suggested_actions=[]
+            )
