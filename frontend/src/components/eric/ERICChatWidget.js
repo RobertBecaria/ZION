@@ -233,7 +233,13 @@ const ERICChatWidget = ({ user }) => {
       if (response.ok) {
         const data = await response.json();
         setCurrentConversation({ id: data.conversation_id });
-        setMessages(prev => [...prev, data.message]);
+        
+        // Add message with any search result cards
+        const assistantMessage = {
+          ...data.message,
+          suggested_actions: data.suggested_actions || []
+        };
+        setMessages(prev => [...prev, assistantMessage]);
         loadConversations(); // Refresh conversation list
       } else {
         const errorData = await response.json();
