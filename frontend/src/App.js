@@ -106,6 +106,8 @@ import {
   GoodWillInvitations,
   GoodWillGroups
 } from './components/goodwill';
+// ERIC AI ASSISTANT
+import { ERICChatWidget, ERICProfile } from './components/eric';
 import { 
   Search, Bell, ChevronRight, Plus, GraduationCap, Briefcase
 } from 'lucide-react';
