@@ -414,6 +414,10 @@
   color: #FF9500;
 }
 
+.eric-attach-btn.eric-platform-btn:hover:not(:disabled) {
+  color: #6D28D9;
+}
+
 .eric-attach-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
