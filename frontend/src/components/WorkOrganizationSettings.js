@@ -296,6 +296,7 @@ const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveO
                 { id: 'contact', label: 'Контакты', icon: Mail },
                 { id: 'media', label: 'Медиа', icon: Image },
                 { id: 'privacy', label: 'Приватность', icon: Globe },
+                { id: 'eric_ai', label: 'ERIC AI', icon: Sparkles },
                 { id: 'requests', label: 'Запросы', icon: Clock, badge: pendingChangeRequestsCount }
               ].map(tab => (
                 <button
