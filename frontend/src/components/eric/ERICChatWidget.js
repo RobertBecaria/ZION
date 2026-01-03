@@ -414,21 +414,50 @@ const ERICChatWidget = ({ user }) => {
                     <div ref={messagesEndRef} />
                   </div>
 
+                  {/* Image Preview */}
+                  {imagePreview && (
+                    <div className="eric-image-preview">
+                      <img src={imagePreview} alt="Preview" />
+                      <button 
+                        className="eric-image-remove"
+                        onClick={clearSelectedImage}
+                        title="Удалить изображение"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  )}
+
                   {/* Input */}
                   <div className="eric-input-wrapper">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageSelect}
+                      accept="image/jpeg,image/png,image/webp"
+                      style={{ display: 'none' }}
+                    />
+                    <button 
+                      className="eric-attach-btn"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={loading}
+                      title="Прикрепить изображение"
+                    >
+                      <Image size={20} />
+                    </button>
                     <textarea
                       ref={inputRef}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Напишите сообщение..."
+                      placeholder={selectedImage ? "Добавьте вопрос об изображении..." : "Напишите сообщение..."}
                       rows={1}
                       disabled={loading}
                     />
                     <button 
                       className="eric-send-btn"
                       onClick={sendMessage}
-                      disabled={!message.trim() || loading}
+                      disabled={(!message.trim() && !selectedImage) || loading}
                     >
                       {loading ? <Loader2 size={20} className="spin" /> : <Send size={20} />}
                     </button>
