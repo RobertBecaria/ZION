@@ -6,9 +6,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   MessageCircle, X, Send, Loader2, Minimize2, Maximize2,
-  Trash2, Settings, ChevronLeft, Sparkles, Image, Paperclip
+  Trash2, Settings, ChevronLeft, Sparkles, Image, Paperclip, FolderOpen
 } from 'lucide-react';
 import './ERICChatWidget.css';
+import MediaPicker from './MediaPicker';
 
 const ERICChatWidget = ({ user }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,6 +22,8 @@ const ERICChatWidget = ({ user }) => {
   const [showConversationList, setShowConversationList] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [selectedPlatformFile, setSelectedPlatformFile] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
