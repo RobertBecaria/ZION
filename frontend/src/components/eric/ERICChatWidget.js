@@ -153,8 +153,10 @@ const ERICChatWidget = ({ user }) => {
   const sendMessage = async () => {
     if ((!message.trim() && !selectedImage && !selectedPlatformFile) || loading) return;
     
-    const messageContent = selectedImage 
-      ? `📷 ${message.trim() || 'Проанализируй это изображение'}` 
+    const hasAttachment = selectedImage || selectedPlatformFile;
+    const fileName = selectedPlatformFile?.original_filename || selectedImage?.name || '';
+    const messageContent = hasAttachment 
+      ? `📷 ${message.trim() || 'Проанализируй это изображение'}${fileName ? ` (${fileName})` : ''}`
       : message;
     
     const userMessage = {
@@ -162,7 +164,7 @@ const ERICChatWidget = ({ user }) => {
       role: 'user',
       content: messageContent,
       created_at: new Date().toISOString(),
-      hasImage: !!selectedImage,
+      hasImage: hasAttachment,
       imagePreview: imagePreview
     };
     
@@ -174,17 +176,27 @@ const ERICChatWidget = ({ user }) => {
       const token = localStorage.getItem('zion_token');
       let response;
       
-      if (selectedImage) {
-        // Convert image to base64
-        const reader = new FileReader();
-        const imageBase64Promise = new Promise((resolve) => {
-          reader.onloadend = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
-          };
-          reader.readAsDataURL(selectedImage);
-        });
-        const imageBase64 = await imageBase64Promise;
+      if (hasAttachment) {
+        let imageBase64;
+        let mimeType;
+        
+        if (selectedImage) {
+          // Convert local image to base64
+          const reader = new FileReader();
+          const imageBase64Promise = new Promise((resolve) => {
+            reader.onloadend = () => {
+              const base64 = reader.result.split(',')[1];
+              resolve(base64);
+            };
+            reader.readAsDataURL(selectedImage);
+          });
+          imageBase64 = await imageBase64Promise;
+          mimeType = selectedImage.type;
+        } else if (selectedPlatformFile && imagePreview) {
+          // Platform file - already have base64 from preview
+          imageBase64 = imagePreview.split(',')[1];
+          mimeType = selectedPlatformFile.mime_type || 'image/jpeg';
+        }
         
         // Send chat with image
         response = await fetch(`${BACKEND_URL}/api/agent/chat-with-image`, {
@@ -196,7 +208,7 @@ const ERICChatWidget = ({ user }) => {
           body: JSON.stringify({
             message: message.trim() || 'Проанализируй это изображение',
             image_base64: imageBase64,
-            mime_type: selectedImage.type,
+            mime_type: mimeType,
             conversation_id: currentConversation?.id || null
           })
         });
