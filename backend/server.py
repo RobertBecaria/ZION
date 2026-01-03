@@ -24279,6 +24279,10 @@ class SearchRequestModel(BaseModel):
     location: Optional[str] = None
     limit: int = 10
 
+class ChatRequestModel(BaseModel):
+    message: str
+    conversation_id: Optional[str] = None
+
 @api_router.post("/agent/search")
 async def eric_search(
     request: SearchRequestModel,
