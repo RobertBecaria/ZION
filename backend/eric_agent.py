@@ -664,7 +664,7 @@ class ERICAgent:
             query_lower = query.lower()
             
             # Search Organizations/Businesses
-            if search_type in ["all", "organizations", "services"]:
+            if search_type in ["all", "organizations"]:
                 orgs = await self.db.work_organizations.find({
                     "$or": [
                         {"name": {"$regex": query, "$options": "i"}},
