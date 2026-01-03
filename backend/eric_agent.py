@@ -60,9 +60,42 @@ class AgentSettings(BaseModel):
     allow_family_coordination: bool = True
     allow_service_recommendations: bool = True
     allow_marketplace_suggestions: bool = True
+    allow_eric_queries_from_others: bool = True  # Allow other users' ERICs to query
     conversation_retention_days: int = 30
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class BusinessERICSettings(BaseModel):
+    """Settings for Organization/Business ERIC agent"""
+    organization_id: str
+    is_active: bool = True
+    # Data access permissions
+    share_public_data: bool = True  # Company info, services, contacts
+    share_promotions: bool = True  # Coupons, discounts
+    share_repeat_customer_stats: bool = False  # Aggregated loyalty stats
+    share_ratings_reviews: bool = False  # Rating trends
+    # Query permissions
+    allow_user_eric_queries: bool = True  # Allow user ERICs to query
+    share_aggregated_analytics: bool = False  # Share % repeat customers
+    # Customization
+    business_description: Optional[str] = None  # Custom description for ERIC
+    specialties: List[str] = []  # Areas of expertise
+    created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    updated_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+
+class SearchRequest(BaseModel):
+    query: str
+    search_type: str = "all"  # "all", "services", "products", "people", "organizations"
+    location: Optional[str] = None
+    limit: int = 10
+
+class SearchResult(BaseModel):
+    id: str
+    type: str  # "service", "product", "person", "organization"
+    name: str
+    description: Optional[str] = None
+    relevance_score: float = 0.0
+    metadata: Dict[str, Any] = {}
 
 class ChatRequest(BaseModel):
     message: str
