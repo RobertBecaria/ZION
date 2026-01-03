@@ -23923,6 +23923,53 @@ from eric_agent import ERICAgent, ChatRequest, ChatResponse, AgentSettings, Agen
 # Initialize ERIC agent
 eric_agent = ERICAgent(db)
 
+# Helper function to process @ERIC mentions in posts
+async def process_eric_mention_for_post(post_id: str, post_content: str, author_name: str, user_id: str):
+    """Background task to process @ERIC mentions and add AI comment"""
+    try:
+        # Get ERIC's response
+        eric_response = await eric_agent.process_post_mention(
+            user_id=user_id,
+            post_id=post_id,
+            post_content=post_content,
+            author_name=author_name
+        )
+        
+        # Create ERIC's comment on the post
+        eric_comment = {
+            "id": str(uuid.uuid4()),
+            "post_id": post_id,
+            "user_id": "eric-ai",  # Special ERIC user ID
+            "content": eric_response,
+            "likes_count": 0,
+            "liked_by": [],
+            "parent_comment_id": None,
+            "is_edited": False,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            # ERIC's virtual author info
+            "author": {
+                "id": "eric-ai",
+                "first_name": "ERIC",
+                "last_name": "AI",
+                "profile_picture": "/eric-avatar.jpg"
+            }
+        }
+        
+        # Insert the comment
+        await db.post_comments.insert_one(eric_comment)
+        
+        # Update post's comment count
+        await db.posts.update_one(
+            {"id": post_id},
+            {"$inc": {"comments_count": 1}}
+        )
+        
+        logging.info(f"ERIC commented on post {post_id}")
+        
+    except Exception as e:
+        logging.error(f"Error processing ERIC mention for post {post_id}: {str(e)}")
+
 @api_router.post("/agent/chat")
 async def agent_chat(
     request: ChatRequest,
