@@ -4,6 +4,7 @@ import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
 import WorkTransferOwnershipModal from './WorkTransferOwnershipModal';
 import WorkMemberSettings from './WorkMemberSettings';
 import WorkChangeRequestsManager from './WorkChangeRequestsManager';
+import BusinessERICSettings from './BusinessERICSettings';
 
 const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveOrganization, currentMembership }) => {
   const [organization, setOrganization] = useState(null);
