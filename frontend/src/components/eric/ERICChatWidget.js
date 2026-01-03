@@ -384,6 +384,13 @@ const ERICChatWidget = ({ user }) => {
                             <img src="/eric-avatar.jpg" alt="ERIC" className="eric-msg-avatar" />
                           )}
                           <div className="eric-msg-content">
+                            {msg.hasImage && msg.imagePreview && (
+                              <img 
+                                src={msg.imagePreview} 
+                                alt="Attached" 
+                                className="eric-msg-image"
+                              />
+                            )}
                             <p>{msg.content}</p>
                             <span className="eric-msg-time">{formatTime(msg.created_at)}</span>
                           </div>
