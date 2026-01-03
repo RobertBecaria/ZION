@@ -1,24 +1,30 @@
 """
 ERIC - Enhanced Reasoning Intelligence Core
 AI Agent for ZION.CITY Platform
-Powered by DeepSeek V3.2
+Powered by DeepSeek V3.2 (text) + Claude Sonnet 4.5 (vision/documents)
 """
 
 import os
-import json
-import asyncio
+import base64
 from datetime import datetime, timezone
 from uuid import uuid4
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from openai import AsyncOpenAI
 
-# Initialize DeepSeek client (OpenAI-compatible)
+# Initialize DeepSeek client (OpenAI-compatible) for text chat
 DEEPSEEK_API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
 deepseek_client = AsyncOpenAI(
     api_key=DEEPSEEK_API_KEY,
     base_url="https://api.deepseek.com"
 ) if DEEPSEEK_API_KEY else None
+
+# Emergent LLM Key for Claude Sonnet (vision/documents)
+EMERGENT_LLM_KEY = os.environ.get('EMERGENT_LLM_KEY', '')
 
 # ===== PYDANTIC MODELS =====
 
