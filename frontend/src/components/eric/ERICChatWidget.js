@@ -102,14 +102,40 @@ const ERICChatWidget = ({ user }) => {
     }
   };
 
+  const handleImageSelect = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const clearSelectedImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const sendMessage = async () => {
-    if (!message.trim() || loading) return;
+    if ((!message.trim() && !selectedImage) || loading) return;
+    
+    const messageContent = selectedImage 
+      ? `📷 ${message.trim() || 'Проанализируй это изображение'}` 
+      : message;
     
     const userMessage = {
       id: Date.now().toString(),
       role: 'user',
-      content: message,
-      created_at: new Date().toISOString()
+      content: messageContent,
+      created_at: new Date().toISOString(),
+      hasImage: !!selectedImage,
+      imagePreview: imagePreview
     };
     
     setMessages(prev => [...prev, userMessage]);
@@ -118,17 +144,50 @@ const ERICChatWidget = ({ user }) => {
     
     try {
       const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/agent/chat`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: userMessage.content,
-          conversation_id: currentConversation?.id || null
-        })
-      });
+      let response;
+      
+      if (selectedImage) {
+        // Convert image to base64
+        const reader = new FileReader();
+        const imageBase64Promise = new Promise((resolve) => {
+          reader.onloadend = () => {
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+          };
+          reader.readAsDataURL(selectedImage);
+        });
+        const imageBase64 = await imageBase64Promise;
+        
+        // Send chat with image
+        response = await fetch(`${BACKEND_URL}/api/agent/chat-with-image`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: message.trim() || 'Проанализируй это изображение',
+            image_base64: imageBase64,
+            mime_type: selectedImage.type,
+            conversation_id: currentConversation?.id || null
+          })
+        });
+        
+        clearSelectedImage();
+      } else {
+        // Regular text chat
+        response = await fetch(`${BACKEND_URL}/api/agent/chat`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: userMessage.content,
+            conversation_id: currentConversation?.id || null
+          })
+        });
+      }
       
       if (response.ok) {
         const data = await response.json();
