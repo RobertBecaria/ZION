@@ -300,6 +300,21 @@ const LeftSidebar = ({
           <>
             <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
             
+            {/* ERIC AI Assistant */}
+            <button 
+              className={`profile-btn ${activeView === 'eric-ai' ? 'primary' : 'secondary'}`}
+              style={activeView === 'eric-ai' ? {
+                background: 'linear-gradient(135deg, #FFD93D 0%, #FF9500 100%)',
+                color: '#333'
+              } : {}}
+              onClick={() => setActiveView('eric-ai')}
+            >
+              <Bot size={18} />
+              <span>ERIC AI</span>
+            </button>
+            
+            <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
+            
             {/* MARKETPLACE Section */}
             <button 
               className={`profile-btn ${activeView === 'marketplace-search' ? 'primary' : 'secondary'}`}
