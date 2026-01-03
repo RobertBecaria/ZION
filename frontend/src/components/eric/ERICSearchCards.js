@@ -3,7 +3,6 @@
  * Interactive cards for search results with action buttons
  */
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, Building2, ShoppingBag, MessageCircle,
   MapPin, Star, DollarSign
@@ -11,11 +10,10 @@ import {
 import './ERICSearchCards.css';
 
 const ERICSearchCards = ({ cards }) => {
-  const navigate = useNavigate();
-
+  // Use window.location for navigation to avoid Router context issues
   const handleAction = (card) => {
     if (card.action?.route) {
-      navigate(card.action.route);
+      window.location.href = card.action.route;
     }
   };
 
