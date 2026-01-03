@@ -916,6 +916,94 @@ class ERICAgent:
             "settings_active": settings.is_active
         }
 
+    async def query_multiple_businesses(self, user_id: str, query: str, category: str = None, limit: int = 5) -> Dict[str, Any]:
+        """
+        Query multiple business ERICs for recommendations.
+        Used when user asks for best/recommended services.
+        Returns aggregated responses respecting each business's privacy settings.
+        """
+        results = []
+        
+        # Find businesses that allow queries
+        query_filter = {}
+        if category:
+            # Map Russian category keywords to fields
+            category_fields = {
+                "красота": ["beauty", "салон"],
+                "ремонт": ["repair", "сервис"],
+                "машина": ["auto", "автосервис"],
+                "еда": ["food", "ресторан", "кафе"],
+                "здоровье": ["health", "медицина"],
+                "образование": ["education", "школа"]
+            }
+            search_terms = category_fields.get(category.lower(), [category])
+            query_filter["$or"] = [
+                {"industry": {"$regex": term, "$options": "i"}} for term in search_terms
+            ] + [
+                {"name": {"$regex": term, "$options": "i"}} for term in search_terms
+            ]
+        
+        # Get organizations
+        orgs = await self.db.work_organizations.find(
+            query_filter, {"_id": 0}
+        ).limit(limit * 2).to_list(limit * 2)  # Get more to filter by settings
+        
+        for org in orgs:
+            org_id = org.get("id") or org.get("organization_id")
+            if not org_id:
+                continue
+                
+            # Get business ERIC settings
+            settings = await self.get_business_settings(org_id)
+            
+            # Default: allow queries if no settings exist
+            allow_queries = True
+            if settings:
+                allow_queries = settings.allow_user_eric_queries
+            
+            if not allow_queries:
+                continue
+            
+            # Query this business's ERIC
+            business_response = await self.query_business_eric(user_id, org_id, query)
+            
+            if business_response.get("success"):
+                # Calculate a simple relevance score
+                score = 0
+                data = business_response.get("data", {})
+                
+                # Boost score based on available data
+                if data.get("company_info"):
+                    score += 1
+                if data.get("ratings"):
+                    rating = data["ratings"].get("average_rating", 0)
+                    score += rating / 5  # Normalize to 0-1
+                if data.get("promotions"):
+                    score += 0.5
+                
+                results.append({
+                    "organization_id": org_id,
+                    "organization_name": business_response.get("organization_name"),
+                    "data": data,
+                    "relevance_score": score,
+                    "industry": org.get("industry"),
+                    "city": org.get("address_city")
+                })
+            
+            if len(results) >= limit:
+                break
+        
+        # Sort by relevance score
+        results.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
+        
+        return {
+            "query": query,
+            "category": category,
+            "results": results[:limit],
+            "total_businesses_queried": len(orgs),
+            "businesses_responding": len(results)
+        }
+
     async def chat_with_search(self, user_id: str, message: str, conversation_id: Optional[str] = None) -> ChatResponse:
         """
         Enhanced chat that can perform platform searches when needed.
