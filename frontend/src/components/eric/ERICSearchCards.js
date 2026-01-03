@@ -115,6 +115,11 @@ const ERICSearchCards = ({ cards }) => {
                   {card.metadata.price_from || card.metadata.price} {card.metadata.currency || 'RUB'}
                 </span>
               )}
+              {card.metadata?.has_promotions && (
+                <span className="eric-card-meta-item promo">
+                  🎁 Акция
+                </span>
+              )}
             </div>
           </div>
           
