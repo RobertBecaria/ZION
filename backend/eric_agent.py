@@ -1035,6 +1035,17 @@ class ERICAgent:
             "организации": ["organization", "компания", "фирма"]
         }
         
+        # Check if user is asking for recommendations (triggers inter-agent queries)
+        recommendation_keywords = ["лучший", "лучшая", "лучшее", "рекомендуй", "посоветуй", "какой лучше", "где лучше"]
+        wants_recommendations = any(kw in message.lower() for kw in recommendation_keywords)
+        
+        # Detect category for business queries
+        detected_category = None
+        for ru_term in category_mappings.keys():
+            if ru_term in search_query:
+                detected_category = ru_term
+                break
+        
         # Expand search query with mapped terms
         expanded_terms = [search_query]
         for ru_term, en_terms in category_mappings.items():
@@ -1044,6 +1055,8 @@ class ERICAgent:
         search_context = ""
         found_results = False
         action_cards = []  # Initialize action cards
+        business_recommendations = []  # For inter-agent results
+        
         if should_search:
             # Try searching with each expanded term until we find results
             all_results = []
@@ -1057,6 +1070,16 @@ class ERICAgent:
                                 all_results.append(r)
                     if len(all_results) >= 5:
                         break
+            
+            # If user wants recommendations, also query business ERICs
+            if wants_recommendations and detected_category:
+                business_query_result = await self.query_multiple_businesses(
+                    user_id=user_id,
+                    query=message,
+                    category=detected_category,
+                    limit=3
+                )
+                business_recommendations = business_query_result.get("results", [])
             
             if all_results:
                 found_results = True
