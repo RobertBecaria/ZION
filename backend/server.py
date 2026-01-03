@@ -24271,6 +24271,169 @@ async def chat_with_image(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ===== ERIC SEARCH ENDPOINTS =====
+
+class SearchRequestModel(BaseModel):
+    query: str
+    search_type: str = "all"  # "all", "services", "products", "people", "organizations"
+    location: Optional[str] = None
+    limit: int = 10
+
+@api_router.post("/agent/search")
+async def eric_search(
+    request: SearchRequestModel,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Search across the ZION.CITY platform using ERIC"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.search_platform(
+            user_id=user_id,
+            query=request.query,
+            search_type=request.search_type,
+            location=request.location,
+            limit=request.limit
+        )
+        
+        return result
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/agent/chat-with-search")
+async def chat_with_search(
+    request: ChatRequestModel,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Chat with ERIC with automatic platform search capabilities"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.chat_with_search(
+            user_id=user_id,
+            message=request.message,
+            conversation_id=request.conversation_id
+        )
+        
+        return result.dict()
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ===== BUSINESS ERIC SETTINGS ENDPOINTS =====
+
+class BusinessERICSettingsModel(BaseModel):
+    is_active: bool = True
+    share_public_data: bool = True
+    share_promotions: bool = True
+    share_repeat_customer_stats: bool = False
+    share_ratings_reviews: bool = False
+    allow_user_eric_queries: bool = True
+    share_aggregated_analytics: bool = False
+    business_description: Optional[str] = None
+    specialties: List[str] = []
+
+@api_router.get("/work/organizations/{organization_id}/eric-settings")
+async def get_business_eric_settings(
+    organization_id: str,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Get ERIC AI settings for a business/organization"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user is admin of this organization
+        membership = await db.work_memberships.find_one({
+            "organization_id": organization_id,
+            "user_id": user_id,
+            "is_admin": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Only admins can access ERIC settings")
+        
+        settings = await eric_agent.get_business_settings(organization_id)
+        if settings:
+            return settings.dict()
+        
+        # Return default settings
+        from eric_agent import BusinessERICSettings
+        default_settings = BusinessERICSettings(organization_id=organization_id)
+        return default_settings.dict()
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.put("/work/organizations/{organization_id}/eric-settings")
+async def update_business_eric_settings(
+    organization_id: str,
+    settings_update: BusinessERICSettingsModel,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Update ERIC AI settings for a business/organization"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Check if user is admin of this organization
+        membership = await db.work_memberships.find_one({
+            "organization_id": organization_id,
+            "user_id": user_id,
+            "is_admin": True
+        })
+        
+        if not membership:
+            raise HTTPException(status_code=403, detail="Only admins can update ERIC settings")
+        
+        from eric_agent import BusinessERICSettings
+        settings = BusinessERICSettings(
+            organization_id=organization_id,
+            **settings_update.dict()
+        )
+        
+        saved_settings = await eric_agent.save_business_settings(settings)
+        return saved_settings.dict()
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/agent/query-business/{organization_id}")
+async def query_business_eric(
+    organization_id: str,
+    query: str = Body(..., embed=True),
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Query a business's ERIC agent for information (respects privacy settings)"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.query_business_eric(
+            user_id=user_id,
+            organization_id=organization_id,
+            query=query
+        )
+        
+        return result
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ===== END ERIC AI AGENT ENDPOINTS =====
 
 # Include the router in the main app
