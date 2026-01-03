@@ -18434,14 +18434,22 @@ async def get_news_post_comments(
     for comment in comments:
         comment.pop("_id", None)
         
-        # Get author info
-        author = await get_user_by_id(comment["user_id"])
-        comment["author"] = {
-            "id": author.id if author else "",
-            "first_name": author.first_name if author else "Deleted",
-            "last_name": author.last_name if author else "User",
-            "profile_picture": author.profile_picture if author else None
-        }
+        # Get author info - handle ERIC AI special case
+        if comment["user_id"] == "eric-ai":
+            comment["author"] = {
+                "id": "eric-ai",
+                "first_name": "ERIC",
+                "last_name": "AI",
+                "profile_picture": "/eric-avatar.jpg"
+            }
+        else:
+            author = await get_user_by_id(comment["user_id"])
+            comment["author"] = {
+                "id": author.id if author else "",
+                "first_name": author.first_name if author else "Deleted",
+                "last_name": author.last_name if author else "User",
+                "profile_picture": author.profile_picture if author else None
+            }
         
         # Check if current user liked this comment
         liked = await db.news_comment_likes.find_one({
