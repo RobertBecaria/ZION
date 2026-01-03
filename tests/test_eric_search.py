@@ -358,13 +358,16 @@ class TestBusinessERICSettings:
             headers=admin_headers
         )
         if response.status_code == 200:
-            orgs = response.json()
+            data = response.json()
+            # Handle both list and dict with 'organizations' key
+            orgs = data.get("organizations", []) if isinstance(data, dict) else data
             if orgs and len(orgs) > 0:
                 # Return first organization where user is admin/creator
                 for org in orgs:
-                    org_id = org.get("id") or org.get("organization_id")
-                    if org_id:
-                        return org_id
+                    if isinstance(org, dict):
+                        org_id = org.get("id") or org.get("organization_id")
+                        if org_id:
+                            return org_id
         
         # Create a new organization if none exists
         response = requests.post(
