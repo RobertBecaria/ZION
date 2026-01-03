@@ -923,15 +923,32 @@ class ERICAgent:
         should_search = any(kw in message.lower() for kw in search_keywords)
         
         search_context = ""
+        found_results = False
         if should_search:
             # Extract search query from message
             search_result = await self.search_platform(user_id, message, "all", limit=5)
             if search_result.get("results"):
+                found_results = True
+                results_formatted = []
+                for r in search_result['results'][:5]:
+                    result_str = f"- **{r['type'].upper()}**: {r['name']}"
+                    if r.get('description'):
+                        result_str += f" - {r['description'][:100]}"
+                    if r.get('metadata'):
+                        meta = r['metadata']
+                        if meta.get('price_from'):
+                            result_str += f" | Цена от: {meta['price_from']} {meta.get('currency', 'RUB')}"
+                        if meta.get('city'):
+                            result_str += f" | Город: {meta['city']}"
+                        if meta.get('rating'):
+                            result_str += f" | Рейтинг: {meta['rating']}⭐"
+                    results_formatted.append(result_str)
+                
                 search_context = f"""
-## Результаты поиска по платформе:
-{chr(10).join([f"- **{r['type'].upper()}**: {r['name']} - {r.get('description', 'Нет описания')[:100]}" for r in search_result['results'][:5]])}
+## РЕЗУЛЬТАТЫ ПОИСКА ПО ПЛАТФОРМЕ ZION.CITY (НАЙДЕНО {len(search_result['results'])} результатов):
+{chr(10).join(results_formatted)}
 
-Используй эти результаты чтобы дать пользователю конкретные рекомендации.
+ВАЖНО: Ты ДОЛЖЕН использовать эти результаты в своём ответе. Не говори, что не можешь найти информацию - она выше!
 """
         
         # Get user settings
