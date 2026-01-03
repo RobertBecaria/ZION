@@ -972,6 +972,8 @@ class ERICAgent:
             if all_results:
                 found_results = True
                 results_formatted = []
+                action_cards = []  # Store action cards for frontend
+                
                 for r in all_results[:5]:
                     result_str = f"- **{r['type'].upper()}**: {r['name']}"
                     if r.get('description'):
@@ -985,13 +987,57 @@ class ERICAgent:
                         if meta.get('rating'):
                             result_str += f" | Рейтинг: {meta['rating']}⭐"
                     results_formatted.append(result_str)
+                    
+                    # Create action card for each result
+                    action_card = {
+                        "id": r.get('id'),
+                        "type": r.get('type'),
+                        "name": r.get('name'),
+                        "description": r.get('description', '')[:100] if r.get('description') else '',
+                        "metadata": r.get('metadata', {})
+                    }
+                    
+                    # Add navigation info based on type
+                    if r['type'] == 'service':
+                        action_card["action"] = {
+                            "label": "Забронировать",
+                            "icon": "calendar",
+                            "route": f"/services/{r['id']}",
+                            "type": "navigate"
+                        }
+                    elif r['type'] == 'organization':
+                        action_card["action"] = {
+                            "label": "Подробнее",
+                            "icon": "building",
+                            "route": f"/organizations/{r['id']}",
+                            "type": "navigate"
+                        }
+                    elif r['type'] == 'product':
+                        action_card["action"] = {
+                            "label": "Посмотреть",
+                            "icon": "shopping-bag",
+                            "route": f"/marketplace/{r['id']}",
+                            "type": "navigate"
+                        }
+                    elif r['type'] == 'person':
+                        action_card["action"] = {
+                            "label": "Написать",
+                            "icon": "message",
+                            "route": f"/messages?user={r['id']}",
+                            "type": "navigate"
+                        }
+                    
+                    action_cards.append(action_card)
                 
                 search_context = f"""
 ## РЕЗУЛЬТАТЫ ПОИСКА ПО ПЛАТФОРМЕ ZION.CITY (НАЙДЕНО {len(all_results)} результатов):
 {chr(10).join(results_formatted)}
 
-ВАЖНО: Ты ДОЛЖЕН использовать эти результаты в своём ответе. Не говори, что не можешь найти информацию - она выше!
+ВАЖНО: Ты ДОЛЖЕН использовать эти результаты в своём ответе. Представь их кратко и дружелюбно. Пользователь увидит интерактивные карточки с кнопками действий.
 """
+        
+        # Store action cards for response
+        search_action_cards = action_cards if found_results else []
         
         # Get user settings
         settings_doc = await self.db.agent_settings.find_one(
