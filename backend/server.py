@@ -24176,10 +24176,98 @@ async def get_eric_profile():
             {"icon": "👨‍👩‍👧‍👦", "name": "Семейное управление", "description": "Планирование событий, координация семьи"},
             {"icon": "💰", "name": "Финансовый советник", "description": "Анализ расходов, бюджетирование"},
             {"icon": "🛒", "name": "Подбор услуг", "description": "Поиск и сравнение услуг"},
-            {"icon": "🤝", "name": "Связь с сообществом", "description": "События, маркетплейс, соседи"}
+            {"icon": "🤝", "name": "Связь с сообществом", "description": "События, маркетплейс, соседи"},
+            {"icon": "📷", "name": "Анализ изображений", "description": "Распознавание и описание фото"},
+            {"icon": "📄", "name": "Анализ документов", "description": "Чтение и анализ документов"}
         ],
         "status": "online"
     }
+
+class ImageAnalysisRequest(BaseModel):
+    image_base64: str
+    mime_type: str = "image/jpeg"
+    question: Optional[str] = None
+
+class DocumentAnalysisRequest(BaseModel):
+    document_text: str
+    document_name: str
+    question: Optional[str] = None
+
+class ChatWithImageRequest(BaseModel):
+    message: str
+    image_base64: str
+    mime_type: str = "image/jpeg"
+    conversation_id: Optional[str] = None
+
+@api_router.post("/agent/analyze-image")
+async def analyze_image(
+    request: ImageAnalysisRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Analyze an image using Claude Sonnet 4.5"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.analyze_image(
+            user_id=user_id,
+            image_base64=request.image_base64,
+            mime_type=request.mime_type,
+            question=request.question
+        )
+        
+        return result
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/agent/analyze-document")
+async def analyze_document(
+    request: DocumentAnalysisRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Analyze a document using Claude Sonnet 4.5"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.analyze_document(
+            user_id=user_id,
+            document_text=request.document_text,
+            document_name=request.document_name,
+            question=request.question
+        )
+        
+        return result
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/agent/chat-with-image")
+async def chat_with_image(
+    request: ChatWithImageRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Chat with ERIC while providing an image for context"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        result = await eric_agent.chat_with_image(
+            user_id=user_id,
+            message=request.message,
+            image_base64=request.image_base64,
+            mime_type=request.mime_type,
+            conversation_id=request.conversation_id
+        )
+        
+        return result.dict()
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ===== END ERIC AI AGENT ENDPOINTS =====
 
