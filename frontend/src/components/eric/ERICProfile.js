@@ -1111,6 +1111,77 @@ const ERICProfile = ({ user }) => {
           opacity: 0.5;
         }
 
+        .settings-section {
+          margin-top: 24px;
+          padding-top: 24px;
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .settings-section:first-of-type {
+          margin-top: 0;
+          padding-top: 0;
+          border-top: none;
+        }
+
+        .settings-section-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: #1f2937;
+          margin: 0 0 8px;
+        }
+
+        .settings-section-desc {
+          font-size: 13px;
+          color: #6b7280;
+          margin: 0 0 16px;
+        }
+
+        .history-stats {
+          display: flex;
+          gap: 24px;
+          margin-bottom: 16px;
+        }
+
+        .history-stat {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 16px 24px;
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          border-radius: 12px;
+        }
+
+        .stat-number {
+          font-size: 24px;
+          font-weight: 700;
+          color: #0284c7;
+        }
+
+        .stat-label {
+          font-size: 12px;
+          color: #64748b;
+        }
+
+        .clear-history-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px 20px;
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          border-radius: 8px;
+          color: #dc2626;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .clear-history-btn:hover {
+          background: #fee2e2;
+          border-color: #fca5a5;
+        }
+
         .spin {
           animation: spin 1s linear infinite;
         }
