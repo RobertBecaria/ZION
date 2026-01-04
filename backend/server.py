@@ -24139,6 +24139,8 @@ async def update_agent_settings(
             "allow_family_coordination",
             "allow_service_recommendations",
             "allow_marketplace_suggestions",
+            "allow_work_context",
+            "allow_calendar_context",
             "conversation_retention_days"
         ]
         filtered_updates = {k: v for k, v in updates.items() if k in allowed_fields}
