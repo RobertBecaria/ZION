@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Plus, Heart, MessageCircle, User, Calendar, Trash2,
-  Image, Paperclip, X, FileText, MoreHorizontal, Smile
+  Image, Paperclip, X, FileText, MoreHorizontal, Smile, ChevronDown, Bot, Check, Copy, Sparkles
 } from 'lucide-react';
+import ERICAnalyzeButton from './eric/ERICAnalyzeButton';
 
 const JournalUniversalFeed = ({ 
   currentUserId, 
