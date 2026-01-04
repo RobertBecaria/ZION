@@ -1014,10 +1014,32 @@ class ERICAgent:
         # Sort by relevance score
         results.sort(key=lambda x: x.get("relevance_score", 0), reverse=True)
         
+        # Create notification if we got results
+        final_results = results[:limit]
+        if final_results:
+            # Create a summary of recommendations for the notification
+            business_names = [r.get("organization_name", "Бизнес") for r in final_results[:3]]
+            notification_message = f"Найдено {len(final_results)} рекомендаций по запросу «{query}»: {', '.join(business_names)}"
+            if len(final_results) > 3:
+                notification_message += f" и еще {len(final_results) - 3}"
+            
+            await self.create_notification(
+                user_id=user_id,
+                notification_type="eric_recommendation",
+                title="🎯 ERIC нашёл рекомендации",
+                message=notification_message,
+                related_data={
+                    "query": query,
+                    "category": category,
+                    "results_count": len(final_results),
+                    "business_ids": [r.get("organization_id") for r in final_results]
+                }
+            )
+        
         return {
             "query": query,
             "category": category,
-            "results": results[:limit],
+            "results": final_results,
             "total_businesses_queried": len(orgs),
             "businesses_responding": len(results)
         }
