@@ -114,11 +114,46 @@ const BusinessERICSettings = ({ organizationId, onSave }) => {
           <div>
             <h3 className="font-semibold text-orange-900">ERIC AI для бизнеса</h3>
             <p className="text-sm text-orange-700">
-              Настройте ИИ-помощника для вашей организации
+              Аналитика и настройки ИИ-помощника
             </p>
           </div>
         </div>
       </div>
+
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('analytics')}
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'analytics' 
+              ? 'border-blue-500 text-blue-600' 
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <BarChart3 size={18} />
+          Аналитика
+        </button>
+        <button
+          onClick={() => setActiveTab('settings')}
+          className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'settings' 
+              ? 'border-orange-500 text-orange-600' 
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          <Settings size={18} />
+          Настройки ERIC
+        </button>
+      </div>
+
+      {/* Analytics Tab */}
+      {activeTab === 'analytics' && (
+        <BusinessAnalyticsDashboard organizationId={organizationId} />
+      )}
+
+      {/* Settings Tab */}
+      {activeTab === 'settings' && (
+        <div className="space-y-6">
 
       {/* Error/Success Messages */}
       {error && (
