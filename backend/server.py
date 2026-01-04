@@ -24268,7 +24268,16 @@ async def analyze_file_upload(
                     mime_type=mime_type,
                     question=enhanced_message
                 )
-                return {"analysis": result.get("analysis", result.get("message", {}).get("content", "Анализ завершён"))}
+                print(f"[DEBUG] analyze_image result: {result}")
+                # Extract analysis from result
+                if result.get("success"):
+                    analysis_text = result.get("analysis", "Анализ завершён")
+                    # If analysis is a dict, try to extract text
+                    if isinstance(analysis_text, dict):
+                        analysis_text = analysis_text.get("content", analysis_text.get("text", str(analysis_text)))
+                    return {"analysis": analysis_text}
+                else:
+                    return {"analysis": result.get("error", "Ошибка анализа")}
             else:
                 # For documents, try to extract text content
                 try:
