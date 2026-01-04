@@ -60,12 +60,25 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 
 ### 2026-01-04: Contextual Upload Integration (Phase C - COMPLETE ✅)
 - ✅ `ERICAnalyzeButton` component created
-- ✅ Supports context types: work, family, finance, calendar, marketplace
+- ✅ Supports context types: work, family, finance, calendar, marketplace, generic
 - ✅ Auto-generates context-aware analysis prompts
 - ✅ Three variants: default, compact, icon-only
 - ✅ Both options available:
   - Auto-analyze when clicking "Analyze with ERIC"
   - Store context for later user-initiated analysis
+- ✅ **Integrated into all upload flows:**
+  - PostComposer (wall) - generic context
+  - WorkPostComposer - work context with organization data
+  - FamilyPostComposer - family context with family unit data
+  - MarketplaceListingForm - marketplace context with product info
+- ✅ **New backend endpoint:** `/api/agent/analyze-file-upload`
+  - Handles FormData file uploads (images, documents)
+  - Converts images to base64 for Claude AI analysis
+  - Supports all context types with context_data
+- ✅ **Analysis Modal:**
+  - Displays Claude AI analysis results
+  - "Копировать" (Copy) button
+  - "Добавить в пост" (Add to post) button
 
 ### 2026-01-03: Search Action Cards & Inter-Agent Communication
 - ✅ Interactive cards with type badges (УСЛУГА, ОРГАНИЗАЦИЯ, РЕКОМЕНДАЦИЯ, etc.)
