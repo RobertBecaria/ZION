@@ -219,13 +219,67 @@ const ERICProfile = ({ user }) => {
   };
 
   const settingsItems = [
-    { key: 'allow_family_coordination', label: 'Семейная координация', icon: Users, description: 'Доступ к данным семьи и домохозяйства' },
-    { key: 'allow_financial_analysis', label: 'Финансовый анализ', icon: DollarSign, description: 'Анализ расходов и бюджета' },
-    { key: 'allow_service_recommendations', label: 'Рекомендации услуг', icon: ShoppingBag, description: 'Поиск и подбор услуг' },
-    { key: 'allow_marketplace_suggestions', label: 'Маркетплейс', icon: ShoppingBag, description: 'Рекомендации товаров' },
-    { key: 'allow_health_data_access', label: 'Данные о здоровье', icon: Heart, description: 'Доступ к записям о здоровье' },
-    { key: 'allow_location_tracking', label: 'Геолокация', icon: MapPin, description: 'Использование местоположения' },
+    { 
+      key: 'allow_family_coordination', 
+      label: 'Семейная координация', 
+      icon: Users, 
+      description: 'Доступ к данным семьи и домохозяйства',
+      category: 'data'
+    },
+    { 
+      key: 'allow_financial_analysis', 
+      label: 'Финансовый анализ', 
+      icon: DollarSign, 
+      description: 'Анализ расходов и бюджета',
+      category: 'data'
+    },
+    { 
+      key: 'allow_service_recommendations', 
+      label: 'Рекомендации услуг', 
+      icon: ShoppingBag, 
+      description: 'Поиск и подбор услуг через поиск',
+      category: 'data'
+    },
+    { 
+      key: 'allow_marketplace_suggestions', 
+      label: 'Маркетплейс', 
+      icon: ShoppingBag, 
+      description: 'Рекомендации товаров',
+      category: 'data'
+    },
+    { 
+      key: 'allow_health_data_access', 
+      label: 'Данные о здоровье', 
+      icon: Heart, 
+      description: 'Доступ к записям о здоровье',
+      category: 'data'
+    },
+    { 
+      key: 'allow_location_tracking', 
+      label: 'Геолокация', 
+      icon: MapPin, 
+      description: 'Использование местоположения',
+      category: 'data'
+    },
+    { 
+      key: 'allow_work_context', 
+      label: 'Рабочий контекст', 
+      icon: Shield, 
+      description: 'Анализ документов из раздела "Работа"',
+      category: 'context'
+    },
+    { 
+      key: 'allow_calendar_context', 
+      label: 'Календарный контекст', 
+      icon: Calendar, 
+      description: 'Анализ событий и расписания',
+      category: 'context'
+    },
   ];
+
+  // Group settings by category
+  const dataSettings = settingsItems.filter(s => s.category === 'data');
+  const contextSettings = settingsItems.filter(s => s.category === 'context');
 
   return (
     <div className="eric-profile-page">
