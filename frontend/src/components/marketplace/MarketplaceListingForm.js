@@ -159,6 +159,36 @@ const MarketplaceListingForm = ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
     }));
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleAnalysisComplete = (result) => {
+    setEricAnalysis(result);
+    setShowAnalysisModal(true);
+  };
+
+  const handleAnalysisError = (err) => {
+    alert(err);
+  };
+
+  const copyAnalysis = () => {
+    if (ericAnalysis?.analysis) {
+      navigator.clipboard.writeText(ericAnalysis.analysis);
+      setAnalysisCopied(true);
+      setTimeout(() => setAnalysisCopied(false), 2000);
+    }
+  };
+
+  const addAnalysisToDescription = () => {
+    if (ericAnalysis?.analysis) {
+      setFormData(prev => ({
+        ...prev,
+        description: prev.description 
+          ? `${prev.description}\n\n📊 Рекомендации ERIC:\n${ericAnalysis.analysis}` 
+          : `📊 Рекомендации ERIC:\n${ericAnalysis.analysis}`
+      }));
+      setShowAnalysisModal(false);
+    }
   };
 
   const validate = () => {
