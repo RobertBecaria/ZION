@@ -128,6 +128,7 @@ function Dashboard() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [activeView, setActiveView] = useState('wall'); // 'wall' or 'chat'
   const [notifications, setNotifications] = useState([]); // For header notifications badge
+  const [showNotifications, setShowNotifications] = useState(false); // Notification dropdown
   const [userFamily, setUserFamily] = useState(null); // User's primary family
   const [activeFilters, setActiveFilters] = useState([]); // Unified stacked filters array
   const [loadingFamily, setLoadingFamily] = useState(true);
