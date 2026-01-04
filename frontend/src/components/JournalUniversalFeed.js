@@ -24,6 +24,9 @@ const JournalUniversalFeed = ({
   const [showComments, setShowComments] = useState({});
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState({});
+  const [ericAnalysis, setEricAnalysis] = useState(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisCopied, setAnalysisCopied] = useState(false);
   const fileInputRef = useRef(null);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
