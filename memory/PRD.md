@@ -17,6 +17,8 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - **Inter-Agent Communication: Personal ERICs can query Business ERICs**
 - **Business Analytics Dashboard for organization owners**
 - **AI Assistant Privacy Settings with context-aware analysis**
+- **Contextual file analysis with ERIC Analyze button**
+- **Push Notifications when Business ERICs respond with recommendations**
 
 ### Family & Social Features
 - Family wall with posts, comments, reactions
