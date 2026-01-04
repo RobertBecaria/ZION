@@ -348,11 +348,12 @@ class Notification(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str  # Who should receive the notification
     sender_id: str  # Who triggered the notification
-    type: str  # "like", "comment", "mention", "reaction"
+    type: str  # "like", "comment", "mention", "reaction", "eric_recommendation", "eric_analysis"
     title: str
     message: str
     related_post_id: Optional[str] = None
     related_comment_id: Optional[str] = None
+    related_data: Optional[Dict[str, Any]] = None  # For ERIC: business info, search query, etc.
     is_read: bool = False
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     read_at: Optional[datetime] = None
