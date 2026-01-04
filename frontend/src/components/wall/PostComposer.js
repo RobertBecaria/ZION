@@ -371,6 +371,17 @@ function PostComposer({
                       <button type="button" className="remove-file-btn" onClick={() => removeSelectedFile(index)}>
                         <X size={16} />
                       </button>
+                      {/* ERIC Analyze Button for each file */}
+                      <div style={{ position: 'absolute', bottom: 8, right: 8 }}>
+                        <ERICAnalyzeButton
+                          file={file}
+                          context={moduleName === 'Family' ? 'family' : moduleName === 'Work' ? 'work' : 'generic'}
+                          contextData={{ moduleName }}
+                          onAnalysisComplete={handleAnalysisComplete}
+                          onError={handleAnalysisError}
+                          variant="icon-only"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
