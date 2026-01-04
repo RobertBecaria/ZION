@@ -346,6 +346,8 @@ const BusinessERICSettings = ({ organizationId, onSave }) => {
           )}
         </button>
       </div>
+        </div>
+      )}
     </div>
   );
 };
