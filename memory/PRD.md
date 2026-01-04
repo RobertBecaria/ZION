@@ -15,6 +15,8 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - **Platform-wide search across organizations, services, products, people**
 - **Interactive search result action cards with navigation**
 - **Inter-Agent Communication: Personal ERICs can query Business ERICs**
+- **Business Analytics Dashboard for organization owners**
+- **AI Assistant Privacy Settings with context-aware analysis**
 
 ### Family & Social Features
 - Family wall with posts, comments, reactions
@@ -29,43 +31,57 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 
 ## What's Been Implemented
 
-### 2026-01-03: Search Action Cards & Inter-Agent Communication (COMPLETE ✅)
+### 2026-01-04: Business Analytics Dashboard (Phase A - COMPLETE ✅)
+- ✅ `/api/work/organizations/{org_id}/analytics` endpoint
+- ✅ Summary metrics: bookings, reviews, rating, unique customers
+- ✅ Period selector: 7d, 30d, 90d, all time
+- ✅ Bookings chart with daily breakdown
+- ✅ Popular services ranking with booking counts
+- ✅ Recent reviews with star ratings
+- ✅ Rating distribution visualization
+- ✅ Customer loyalty metrics (unique, repeat, repeat rate %)
+- ✅ Integrated into Business ERIC Settings (new "Аналитика" tab)
 
-**Search Action Cards:**
-- ✅ Interactive cards in ERIC chat with type badges:
-  - 🟢 УСЛУГА (Service) - Green, "Забронировать" button → /services/{id}
-  - 🟣 ОРГАНИЗАЦИЯ (Organization) - Indigo, "Подробнее" button → /organizations/{id}
-  - 🟡 ТОВАР (Product) - Amber, "Посмотреть" button → /marketplace/{id}
-  - 💜 РЕКОМЕНДАЦИЯ (Recommendation) - Purple, from inter-agent queries
-  - 🩷 ЧЕЛОВЕК (Person) - Pink, "Написать" button → /messages?user={id}
-- ✅ Metadata display: price, city, rating, promotions indicator
-- ✅ Navigation via window.location for Router context compatibility
+### 2026-01-04: AI Assistant Settings Page (Phase B - COMPLETE ✅)
+- ✅ Enhanced ERICProfile settings tab
+- ✅ **Data Access Settings** section:
+  - Family coordination toggle
+  - Financial analysis toggle
+  - Service recommendations toggle
+  - Marketplace suggestions toggle
+  - Health data access toggle
+  - Location tracking toggle
+- ✅ **Context Analysis Settings** section (NEW):
+  - Work context toggle - analyze documents with work context
+  - Calendar context toggle - analyze events with calendar context
+- ✅ **Conversation History Management**:
+  - Stats display (conversations, messages counts)
+  - "Clear all history" button with confirmation
 
-**Inter-Agent Communication (P1):**
-- ✅ `query_multiple_businesses` method in eric_agent.py
+### 2026-01-04: Contextual Upload Integration (Phase C - COMPLETE ✅)
+- ✅ `ERICAnalyzeButton` component created
+- ✅ Supports context types: work, family, finance, calendar, marketplace
+- ✅ Auto-generates context-aware analysis prompts
+- ✅ Three variants: default, compact, icon-only
+- ✅ Both options available:
+  - Auto-analyze when clicking "Analyze with ERIC"
+  - Store context for later user-initiated analysis
+
+### 2026-01-03: Search Action Cards & Inter-Agent Communication
+- ✅ Interactive cards with type badges (УСЛУГА, ОРГАНИЗАЦИЯ, РЕКОМЕНДАЦИЯ, etc.)
+- ✅ Navigation buttons to relevant pages
 - ✅ `/api/agent/query-businesses` endpoint
-- ✅ Automatic business ERIC queries on recommendation keywords (лучший, рекомендуй, посоветуй)
-- ✅ Privacy-respecting responses based on business settings
-- ✅ Relevance scoring for result ranking
+- ✅ Automatic business ERIC queries on recommendation keywords
 
-### 2026-01-03: ERIC Platform Search (P0 - COMPLETE ✅)
-- ✅ Search API (`/api/agent/search`)
-- ✅ Chat with Search (`/api/agent/chat-with-search`)
-- ✅ Keyword Expansion (Russian → English categories)
-- ✅ Word stem matching (услуг, красот, школ, etc.)
-
-### Previous Sessions
-- ERIC Widget & Prompt Fixes
-- Image & Document Analysis (Claude Sonnet 4.5)
-- Media Picker from Platform Journal
-- Business ERIC Settings UI/API
-- "Ask ERIC AI" Post Visibility
-- NewsFeed Refactoring
+### 2026-01-03: ERIC Platform Search
+- ✅ Search across organizations, services, products, people
+- ✅ Keyword expansion (Russian → English categories)
+- ✅ Word stem matching
 
 ## Architecture
 
 ### Backend (FastAPI + MongoDB)
-- `/app/backend/server.py` - Main server with 24k+ lines
+- `/app/backend/server.py` - Main server (~24.5k lines)
 - `/app/backend/eric_agent.py` - ERIC AI logic (~1200 lines)
 - DeepSeek API for text chat
 - Claude Sonnet 4.5 (via Emergent) for vision/documents
@@ -74,42 +90,76 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - `/app/frontend/src/components/eric/` - ERIC components
   - `ERICChatWidget.js` - Main chat interface
   - `ERICSearchCards.js` - Search result action cards
+  - `ERICAnalyzeButton.js` - Contextual analysis button (NEW)
   - `MediaPicker.js` - Platform file picker
-- Shadcn UI components
+  - `ERICProfile.js` - Full ERIC profile page with settings
+- `/app/frontend/src/components/BusinessAnalyticsDashboard.js` (NEW)
+- `/app/frontend/src/components/BusinessERICSettings.js` - Business ERIC settings with analytics tab
 
 ### Database Collections
 - `agent_conversations` - ERIC chat history
-- `agent_settings` - User AI preferences
+- `agent_settings` - User AI preferences (with new context fields)
 - `business_eric_settings` - Organization ERIC settings
 - `service_listings` - Services marketplace
+- `service_bookings` - Booking records (used for analytics)
+- `service_reviews` - Service reviews (used for analytics)
 - `marketplace_products` - Products marketplace
 - `work_organizations` - Companies/schools/etc.
 
-## API Endpoints (ERIC)
+## API Endpoints
+
+### ERIC AI
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/agent/chat` | POST | Basic chat (no search) |
 | `/api/agent/chat-with-search` | POST | Chat with auto-search + inter-agent |
 | `/api/agent/search` | POST | Direct search API |
 | `/api/agent/query-businesses` | POST | Query multiple business ERICs |
-| `/api/agent/chat-with-image` | POST | Chat with image analysis |
-| `/api/agent/analyze-image` | POST | Image analysis only |
+| `/api/agent/settings` | GET/PUT | User privacy settings |
+
+### Business Analytics (NEW)
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/work/organizations/{org_id}/analytics` | GET | Business analytics dashboard data |
 | `/api/work/organizations/{org_id}/eric-settings` | GET/PUT | Business ERIC settings |
+
+## Privacy Settings Fields
+
+### User Agent Settings
+```
+allow_financial_analysis: bool
+allow_health_data_access: bool
+allow_location_tracking: bool
+allow_family_coordination: bool
+allow_service_recommendations: bool
+allow_marketplace_suggestions: bool
+allow_work_context: bool (NEW)
+allow_calendar_context: bool (NEW)
+```
+
+### Business ERIC Settings
+```
+is_active: bool
+share_public_data: bool
+share_promotions: bool
+share_repeat_customer_stats: bool
+share_ratings_reviews: bool
+allow_user_eric_queries: bool
+share_aggregated_analytics: bool
+```
 
 ## Prioritized Backlog
 
-### P0 & P1 (Critical & High) - COMPLETE ✅
+### P0-P2 (Complete ✅)
 - ✅ ERIC Platform Search
 - ✅ Search Action Cards with Navigation
 - ✅ Inter-Agent Communication
+- ✅ Business Analytics Dashboard
+- ✅ AI Assistant Settings Page
+- ✅ Contextual Upload Integration
 
-### P2 (Medium Priority) - Next Up
-- Enhanced Business Analytics (aggregated insights)
-- AI Assistant Settings Page
-- Drag-and-drop image upload for ERIC chat
-
-### P3 (Low Priority)
+### P3 (Low Priority) - Backlog
 - Linter warning cleanup
+- Drag-and-drop image upload (decided not to implement - use section-based uploads instead)
 
 ## 3rd Party Integrations
 - **DeepSeek** - AI/LLM for text chat (User API key)
@@ -121,9 +171,14 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 ## Test Reports
 - `/app/test_reports/iteration_2.json` - ERIC Search tests (26 passed)
 - `/app/test_reports/iteration_3.json` - Action Cards & Inter-Agent (13 passed)
-- `/app/tests/test_eric_search.py` - Search test file
-- `/app/tests/test_eric_inter_agent.py` - Inter-Agent test file
 
 ## Test Credentials
 - Admin: `admin@test.com` / `testpassword123`
 - User: `testuser@test.com` / `testpassword123`
+
+## Design Philosophy: Contextual Intelligence
+Instead of drag-and-drop uploads, files are uploaded through their relevant sections (Work, Family, Finance, etc.). This provides:
+1. **Better Context** - ERIC knows the file's purpose from its upload location
+2. **Improved Analysis** - Context-aware prompts generate more relevant insights
+3. **Privacy Boundaries** - Context settings control which sections ERIC can analyze
+4. **Future Search** - Context tags enable better search and organization
