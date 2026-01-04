@@ -3,7 +3,7 @@ import { AlertCircle, FileText } from 'lucide-react';
 import WorkPostComposer from './WorkPostComposer';
 import WorkPostCard from './WorkPostCard';
 
-const WorkPostFeed = ({ organizationId, currentUserId, isAdmin, canPost }) => {
+const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin, canPost }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
