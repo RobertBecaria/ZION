@@ -581,6 +581,127 @@ const MarketplaceListingForm = ({
           </button>
         </div>
       </form>
+
+      {/* ERIC Analysis Modal */}
+      {showAnalysisModal && ericAnalysis && (
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAnalysisModal(false);
+          }}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10001
+          }}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            maxWidth: 500,
+            width: '90%',
+            maxHeight: '80vh',
+            overflow: 'auto',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <div style={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #BE185D 0%, #EC4899 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Bot size={20} color="white" />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600 }}>Анализ товара ERIC</h3>
+                <p style={{ margin: 0, fontSize: 12, color: '#666' }}>Рекомендации для объявления</p>
+              </div>
+              <button
+                onClick={() => setShowAnalysisModal(false)}
+                style={{
+                  marginLeft: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: 8
+                }}
+              >
+                <X size={20} color="#666" />
+              </button>
+            </div>
+
+            <div style={{
+              background: '#FDF2F8',
+              borderRadius: 12,
+              padding: 16,
+              marginBottom: 16,
+              fontSize: 14,
+              lineHeight: 1.6,
+              color: '#333',
+              whiteSpace: 'pre-wrap',
+              border: '1px solid #FBCFE8'
+            }}>
+              {ericAnalysis.analysis}
+            </div>
+
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button
+                onClick={copyAnalysis}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '12px 16px',
+                  borderRadius: 10,
+                  border: '1px solid #e0e0e0',
+                  background: 'white',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: analysisCopied ? '#10B981' : '#333'
+                }}
+              >
+                {analysisCopied ? <Check size={18} /> : <Copy size={18} />}
+                {analysisCopied ? 'Скопировано' : 'Копировать'}
+              </button>
+              <button
+                onClick={addAnalysisToDescription}
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  padding: '12px 16px',
+                  borderRadius: 10,
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #BE185D 0%, #EC4899 100%)',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white'
+                }}
+              >
+                <Sparkles size={18} />
+                В описание
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
