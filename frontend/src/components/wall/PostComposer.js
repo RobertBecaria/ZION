@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { User, Image, Paperclip, X, Share2, FileText, Sparkles } from 'lucide-react';
+import { User, Image, Paperclip, X, Share2, FileText, Sparkles, Bot, Check, Copy } from 'lucide-react';
 import { extractYouTubeIdFromText, extractUrl, getFileGradient, moduleMapping } from './utils/postUtils';
 import { triggerConfetti, toast } from '../../utils/animations';
+import ERICAnalyzeButton from '../eric/ERICAnalyzeButton';
 
 function PostComposer({ 
   user, 
@@ -20,6 +21,9 @@ function PostComposer({
   const [detectedLink, setDetectedLink] = useState(null);
   const [linkPreview, setLinkPreview] = useState(null);
   const [loadingLinkPreview, setLoadingLinkPreview] = useState(false);
+  const [ericAnalysis, setEricAnalysis] = useState(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisCopied, setAnalysisCopied] = useState(false);
   const fileInputRef = useRef(null);
 
   // Fetch link preview (simple client-side approach)
