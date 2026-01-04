@@ -554,29 +554,19 @@ function Dashboard() {
                     <Search size={18} />
                   </button>
                   <button 
-                    className="header-action-btn primary"
-                    onClick={() => {
-                      // TODO: Open post creation modal
-                      console.log('Create post clicked');
-                    }}
-                    title="Создать пост"
-                    style={{ 
-                      background: `linear-gradient(135deg, ${currentModule.color} 0%, ${currentModule.color}dd 100%)`,
-                      color: 'white'
-                    }}
+                    className="header-action-btn"
+                    onClick={() => {/* Show quick add menu */}}
+                    title="Быстрое создание"
                   >
                     <Plus size={18} />
                   </button>
-                  <button 
-                    className="header-action-btn"
-                    onClick={() => {/* Show notifications */}}
-                    title="Уведомления"
-                  >
-                    <Bell size={18} />
-                    {notifications.length > 0 && (
-                      <span className="notification-badge">{notifications.length}</span>
-                    )}
-                  </button>
+                  <div style={{ position: 'relative' }}>
+                    <NotificationDropdown 
+                      isOpen={showNotifications}
+                      onClose={() => setShowNotifications(!showNotifications)}
+                      onOpenEricChat={() => setShowERICWidget(true)}
+                    />
+                  </div>
                 </div>
               </div>
               
