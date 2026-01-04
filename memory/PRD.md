@@ -82,6 +82,21 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
   - "Копировать" (Copy) button
   - "Добавить в пост" (Add to post) button
 
+### 2026-01-04: Push Notifications for Inter-Agent Communication (COMPLETE ✅)
+- ✅ NotificationDropdown component in top navigation bar
+- ✅ Bell icon with unread badge count
+- ✅ Notification types: eric_recommendation, eric_analysis, like, comment, etc.
+- ✅ Backend endpoints:
+  - `GET /api/notifications` - List notifications
+  - `GET /api/notifications/unread-count` - Unread count
+  - `PUT /api/notifications/{id}/read` - Mark as read
+  - `PUT /api/notifications/mark-all-read` - Mark all as read
+  - `DELETE /api/notifications/{id}` - Delete notification
+- ✅ Auto-creates notification when Business ERICs respond with recommendations
+- ✅ Notification shows query, result count, and business names
+- ✅ 30-second polling for real-time updates
+- ✅ ERIC promo footer in dropdown
+
 ### 2026-01-03: Search Action Cards & Inter-Agent Communication
 - ✅ Interactive cards with type badges (УСЛУГА, ОРГАНИЗАЦИЯ, РЕКОМЕНДАЦИЯ, etc.)
 - ✅ Navigation buttons to relevant pages
