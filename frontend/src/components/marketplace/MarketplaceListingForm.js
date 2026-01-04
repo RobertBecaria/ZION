@@ -41,6 +41,10 @@ const MarketplaceListingForm = ({
   });
   
   const [errors, setErrors] = useState({});
+  const [ericAnalysis, setEricAnalysis] = useState(null);
+  const [showAnalysisModal, setShowAnalysisModal] = useState(false);
+  const [analysisCopied, setAnalysisCopied] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]); // Keep track of File objects for ERIC
 
   useEffect(() => {
     // Fetch categories
