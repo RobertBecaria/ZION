@@ -71,9 +71,8 @@ const ERICAnalyzeButton = ({
       }
       formData.append('message', analysisPrompt);
       
-      // Determine which endpoint to use based on file type
-      const isImage = file instanceof File && file.type?.startsWith('image/');
-      const endpoint = isImage ? '/api/agent/analyze-image' : '/api/agent/analyze-document';
+      // Determine which endpoint to use - always use the file upload endpoint now
+      const endpoint = '/api/agent/analyze-file-upload';
       
       const response = await fetch(`${BACKEND_URL}${endpoint}`, {
         method: 'POST',
