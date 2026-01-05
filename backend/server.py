@@ -17109,19 +17109,32 @@ async def get_user_suggestions(
     limit: int = 20,
     current_user: User = Depends(get_current_user)
 ):
-    """Get suggested users to follow/friend (people you may know) with smart ranking"""
+    """Get suggested users to follow/friend (people you may know) with smart ranking - OPTIMIZED"""
     
     # Get current user's profile info for matching
     user_city = current_user.address_city
     user_country = current_user.address_country
     
-    # Get current friends
-    friendships = await db.user_friendships.find({
-        "$or": [
-            {"user1_id": current_user.id},
-            {"user2_id": current_user.id}
-        ]
-    }).to_list(1000)
+    # ========== BATCH QUERY 1: Get exclusion sets ==========
+    friendships, following, pending_requests = await asyncio.gather(
+        db.user_friendships.find({
+            "$or": [
+                {"user1_id": current_user.id},
+                {"user2_id": current_user.id}
+            ]
+        }, {"_id": 0, "user1_id": 1, "user2_id": 1}).to_list(1000),
+        
+        db.user_follows.find({
+            "follower_id": current_user.id
+        }, {"_id": 0, "target_id": 1}).to_list(1000),
+        
+        db.friend_requests.find({
+            "$or": [
+                {"sender_id": current_user.id, "status": "pending"},
+                {"receiver_id": current_user.id, "status": "pending"}
+            ]
+        }, {"_id": 0, "sender_id": 1, "receiver_id": 1}).to_list(1000)
+    )
     
     friend_ids = set()
     for f in friendships:
@@ -17130,143 +17143,160 @@ async def get_user_suggestions(
         else:
             friend_ids.add(f["user1_id"])
     
-    # Get users I'm already following
-    following = await db.user_follows.find({
-        "follower_id": current_user.id
-    }).to_list(1000)
     following_ids = {f["target_id"] for f in following}
-    
-    # Get pending friend requests (both sent and received)
-    pending_requests = await db.friend_requests.find({
-        "$or": [
-            {"sender_id": current_user.id, "status": "pending"},
-            {"receiver_id": current_user.id, "status": "pending"}
-        ]
-    }).to_list(1000)
     pending_ids = {r["sender_id"] for r in pending_requests} | {r["receiver_id"] for r in pending_requests}
     
     # Exclude self, friends, already following, and pending requests
     exclude_ids = friend_ids | following_ids | pending_ids | {current_user.id}
     
-    # Get user's organizations
-    user_work_memberships = await db.work_members.find({
-        "user_id": current_user.id,
-        "status": "active"
-    }).to_list(100)
+    # ========== BATCH QUERY 2: Get user's organization/school context ==========
+    user_work_memberships, user_school_memberships, user_children = await asyncio.gather(
+        db.work_members.find({
+            "user_id": current_user.id,
+            "status": "active"
+        }, {"_id": 0, "organization_id": 1}).to_list(100),
+        
+        db.school_memberships.find({
+            "user_id": current_user.id
+        }, {"_id": 0, "organization_id": 1}).to_list(100),
+        
+        db.family_students.find({
+            "parent_ids": current_user.id
+        }, {"_id": 0, "organization_id": 1}).to_list(50)
+    )
+    
     user_org_ids = [m["organization_id"] for m in user_work_memberships]
-    
-    # Get user's schools (as parent or teacher)
-    user_school_memberships = await db.school_memberships.find({
-        "user_id": current_user.id
-    }).to_list(100)
     user_school_ids = [m["organization_id"] for m in user_school_memberships]
-    
-    # Get user's family members' schools (for parent connections)
-    user_children = await db.family_students.find({
-        "parent_ids": current_user.id
-    }).to_list(50)
     child_school_ids = [c.get("organization_id") for c in user_children if c.get("organization_id")]
     all_school_ids = list(set(user_school_ids + child_school_ids))
     
-    # Get suggested users - fetch more than limit for scoring
+    # ========== Get candidate users ==========
     suggestions_raw = await db.users.find(
         {"id": {"$nin": list(exclude_ids)}},
         {"_id": 0, "password_hash": 0}
     ).limit(limit * 3).to_list(limit * 3)
     
-    # Score and enrich each suggestion
+    if not suggestions_raw:
+        return {"suggestions": []}
+    
+    suggestion_ids = [s["id"] for s in suggestions_raw]
+    
+    # ========== BATCH QUERY 3: Get ALL related data at once ==========
+    all_friendships, all_work_memberships, all_school_memberships, all_children, follows_me_list = await asyncio.gather(
+        # All friendships for suggested users
+        db.user_friendships.find({
+            "$or": [
+                {"user1_id": {"$in": suggestion_ids}},
+                {"user2_id": {"$in": suggestion_ids}}
+            ]
+        }, {"_id": 0, "user1_id": 1, "user2_id": 1}).to_list(5000),
+        
+        # Work memberships for suggested users in our orgs
+        db.work_members.find({
+            "user_id": {"$in": suggestion_ids},
+            "organization_id": {"$in": user_org_ids} if user_org_ids else {"$in": []},
+            "status": "active"
+        }, {"_id": 0, "user_id": 1, "organization_id": 1}).to_list(500) if user_org_ids else [],
+        
+        # School memberships for suggested users in our schools
+        db.school_memberships.find({
+            "user_id": {"$in": suggestion_ids},
+            "organization_id": {"$in": all_school_ids} if all_school_ids else {"$in": []}
+        }, {"_id": 0, "user_id": 1}).to_list(500) if all_school_ids else [],
+        
+        # Children of suggested users in our schools
+        db.family_students.find({
+            "parent_ids": {"$in": suggestion_ids},
+            "organization_id": {"$in": all_school_ids} if all_school_ids else {"$in": []}
+        }, {"_id": 0, "parent_ids": 1}).to_list(500) if all_school_ids else [],
+        
+        # Users who follow current user
+        db.user_follows.find({
+            "follower_id": {"$in": suggestion_ids},
+            "target_id": current_user.id
+        }, {"_id": 0, "follower_id": 1}).to_list(500)
+    )
+    
+    # Build lookup maps for O(1) access
+    # Map: user_id -> set of their friend_ids
+    user_friends_map = {}
+    for f in all_friendships:
+        u1, u2 = f["user1_id"], f["user2_id"]
+        if u1 in suggestion_ids:
+            if u1 not in user_friends_map:
+                user_friends_map[u1] = set()
+            user_friends_map[u1].add(u2)
+        if u2 in suggestion_ids:
+            if u2 not in user_friends_map:
+                user_friends_map[u2] = set()
+            user_friends_map[u2].add(u1)
+    
+    # Set of users who are colleagues
+    colleague_user_ids = {m["user_id"] for m in all_work_memberships}
+    
+    # Set of users connected via school
+    school_connected_ids = {m["user_id"] for m in all_school_memberships}
+    for child in all_children:
+        for parent_id in child.get("parent_ids", []):
+            if parent_id in suggestion_ids:
+                school_connected_ids.add(parent_id)
+    
+    # Set of users who follow me
+    follows_me_ids = {f["follower_id"] for f in follows_me_list}
+    
+    # ========== Score each suggestion using cached data ==========
     scored_suggestions = []
     
     for suggestion in suggestions_raw:
+        user_id = suggestion["id"]
         score = 0
         reasons = []
         
-        # 1. Check mutual friends (most important)
-        their_friendships = await db.user_friendships.find({
-            "$or": [
-                {"user1_id": suggestion["id"]},
-                {"user2_id": suggestion["id"]}
-            ]
-        }).to_list(1000)
-        
-        their_friends = set()
-        for f in their_friendships:
-            if f["user1_id"] == suggestion["id"]:
-                their_friends.add(f["user2_id"])
-            else:
-                their_friends.add(f["user1_id"])
-        
+        # 1. Mutual friends (using cached data)
+        their_friends = user_friends_map.get(user_id, set())
         mutual = friend_ids & their_friends
         mutual_count = len(mutual)
         if mutual_count > 0:
-            score += mutual_count * 10  # High weight for mutual friends
+            score += mutual_count * 10
             if mutual_count == 1:
                 reasons.append("1 общий друг")
             else:
                 reasons.append(f"{mutual_count} общих друзей")
         
-        # 2. Check same city (good indicator)
+        # 2. Same city
         if user_city and suggestion.get("address_city") == user_city:
             score += 5
             reasons.append(f"Живёт в {user_city}")
-        
-        # 3. Check same country (if not same city)
+        # 3. Same country
         elif user_country and suggestion.get("address_country") == user_country:
             score += 2
             reasons.append(f"Из {user_country}")
         
-        # 4. Check same organization (colleagues)
-        if user_org_ids:
-            their_memberships = await db.work_members.find({
-                "user_id": suggestion["id"],
-                "organization_id": {"$in": user_org_ids},
-                "status": "active"
-            }).to_list(10)
-            
-            if their_memberships:
-                score += 8
-                # Get org name
-                org = await db.work_organizations.find_one({"id": their_memberships[0]["organization_id"]})
-                if org:
-                    reasons.append(f"Коллега в {org.get('name', 'организации')}")
+        # 4. Colleague (using cached data)
+        if user_id in colleague_user_ids:
+            score += 8
+            reasons.append("Коллега")
         
-        # 5. Check same school (parents of classmates, teachers)
-        if all_school_ids:
-            # Check if they're in same school as teacher or parent
-            their_school_memberships = await db.school_memberships.find({
-                "user_id": suggestion["id"],
-                "organization_id": {"$in": all_school_ids}
-            }).to_list(10)
-            
-            their_children = await db.family_students.find({
-                "parent_ids": suggestion["id"],
-                "organization_id": {"$in": all_school_ids}
-            }).to_list(10)
-            
-            if their_school_memberships or their_children:
-                score += 7
-                reasons.append("Из той же школы")
+        # 5. Same school (using cached data)
+        if user_id in school_connected_ids:
+            score += 7
+            reasons.append("Из той же школы")
         
-        # 6. Check if they follow current user (potential mutual interest)
-        follows_me = await db.user_follows.find_one({
-            "follower_id": suggestion["id"],
-            "target_id": current_user.id
-        })
-        if follows_me:
+        # 6. They follow me (using cached data)
+        if user_id in follows_me_ids:
             score += 6
             reasons.append("Подписан на вас")
         
-        # Only include if there's at least one reason or some score
+        # Only include if there's at least one reason or we need more
         if score > 0 or len(scored_suggestions) < limit // 2:
             suggestion["score"] = score
             suggestion["mutual_friends_count"] = mutual_count
-            suggestion["suggestion_reasons"] = reasons[:3]  # Max 3 reasons
+            suggestion["suggestion_reasons"] = reasons[:3]
             scored_suggestions.append(suggestion)
     
     # Sort by score (highest first)
     scored_suggestions.sort(key=lambda x: x.get("score", 0), reverse=True)
     
-    # Return top suggestions
     return {"suggestions": scored_suggestions[:limit]}
 
 @api_router.get("/users/search")
