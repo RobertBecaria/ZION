@@ -82,6 +82,13 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
   - "Копировать" (Copy) button
   - "Добавить в пост" (Add to post) button
 
+### 2026-01-05: ERIC Honest Responses - No Hallucination (COMPLETE ✅)
+- ✅ ERIC no longer hallucinates when no results found in ZION.CITY database
+- ✅ Professional "no results" message promoting ZION.CITY as free platform
+- ✅ Updated system prompt with strict anti-hallucination rules
+- ✅ Search context explicitly tells AI not to invent data
+- ✅ Encourages users to spread the word about ZION.CITY
+
 ### 2026-01-05: Notification Click Opens ERIC Chat (COMPLETE ✅)
 - ✅ **Click ERIC notification → Opens ERIC chat with query auto-sent**
 - ✅ Custom event system: `eric-open-with-query` event
