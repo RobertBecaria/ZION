@@ -82,6 +82,23 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
   - "Копировать" (Copy) button
   - "Добавить в пост" (Add to post) button
 
+### 2026-01-05: Smart File Routing - Cost Optimization (COMPLETE ✅)
+- ✅ **LLM Cost Optimization:** Documents now analyzed via DeepSeek (cheaper) instead of Claude
+- ✅ **Smart File Type Detection:** Automatically routes files to appropriate LLM
+  - Images (PNG, JPG, WEBP, GIF) → Claude Sonnet (vision required)
+  - Documents (PDF, DOCX, TXT, CSV, XLSX, JSON, XML) → DeepSeek (cost-effective)
+- ✅ **Text Extraction Libraries Added:**
+  - PyPDF2 for PDF text extraction
+  - python-docx for Word documents
+  - openpyxl for Excel spreadsheets
+- ✅ **New Methods in eric_agent.py:**
+  - `detect_file_type()` - Determines routing based on extension/MIME type
+  - `extract_text_from_pdf()` - PDF text extraction
+  - `extract_text_from_docx()` - Word document extraction
+  - `extract_text_from_xlsx()` - Excel spreadsheet extraction
+  - `analyze_file_smart()` - Smart routing wrapper
+- ✅ **Routing info returned in API response** for transparency
+
 ### 2026-01-04: Push Notifications for Inter-Agent Communication (COMPLETE ✅)
 - ✅ NotificationDropdown component in top navigation bar
 - ✅ Bell icon with unread badge count
