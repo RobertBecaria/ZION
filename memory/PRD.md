@@ -112,9 +112,11 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 
 ### Backend (FastAPI + MongoDB)
 - `/app/backend/server.py` - Main server (~24.5k lines)
-- `/app/backend/eric_agent.py` - ERIC AI logic (~1200 lines)
-- DeepSeek API for text chat
-- Claude Sonnet 4.5 (via Emergent) for vision/documents
+- `/app/backend/eric_agent.py` - ERIC AI logic (~1400 lines)
+- **Smart LLM Routing (Cost Optimized):**
+  - DeepSeek API for text chat AND document analysis (PDF, DOCX, TXT, CSV, XLSX, JSON, XML)
+  - Claude Sonnet 4.5 (via Emergent) for image analysis ONLY (PNG, JPG, WEBP, etc.)
+- Text extraction libraries: PyPDF2, python-docx, openpyxl
 
 ### Frontend (React)
 - `/app/frontend/src/components/eric/` - ERIC components
