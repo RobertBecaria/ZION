@@ -82,6 +82,17 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
   - "Копировать" (Copy) button
   - "Добавить в пост" (Add to post) button
 
+### 2026-01-05: Connections Page Performance Optimization (COMPLETE ✅)
+- ✅ **Fixed N+1 Query in `/users/suggestions`** - Was making 300+ queries, now uses batch queries
+- ✅ **Batch queries with `asyncio.gather()`** for parallel database access
+- ✅ **Created 15+ MongoDB indexes** for connections-related collections:
+  - `user_friendships.user1_id`, `user_friendships.user2_id`
+  - `user_follows.follower_id`, `user_follows.target_id`
+  - `friend_requests.sender_id+status`, `friend_requests.receiver_id+status`
+  - `work_members.user_id+status`, `school_memberships.user_id`
+  - And more...
+- ✅ Full FriendsPage load (7 API calls): ~89ms total (was potentially 10+ seconds)
+
 ### 2026-01-05: Posts Feed Performance Optimization (COMPLETE ✅)
 - ✅ **Fixed N+1 Query Problem** - Reduced from 100+ queries to ~6 batch queries per request
 - ✅ **Batch queries for:** authors, media files, likes, reactions
