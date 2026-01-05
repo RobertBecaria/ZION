@@ -24263,7 +24263,13 @@ async def analyze_file_upload(
     message: str = Form("Проанализируй этот файл"),
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    """Analyze an uploaded file or file URL using Claude Sonnet 4.5 with context awareness"""
+    """
+    Smart file analysis endpoint with cost optimization.
+    
+    Routing:
+    - Images (PNG, JPG, WEBP, etc.) -> Claude Sonnet (vision required)
+    - Documents (PDF, DOCX, TXT, CSV, XLSX, etc.) -> DeepSeek (cheaper)
+    """
     try:
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         user_id = payload.get("sub")
@@ -24278,54 +24284,36 @@ async def analyze_file_upload(
             file_content = await file.read()
             mime_type = file.content_type or "application/octet-stream"
             
-            # Check if it's an image
-            if mime_type.startswith("image/"):
-                # Convert to base64 for image analysis
-                import base64
-                image_base64 = base64.b64encode(file_content).decode('utf-8')
+            # Build enhanced prompt with context
+            enhanced_message = f"Контекст: {context_type}\n"
+            if context:
+                enhanced_message += f"Дополнительные данные: {json_module.dumps(context, ensure_ascii=False)}\n"
+            enhanced_message += f"\nЗапрос: {message}"
+            
+            # Use smart file routing
+            result = await eric_agent.analyze_file_smart(
+                user_id=user_id,
+                file_content=file_content,
+                filename=file.filename,
+                mime_type=mime_type,
+                question=enhanced_message
+            )
+            
+            print(f"[DEBUG] analyze_file_smart result - routing: {result.get('routing', {})}")
+            
+            # Extract analysis from result
+            if result.get("success"):
+                analysis_text = result.get("analysis", "Анализ завершён")
+                # If analysis is a dict, try to extract text
+                if isinstance(analysis_text, dict):
+                    analysis_text = analysis_text.get("content", analysis_text.get("text", str(analysis_text)))
                 
-                # Build enhanced prompt with context
-                enhanced_message = f"Контекст: {context_type}\n"
-                if context:
-                    enhanced_message += f"Дополнительные данные: {json_module.dumps(context, ensure_ascii=False)}\n"
-                enhanced_message += f"\nЗапрос: {message}"
-                
-                result = await eric_agent.analyze_image(
-                    user_id=user_id,
-                    image_base64=image_base64,
-                    mime_type=mime_type,
-                    question=enhanced_message
-                )
-                print(f"[DEBUG] analyze_image result: {result}")
-                # Extract analysis from result
-                if result.get("success"):
-                    analysis_text = result.get("analysis", "Анализ завершён")
-                    # If analysis is a dict, try to extract text
-                    if isinstance(analysis_text, dict):
-                        analysis_text = analysis_text.get("content", analysis_text.get("text", str(analysis_text)))
-                    return {"analysis": analysis_text}
-                else:
-                    return {"analysis": result.get("error", "Ошибка анализа")}
+                return {
+                    "analysis": analysis_text,
+                    "routing": result.get("routing", {})  # Include routing info for debugging
+                }
             else:
-                # For documents, try to extract text content
-                try:
-                    document_text = file_content.decode('utf-8')
-                except UnicodeDecodeError:
-                    # For binary files (PDF, etc.), provide a description
-                    document_text = f"[Бинарный файл: {file.filename}, тип: {mime_type}, размер: {len(file_content)} байт]"
-                
-                enhanced_message = f"Контекст: {context_type}\n"
-                if context:
-                    enhanced_message += f"Дополнительные данные: {json_module.dumps(context, ensure_ascii=False)}\n"
-                enhanced_message += f"\nЗапрос: {message}"
-                
-                result = await eric_agent.analyze_document(
-                    user_id=user_id,
-                    document_text=document_text,
-                    document_name=file.filename,
-                    question=enhanced_message
-                )
-                return {"analysis": result.get("analysis", result.get("message", {}).get("content", "Анализ завершён"))}
+                return {"analysis": result.get("error", "Ошибка анализа")}
         
         elif file_url:
             # Handle file URL - return a message that we need to implement URL fetching
