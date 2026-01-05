@@ -7395,7 +7395,7 @@ async def get_posts(
     filter: str = None,  # 'subscribed' for subscribed families
     current_user: User = Depends(get_current_user)
 ):
-    """Get posts feed filtered by module, family, and user connections"""
+    """Get posts feed filtered by module, family, and user connections - OPTIMIZED VERSION"""
     
     # Build query based on filters
     query = {
@@ -7415,7 +7415,7 @@ async def get_posts(
                 "subscriber_family_id": {"$in": user_families},
                 "is_active": True,
                 "status": "ACTIVE"
-            }).to_list(100)
+            }, {"_id": 0, "target_family_id": 1}).to_list(100)
             
             subscribed_family_ids = [sub["target_family_id"] for sub in subscriptions]
             if subscribed_family_ids:
@@ -7430,91 +7430,121 @@ async def get_posts(
         connected_users = await get_module_connections(current_user.id, module)
         query["user_id"] = {"$in": connected_users}
     
-    # Query posts
-    posts = await db.posts.find(query).sort("created_at", -1).skip(skip).limit(limit * 2).to_list(limit * 2)  # Fetch more to account for filtering
-    
-    # Get user's family memberships for visibility checks
+    # Get user's family memberships for visibility checks (batch query)
     user_family_memberships = {}
     if module == "family":
         user_memberships = await db.family_members.find({
             "user_id": current_user.id,
             "is_active": True
-        }).to_list(100)
+        }, {"_id": 0, "family_id": 1, "relationship": 1}).to_list(100)
         
         for membership in user_memberships:
             user_family_memberships[membership["family_id"]] = membership
     
-    # Remove MongoDB _id and get additional info
-    result = []
+    # ========== OPTIMIZED: Fetch posts with projection ==========
+    # Only fetch fields we need, skip heavy fields initially
+    posts = await db.posts.find(
+        query,
+        {"_id": 0}  # Exclude _id
+    ).sort("created_at", -1).skip(skip).limit(limit * 2).to_list(limit * 2)
+    
+    # First pass: filter by visibility
+    visible_posts = []
     for post in posts:
-        post.pop("_id", None)
-        
-        # NEW: Check visibility - skip post if user can't see it
         post_family_id = post.get("family_id")
         user_membership = user_family_memberships.get(post_family_id) if post_family_id else None
         
-        if not await can_user_see_post(post, current_user, user_membership):
-            continue
-        
-        # Stop if we've reached the limit
-        if len(result) >= limit:
-            break
-        
-        # Get author info
-        author = await get_user_by_id(post["user_id"])
+        if await can_user_see_post(post, current_user, user_membership):
+            visible_posts.append(post)
+            if len(visible_posts) >= limit:
+                break
+    
+    if not visible_posts:
+        return []
+    
+    # ========== OPTIMIZED: Batch fetch all related data ==========
+    post_ids = [p["id"] for p in visible_posts]
+    user_ids = list(set(p["user_id"] for p in visible_posts))
+    all_media_ids = []
+    for p in visible_posts:
+        all_media_ids.extend(p.get("media_files", []))
+    all_media_ids = list(set(all_media_ids))
+    
+    # Batch query 1: All authors at once
+    authors_list = await db.users.find(
+        {"id": {"$in": user_ids}},
+        {"_id": 0, "id": 1, "first_name": 1, "last_name": 1, "profile_picture": 1}
+    ).to_list(len(user_ids))
+    authors_map = {a["id"]: a for a in authors_list}
+    
+    # Batch query 2: All media files at once
+    media_files_list = await db.media_files.find(
+        {"id": {"$in": all_media_ids}},
+        {"_id": 0}
+    ).to_list(len(all_media_ids)) if all_media_ids else []
+    media_files_map = {m["id"]: m for m in media_files_list}
+    
+    # Batch query 3: All user likes at once
+    user_likes_list = await db.post_likes.find(
+        {"post_id": {"$in": post_ids}, "user_id": current_user.id},
+        {"_id": 0, "post_id": 1}
+    ).to_list(len(post_ids))
+    user_likes_set = {l["post_id"] for l in user_likes_list}
+    
+    # Batch query 4: All user reactions at once
+    user_reactions_list = await db.post_reactions.find(
+        {"post_id": {"$in": post_ids}, "user_id": current_user.id},
+        {"_id": 0, "post_id": 1, "emoji": 1}
+    ).to_list(len(post_ids))
+    user_reactions_map = {r["post_id"]: r["emoji"] for r in user_reactions_list}
+    
+    # Batch query 5: All reactions aggregated at once
+    reactions_pipeline = [
+        {"$match": {"post_id": {"$in": post_ids}}},
+        {"$group": {
+            "_id": {"post_id": "$post_id", "emoji": "$emoji"},
+            "count": {"$sum": 1}
+        }},
+        {"$sort": {"count": -1}},
+        {"$group": {
+            "_id": "$_id.post_id",
+            "reactions": {
+                "$push": {"emoji": "$_id.emoji", "count": "$count"}
+            }
+        }}
+    ]
+    reactions_cursor = db.post_reactions.aggregate(reactions_pipeline)
+    post_reactions_map = {}
+    async for item in reactions_cursor:
+        post_reactions_map[item["_id"]] = item["reactions"][:5]  # Top 5 reactions
+    
+    # ========== Build response using cached data ==========
+    result = []
+    for post in visible_posts:
+        # Set author from batch query
+        author = authors_map.get(post["user_id"])
         post["author"] = {
-            "id": author.id,
-            "first_name": author.first_name,
-            "last_name": author.last_name,
-            "profile_picture": author.profile_picture
+            "id": author["id"],
+            "first_name": author.get("first_name", ""),
+            "last_name": author.get("last_name", ""),
+            "profile_picture": author.get("profile_picture")
         } if author else {}
         
-        # Get media files info
+        # Set media files from batch query
         media_files = []
         for media_id in post.get("media_files", []):
-            media = await db.media_files.find_one({"id": media_id})
+            media = media_files_map.get(media_id)
             if media:
-                media.pop("_id", None)
-                media["file_url"] = f"/api/media/{media_id}"
-                media_files.append(media)
+                media_copy = media.copy()
+                media_copy["file_url"] = f"/api/media/{media_id}"
+                media_files.append(media_copy)
         post["media_files"] = media_files
         
-        # Get social features data
+        # Set social data from batch queries
         post_id = post["id"]
-        
-        # Check if current user liked this post
-        user_like = await db.post_likes.find_one({
-            "post_id": post_id,
-            "user_id": current_user.id
-        })
-        post["user_liked"] = bool(user_like)
-        
-        # Get user's reaction to this post
-        user_reaction = await db.post_reactions.find_one({
-            "post_id": post_id,
-            "user_id": current_user.id
-        })
-        post["user_reaction"] = user_reaction["emoji"] if user_reaction else None
-        
-        # Get top reactions (limit to top 5 most common)
-        reactions_pipeline = [
-            {"$match": {"post_id": post_id}},
-            {"$group": {
-                "_id": "$emoji",
-                "count": {"$sum": 1}
-            }},
-            {"$sort": {"count": -1}},
-            {"$limit": 5}
-        ]
-        
-        reactions_cursor = db.post_reactions.aggregate(reactions_pipeline)
-        top_reactions = []
-        async for reaction in reactions_cursor:
-            top_reactions.append({
-                "emoji": reaction["_id"],
-                "count": reaction["count"]
-            })
-        post["top_reactions"] = top_reactions
+        post["user_liked"] = post_id in user_likes_set
+        post["user_reaction"] = user_reactions_map.get(post_id)
+        post["top_reactions"] = post_reactions_map.get(post_id, [])
         
         result.append(PostResponse(**post))
     
