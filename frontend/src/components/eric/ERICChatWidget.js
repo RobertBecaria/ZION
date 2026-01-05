@@ -2,6 +2,10 @@
  * ERIC Chat Widget
  * Floating chat interface for ERIC AI Assistant
  * Supports text chat and image analysis
+ * 
+ * Listens for custom events:
+ * - 'eric-open-chat': Opens the chat widget
+ * - 'eric-open-with-query': Opens chat and sends a pre-filled query
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
@@ -25,11 +29,114 @@ const ERICChatWidget = ({ user }) => {
   const [imagePreview, setImagePreview] = useState(null);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [selectedPlatformFile, setSelectedPlatformFile] = useState(null);
+  const [pendingQuery, setPendingQuery] = useState(null); // For auto-sending queries from notifications
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+  // Listen for custom events to open chat from outside (e.g., notifications)
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true);
+      setIsMinimized(false);
+    };
+
+    const handleOpenWithQuery = (event) => {
+      const { query, conversationId } = event.detail || {};
+      setIsOpen(true);
+      setIsMinimized(false);
+      
+      if (query) {
+        // Set the query to be sent automatically once chat is ready
+        setPendingQuery({ query, conversationId });
+      }
+    };
+
+    window.addEventListener('eric-open-chat', handleOpenChat);
+    window.addEventListener('eric-open-with-query', handleOpenWithQuery);
+
+    return () => {
+      window.removeEventListener('eric-open-chat', handleOpenChat);
+      window.removeEventListener('eric-open-with-query', handleOpenWithQuery);
+    };
+  }, []);
+
+  // Process pending query when chat is ready
+  useEffect(() => {
+    if (pendingQuery && isOpen && user && !loading) {
+      const { query } = pendingQuery;
+      // Start a new conversation with the query
+      setCurrentConversation(null);
+      setMessages([]);
+      setShowConversationList(false);
+      
+      // Auto-send the query
+      setTimeout(() => {
+        setMessage(query);
+        // Trigger send after a brief delay to ensure UI is ready
+        setTimeout(() => {
+          handleSendWithQuery(query);
+        }, 100);
+      }, 300);
+      
+      setPendingQuery(null);
+    }
+  }, [pendingQuery, isOpen, user, loading]);
+
+  // Helper to send a specific query (used by pending query handler)
+  const handleSendWithQuery = async (queryText) => {
+    if (!queryText.trim() || loading) return;
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: queryText,
+      created_at: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setMessage('');
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/agent/chat-with-search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          message: queryText,
+          conversation_id: null // New conversation
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentConversation({ id: data.conversation_id });
+        
+        const assistantMessage = {
+          ...data.message,
+          suggested_actions: data.suggested_actions
+        };
+        setMessages(prev => [...prev, assistantMessage]);
+        loadConversations();
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'Извините, произошла ошибка. Попробуйте позже.',
+        created_at: new Date().toISOString()
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {
