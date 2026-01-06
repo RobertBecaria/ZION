@@ -159,6 +159,30 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 - ✅ `/api/agent/query-businesses` endpoint
 - ✅ Automatic business ERIC queries on recommendation keywords
 
+### 2026-01-06: Family Section Optimization & Bug Fixes (COMPLETE ✅)
+- ✅ **N+1 Query Fixes (5 endpoints):**
+  - `GET /api/family-profiles` - Batch query for family profiles
+  - `GET /api/family/{id}/members` - Batch query for user data
+  - `GET /api/family-profiles/{id}/members` - Batch query for user data
+  - `GET /api/family-profiles/{id}/posts` - Batch query for authors + single family fetch
+  - `GET /api/family-units/my-units` - Batch query for family units
+- ✅ **Database Indexes Added (8 collections):**
+  - `family_profiles`: id, creator_id, is_private
+  - `family_members`: family_id+is_active, user_id+family_id, compound indexes
+  - `family_posts`: family_id+created_at, is_published compound
+  - `family_subscriptions`: target+is_active, subscriber+target
+  - `family_invitations`: invitee+status, family_id+status
+  - `family_units`: id, creator_id, address+surname
+  - `family_unit_members`: user_id+is_active, family_unit_id compounds
+  - `family_join_requests`: family_unit_id+status, requester_id+status
+- ✅ **Authorization Bug Fix:**
+  - `DELETE /api/family/{id}/members/{member_id}` - Only admins can remove others; users can leave
+- ✅ **Logic Bug Fix:**
+  - `POST /api/family/create-with-members` - Now adds creator as member automatically
+- ✅ **Model Validation Fixes:**
+  - `FamilyProfileResponse` - Added default values for optional fields
+  - `FamilyMemberResponse` - Added default values for optional fields
+
 ### 2026-01-06: ERIC Search Enhancement - Bilingual Support (COMPLETE ✅)
 - ✅ **Fixed "find school" not returning results** - Added English→Russian term expansion
 - ✅ **Bidirectional keyword mappings** - Both English and Russian terms now work:
