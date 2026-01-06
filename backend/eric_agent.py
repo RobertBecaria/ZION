@@ -935,15 +935,26 @@ class ERICAgent:
             search_results = []
             query_lower = query.lower()
             
+            # Check if query is related to education/schools
+            education_keywords = ["school", "школ", "образован", "education", "гимназия", "лицей", "колледж", "университет", "вуз", "обучение"]
+            is_education_query = any(kw in query_lower for kw in education_keywords)
+            
             # Search Organizations/Businesses
             if search_type in ["all", "organizations"]:
+                # Build organization query
+                org_query_conditions = [
+                    {"name": {"$regex": query, "$options": "i"}},
+                    {"description": {"$regex": query, "$options": "i"}},
+                    {"industry": {"$regex": query, "$options": "i"}},
+                    {"address_city": {"$regex": query, "$options": "i"}}
+                ]
+                
+                # If searching for education, also match by organization_type
+                if is_education_query:
+                    org_query_conditions.append({"organization_type": "EDUCATIONAL"})
+                
                 orgs = await self.db.work_organizations.find({
-                    "$or": [
-                        {"name": {"$regex": query, "$options": "i"}},
-                        {"description": {"$regex": query, "$options": "i"}},
-                        {"industry": {"$regex": query, "$options": "i"}},
-                        {"address_city": {"$regex": query, "$options": "i"}}
-                    ]
+                    "$or": org_query_conditions
                 }).limit(limit).to_list(limit)
                 
                 for org in orgs:
