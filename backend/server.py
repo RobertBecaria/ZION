@@ -5825,11 +5825,26 @@ async def get_family_posts(
     # Get posts
     posts = await db.family_posts.find(query).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
     
-    # Enrich with author and family data
+    if not posts:
+        return {"family_posts": [], "total": 0}
+    
+    # OPTIMIZED: Fetch family data once (not in loop)
+    family = await db.family_profiles.find_one({"id": family_id}, {"_id": 0})
+    
+    # OPTIMIZED: Batch fetch all authors at once instead of N+1 queries
+    author_ids = list(set(post["posted_by_user_id"] for post in posts))
+    authors = await db.users.find(
+        {"id": {"$in": author_ids}},
+        {"_id": 0, "id": 1, "first_name": 1, "last_name": 1, "avatar_url": 1}
+    ).to_list(len(author_ids))
+    
+    # Create lookup map for O(1) access
+    author_map = {a["id"]: a for a in authors}
+    
+    # Build response using lookup
     post_responses = []
     for post in posts:
-        author = await db.users.find_one({"id": post["posted_by_user_id"]})
-        family = await db.family_profiles.find_one({"id": family_id})
+        author = author_map.get(post["posted_by_user_id"])
         
         if author and family:
             post_response = FamilyPostResponse(
