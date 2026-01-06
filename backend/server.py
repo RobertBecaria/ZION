@@ -4534,15 +4534,21 @@ async def get_user_family_profiles(current_user: User = Depends(get_current_user
         "invitation_accepted": True
     }).to_list(100)
     
+    logger.info(f"[family-profiles] User {current_user.id} has {len(family_memberships)} memberships")
+    
     if not family_memberships:
         return {"family_profiles": []}
     
     # OPTIMIZED: Batch fetch all family profiles at once
     family_ids = [m["family_id"] for m in family_memberships]
+    logger.info(f"[family-profiles] Family IDs to fetch: {family_ids}")
+    
     family_docs = await db.family_profiles.find(
         {"id": {"$in": family_ids}},
         {"_id": 0}
     ).to_list(100)
+    
+    logger.info(f"[family-profiles] Found {len(family_docs)} family docs")
     
     # Create lookup maps for O(1) access
     family_map = {f["id"]: f for f in family_docs}
