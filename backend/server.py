@@ -4571,6 +4571,7 @@ async def get_user_family_profiles(current_user: User = Depends(get_current_user
                 logger.info(f"[family-profiles] Successfully added family: {family.get('family_name')}")
             except Exception as e:
                 logger.error(f"[family-profiles] Error creating family response: {str(e)}")
+                logger.error(f"[family-profiles] Family data: {family}")
                 continue
     
     logger.info(f"[family-profiles] Returning {len(families)} families")
