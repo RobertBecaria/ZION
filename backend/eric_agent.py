@@ -1400,6 +1400,35 @@ class ERICAgent:
                     if len(all_results) >= 5:
                         break
             
+            # Special search for educational institutions by organization_type
+            if is_education_search and len(all_results) < 5:
+                try:
+                    edu_orgs = await self.db.work_organizations.find({
+                        "organization_type": "EDUCATIONAL",
+                        "is_private": {"$ne": True}
+                    }).limit(5).to_list(5)
+                    
+                    for org in edu_orgs:
+                        org_id = org.get("id") or org.get("organization_id")
+                        # Avoid duplicates
+                        if not any(existing['id'] == org_id for existing in all_results):
+                            all_results.append({
+                                "id": org_id,
+                                "type": "organization",
+                                "name": org.get("name"),
+                                "description": org.get("description"),
+                                "industry": org.get("industry"),
+                                "metadata": {
+                                    "member_count": org.get("member_count", 0),
+                                    "founded_year": org.get("founded_year"),
+                                    "logo_url": org.get("logo_url"),
+                                    "city": org.get("address_city"),
+                                    "organization_type": org.get("organization_type")
+                                }
+                            })
+                except Exception as e:
+                    pass  # Continue even if educational search fails
+            
             # If user wants recommendations, also query business ERICs
             if wants_recommendations and detected_category:
                 business_query_result = await self.query_multiple_businesses(
