@@ -4504,28 +4504,41 @@ async def create_family_with_members(
 
 @api_router.get("/family-profiles")
 async def get_user_family_profiles(current_user: User = Depends(get_current_user)):
-    """Get family profiles where user is a member"""
+    """Get family profiles where user is a member - OPTIMIZED with batch query"""
     family_memberships = await db.family_members.find({
         "user_id": current_user.id, 
         "is_active": True,
         "invitation_accepted": True
     }).to_list(100)
     
+    if not family_memberships:
+        return {"family_profiles": []}
+    
+    # OPTIMIZED: Batch fetch all family profiles at once
+    family_ids = [m["family_id"] for m in family_memberships]
+    family_docs = await db.family_profiles.find(
+        {"id": {"$in": family_ids}},
+        {"_id": 0}
+    ).to_list(100)
+    
+    # Create lookup maps for O(1) access
+    family_map = {f["id"]: f for f in family_docs}
+    membership_map = {m["family_id"]: m for m in family_memberships}
+    
+    # Build response using lookups
     families = []
-    for membership in family_memberships:
-        family = await db.family_profiles.find_one({"id": membership["family_id"]})
-        if family:
-            # Remove MongoDB's _id field before creating response
-            family_dict = {k: v for k, v in family.items() if k != '_id'}
-            
+    for family_id in family_ids:
+        family = family_map.get(family_id)
+        membership = membership_map.get(family_id)
+        
+        if family and membership:
             try:
-                family_response = FamilyProfileResponse(**family_dict)
+                family_response = FamilyProfileResponse(**family)
                 family_response.is_user_member = True
                 family_response.user_role = FamilyRole(membership["family_role"])
                 families.append(family_response)
             except Exception as e:
                 print(f"Error creating family response: {str(e)}")
-                print(f"Family data keys: {family_dict.keys()}")
                 continue
     
     return {"family_profiles": families}
