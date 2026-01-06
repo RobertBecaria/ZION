@@ -1047,24 +1047,24 @@ class FamilyPostCreate(BaseModel):
 class FamilyProfileResponse(BaseModel):
     id: str
     family_name: str
-    family_surname: Optional[str]
-    description: Optional[str]
-    public_bio: Optional[str]
-    primary_address: Optional[str]
-    city: Optional[str]
-    state: Optional[str]
-    country: Optional[str]
-    established_date: Optional[datetime]
-    family_photo_url: Optional[str]
-    banner_url: Optional[str]
-    is_private: bool
-    allow_public_discovery: bool
-    member_count: int
-    children_count: int
+    family_surname: Optional[str] = None
+    description: Optional[str] = None
+    public_bio: Optional[str] = None
+    primary_address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    established_date: Optional[datetime] = None
+    family_photo_url: Optional[str] = None
+    banner_url: Optional[str] = None
+    is_private: bool = False
+    allow_public_discovery: bool = True
+    member_count: int = 0
+    children_count: int = 0
     creator_id: str
     created_at: datetime
     updated_at: datetime
-    is_active: bool
+    is_active: bool = True
     
     # Additional fields for response
     is_user_member: Optional[bool] = False
