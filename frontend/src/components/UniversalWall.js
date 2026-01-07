@@ -210,7 +210,7 @@ function UniversalWall({
       });
 
       if (response.ok) {
-        fetchPosts();
+        fetchPosts(0, false); // Refresh from first page
       }
     } catch (error) {
       console.error('Error adding reaction:', error);
