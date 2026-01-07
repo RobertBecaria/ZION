@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MessageCircle } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { MessageCircle, Loader2 } from 'lucide-react';
 import { useLightbox } from '../hooks/useLightbox';
 import LightboxModal from './LightboxModal';
 import WorkUniversalFeed from './WorkUniversalFeed';
 import JournalUniversalFeed from './JournalUniversalFeed';
 import PostComposer from './wall/PostComposer';
 import PostItem from './wall/PostItem';
+
+const POSTS_PER_PAGE = 10;
 
 function UniversalWall({ 
   activeGroup, 
@@ -24,6 +26,12 @@ function UniversalWall({
   const [showComments, setShowComments] = useState({});
   const [comments, setComments] = useState({});
   const [newComment, setNewComment] = useState({});
+  
+  // Pagination state
+  const [hasMore, setHasMore] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
+  const loadMoreRef = useRef(null);
   
   // Lightbox hook
   const {
