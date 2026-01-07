@@ -250,7 +250,10 @@ function UniversalWall({
 
       if (response.ok) {
         await fetchComments(postId);
-        fetchPosts();
+        // Update comments count locally instead of refetching all posts
+        setPosts(prev => prev.map(p => 
+          p.id === postId ? { ...p, comments_count: (p.comments_count || 0) + 1 } : p
+        ));
         setNewComment(prev => ({ ...prev, [postId]: '' }));
       }
     } catch (error) {
