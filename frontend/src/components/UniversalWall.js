@@ -47,10 +47,15 @@ function UniversalWall({
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   // Fetch posts (memoized to avoid re-creation)
-  const fetchPosts = useCallback(async () => {
+  const fetchPosts = useCallback(async (page = 0, append = false) => {
     try {
+      if (append) {
+        setIsLoadingMore(true);
+      }
+      
       const token = localStorage.getItem('zion_token');
-      let url = `${backendUrl}/api/posts?module=${activeModule}`;
+      const skip = page * POSTS_PER_PAGE;
+      let url = `${backendUrl}/api/posts?module=${activeModule}&skip=${skip}&limit=${POSTS_PER_PAGE}`;
       
       if (activeModule === 'family' && activeFilters.length > 0) {
         activeFilters.forEach(filter => {
@@ -77,13 +82,31 @@ function UniversalWall({
       });
 
       if (response.ok) {
-        const postsData = await response.json();
-        setPosts(postsData);
+        const data = await response.json();
+        const postsData = data.posts || data; // Support both new format and legacy
+        const moreAvailable = data.has_more !== undefined ? data.has_more : postsData.length === POSTS_PER_PAGE;
+        
+        if (append) {
+          setPosts(prev => [...prev, ...postsData]);
+        } else {
+          setPosts(postsData);
+        }
+        setHasMore(moreAvailable);
+        setCurrentPage(page);
       }
     } catch (error) {
       console.error('Error fetching posts:', error);
+    } finally {
+      setIsLoadingMore(false);
     }
   }, [backendUrl, activeModule, activeFilters, userFamilyId]);
+  
+  // Load more posts handler
+  const loadMorePosts = useCallback(() => {
+    if (!isLoadingMore && hasMore) {
+      fetchPosts(currentPage + 1, true);
+    }
+  }, [fetchPosts, currentPage, isLoadingMore, hasMore]);
 
   // Fetch comments for a post
   const fetchComments = async (postId) => {
