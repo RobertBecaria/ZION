@@ -22724,11 +22724,64 @@ async def get_portfolio(credentials: HTTPAuthorizationCredentials = Depends(secu
 
 @api_router.get("/health")
 async def health_check():
+    """Basic health check endpoint"""
     return {
         "status": "healthy",
         "timestamp": datetime.now(timezone.utc),
         "version": "1.0.0"
     }
+
+@api_router.get("/health/detailed")
+async def detailed_health_check():
+    """Detailed health check with database connectivity"""
+    health_status = {
+        "status": "healthy",
+        "timestamp": datetime.now(timezone.utc),
+        "version": "1.0.0",
+        "checks": {}
+    }
+    
+    # Check MongoDB connectivity
+    try:
+        await db.command("ping")
+        health_status["checks"]["database"] = {"status": "healthy", "latency_ms": 0}
+    except Exception as e:
+        health_status["status"] = "unhealthy"
+        health_status["checks"]["database"] = {"status": "unhealthy", "error": str(e)}
+    
+    # Check cache
+    health_status["checks"]["cache"] = {"status": "healthy", "entries": len(cache._cache)}
+    
+    # Check rate limiter
+    health_status["checks"]["rate_limiter"] = {"status": "healthy", "tracked_keys": len(rate_limiter._requests)}
+    
+    return health_status
+
+@api_router.get("/metrics")
+async def get_metrics():
+    """Simple metrics endpoint for monitoring"""
+    try:
+        # Get basic database stats
+        db_stats = await db.command("dbStats")
+        
+        return {
+            "database": {
+                "collections": db_stats.get("collections", 0),
+                "documents": db_stats.get("objects", 0),
+                "storage_mb": round(db_stats.get("storageSize", 0) / (1024 * 1024), 2),
+                "index_mb": round(db_stats.get("indexSize", 0) / (1024 * 1024), 2)
+            },
+            "cache": {
+                "entries": len(cache._cache),
+                "ttl_seconds": cache.default_ttl
+            },
+            "rate_limiter": {
+                "tracked_users": len(rate_limiter._requests)
+            },
+            "timestamp": datetime.now(timezone.utc)
+        }
+    except Exception as e:
+        return {"error": str(e)}
 
 # ===== GOOD WILL MODULE - ДОБРАЯ ВОЛЯ (Events & Gatherings) =====
 
