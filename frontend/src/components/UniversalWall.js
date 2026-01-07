@@ -125,13 +125,18 @@ function UniversalWall({
     }
   };
 
-  // Main data fetching effect
+  // Main data fetching effect - reset pagination when module/filters change
   useEffect(() => {
     if (activeModule === 'organizations' || activeModule === 'journal') return;
     
+    // Reset pagination state when filters change
+    setPosts([]);
+    setHasMore(true);
+    setCurrentPage(0);
+    
     // Wrap in IIFE to satisfy linter
     (async () => {
-      await fetchPosts();
+      await fetchPosts(0, false);
     })();
     
     const handleKeyDown = (e) => {
