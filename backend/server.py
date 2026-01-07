@@ -7680,16 +7680,16 @@ async def can_user_see_post(post: dict, current_user: User, user_family_membersh
     return False
 
 # Posts Endpoints
-@api_router.get("/posts", response_model=List[PostResponse])
+@api_router.get("/posts")
 async def get_posts(
     skip: int = 0,
-    limit: int = 20,
+    limit: int = 10,  # Reduced from 20 to 10 for faster initial load
     module: str = "family",  # Module to filter posts by
     family_id: str = None,  # Filter by specific family ID
     filter: str = None,  # 'subscribed' for subscribed families
     current_user: User = Depends(get_current_user)
 ):
-    """Get posts feed filtered by module, family, and user connections - OPTIMIZED VERSION"""
+    """Get posts feed filtered by module, family, and user connections - OPTIMIZED VERSION with pagination"""
     
     # Build query based on filters
     query = {
