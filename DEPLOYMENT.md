@@ -1,54 +1,85 @@
 # =============================================================================
 # ZION.CITY VPS Deployment Guide
 # =============================================================================
+# Server: i7-8700 (6 cores / 12 threads) | 64GB RAM | 2x 480GB SSD
 
-## 📋 Quick Start (5 minutes)
+## 🎯 Resource Allocation
 
-### 1. On your VPS, run initial setup:
+With your hardware, here's how resources are distributed:
+
+| Service | CPU | Memory | Storage |
+|---------|-----|--------|---------|
+| **Backend (Gunicorn)** | 6 cores | 16 GB (limit) | - |
+| **MongoDB** | 4 cores | 12 GB (8GB cache) | SSD 1 |
+| **Redis** | 1 core | 4 GB | SSD 1 |
+| **Nginx** | 12 workers | 1 GB | - |
+| **System/OS** | 1 core | 8 GB | SSD 2 |
+| **Available Buffer** | - | 23 GB | ~400 GB |
+
+**Total Capacity:** ~52 concurrent API requests + thousands of static connections
+
+---
+
+## 🚀 Quick Start (10 minutes)
+
+### 1. Install Docker on your server:
 ```bash
-# Download and run setup
-curl -fsSL https://raw.githubusercontent.com/YOUR_REPO/main/deploy.sh -o deploy.sh
-chmod +x deploy.sh
-sudo ./deploy.sh setup
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Install Docker Compose plugin
+sudo apt install docker-compose-plugin -y
+
+# Logout and login for group changes to take effect
 ```
 
-### 2. Copy your code to the server:
+### 2. Clone/Copy your code:
 ```bash
-# Option A: Using Git (Recommended)
+# Create app directory
+sudo mkdir -p /opt/zion-city
 cd /opt/zion-city
+
+# Option A: Git clone
 git clone https://github.com/YOUR_REPO/zion-city.git .
 
-# Option B: Using SCP
-scp -r ./app/* user@your-vps:/opt/zion-city/
+# Option B: SCP from your machine
+# scp -r /path/to/zion/* user@your-server:/opt/zion-city/
 ```
 
 ### 3. Configure environment:
 ```bash
-cd /opt/zion-city
+# Copy and edit environment file
 cp .env.production .env
-nano .env  # Fill in your actual values
+nano .env
+
+# Generate secure passwords:
+echo "MONGO_PASSWORD=$(openssl rand -base64 32)"
+echo "JWT_SECRET_KEY=$(openssl rand -hex 32)"
+echo "ADMIN_PASSWORD=$(openssl rand -base64 24)"
 ```
 
 ### 4. Deploy:
 ```bash
-./deploy.sh deploy
+# Build and start (first time takes ~5-10 minutes)
+docker compose up -d
+
+# Check status
+docker compose ps
+docker compose logs -f
 ```
 
-### 5. Setup SSL (optional but recommended):
+### 5. Verify deployment:
 ```bash
-DOMAIN=yourdomain.com ./deploy.sh ssl
+# Health check
+curl http://localhost/api/health
+
+# Should return: {"status": "healthy", ...}
 ```
-
----
-
-## 🖥️ Server Requirements
-
-| Resource | Minimum | Recommended |
-|----------|---------|-------------|
-| CPU | 2 vCPU | 4 vCPU |
-| RAM | 4 GB | 8 GB |
-| Storage | 20 GB SSD | 50 GB SSD |
-| OS | Ubuntu 22.04 | Ubuntu 22.04 |
 
 ---
 
@@ -57,192 +88,242 @@ DOMAIN=yourdomain.com ./deploy.sh ssl
 ```
 /opt/zion-city/
 ├── backend/
-│   ├── server.py
-│   ├── eric_agent.py
-│   ├── gunicorn.conf.py
+│   ├── server.py           # Main API
+│   ├── eric_agent.py       # AI agent
+│   ├── gunicorn.conf.py    # Worker config
 │   └── requirements.txt
 ├── frontend/
 │   ├── src/
-│   ├── build/          # Generated after build
+│   ├── build/              # Generated
 │   └── package.json
 ├── Dockerfile
 ├── docker-compose.yml
 ├── nginx.conf
-├── supervisord.conf
-├── deploy.sh
-├── .env               # Your secrets (don't commit!)
-├── .env.production    # Template
+├── mongo-init.js           # DB initialization
+├── .env                    # Your secrets (don't commit!)
+├── .env.production         # Template
 ├── logs/
-└── uploads/
+├── uploads/
+└── backups/
 ```
 
 ---
 
-## 🔧 Configuration Details
-
-### MongoDB Options
-
-**Option 1: MongoDB Atlas (Recommended)**
-- Free tier available (512MB)
-- Automatic backups
-- No server maintenance
-- Get connection string from: https://cloud.mongodb.com
-
-**Option 2: Self-hosted MongoDB**
-Uncomment the mongodb service in `docker-compose.yml`
-
-### Resource Optimization for 4GB RAM
-
-The configuration is optimized for your 2 vCPU / 4GB RAM setup:
-
-| Service | Memory Limit | Workers |
-|---------|--------------|---------|
-| Backend (Gunicorn) | ~1.5 GB | 3 workers |
-| Frontend (static) | ~100 MB | - |
-| Nginx | ~50 MB | auto |
-| Redis | 256 MB | - |
-| System/Swap | ~2 GB | - |
-
-### Swap Configuration
-The setup script creates 2GB swap for memory overflow protection:
-```bash
-# Verify swap
-free -h
-```
-
----
-
-## 🛡️ Security Checklist
-
-- [x] UFW Firewall configured (ports 22, 80, 443 only)
-- [x] Fail2ban for SSH brute-force protection
-- [x] Non-root user recommended
-- [x] SSL/TLS with Let's Encrypt
-- [x] Security headers in Nginx
-- [x] Rate limiting on API endpoints
-- [ ] Change default SSH port (optional)
-- [ ] Setup monitoring (optional)
-
----
-
-## 📊 Monitoring Commands
+## 🔧 Management Commands
 
 ```bash
 # View logs
-./deploy.sh logs
+docker compose logs -f app
+docker compose logs -f mongodb
+docker compose logs -f redis
 
-# Check status
-./deploy.sh status
+# Restart services
+docker compose restart
+
+# Stop everything
+docker compose down
+
+# Rebuild and restart (after code changes)
+docker compose up -d --build
+
+# Enter container shell
+docker compose exec app bash
+docker compose exec mongodb mongosh
+
+# MongoDB admin UI (optional)
+docker compose --profile admin up -d mongo-express
+# Access at: http://your-server:8081
+
+# Start automated backups
+docker compose --profile backup up -d backup
+```
+
+---
+
+## 💾 SSD RAID Setup (Optional but Recommended)
+
+With 2x 480GB SSDs, consider RAID 1 for redundancy:
+
+```bash
+# Install mdadm
+sudo apt install mdadm -y
+
+# Create RAID 1 (mirroring)
+sudo mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sda /dev/sdb
+
+# Format
+sudo mkfs.ext4 /dev/md0
+
+# Mount
+sudo mkdir /data
+sudo mount /dev/md0 /data
+
+# Add to fstab for auto-mount
+echo '/dev/md0 /data ext4 defaults 0 0' | sudo tee -a /etc/fstab
+
+# Update docker to use /data
+# Edit /etc/docker/daemon.json:
+# { "data-root": "/data/docker" }
+```
+
+---
+
+## 🔒 SSL/HTTPS Setup
+
+```bash
+# Install certbot
+sudo apt install certbot -y
+
+# Get certificate (stop containers first)
+docker compose down
+sudo certbot certonly --standalone -d yourdomain.com -d www.yourdomain.com
+
+# Copy certs
+sudo cp -r /etc/letsencrypt /opt/zion-city/ssl/
+
+# Uncomment HTTPS server block in nginx.conf
+# Then restart
+docker compose up -d
+
+# Auto-renewal (add to crontab)
+echo "0 0 1 * * certbot renew --quiet && docker compose restart app" | sudo crontab -
+```
+
+---
+
+## 📊 Monitoring
+
+### Real-time stats:
+```bash
+# Docker stats
+docker stats
 
 # System resources
 htop
 
-# Docker stats
-docker stats
+# Disk usage
+df -h
 
-# Nginx access logs
-tail -f /opt/zion-city/logs/nginx-access.log
+# Network connections
+ss -tuln
+```
+
+### Log analysis:
+```bash
+# API errors
+docker compose logs app 2>&1 | grep -i error
+
+# Slow requests (>5s)
+docker compose logs app 2>&1 | grep -E "[5-9][0-9]{3}μs|[0-9]+ms"
+
+# MongoDB queries
+docker compose logs mongodb 2>&1 | grep -i slow
 ```
 
 ---
 
-## 🔄 Updates & Maintenance
+## 🔥 Performance Benchmarks (Expected)
 
-### Deploy new version:
-```bash
-cd /opt/zion-city
-git pull origin main
-./deploy.sh update
-```
+With your hardware, you should achieve:
 
-### Restart services:
-```bash
-./deploy.sh restart
-```
+| Metric | Expected Value |
+|--------|----------------|
+| API Response Time | < 50ms (avg) |
+| Concurrent Users | 500-1000 |
+| Requests/Second | 1000+ (static), 100+ (API) |
+| MongoDB Queries | < 10ms (indexed) |
+| Memory Usage | ~30-40 GB |
 
-### View container logs:
+### Load Testing:
 ```bash
-docker compose logs -f app
-docker compose logs -f redis
-```
+# Install wrk
+sudo apt install wrk -y
 
-### Enter container shell:
-```bash
-docker compose exec app bash
+# Test static files
+wrk -t12 -c400 -d30s http://localhost/
+
+# Test API
+wrk -t12 -c100 -d30s http://localhost/api/health
 ```
 
 ---
 
 ## 🆘 Troubleshooting
 
-### Build fails with memory error
+### Container won't start:
 ```bash
-# Increase Node.js memory (in .env)
-NODE_OPTIONS=--max-old-space-size=3072
-
-# Or build locally and copy:
-npm run build
-scp -r build/ user@vps:/opt/zion-city/frontend/
-```
-
-### Container won't start
-```bash
-# Check logs
-docker compose logs app
-
-# Rebuild from scratch
-docker compose down -v
-docker compose build --no-cache
+docker compose logs app --tail=100
+docker compose down -v  # Reset volumes
 docker compose up -d
 ```
 
-### Database connection issues
+### MongoDB connection issues:
 ```bash
-# Test MongoDB connection
+# Check MongoDB is running
+docker compose exec mongodb mongosh --eval "db.runCommand({ping:1})"
+
+# Check connection from app
 docker compose exec app python -c "
 from pymongo import MongoClient
 import os
-client = MongoClient(os.environ['MONGO_URL'])
-print(client.server_info())
+c = MongoClient(os.environ['MONGO_URL'])
+print(c.server_info()['version'])
 "
 ```
 
-### SSL certificate renewal
+### High memory usage:
 ```bash
-# Manual renewal
-certbot renew
+# Check per-container memory
+docker stats --no-stream
 
-# Check certificate
-certbot certificates
+# Restart specific service
+docker compose restart mongodb
+```
+
+### Disk full:
+```bash
+# Clean Docker
+docker system prune -a --volumes
+
+# Remove old logs
+truncate -s 0 /opt/zion-city/logs/*.log
 ```
 
 ---
 
-## 📈 Scaling Tips
+## 💡 Pro Tips for Your Hardware
 
-When you need more performance:
+1. **MongoDB Performance**: With 64GB RAM and 8GB WiredTiger cache, most queries will be served from memory
 
-1. **Upgrade VPS** to 4 vCPU / 8GB RAM
-2. **Increase workers**: `GUNICORN_WORKERS=7`
-3. **Add CDN** (Cloudflare) for static assets
-4. **Use MongoDB Atlas M10+** for dedicated DB
-5. **Separate services** (DB on different server)
+2. **SSD Benefits**: Put MongoDB data on SSD for fast writes. Your 2x 480GB is plenty
+
+3. **No Swap Needed**: With 64GB RAM, disable swap for better performance:
+   ```bash
+   sudo swapoff -a
+   ```
+
+4. **CPU Affinity**: For maximum performance, pin services to specific cores:
+   ```yaml
+   # In docker-compose.yml
+   deploy:
+     resources:
+       reservations:
+         cpus: '4'
+   ```
+
+5. **Network**: Consider 10Gbps NIC if available for maximum throughput
 
 ---
 
-## 🔗 Useful Links
+## 📞 Quick Reference
 
-- [Docker Documentation](https://docs.docker.com/)
-- [MongoDB Atlas](https://cloud.mongodb.com/)
-- [Let's Encrypt](https://letsencrypt.org/)
-- [Cloudflare](https://cloudflare.com/)
-
----
-
-## 📞 Support
-
-For deployment issues:
-1. Check logs: `./deploy.sh logs`
-2. Check status: `./deploy.sh status`
-3. Review this guide
-4. Contact support with logs attached
+| Task | Command |
+|------|---------|
+| Start | `docker compose up -d` |
+| Stop | `docker compose down` |
+| Logs | `docker compose logs -f` |
+| Rebuild | `docker compose up -d --build` |
+| Status | `docker compose ps` |
+| Shell | `docker compose exec app bash` |
+| DB Shell | `docker compose exec mongodb mongosh` |
+| Backup | `docker compose --profile backup up` |
