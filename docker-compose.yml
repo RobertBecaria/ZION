@@ -1,5 +1,10 @@
 version: '3.8'
 
+# =============================================================================
+# ZION.CITY Production Stack
+# Optimized for: i7-8700 (6c/12t) | 64GB RAM | 2x 480GB SSD
+# =============================================================================
+
 services:
   # =============================================================================
   # ZION.CITY Application
@@ -14,9 +19,9 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      # Database
-      - MONGO_URL=${MONGO_URL}
-      - DB_NAME=${DB_NAME:-zion_city}
+      # Database (local MongoDB)
+      - MONGO_URL=mongodb://zion_admin:${MONGO_PASSWORD}@mongodb:27017/zion_city?authSource=admin
+      - DB_NAME=zion_city
       
       # Security
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
@@ -27,11 +32,16 @@ services:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - EMERGENT_LLM_KEY=${EMERGENT_LLM_KEY}
       
-      # Performance
-      - GUNICORN_WORKERS=3  # Optimal for 2 vCPU
+      # Performance - OPTIMIZED FOR i7-8700
+      - GUNICORN_WORKERS=13  # (2 * 6 cores) + 1
+      - GUNICORN_THREADS=4   # 4 threads per worker
+      
+      # Redis
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./logs:/app/logs
       - ./uploads:/app/uploads
+      - ssl-certs:/etc/letsencrypt:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/api/health"]
       interval: 30s
@@ -41,16 +51,62 @@ services:
     networks:
       - zion-network
     depends_on:
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 4G
 
   # =============================================================================
-  # Redis (for rate limiting and caching)
+  # MongoDB - Local Instance (saves $50+/month vs Atlas)
+  # =============================================================================
+  mongodb:
+    image: mongo:7
+    container_name: zion-mongodb
+    restart: unless-stopped
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=zion_admin
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_INITDB_DATABASE=zion_city
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/init.js:ro
+    networks:
+      - zion-network
+    command: ["mongod", "--wiredTigerCacheSizeGB", "8"]  # 8GB cache for MongoDB
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+        reservations:
+          memory: 4G
+
+  # =============================================================================
+  # Redis - Caching & Rate Limiting
   # =============================================================================
   redis:
     image: redis:7-alpine
     container_name: zion-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 4gb
+      --maxmemory-policy allkeys-lru
+      --tcp-keepalive 300
+      --timeout 0
     volumes:
       - redis-data:/data
     networks:
@@ -60,32 +116,79 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 5G
+        reservations:
+          memory: 2G
 
   # =============================================================================
-  # MongoDB (Optional - use if not using MongoDB Atlas)
+  # MongoDB Express - Database Admin UI (optional, disable in production)
   # =============================================================================
-  # mongodb:
-  #   image: mongo:7
-  #   container_name: zion-mongodb
-  #   restart: unless-stopped
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER:-admin}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-  #     - MONGO_INITDB_DATABASE=zion_city
-  #   volumes:
-  #     - mongo-data:/data/db
-  #   networks:
-  #     - zion-network
-  #   healthcheck:
-  #     test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
+  mongo-express:
+    image: mongo-express:latest
+    container_name: zion-mongo-admin
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=zion_admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_BASICAUTH_USERNAME=${ADMIN_USER:-admin}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${ADMIN_PASSWORD}
+    networks:
+      - zion-network
+    depends_on:
+      - mongodb
+    profiles:
+      - admin  # Only start with: docker compose --profile admin up
+
+  # =============================================================================
+  # Automated Backups
+  # =============================================================================
+  backup:
+    image: prodrigestivill/postgres-backup-local:latest
+    container_name: zion-backup
+    restart: unless-stopped
+    volumes:
+      - ./backups:/backups
+      - mongo-data:/data/db:ro
+    environment:
+      - BACKUP_DIR=/backups
+      - BACKUP_KEEP_DAYS=7
+      - BACKUP_KEEP_WEEKS=4
+      - BACKUP_KEEP_MONTHS=6
+    entrypoint: |
+      sh -c '
+        while true; do
+          echo "Starting MongoDB backup..."
+          mongodump --uri="mongodb://zion_admin:${MONGO_PASSWORD}@mongodb:27017" --out=/backups/$(date +%Y%m%d_%H%M%S)
+          echo "Backup completed!"
+          sleep 86400  # Daily
+        done
+      '
+    networks:
+      - zion-network
+    depends_on:
+      - mongodb
+    profiles:
+      - backup  # Only start with: docker compose --profile backup up
 
 networks:
   zion-network:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
 
 volumes:
+  mongo-data:
+    driver: local
+  mongo-config:
+    driver: local
   redis-data:
-  # mongo-data:  # Uncomment if using local MongoDB
+    driver: local
+  ssl-certs:
+    driver: local
