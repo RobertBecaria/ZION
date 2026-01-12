@@ -1,0 +1,57 @@
+# =============================================================================
+# ZION.CITY Robots.txt
+# =============================================================================
+# Allow search engines to index ONLY the landing/home page
+# Block all other pages (dashboard, profile, etc.)
+
+# General rules for all bots
+User-agent: *
+
+# Allow only the home page
+Allow: /$
+Allow: /index.html
+
+# Block all other routes
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /family
+Disallow: /work
+Disallow: /news
+Disallow: /services
+Disallow: /marketplace
+Disallow: /finance
+Disallow: /events
+Disallow: /journal
+Disallow: /profile
+Disallow: /settings
+Disallow: /chat
+Disallow: /notifications
+Disallow: /media
+Disallow: /uploads/
+Disallow: /static/js/
+Disallow: /static/css/
+
+# Block query strings (prevents caching of dynamic content)
+Disallow: /*?*
+
+# Specific bot rules (aggressive crawlers)
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+# Crawl delay to prevent server overload
+Crawl-delay: 10
+
+# Sitemap location (optional - only if you create one)
+# Sitemap: https://yourdomain.com/sitemap.xml
