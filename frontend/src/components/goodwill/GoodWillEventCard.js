@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { MapPin, Calendar, Users, Clock, Coins, Heart } from 'lucide-react';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
-const GoodWillEventCard = ({ 
+const GoodWillEventCard = memo(({ 
   event, 
   moduleColor = '#8B5CF6',
   onSelect,
@@ -225,6 +225,14 @@ const GoodWillEventCard = ({
       </div>
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Re-render only when event data or favorite status changes
+  return (
+    prevProps.event.id === nextProps.event.id &&
+    prevProps.event.my_rsvp === nextProps.event.my_rsvp &&
+    prevProps.event.attendee_count === nextProps.event.attendee_count &&
+    prevProps.isFavorite === nextProps.isFavorite
+  );
+});
 
 export default GoodWillEventCard;

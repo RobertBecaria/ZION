@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ArrowLeft, Calendar, MapPin, Users, Clock, Coins, Share2, Heart, User, 
-  CheckCircle, HelpCircle, XCircle, Star, MessageCircle, Image, 
-  Send, Camera, QrCode, Bell, BellOff, Twitter, Facebook, Link2, Copy
+import React, { useState, useEffect } from 'react';
+import {
+  ArrowLeft, Calendar, MapPin, Users, Clock, Coins, Share2, Heart, User,
+  CheckCircle, HelpCircle, XCircle, Star, MessageCircle, Image,
+  QrCode, Bell, BellOff, Twitter, Facebook, Link2, Copy
 } from 'lucide-react';
+
+// Import subcomponents for better code organization
+import EventReviewsTab from './EventReviewsTab';
+import EventPhotosTab from './EventPhotosTab';
+import EventChatTab from './EventChatTab';
+import EventPaymentModal from './EventPaymentModal';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -23,37 +29,17 @@ const GoodWillEventDetail = ({
   const [processing, setProcessing] = useState(false);
   const [receipt, setReceipt] = useState(null);
   
-  // Phase 2 States
+  // Phase 2 States - Tab state only (reviews, photos, chat handled by subcomponents)
   const [activeTab, setActiveTab] = useState('about');
-  const [reviews, setReviews] = useState([]);
-  const [photos, setPhotos] = useState([]);
-  const [chatMessages, setChatMessages] = useState([]);
-  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
-  const [newMessage, setNewMessage] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrCode, setQrCode] = useState(null);
   const [hasReminder, setHasReminder] = useState(false);
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [sendingMessage, setSendingMessage] = useState(false);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const photoInputRef = useRef(null);
-  const chatEndRef = useRef(null);
 
   useEffect(() => {
     fetchEvent();
     if (token) fetchWallet();
   }, [eventId, token]);
-
-  useEffect(() => {
-    if (activeTab === 'reviews') fetchReviews();
-    if (activeTab === 'photos') fetchPhotos();
-    if (activeTab === 'chat') fetchChat();
-  }, [activeTab, eventId]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
 
   const fetchEvent = async () => {
     try {
@@ -84,44 +70,7 @@ const GoodWillEventDetail = ({
     }
   };
 
-  const fetchReviews = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/reviews`);
-      if (res.ok) {
-        const data = await res.json();
-        setReviews(data.reviews || []);
-      }
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-    }
-  };
-
-  const fetchPhotos = async () => {
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/photos`);
-      if (res.ok) {
-        const data = await res.json();
-        setPhotos(data.photos || []);
-      }
-    } catch (error) {
-      console.error('Error fetching photos:', error);
-    }
-  };
-
-  const fetchChat = async () => {
-    if (!token) return;
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/chat`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setChatMessages(data.messages || []);
-      }
-    } catch (error) {
-      console.error('Error fetching chat:', error);
-    }
-  };
+  // Reviews, Photos, Chat functions moved to subcomponents
 
   const handleRSVP = async (status) => {
     if (!token) return;
@@ -174,100 +123,7 @@ const GoodWillEventDetail = ({
     }
   };
 
-  const handleSubmitReview = async (e) => {
-    e.preventDefault();
-    if (!token || !newReview.comment.trim()) return;
-    setSubmittingReview(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(newReview)
-      });
-      if (res.ok) {
-        setNewReview({ rating: 5, comment: '' });
-        fetchReviews();
-        fetchEvent();
-      } else {
-        const error = await res.json();
-        alert(error.detail || 'Ошибка при отправке отзыва');
-      }
-    } catch (error) {
-      console.error('Error submitting review:', error);
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
-  const handleSendMessage = async (e) => {
-    e.preventDefault();
-    if (!token || !newMessage.trim()) return;
-    setSendingMessage(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/chat`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ message: newMessage })
-      });
-      if (res.ok) {
-        setNewMessage('');
-        fetchChat();
-      } else {
-        const error = await res.json();
-        alert(error.detail || 'Ошибка при отправке сообщения');
-      }
-    } catch (error) {
-      console.error('Error sending message:', error);
-    } finally {
-      setSendingMessage(false);
-    }
-  };
-
-  const handlePhotoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file || !token) return;
-    setUploadingPhoto(true);
-    try {
-      const uploadData = new FormData();
-      uploadData.append('file', file);
-      uploadData.append('source_module', 'community');
-      uploadData.append('privacy_level', 'PUBLIC');
-      
-      const uploadRes = await fetch(`${BACKEND_URL}/api/media/upload`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: uploadData
-      });
-      
-      if (uploadRes.ok) {
-        const uploadResult = await uploadRes.json();
-        const imageUrl = `${BACKEND_URL}${uploadResult.file_url}`;
-        
-        const res = await fetch(`${BACKEND_URL}/api/goodwill/events/${eventId}/photos`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ image_url: imageUrl })
-        });
-        
-        if (res.ok) {
-          fetchPhotos();
-        }
-      }
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
+  // Review, Chat, Photo handlers moved to subcomponents
 
   const handleShare = async (platform) => {
     const shareUrl = `${window.location.origin}/goodwill/event/${eventId}`;
@@ -729,324 +585,33 @@ const GoodWillEventDetail = ({
             </>
           )}
 
-          {/* Reviews Tab */}
+          {/* Reviews Tab - Using Subcomponent */}
           {activeTab === 'reviews' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: '0 0 20px 0' }}>
-                Отзывы о мероприятии
-              </h2>
-
-              {/* Add Review Form */}
-              {token && (event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING') && (
-                <form onSubmit={handleSubmitReview} style={{
-                  background: '#f8fafc',
-                  borderRadius: '16px',
-                  padding: '20px',
-                  marginBottom: '24px'
-                }}>
-                  <h4 style={{ margin: '0 0 12px 0', fontWeight: '600' }}>Оставить отзыв</h4>
-                  
-                  <div style={{ marginBottom: '12px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Оценка</label>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setNewReview({ ...newReview, rating: star })}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
-                        >
-                          <Star
-                            size={28}
-                            fill={star <= newReview.rating ? '#F59E0B' : 'transparent'}
-                            color={star <= newReview.rating ? '#F59E0B' : '#cbd5e1'}
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  
-                  <div style={{ marginBottom: '12px' }}>
-                    <textarea
-                      value={newReview.comment}
-                      onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
-                      placeholder="Расскажите о своих впечатлениях..."
-                      rows={3}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '15px',
-                        resize: 'vertical'
-                      }}
-                    />
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    disabled={submittingReview || !newReview.comment.trim()}
-                    style={{
-                      padding: '10px 20px',
-                      background: submittingReview ? '#94a3b8' : moduleColor,
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '10px',
-                      fontWeight: '500',
-                      cursor: submittingReview ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {submittingReview ? 'Отправка...' : 'Отправить отзыв'}
-                  </button>
-                </form>
-              )}
-
-              {/* Reviews List */}
-              {reviews.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  <Star size={48} color="#e2e8f0" style={{ marginBottom: '12px' }} />
-                  <p>Пока нет отзывов</p>
-                </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  {reviews.map(review => (
-                    <div key={review.id} style={{
-                      background: 'white',
-                      borderRadius: '12px',
-                      padding: '16px',
-                      border: '1px solid #e2e8f0'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            background: moduleColor + '20',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: moduleColor,
-                            fontWeight: '600'
-                          }}>
-                            {review.user?.first_name?.[0] || 'U'}
-                          </div>
-                          <div>
-                            <p style={{ margin: 0, fontWeight: '500' }}>
-                              {review.user?.first_name} {review.user?.last_name}
-                            </p>
-                            <div style={{ display: 'flex', gap: '2px' }}>
-                              {[1, 2, 3, 4, 5].map(star => (
-                                <Star
-                                  key={star}
-                                  size={14}
-                                  fill={star <= review.rating ? '#F59E0B' : 'transparent'}
-                                  color={star <= review.rating ? '#F59E0B' : '#e2e8f0'}
-                                />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: '12px', color: '#64748b' }}>
-                          {new Date(review.created_at).toLocaleDateString('ru-RU')}
-                        </span>
-                      </div>
-                      <p style={{ margin: 0, color: '#475569', lineHeight: 1.6 }}>{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <EventReviewsTab
+              eventId={eventId}
+              token={token}
+              moduleColor={moduleColor}
+              canReview={event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING'}
+            />
           )}
 
-          {/* Photos Tab */}
+          {/* Photos Tab - Using Subcomponent */}
           {activeTab === 'photos' && (
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: 0 }}>
-                  Фотогалерея
-                </h2>
-                {token && (event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING') && (
-                  <>
-                    <input
-                      type="file"
-                      ref={photoInputRef}
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      style={{ display: 'none' }}
-                    />
-                    <button
-                      onClick={() => photoInputRef.current?.click()}
-                      disabled={uploadingPhoto}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '10px 16px',
-                        background: moduleColor,
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '10px',
-                        cursor: uploadingPhoto ? 'not-allowed' : 'pointer',
-                        fontWeight: '500'
-                      }}
-                    >
-                      <Camera size={16} />
-                      {uploadingPhoto ? 'Загрузка...' : 'Добавить фото'}
-                    </button>
-                  </>
-                )}
-              </div>
-
-              {photos.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  <Image size={48} color="#e2e8f0" style={{ marginBottom: '12px' }} />
-                  <p>Пока нет фотографий</p>
-                </div>
-              ) : (
-                <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', 
-                  gap: '12px' 
-                }}>
-                  {photos.map(photo => (
-                    <div key={photo.id} style={{ 
-                      borderRadius: '12px', 
-                      overflow: 'hidden',
-                      aspectRatio: '1',
-                      background: '#f1f5f9'
-                    }}>
-                      <img
-                        src={photo.image_url}
-                        alt=""
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            <EventPhotosTab
+              eventId={eventId}
+              token={token}
+              moduleColor={moduleColor}
+              canUpload={event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING'}
+            />
           )}
 
-          {/* Chat Tab */}
+          {/* Chat Tab - Using Subcomponent */}
           {activeTab === 'chat' && (
-            <div>
-              <h2 style={{ fontSize: '20px', fontWeight: '600', color: '#1e293b', margin: '0 0 20px 0' }}>
-                Чат мероприятия
-              </h2>
-
-              {!token ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  <MessageCircle size={48} color="#e2e8f0" style={{ marginBottom: '12px' }} />
-                  <p>Войдите, чтобы участвовать в чате</p>
-                </div>
-              ) : !(event.my_rsvp === 'GOING' || event.my_attendance?.status === 'GOING' || canManageEvent) ? (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                  <MessageCircle size={48} color="#e2e8f0" style={{ marginBottom: '12px' }} />
-                  <p>Чат доступен только для участников мероприятия</p>
-                </div>
-              ) : (
-                <div style={{
-                  background: '#f8fafc',
-                  borderRadius: '16px',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '500px'
-                }}>
-                  {/* Messages */}
-                  <div style={{ 
-                    flex: 1, 
-                    overflowY: 'auto', 
-                    padding: '16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px'
-                  }}>
-                    {chatMessages.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                        <p>Начните общение!</p>
-                      </div>
-                    ) : (
-                      chatMessages.map(msg => (
-                        <div key={msg.id} style={{
-                          display: 'flex',
-                          gap: '10px',
-                          alignItems: 'flex-start'
-                        }}>
-                          <div style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            background: moduleColor + '20',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: moduleColor,
-                            fontWeight: '600',
-                            flexShrink: 0
-                          }}>
-                            {msg.user?.first_name?.[0] || 'U'}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '4px' }}>
-                              <span style={{ fontWeight: '600', fontSize: '14px' }}>
-                                {msg.user?.first_name} {msg.user?.last_name}
-                              </span>
-                              <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                                {formatChatTime(msg.timestamp)}
-                              </span>
-                            </div>
-                            <p style={{ margin: 0, color: '#475569', fontSize: '14px' }}>{msg.message}</p>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                    <div ref={chatEndRef} />
-                  </div>
-
-                  {/* Input */}
-                  <form onSubmit={handleSendMessage} style={{
-                    display: 'flex',
-                    gap: '10px',
-                    padding: '16px',
-                    background: 'white',
-                    borderTop: '1px solid #e2e8f0'
-                  }}>
-                    <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      placeholder="Написать сообщение..."
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        border: '2px solid #e2e8f0',
-                        borderRadius: '10px',
-                        fontSize: '14px'
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      disabled={sendingMessage || !newMessage.trim()}
-                      style={{
-                        padding: '12px 20px',
-                        background: sendingMessage ? '#94a3b8' : moduleColor,
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '10px',
-                        cursor: sendingMessage ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}
-                    >
-                      <Send size={16} />
-                    </button>
-                  </form>
-                </div>
-              )}
-            </div>
+            <EventChatTab
+              eventId={eventId}
+              token={token}
+              moduleColor={moduleColor}
+            />
           )}
         </div>
 
@@ -1218,122 +783,21 @@ const GoodWillEventDetail = ({
         </div>
       </div>
 
-      {/* Payment Modal */}
+      {/* Payment Modal - Using Subcomponent */}
       {showPaymentModal && selectedTicket && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }} onClick={() => !receipt && setShowPaymentModal(false)}>
-          <div 
-            style={{
-              background: 'white',
-              borderRadius: '20px',
-              padding: '24px',
-              maxWidth: '400px',
-              width: '90%'
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            {receipt ? (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-                <h3 style={{ margin: '0 0 8px 0' }}>Оплата успешна!</h3>
-                <p style={{ color: '#64748b', marginBottom: '16px' }}>Билет куплен</p>
-                
-                <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', textAlign: 'left', marginBottom: '16px' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: '600' }}>КВИТАНЦИЯ</p>
-                  <p style={{ margin: '4px 0', fontSize: '13px' }}>Мероприятие: {event.title}</p>
-                  <p style={{ margin: '4px 0', fontSize: '13px' }}>Билет: {selectedTicket.name}</p>
-                  <p style={{ margin: '4px 0', fontSize: '13px' }}>Сумма: {receipt.total_paid} AC</p>
-                  <p style={{ margin: '4px 0', fontSize: '13px', color: '#64748b' }}>№ {receipt.receipt_id?.slice(0, 8).toUpperCase()}</p>
-                </div>
-                
-                <button
-                  onClick={() => {
-                    setShowPaymentModal(false);
-                    setReceipt(null);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    background: moduleColor,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Отлично!
-                </button>
-              </div>
-            ) : (
-              <>
-                <h3 style={{ margin: '0 0 16px 0' }}>Оплата ALTYN COIN</h3>
-                <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
-                  <p style={{ margin: '0 0 8px 0', fontWeight: '500' }}>{event.title}</p>
-                  <p style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#64748b' }}>Билет: {selectedTicket.name}</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid #e2e8f0' }}>
-                    <span>Сумма:</span>
-                    <span style={{ fontWeight: '700', color: '#F59E0B' }}>{selectedTicket.altyn_price} AC</span>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b' }}>
-                    <span>Комиссия (0.1%):</span>
-                    <span>{(selectedTicket.altyn_price * 0.001).toFixed(2)} AC</span>
-                  </div>
-                </div>
-                <p style={{ 
-                  textAlign: 'center', 
-                  margin: '0 0 16px 0',
-                  color: wallet?.coin_balance >= selectedTicket.altyn_price ? '#059669' : '#EF4444'
-                }}>
-                  Ваш баланс: {wallet?.coin_balance?.toLocaleString()} AC
-                </p>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button
-                    onClick={() => setShowPaymentModal(false)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: '#f1f5f9',
-                      color: '#64748b',
-                      border: 'none',
-                      borderRadius: '10px',
-                      fontWeight: '500',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Отмена
-                  </button>
-                  <button
-                    onClick={handlePurchaseTicket}
-                    disabled={processing || !wallet || wallet.coin_balance < selectedTicket.altyn_price}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: processing ? '#94a3b8' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '10px',
-                      fontWeight: '600',
-                      cursor: processing ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {processing ? 'Обработка...' : 'Оплатить'}
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+        <EventPaymentModal
+          event={event}
+          selectedTicket={selectedTicket}
+          wallet={wallet}
+          processing={processing}
+          receipt={receipt}
+          moduleColor={moduleColor}
+          onClose={() => {
+            setShowPaymentModal(false);
+            setReceipt(null);
+          }}
+          onPurchase={handlePurchaseTicket}
+        />
       )}
 
       {/* Share Modal */}

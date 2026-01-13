@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { User, Heart, CornerDownRight, Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 import { formatTime } from './utils/postUtils';
 
-function CommentItem({ 
+const CommentItem = memo(function CommentItem({ 
   comment, 
   postId, 
   level = 0, 
@@ -475,6 +475,14 @@ function CommentItem({
       `}</style>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison for comment updates
+  return (
+    prevProps.comment.id === nextProps.comment.id &&
+    prevProps.comment.content === nextProps.comment.content &&
+    prevProps.comment.like_count === nextProps.comment.like_count &&
+    prevProps.comment.has_liked === nextProps.comment.has_liked
+  );
+});
 
 export default CommentItem;
