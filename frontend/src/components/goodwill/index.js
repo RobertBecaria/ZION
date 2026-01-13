@@ -8,3 +8,9 @@ export { default as GoodWillOrganizerProfile } from './GoodWillOrganizerProfile'
 export { default as GoodWillMyEvents } from './GoodWillMyEvents';
 export { default as GoodWillInvitations } from './GoodWillInvitations';
 export { default as GoodWillGroups } from './GoodWillGroups';
+
+// Event Detail Subcomponents (used internally)
+export { default as EventReviewsTab } from './EventReviewsTab';
+export { default as EventPhotosTab } from './EventPhotosTab';
+export { default as EventChatTab } from './EventChatTab';
+export { default as EventPaymentModal } from './EventPaymentModal';

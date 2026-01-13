@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { User, MoreHorizontal, Globe, Users, Lock, UserCheck, Edit2, Trash2 } from 'lucide-react';
 import { formatTime } from './utils/postUtils';
 import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentSection from './CommentSection';
 
-function PostItem({ 
+const PostItem = memo(function PostItem({ 
   post, 
   moduleColor, 
   user,
@@ -328,6 +328,17 @@ function PostItem({
       `}</style>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison for performance - only re-render if these props change
+  return (
+    prevProps.post.id === nextProps.post.id &&
+    prevProps.post.like_count === nextProps.post.like_count &&
+    prevProps.post.comment_count === nextProps.post.comment_count &&
+    prevProps.post.my_reaction === nextProps.post.my_reaction &&
+    prevProps.showComments === nextProps.showComments &&
+    prevProps.comments?.length === nextProps.comments?.length &&
+    prevProps.newComment === nextProps.newComment
+  );
+});
 
 export default PostItem;

@@ -1,8 +1,9 @@
 /**
  * MessageBubble Component
  * WhatsApp-style message bubble with status indicators, replies, attachments, voice messages, and reactions
+ * Wrapped with React.memo for performance optimization in chat lists
  */
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Check, CheckCheck, Reply, File, Download, MoreVertical } from 'lucide-react';
 import VoiceMessagePlayer from './VoiceMessagePlayer';
 import MessageContextMenu from './MessageContextMenu';
@@ -10,7 +11,7 @@ import MessageContextMenu from './MessageContextMenu';
 // Quick reaction emojis for hover bar
 const QUICK_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '😡'];
 
-const MessageBubble = ({
+const MessageBubble = memo(({
   message,
   isOwn,
   showSender = false,
@@ -267,6 +268,15 @@ const MessageBubble = ({
       )}
     </div>
   );
-};
+}, (prevProps, nextProps) => {
+  // Custom comparison - only re-render when message content/status changes
+  return (
+    prevProps.message.id === nextProps.message.id &&
+    prevProps.message.status === nextProps.message.status &&
+    prevProps.message.reactions === nextProps.message.reactions &&
+    prevProps.isOwn === nextProps.isOwn &&
+    prevProps.showSender === nextProps.showSender
+  );
+});
 
 export default MessageBubble;
