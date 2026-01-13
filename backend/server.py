@@ -21515,6 +21515,11 @@ async def fetch_exchange_rates() -> dict:
                 data = response.json()
                 rates = data.get("rates", {})
                 
+                # Validate rates
+                if not rates or "RUB" not in rates:
+                    logger.warning(f"Exchange rate API returned invalid data: {data}")
+                    rates = {"RUB": 90.0, "KZT": 450.0}
+                
                 # Cache the rates
                 await db.exchange_rates.update_one(
                     {"base": "USD"},
@@ -21526,8 +21531,14 @@ async def fetch_exchange_rates() -> dict:
                 )
                 
                 return rates
+            else:
+                logger.warning(f"Exchange rate API returned status {response.status_code}")
+    except httpx.TimeoutException:
+        logger.warning("Exchange rate API timeout - using fallback rates")
+    except httpx.RequestError as e:
+        logger.warning(f"Exchange rate API request error: {type(e).__name__}")
     except Exception as e:
-        logger.error(f"Error fetching exchange rates: {e}")
+        logger.error(f"Error fetching exchange rates: {type(e).__name__}: {str(e) or 'Unknown error'}")
     
     # Fallback rates if API fails
     return {"RUB": 90.0, "KZT": 450.0}
