@@ -14,7 +14,7 @@ import os
 workers = int(os.environ.get('GUNICORN_WORKERS', 13))
 threads = int(os.environ.get('GUNICORN_THREADS', 4))  # 4 threads per worker
 worker_class = "uvicorn.workers.UvicornWorker"
-worker_connections = 2000  # Increased for more concurrent connections
+worker_connections = 1024  # Optimized - sufficient for most use cases
 
 # Total capacity: 13 workers × 4 threads = 52 concurrent requests
 
@@ -22,8 +22,9 @@ worker_connections = 2000  # Increased for more concurrent connections
 # MEMORY MANAGEMENT
 # =============================================================================
 # Restart workers periodically to prevent memory leaks
-max_requests = 10000  # Increased - more RAM available
-max_requests_jitter = 1000
+# Optimized values to balance stability with performance
+max_requests = 6000  # Restart workers more frequently to prevent memory bloat
+max_requests_jitter = 600  # Random jitter to prevent thundering herd
 
 # Worker memory limit (kill if exceeds)
 # With 64GB RAM, we can be generous
@@ -35,8 +36,8 @@ limit_request_field_size = 16380
 # TIMEOUTS
 # =============================================================================
 timeout = 120  # Worker timeout (for slow AI requests)
-graceful_timeout = 60  # More time for graceful shutdown
-keepalive = 10  # Keep-alive connections
+graceful_timeout = 30  # Graceful shutdown timeout
+keepalive = 5  # Keep-alive connections (optimized)
 
 # =============================================================================
 # SERVER SOCKET
