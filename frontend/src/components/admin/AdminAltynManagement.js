@@ -6,7 +6,13 @@ import {
   Building, CreditCard, ArrowRightLeft, Landmark, FileText
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+// Get backend URL - handle both with and without /api suffix
+const getBackendUrl = () => {
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || '';
+  if (baseUrl.endsWith('/api')) return baseUrl;
+  return baseUrl + '/api';
+};
+const BACKEND_URL = getBackendUrl();
 
 const formatNumber = (num) => {
   if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
