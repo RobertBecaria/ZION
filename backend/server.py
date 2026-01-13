@@ -37,17 +37,18 @@ load_dotenv(ROOT_DIR / '.env')
 # Environment detection
 IS_PRODUCTION = os.environ.get('ENVIRONMENT', 'development') == 'production'
 
-# MongoDB connection with optimized settings for production
+# MongoDB connection with optimized settings for Atlas/Production
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(
     mongo_url,
-    maxPoolSize=100,              # Maximum connection pool size
-    minPoolSize=10,               # Minimum connections to maintain
-    maxIdleTimeMS=45000,          # Close idle connections after 45 seconds
-    serverSelectionTimeoutMS=5000, # Timeout for server selection
-    connectTimeoutMS=10000,        # Connection timeout
-    socketTimeoutMS=30000,         # Socket timeout for operations
+    maxPoolSize=50 if IS_PRODUCTION else 100,  # Lower pool for Atlas
+    minPoolSize=5,                # Minimum connections to maintain
+    maxIdleTimeMS=30000,          # Close idle connections after 30 seconds
+    serverSelectionTimeoutMS=30000, # Increased timeout for Atlas
+    connectTimeoutMS=30000,        # Increased connection timeout for Atlas
+    socketTimeoutMS=60000,         # Increased socket timeout for slow queries
     retryWrites=True,              # Retry failed writes
+    retryReads=True,               # Retry failed reads
     w='majority' if IS_PRODUCTION else 1,  # Write concern
 )
 db = client[os.environ.get('DB_NAME', 'zion_city')]
