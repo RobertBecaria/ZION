@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard, Users, LogOut, Menu, X, Shield,
-  Settings, ChevronRight
+  Database, ChevronRight
 } from 'lucide-react';
 import AdminDashboard from './AdminDashboard';
 import AdminUserManagement from './AdminUserManagement';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import AdminDatabaseManagement from './AdminDatabaseManagement';
 
 const AdminLayout = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -27,6 +26,7 @@ const AdminLayout = ({ onLogout }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Панель управления', icon: LayoutDashboard },
     { id: 'users', label: 'Пользователи', icon: Users },
+    { id: 'database', label: 'База данных', icon: Database },
   ];
 
   return (
@@ -110,6 +110,7 @@ const AdminLayout = ({ onLogout }) => {
         <div className="p-6 lg:p-8">
           {activeTab === 'dashboard' && <AdminDashboard />}
           {activeTab === 'users' && <AdminUserManagement />}
+          {activeTab === 'database' && <AdminDatabaseManagement />}
         </div>
       </main>
 
