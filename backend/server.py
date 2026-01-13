@@ -21345,9 +21345,16 @@ class Wallet(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+def generate_transaction_code():
+    """Generate unique transaction code like TX-20260113-ABC123"""
+    date_part = datetime.now().strftime("%Y%m%d")
+    random_part = ''.join(random.choices('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=6))
+    return f"TX-{date_part}-{random_part}"
+
 class Transaction(BaseModel):
     """Record of all financial transactions"""
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    code: str = Field(default_factory=generate_transaction_code)  # Human-readable code
     from_wallet_id: str
     to_wallet_id: str
     from_user_id: str
@@ -21359,6 +21366,11 @@ class Transaction(BaseModel):
     status: TransactionStatus = TransactionStatus.COMPLETED
     description: Optional[str] = None
     marketplace_product_id: Optional[str] = None  # If payment for product
+    is_reversed: bool = False  # Whether transaction was reversed
+    reversed_by: Optional[str] = None  # Admin who reversed it
+    reversed_at: Optional[datetime] = None
+    reversal_reason: Optional[str] = None
+    original_transaction_id: Optional[str] = None  # If this is a reversal, points to original
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class Emission(BaseModel):
