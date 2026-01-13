@@ -193,7 +193,7 @@ const InitializeTokensModal = ({ onClose, onSuccess }) => {
     try {
       const token = localStorage.getItem('admin_token');
       const response = await fetch(
-        `${BACKEND_URL}/finance/admin/initialize-tokens?user_email=${encodeURIComponent(email)}&token_amount=${tokens}&coin_amount=${coins}`,
+        `${BACKEND_URL}/admin/finance/initialize-tokens?user_email=${encodeURIComponent(email)}&token_amount=${tokens}&coin_amount=${coins}`,
         {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` }
