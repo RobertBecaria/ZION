@@ -5,7 +5,7 @@ import {
   AlertTriangle, User, Mail, Phone, Calendar, Shield
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const UserDetailModal = ({ user, onClose, onUpdate, onDelete }) => {
   const [editing, setEditing] = useState(false);
