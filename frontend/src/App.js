@@ -719,6 +719,33 @@ function Dashboard() {
 // Main App Component
 function App() {
   const [authMode, setAuthMode] = useState('login');
+  const [isAdminRoute, setIsAdminRoute] = useState(false);
+
+  useEffect(() => {
+    // Check if current path is admin
+    const checkAdminRoute = () => {
+      const path = window.location.pathname;
+      setIsAdminRoute(path === '/admin' || path.startsWith('/admin/'));
+    };
+
+    checkAdminRoute();
+    
+    // Listen for popstate events (browser back/forward)
+    window.addEventListener('popstate', checkAdminRoute);
+    
+    return () => {
+      window.removeEventListener('popstate', checkAdminRoute);
+    };
+  }, []);
+
+  // If admin route, render admin panel
+  if (isAdminRoute) {
+    return (
+      <ErrorBoundary>
+        <AdminPanel />
+      </ErrorBoundary>
+    );
+  }
   
   return (
     <ErrorBoundary>
