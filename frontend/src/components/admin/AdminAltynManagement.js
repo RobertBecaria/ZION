@@ -331,15 +331,15 @@ const AdminAltynManagement = () => {
       const token = localStorage.getItem('admin_token');
       const headers = { 'Authorization': `Bearer ${token}` };
 
-      // Fetch treasury stats
-      const treasuryRes = await fetch(`${BACKEND_URL}/finance/treasury`, { headers });
+      // Fetch treasury stats (using admin endpoint)
+      const treasuryRes = await fetch(`${BACKEND_URL}/admin/finance/treasury`, { headers });
       if (treasuryRes.ok) {
         const data = await treasuryRes.json();
         setTreasury(data);
       }
 
-      // Fetch token holders
-      const holdersRes = await fetch(`${BACKEND_URL}/finance/token-holders?limit=50`, { headers });
+      // Fetch token holders (using admin endpoint)
+      const holdersRes = await fetch(`${BACKEND_URL}/admin/finance/token-holders?limit=50`, { headers });
       if (holdersRes.ok) {
         const data = await holdersRes.json();
         setTokenHolders(data.holders || []);
