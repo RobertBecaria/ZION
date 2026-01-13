@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AdminLogin from './AdminLogin';
 import AdminLayout from './AdminLayout';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL + '/api';
 
 const AdminPanel = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
