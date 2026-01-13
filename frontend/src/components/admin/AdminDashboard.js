@@ -4,7 +4,13 @@ import {
   Calendar, RefreshCw, BarChart2, UserPlus
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+// Get backend URL - handle both with and without /api suffix
+const getBackendUrl = () => {
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || '';
+  if (baseUrl.endsWith('/api')) return baseUrl;
+  return baseUrl + '/api';
+};
+const BACKEND_URL = getBackendUrl();
 
 const StatCard = ({ title, value, icon: Icon, color, subtitle, trend }) => (
   <div className="bg-slate-800/50 backdrop-blur-sm rounded-xl p-6 border border-slate-700/50 hover:border-slate-600/50 transition-all">
