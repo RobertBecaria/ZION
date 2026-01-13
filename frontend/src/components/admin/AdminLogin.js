@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { Shield, Eye, EyeOff, AlertCircle, LogIn } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL + '/api';
+// Get backend URL - handle both with and without /api suffix
+const getBackendUrl = () => {
+  const baseUrl = process.env.REACT_APP_BACKEND_URL || '';
+  if (baseUrl.endsWith('/api')) return baseUrl;
+  return baseUrl + '/api';
+};
+const BACKEND_URL = getBackendUrl();
 
 const AdminLogin = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState('');
