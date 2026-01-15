@@ -724,27 +724,76 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   }
 
   return (
-    <div className="my-info-page-v2" data-testid="my-info-page">
+    <div 
+      className="my-info-page-v2" 
+      data-testid="my-info-page"
+      style={{
+        padding: '32px 48px',
+        width: '100%',
+        minHeight: '100%',
+        overflowY: 'auto',
+        boxSizing: 'border-box',
+        background: '#F9FAFB'
+      }}
+    >
       {/* Page Header */}
-      <header className="page-header-v2">
-        <div className="header-content">
-          <h1>
+      <header style={{ marginBottom: '32px' }}>
+        <div>
+          <h1 style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '12px', 
+            fontSize: '1.75rem', 
+            fontWeight: 700, 
+            color: '#111827',
+            margin: '0 0 8px 0'
+          }}>
             <User size={28} />
             Мой Профиль
           </h1>
-          <p className="subtitle">Управление персональными данными</p>
+          <p style={{ color: '#6B7280', fontSize: '0.95rem', margin: 0 }}>Управление персональными данными</p>
         </div>
       </header>
 
       {/* Alerts */}
       {success && (
-        <div className="alert-v2 alert-success" data-testid="success-alert">
+        <div 
+          data-testid="success-alert"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '14px 18px',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
+            color: '#065F46',
+            border: '1px solid #A7F3D0'
+          }}
+        >
           <CheckCircle2 size={18} />
           {success}
         </div>
       )}
       {error && (
-        <div className="alert-v2 alert-error" data-testid="error-alert">
+        <div 
+          data-testid="error-alert"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '14px 18px',
+            borderRadius: '12px',
+            marginBottom: '20px',
+            fontSize: '0.9rem',
+            fontWeight: 500,
+            background: 'linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%)',
+            color: '#991B1B',
+            border: '1px solid #FECACA'
+          }}
+        >
           <AlertTriangle size={18} />
           {error}
         </div>
