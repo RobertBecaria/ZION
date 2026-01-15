@@ -33,6 +33,15 @@ Build and enhance the ZION.CITY social platform - a family-focused social networ
 
 ## What's Been Implemented
 
+### 2026-01-15: Reverse Transaction Feature Verified (COMPLETE ✅)
+- ✅ **Backend API:** `/api/admin/finance/transactions/{tx_code}/reverse` endpoint fully functional
+- ✅ **Frontend UI:** Transaction detail modal with "Отменить транзакцию" button
+- ✅ **Reversal Form:** Requires reason input before reversing
+- ✅ **Success Notification:** Shows "Транзакция отменена" after successful reversal
+- ✅ **Status Update:** Original transaction marked as "Отменена" with reversal details
+- ✅ **Counter-Transaction:** Automatic creation of reversal transaction that swaps from/to wallets
+- ✅ **Wallet Balance Restoration:** Funds returned to original sender
+
 ### 2026-01-15: Profile Form UI Redesign (COMPLETE ✅)
 - ✅ **Animated Profile Completion Bar:** Shows percentage with color-coded gradient (red < 50%, yellow 50-80%, green > 80%)
 - ✅ **Card-Based Section Layout:** Clean white cards with shadows, rounded corners, section icons
