@@ -22553,8 +22553,8 @@ a,
   color: #9CA3AF;
 }
 
-/* Section Card */
-.section-card {
+/* Section Card V2 */
+.my-info-page-v2 .section-card {
   background: white;
   border-radius: 16px;
   padding: 24px;
@@ -22564,11 +22564,11 @@ a,
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.section-card:hover {
+.my-info-page-v2 .section-card:hover {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.section-card-header {
+.my-info-page-v2 .section-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22577,13 +22577,13 @@ a,
   border-bottom: 1px solid #F3F4F6;
 }
 
-.section-title-group {
+.my-info-page-v2 .section-title-group {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.section-icon {
+.my-info-page-v2 .section-icon {
   width: 40px;
   height: 40px;
   border-radius: 10px;
@@ -22592,7 +22592,7 @@ a,
   justify-content: center;
 }
 
-.section-card-header h2 {
+.my-info-page-v2 .section-card-header h2 {
   font-size: 1.1rem;
   font-weight: 600;
   color: #111827;
@@ -22600,7 +22600,7 @@ a,
   font-family: 'Manrope', sans-serif;
 }
 
-.section-actions {
+.my-info-page-v2 .section-actions {
   display: flex;
   gap: 8px;
 }
