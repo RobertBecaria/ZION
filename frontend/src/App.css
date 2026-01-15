@@ -22605,7 +22605,7 @@ a,
   gap: 8px;
 }
 
-.btn-edit {
+.my-info-page-v2 .btn-edit {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -22620,17 +22620,17 @@ a,
   transition: all 0.15s ease;
 }
 
-.btn-edit:hover {
+.my-info-page-v2 .btn-edit:hover {
   background: #E5E7EB;
   border-color: #D1D5DB;
 }
 
-.edit-action-group {
+.my-info-page-v2 .edit-action-group {
   display: flex;
   gap: 8px;
 }
 
-.btn-save {
+.my-info-page-v2 .btn-save {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -22645,17 +22645,17 @@ a,
   transition: all 0.15s ease;
 }
 
-.btn-save:hover:not(:disabled) {
+.my-info-page-v2 .btn-save:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
 }
 
-.btn-save:disabled {
+.my-info-page-v2 .btn-save:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.btn-cancel {
+.my-info-page-v2 .btn-cancel {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22669,7 +22669,7 @@ a,
   transition: all 0.15s ease;
 }
 
-.btn-cancel:hover:not(:disabled) {
+.my-info-page-v2 .btn-cancel:hover:not(:disabled) {
   background: #E5E7EB;
   color: #374151;
 }
