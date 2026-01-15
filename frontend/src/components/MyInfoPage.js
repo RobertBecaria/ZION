@@ -23,9 +23,9 @@ const ProfileCompletionBar = ({ percentage, animate }) => {
   }, [percentage, animate]);
 
   const getProgressColor = () => {
-    if (percentage >= 80) return 'from-emerald-400 to-emerald-600';
-    if (percentage >= 50) return 'from-amber-400 to-amber-600';
-    return 'from-rose-400 to-rose-600';
+    if (percentage >= 80) return 'linear-gradient(90deg, #34D399 0%, #059669 100%)';
+    if (percentage >= 50) return 'linear-gradient(90deg, #FBBF24 0%, #F59E0B 100%)';
+    return 'linear-gradient(90deg, #F87171 0%, #EF4444 100%)';
   };
 
   const getStatusText = () => {
@@ -35,41 +35,51 @@ const ProfileCompletionBar = ({ percentage, animate }) => {
   };
 
   const getStatusIcon = () => {
-    if (percentage >= 80) return <Sparkles size={16} className="text-emerald-500" />;
-    return <CheckCircle2 size={16} className="text-gray-400" />;
+    if (percentage >= 80) return <Sparkles size={16} style={{ color: '#059669' }} />;
+    return <CheckCircle2 size={16} style={{ color: '#9CA3AF' }} />;
   };
 
   return (
     <div 
       className="profile-completion-card"
       data-testid="profile-completion-bar"
+      style={{
+        background: 'white',
+        borderRadius: '16px',
+        padding: '24px',
+        marginBottom: '24px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1)',
+        border: '1px solid #E5E7EB'
+      }}
     >
-      <div className="completion-header">
-        <div className="completion-title">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', fontWeight: 600, color: '#374151' }}>
           {getStatusIcon()}
           <span>{getStatusText()}</span>
         </div>
-        <div className="completion-percentage">
-          <span className="percentage-value">{Math.round(displayPercentage)}%</span>
-          <span className="percentage-label">заполнено</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+          <span style={{ fontSize: '1.5rem', fontWeight: 700, color: '#111827', lineHeight: 1 }}>{Math.round(displayPercentage)}%</span>
+          <span style={{ fontSize: '0.75rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.5px' }}>заполнено</span>
         </div>
       </div>
-      <div className="progress-bar-container">
+      <div style={{ width: '100%', height: '8px', background: '#F3F4F6', borderRadius: '100px', overflow: 'hidden' }}>
         <div 
-          className={`progress-bar-fill bg-gradient-to-r ${getProgressColor()}`}
           style={{ 
             width: `${displayPercentage}%`,
+            height: '100%',
+            background: getProgressColor(),
+            borderRadius: '100px',
             transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)'
           }}
         />
       </div>
-      <div className="completion-tips">
-        {percentage < 100 && (
-          <span className="tip-text">
+      {percentage < 100 && (
+        <div style={{ marginTop: '12px' }}>
+          <span style={{ fontSize: '0.8rem', color: '#9CA3AF' }}>
             Добавьте больше информации для улучшения вашего профиля
           </span>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
