@@ -883,6 +883,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.first_name}
                 onChange={(e) => setFormData({...formData, first_name: e.target.value})}
                 placeholder="Введите имя"
@@ -898,6 +908,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.last_name}
                 onChange={(e) => setFormData({...formData, last_name: e.target.value})}
                 placeholder="Введите фамилию"
@@ -913,6 +933,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.middle_name}
                 onChange={(e) => setFormData({...formData, middle_name: e.target.value})}
                 placeholder="Введите отчество"
@@ -932,6 +962,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.name_alias}
                 onChange={(e) => setFormData({...formData, name_alias: e.target.value})}
                 placeholder="Например: ROBERT"
@@ -947,6 +987,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="email"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 placeholder="email@example.com"
@@ -962,6 +1012,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="tel"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 placeholder="+7 (XXX) XXX-XX-XX"
@@ -1001,6 +1061,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="date"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.date_of_birth}
                 onChange={(e) => setFormData({...formData, date_of_birth: e.target.value})}
                 data-testid="dob-input"
@@ -1030,6 +1100,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.address_street}
                 onChange={(e) => setFormData({...formData, address_street: e.target.value})}
                 placeholder="Введите адрес"
@@ -1045,6 +1125,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.address_city}
                 onChange={(e) => setFormData({...formData, address_city: e.target.value})}
                 placeholder="Введите город"
@@ -1060,6 +1150,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.address_state}
                 onChange={(e) => setFormData({...formData, address_state: e.target.value})}
                 placeholder="Введите регион"
@@ -1075,6 +1175,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.address_country}
                 onChange={(e) => setFormData({...formData, address_country: e.target.value})}
                 placeholder="Введите страну"
@@ -1090,6 +1200,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="text"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={formData.address_postal_code}
                 onChange={(e) => setFormData({...formData, address_postal_code: e.target.value})}
                 placeholder="Введите индекс"
@@ -1142,6 +1262,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
                   <input
                     type="text"
                     className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                     value={formData.spouse_name}
                     onChange={(e) => setFormData({...formData, spouse_name: e.target.value})}
                     placeholder={`Имя ${getSpouseLabel().toLowerCase()}`}
@@ -1157,6 +1287,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
                   <input
                     type="tel"
                     className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                     value={formData.spouse_phone}
                     onChange={(e) => setFormData({...formData, spouse_phone: e.target.value})}
                     placeholder="+7 (XXX) XXX-XX-XX"
@@ -1198,6 +1338,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="password"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={passwordData.current_password}
                 onChange={(e) => setPasswordData({...passwordData, current_password: e.target.value})}
                 placeholder="Введите текущий пароль"
@@ -1209,6 +1359,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="password"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={passwordData.new_password}
                 onChange={(e) => setPasswordData({...passwordData, new_password: e.target.value})}
                 placeholder="Введите новый пароль"
@@ -1220,6 +1380,16 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
               <input
                 type="password"
                 className="input-field"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '10px',
+                  fontSize: '0.95rem',
+                  color: '#111827',
+                  background: '#FAFAFA',
+                  boxSizing: 'border-box'
+                }}
                 value={passwordData.confirm_password}
                 onChange={(e) => setPasswordData({...passwordData, confirm_password: e.target.value})}
                 placeholder="Повторите новый пароль"
