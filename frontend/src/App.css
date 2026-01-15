@@ -22698,7 +22698,7 @@ a,
   grid-column: 1 / -1;
 }
 
-.field-label {
+.my-info-page-v2 .field-label {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -22707,18 +22707,18 @@ a,
   color: #4B5563;
 }
 
-.field-label svg {
+.my-info-page-v2 .field-label svg {
   color: #9CA3AF;
 }
 
-.field-hint {
+.my-info-page-v2 .field-hint {
   font-size: 0.75rem;
   color: #9CA3AF;
   font-weight: 400;
   margin-left: 4px;
 }
 
-.input-field {
+.my-info-page-v2 .input-field {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #E5E7EB;
@@ -22730,18 +22730,18 @@ a,
   box-sizing: border-box;
 }
 
-.input-field:focus {
+.my-info-page-v2 .input-field:focus {
   outline: none;
   border-color: #059669;
   background: white;
   box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
 }
 
-.input-field::placeholder {
+.my-info-page-v2 .input-field::placeholder {
   color: #9CA3AF;
 }
 
-.select-field {
+.my-info-page-v2 .select-field {
   cursor: pointer;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
@@ -22750,8 +22750,8 @@ a,
   padding-right: 40px;
 }
 
-/* Display Value */
-.display-value {
+/* Display Value V2 */
+.my-info-page-v2 .display-value {
   padding: 12px 14px;
   background: #F9FAFB;
   border: 1px solid #E5E7EB;
@@ -22763,12 +22763,12 @@ a,
   align-items: center;
 }
 
-.display-value.empty {
+.my-info-page-v2 .display-value.empty {
   color: #9CA3AF;
   font-style: italic;
 }
 
-.display-value.highlight {
+.my-info-page-v2 .display-value.highlight {
   background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
   border-color: #A7F3D0;
   color: #065F46;
