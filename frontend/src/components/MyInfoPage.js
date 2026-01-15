@@ -315,11 +315,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
     return Math.min(100, Math.round((completedWeight / totalWeight) * 100));
   }, [myInfo]);
 
-  useEffect(() => {
-    fetchMyInfo();
-  }, []);
-
-  const fetchMyInfo = async () => {
+  const fetchMyInfo = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
