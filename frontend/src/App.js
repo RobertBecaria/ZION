@@ -17,6 +17,7 @@ import UniversalEventsPanel from './components/UniversalEventsPanel';
 import NewsEventsPanel from './components/NewsEventsPanel';
 import MediaStorage from './components/MediaStorage';
 import MyProfile from './components/MyProfile';
+import MyInfoPage from './components/MyInfoPage';
 import GenderUpdateModal from './components/GenderUpdateModal';
 import WorkDepartmentManager from './components/WorkDepartmentManager';
 import NotificationDropdown from './components/NotificationDropdown';
