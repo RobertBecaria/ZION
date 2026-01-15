@@ -877,7 +877,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
         accentColor={moduleColor}
         testId="basic-info-section"
       >
-        <div className="form-grid">
+        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
           <FormField label="Имя" icon={User} testId="first-name-field">
             {editingSection === 'basic' ? (
               <input
@@ -1024,7 +1024,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
         accentColor="#3B82F6"
         testId="address-section"
       >
-        <div className="form-grid">
+        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
           <FormField label="Улица, дом" fullWidth testId="street-field">
             {editingSection === 'address' ? (
               <input
@@ -1114,7 +1114,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
         accentColor="#EC4899"
         testId="marriage-section"
       >
-        <div className="form-grid">
+        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
           <FormField label="Статус" testId="marriage-status-field">
             {editingSection === 'marriage' ? (
               <select
