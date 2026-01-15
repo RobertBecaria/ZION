@@ -608,7 +608,7 @@ function Dashboard() {
                     )}
                     
                     {/* Module Content - Lazy Loaded */}
-                    {!['my-profile', 'media-photos', 'media-documents', 'media-videos'].includes(activeView) && (
+                    {!['my-profile', 'my-info', 'media-photos', 'media-documents', 'media-videos'].includes(activeView) && (
                       <Suspense fallback={<ModuleLoading />}>
                         {renderModuleContent()}
                       </Suspense>
