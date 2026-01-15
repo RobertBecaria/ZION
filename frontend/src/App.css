@@ -22878,21 +22878,21 @@ a,
   margin: 0;
 }
 
-/* Password Form */
-.password-form {
+/* Password Form V2 */
+.my-info-page-v2 .password-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
   max-width: 400px;
 }
 
-.security-info {
+.my-info-page-v2 .security-info {
   color: #6B7280;
   font-size: 0.9rem;
 }
 
-/* Danger Zone */
-.danger-zone-card {
+/* Danger Zone V2 */
+.my-info-page-v2 .danger-zone-card {
   background: white;
   border-radius: 16px;
   margin-top: 32px;
@@ -22901,7 +22901,7 @@ a,
   overflow: hidden;
 }
 
-.danger-header {
+.my-info-page-v2 .danger-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -22910,24 +22910,24 @@ a,
   transition: background 0.15s ease;
 }
 
-.danger-header:hover {
+.my-info-page-v2 .danger-header:hover {
   background: #FEF2F2;
 }
 
-.danger-title {
+.my-info-page-v2 .danger-title {
   display: flex;
   align-items: center;
   gap: 12px;
   color: #DC2626;
 }
 
-.danger-title h2 {
+.my-info-page-v2 .danger-title h2 {
   font-size: 1rem;
   font-weight: 600;
   margin: 0;
 }
 
-.btn-toggle-danger {
+.my-info-page-v2 .btn-toggle-danger {
   padding: 6px 12px;
   background: #FEF2F2;
   border: 1px solid #FECACA;
@@ -22939,27 +22939,16 @@ a,
   transition: all 0.15s ease;
 }
 
-.btn-toggle-danger:hover {
+.my-info-page-v2 .btn-toggle-danger:hover {
   background: #FEE2E2;
 }
 
-.danger-content {
+.my-info-page-v2 .danger-content {
   padding: 0 24px 24px;
   animation: slideDown 0.2s ease-out;
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.danger-warning {
+.my-info-page-v2 .danger-warning {
   display: flex;
   gap: 16px;
   padding: 16px;
@@ -22968,58 +22957,58 @@ a,
   margin-bottom: 20px;
 }
 
-.danger-warning > svg {
+.my-info-page-v2 .danger-warning > svg {
   color: #DC2626;
   flex-shrink: 0;
   margin-top: 2px;
 }
 
-.danger-warning h3 {
+.my-info-page-v2 .danger-warning h3 {
   font-size: 1rem;
   font-weight: 600;
   color: #991B1B;
   margin: 0 0 8px 0;
 }
 
-.danger-warning p {
+.my-info-page-v2 .danger-warning p {
   font-size: 0.9rem;
   color: #7F1D1D;
   margin: 0 0 12px 0;
 }
 
-.danger-warning ul {
+.my-info-page-v2 .danger-warning ul {
   margin: 0;
   padding-left: 20px;
   font-size: 0.85rem;
   color: #991B1B;
 }
 
-.danger-warning li {
+.my-info-page-v2 .danger-warning li {
   margin-bottom: 4px;
 }
 
-.delete-form {
+.my-info-page-v2 .delete-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-width: 400px;
 }
 
-.delete-form label {
+.my-info-page-v2 .delete-form label {
   font-size: 0.9rem;
   color: #374151;
 }
 
-.input-danger {
+.my-info-page-v2 .input-danger {
   border-color: #FECACA;
 }
 
-.input-danger:focus {
+.my-info-page-v2 .input-danger:focus {
   border-color: #DC2626;
   box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
-.btn-delete-account {
+.my-info-page-v2 .btn-delete-account {
   padding: 12px 20px;
   background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
   border: none;
@@ -23031,12 +23020,12 @@ a,
   transition: all 0.15s ease;
 }
 
-.btn-delete-account:hover:not(:disabled) {
+.my-info-page-v2 .btn-delete-account:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
 }
 
-.btn-delete-account:disabled {
+.my-info-page-v2 .btn-delete-account:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
