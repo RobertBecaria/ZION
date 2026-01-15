@@ -593,6 +593,10 @@ function Dashboard() {
                     {activeView === 'my-profile' && (
                       <MyProfile user={user} moduleColor={currentModule.color} />
                     )}
+                    {/* My Information Page - Personal Profile Edit Form */}
+                    {activeView === 'my-info' && (
+                      <MyInfoPage user={user} moduleColor={currentModule.color} onProfileUpdate={refreshProfile} />
+                    )}
                     {(activeView === 'media-photos' || activeView === 'media-documents' || activeView === 'media-videos') && (
                       <MediaStorage
                         activeModule={activeModule}
