@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { 
   User, MapPin, Phone, Calendar, Heart, Edit2, Save, X, Lock, 
   AlertTriangle, Upload, Mail, Image as ImageIcon, CheckCircle2,
