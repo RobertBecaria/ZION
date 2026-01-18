@@ -18588,7 +18588,7 @@ async def get_news_feed(
     offset: int = 0,
     current_user: User = Depends(get_current_user)
 ):
-    """Get personalized news feed based on friends, following, and subscriptions"""
+    """Get personalized news feed - only posts from your network (friends, following, subscribed channels)"""
     
     # Get user's friends
     friendships = await db.user_friendships.find({
@@ -18611,35 +18611,45 @@ async def get_news_feed(
     }).to_list(1000)
     following_ids = {f["target_id"] for f in following}
     
+    # Combined network: friends + people I follow
+    network_ids = friend_ids | following_ids
+    
     # Get subscribed channels
     subscriptions = await db.channel_subscriptions.find({
         "subscriber_id": current_user.id
     }).to_list(1000)
     subscribed_channel_ids = [s["channel_id"] for s in subscriptions]
     
-    # Build query for posts I can see
-    # 1. Public posts from anyone
-    # 2. Friends+Followers posts from people I follow or am friends with
-    # 3. Friends only posts from friends
-    # 4. My own posts
+    # Build query for posts from MY NETWORK only
+    # Feed shows:
+    # 1. My own posts (any visibility)
+    # 2. PUBLIC posts from my network (friends + following)
+    # 3. FRIENDS_AND_FOLLOWERS posts from my network
+    # 4. FRIENDS_ONLY posts from friends only
     # 5. Posts from subscribed channels
+    # 
+    # NOTE: PUBLIC posts from strangers do NOT appear in feed
+    # (they can only be seen when visiting that user's profile directly)
     
     query = {
         "is_active": True,
         "$or": [
-            # Public posts
-            {"visibility": "PUBLIC"},
-            # My own posts
+            # My own posts (all visibilities)
             {"user_id": current_user.id},
-            # Friends only posts from friends
+            # PUBLIC posts from my network only
+            {
+                "visibility": "PUBLIC",
+                "user_id": {"$in": list(network_ids)}
+            },
+            # FRIENDS_AND_FOLLOWERS posts from my network
+            {
+                "visibility": "FRIENDS_AND_FOLLOWERS",
+                "user_id": {"$in": list(network_ids)}
+            },
+            # FRIENDS_ONLY posts from friends only
             {
                 "visibility": "FRIENDS_ONLY",
                 "user_id": {"$in": list(friend_ids)}
-            },
-            # Friends and followers posts from friends or people I follow
-            {
-                "visibility": "FRIENDS_AND_FOLLOWERS",
-                "user_id": {"$in": list(friend_ids | following_ids)}
             },
             # Posts from subscribed channels
             {"channel_id": {"$in": subscribed_channel_ids}}
