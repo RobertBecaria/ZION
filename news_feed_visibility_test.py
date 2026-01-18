@@ -425,7 +425,14 @@ class NewsVisibilityTester:
 def main():
     """Main test execution"""
     tester = NewsVisibilityTester()
-    results, compliance_data = tester.run_comprehensive_test()
+    result = tester.run_comprehensive_test()
+    
+    # Handle both single return value and tuple
+    if isinstance(result, tuple):
+        results, compliance_data = result
+    else:
+        results = result
+        compliance_data = {}
     
     # Exit with appropriate code based on critical functionality
     critical_tests = ["login", "feed_retrieval", "network_compliance"]
