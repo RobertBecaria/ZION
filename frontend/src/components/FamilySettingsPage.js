@@ -44,7 +44,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
     setLoadingMembers(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}/members`, {
@@ -74,7 +74,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
     setIsSearching(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/users/search?query=${encodeURIComponent(query)}`, {
@@ -107,7 +107,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
   const addMember = async (userData, relationship) => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}/members`, {
@@ -146,7 +146,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
 
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}/members/${memberId}`, {
@@ -175,7 +175,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
     setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}/update`, {
@@ -209,7 +209,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
     setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}/privacy`, {
@@ -250,7 +250,7 @@ function FamilySettingsPage({ user, family, onBack, onFamilyUpdated, moduleColor
     setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family/${family.id}`, {

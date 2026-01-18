@@ -16,7 +16,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const handleBannerUpload = useCallback(async (base64Image) => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles/${family.id}/banner`, {
@@ -44,7 +44,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const handleAvatarUpload = useCallback(async (base64Image) => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles/${family.id}/avatar`, {
@@ -87,7 +87,7 @@ function MyFamilyProfile({ user, familyData, moduleColor = '#059669' }) {
   const loadFamilyData = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles`, {

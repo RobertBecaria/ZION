@@ -22,7 +22,7 @@ const InvitationManager = ({ currentUser }) => {
   const fetchInvitations = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       // Fetch received invitations
@@ -62,7 +62,7 @@ const InvitationManager = ({ currentUser }) => {
 
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-invitations/${invitationId}/${action}`, {

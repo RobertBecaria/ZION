@@ -31,7 +31,7 @@ function HouseholdSection({ user, moduleColor = '#059669' }) {
     setLoading(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/household`, {
@@ -57,7 +57,7 @@ function HouseholdSection({ user, moduleColor = '#059669' }) {
     
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/household/create`, {
@@ -93,7 +93,7 @@ function HouseholdSection({ user, moduleColor = '#059669' }) {
     setIsSearching(true);
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/users/search?query=${encodeURIComponent(query)}`, {
@@ -123,7 +123,7 @@ function HouseholdSection({ user, moduleColor = '#059669' }) {
   const addMember = async (userData, relationship) => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/household/${household.id}/members`, {
@@ -156,7 +156,7 @@ function HouseholdSection({ user, moduleColor = '#059669' }) {
 
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/household/${household.id}/members/${memberId}`, {

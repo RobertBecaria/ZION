@@ -25,7 +25,7 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
   const fetchFamilyProfile = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}`, {
@@ -48,7 +48,7 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
   const fetchFamilyMembers = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}/members`, {
@@ -69,7 +69,7 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
   const fetchFamilyPosts = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
       
       
       const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}/posts`, {
