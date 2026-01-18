@@ -390,8 +390,8 @@ Test the ERIC AI Assistant integration across ZION.CITY platform modules to veri
 4. Privacy Settings functionality
 
 ## Test Environment
-- **Frontend URL**: https://social-login-fix.preview.emergentagent.com
-- **Backend URL**: https://social-login-fix.preview.emergentagent.com/api
+- **Frontend URL**: https://dbfix-social.preview.emergentagent.com
+- **Backend URL**: https://dbfix-social.preview.emergentagent.com/api
 - **Test Credentials**: admin@test.com / testpassword123
 
 ## ERIC Components to Test
@@ -507,7 +507,7 @@ Test the Admin Panel backend API endpoints for ZION.CITY platform to verify:
 4. Proper error handling and validation
 
 ## Test Environment
-- **Backend URL**: https://social-login-fix.preview.emergentagent.com/api
+- **Backend URL**: https://dbfix-social.preview.emergentagent.com/api
 - **Admin Credentials**: Architect / X17resto1!X21resto1!
 - **Test Date**: 2026-01-13
 
