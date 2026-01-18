@@ -561,46 +561,181 @@ const AdminDatabaseManagement = () => {
     fetchHistory();
   }, [fetchStatus]);
 
+  // State for backup progress
+  const [backupProgress, setBackupProgress] = useState(0);
+  const [backupStatus, setBackupStatus] = useState('');
+
+  // Chunked download threshold (50MB in bytes)
+  const CHUNKED_DOWNLOAD_THRESHOLD = 50 * 1024 * 1024;
+
+  const downloadChunked = async (token) => {
+    setBackupStatus('Создание резервной копии...');
+    setBackupProgress(5);
+
+    // Initialize chunked backup
+    const initResponse = await fetch(`${BACKEND_URL}/admin/database/backup/chunked/init`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ chunk_size_mb: 5 })
+    });
+
+    if (!initResponse.ok) {
+      const errorData = await initResponse.json();
+      throw new Error(errorData.detail || 'Ошибка создания резервной копии');
+    }
+
+    const initData = await initResponse.json();
+    const { backup_id, total_chunks, total_size, filename } = initData;
+
+    setBackupStatus(`Скачивание ${total_chunks} частей...`);
+    setBackupProgress(10);
+
+    // Download all chunks
+    const chunks = [];
+    for (let i = 0; i < total_chunks; i++) {
+      const chunkResponse = await fetch(
+        `${BACKEND_URL}/admin/database/backup/chunked/${backup_id}/chunk/${i}`,
+        {
+          headers: { 'Authorization': `Bearer ${token}` }
+        }
+      );
+
+      if (!chunkResponse.ok) {
+        // Cleanup on error
+        await fetch(`${BACKEND_URL}/admin/database/backup/chunked/${backup_id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        throw new Error(`Ошибка скачивания части ${i + 1}`);
+      }
+
+      const chunkData = await chunkResponse.arrayBuffer();
+      chunks.push(chunkData);
+
+      const progressPercent = 10 + Math.round(((i + 1) / total_chunks) * 80);
+      setBackupProgress(progressPercent);
+      setBackupStatus(`Скачано ${i + 1} из ${total_chunks} частей (${formatBytes((i + 1) * 5 * 1024 * 1024)} / ${formatBytes(total_size)})`);
+    }
+
+    setBackupStatus('Сборка файла...');
+    setBackupProgress(92);
+
+    // Combine chunks
+    const combinedArray = new Uint8Array(chunks.reduce((acc, chunk) => acc + chunk.byteLength, 0));
+    let offset = 0;
+    for (const chunk of chunks) {
+      combinedArray.set(new Uint8Array(chunk), offset);
+      offset += chunk.byteLength;
+    }
+
+    // Create downloadable file
+    const blob = new Blob([combinedArray], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    setBackupProgress(95);
+    setBackupStatus('Очистка временных файлов...');
+
+    // Cleanup server-side chunks
+    await fetch(`${BACKEND_URL}/admin/database/backup/chunked/${backup_id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    setBackupProgress(100);
+    setBackupStatus('Резервная копия создана!');
+
+    return { size_bytes: total_size, collections_count: initData.collections_count, filename };
+  };
+
   const handleBackup = async () => {
     try {
       setBackupLoading(true);
       setError('');
+      setBackupProgress(0);
+      setBackupStatus('');
       const token = localStorage.getItem('admin_token');
+
+      // First, check database size to decide on chunked vs regular download
+      setBackupStatus('Проверка размера базы данных...');
       
-      // Use AbortController for timeout (2 minutes)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 120000);
-      
-      const response = await fetch(`${BACKEND_URL}/admin/database/backup`, {
-        headers: { 'Authorization': `Bearer ${token}` },
-        signal: controller.signal
+      // Check if database is large enough to warrant chunked download
+      const statusResponse = await fetch(`${BACKEND_URL}/admin/database/status`, {
+        headers: { 'Authorization': `Bearer ${token}` }
       });
       
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Ошибка ${response.status}: ${errorText || 'Не удалось создать резервную копию'}`);
+      let useChunkedDownload = false;
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        // If estimated size > 50MB, use chunked download
+        useChunkedDownload = statusData.total_size_bytes > CHUNKED_DOWNLOAD_THRESHOLD;
       }
+
+      let result;
       
-      const data = await response.json();
-      
-      // Create downloadable file
-      const blob = new Blob([JSON.stringify(data.backup, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = data.filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      if (useChunkedDownload) {
+        setBackupStatus('База данных большая - используется загрузка по частям...');
+        result = await downloadChunked(token);
+      } else {
+        // Original method for smaller databases
+        setBackupStatus('Создание резервной копии...');
+        setBackupProgress(20);
+        
+        // Use AbortController for timeout (2 minutes)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
+        
+        const response = await fetch(`${BACKEND_URL}/admin/database/backup`, {
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Ошибка ${response.status}: ${errorText || 'Не удалось создать резервную копию'}`);
+        }
+        
+        setBackupProgress(60);
+        setBackupStatus('Обработка данных...');
+        
+        const data = await response.json();
+        
+        setBackupProgress(80);
+        setBackupStatus('Создание файла...');
+        
+        // Create downloadable file
+        const blob = new Blob([JSON.stringify(data.backup, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        setBackupProgress(100);
+        setBackupStatus('Резервная копия создана!');
+        
+        result = { size_bytes: data.size_bytes, collections_count: data.collections_count };
+      }
 
       // Refresh status and history
       fetchStatus();
       fetchHistory();
       
-      alert(`Резервная копия создана успешно!\nРазмер: ${formatBytes(data.size_bytes)}\nКоллекций: ${data.collections_count}`);
+      alert(`Резервная копия создана успешно!\nРазмер: ${formatBytes(result.size_bytes)}\nКоллекций: ${result.collections_count}`);
     } catch (err) {
       console.error('Backup error:', err);
       if (err.name === 'AbortError') {
@@ -615,6 +750,11 @@ const AdminDatabaseManagement = () => {
       }
     } finally {
       setBackupLoading(false);
+      // Reset progress after a delay
+      setTimeout(() => {
+        setBackupProgress(0);
+        setBackupStatus('');
+      }, 3000);
     }
   };
 
