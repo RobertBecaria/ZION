@@ -355,8 +355,10 @@ class NewsVisibilityTester:
             return test_results
         
         # 4. Analyze network compliance
-        compliance_result, compliance_data = self.analyze_feed_network_compliance()
-        test_results["network_compliance"] = compliance_result
+        compliance_data = {}
+        if test_results["feed_retrieval"]:
+            compliance_result, compliance_data = self.analyze_feed_network_compliance()
+            test_results["network_compliance"] = compliance_result
         
         # 5. Test profile visibility
         test_results["profile_visibility"] = self.test_profile_visibility()
@@ -399,7 +401,7 @@ class NewsVisibilityTester:
         
         self.log("=" * 80)
         
-        return test_results, compliance_data if 'compliance_data' in locals() else {}
+        return test_results, compliance_data
 
 def main():
     """Main test execution"""
