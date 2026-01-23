@@ -98,7 +98,8 @@ RUN chown -R www-data:www-data /app/frontend/build \
     && chown -R www-data:www-data /var/log/supervisor \
     && chown -R www-data:www-data /var/log/nginx \
     && chown -R www-data:www-data /var/run \
-    && chmod 755 /var/log/supervisor /var/log/nginx /var/run
+    && chown -R www-data:www-data /var/lib/nginx \
+    && chmod 755 /var/log/supervisor /var/log/nginx /var/run /var/lib/nginx
 
 # Expose port
 EXPOSE 80 443
