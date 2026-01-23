@@ -1,8 +1,8 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import './App.css';
 import './usability-fixes.css';
-// Skin V5 - Ultimate Design System
-import './skins/skin-v5-ultimate.css';
+// Skin V1 - Original Design
+import './skins/skin-v1-original.css';
 // Auth Components
 import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard } from './components/auth';
 // Layout Components

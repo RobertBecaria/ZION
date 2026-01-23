@@ -1260,6 +1260,89 @@ body {
   box-shadow: 0 2px 8px rgba(255, 255, 255, 0.5);
 }
 
+/* ===== MODULE COLOR CODING ===== */
+/* Each module has its own distinct color for instant recognition */
+
+/* Family - Green */
+.nav-module.module-family.active {
+  background: linear-gradient(135deg, #30A67E 0%, #25936d 100%);
+  box-shadow: 0 4px 16px rgba(48, 166, 126, 0.4), 0 2px 8px rgba(48, 166, 126, 0.2);
+}
+.nav-module.module-family:hover:not(.active) {
+  background: rgba(48, 166, 126, 0.1);
+  color: #30A67E;
+}
+
+/* News - Blue */
+.nav-module.module-news.active {
+  background: linear-gradient(135deg, #1D4ED8 0%, #1a44c2 100%);
+  box-shadow: 0 4px 16px rgba(29, 78, 216, 0.4), 0 2px 8px rgba(29, 78, 216, 0.2);
+}
+.nav-module.module-news:hover:not(.active) {
+  background: rgba(29, 78, 216, 0.1);
+  color: #1D4ED8;
+}
+
+/* Journal - Purple */
+.nav-module.module-journal.active {
+  background: linear-gradient(135deg, #6D28D9 0%, #5b21b6 100%);
+  box-shadow: 0 4px 16px rgba(109, 40, 217, 0.4), 0 2px 8px rgba(109, 40, 217, 0.2);
+}
+.nav-module.module-journal:hover:not(.active) {
+  background: rgba(109, 40, 217, 0.1);
+  color: #6D28D9;
+}
+
+/* Services - Red */
+.nav-module.module-services.active {
+  background: linear-gradient(135deg, #B91C1C 0%, #a31919 100%);
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.4), 0 2px 8px rgba(185, 28, 28, 0.2);
+}
+.nav-module.module-services:hover:not(.active) {
+  background: rgba(185, 28, 28, 0.1);
+  color: #B91C1C;
+}
+
+/* Organizations - Orange */
+.nav-module.module-organizations.active {
+  background: linear-gradient(135deg, #C2410C 0%, #ae3a0b 100%);
+  box-shadow: 0 4px 16px rgba(194, 65, 12, 0.4), 0 2px 8px rgba(194, 65, 12, 0.2);
+}
+.nav-module.module-organizations:hover:not(.active) {
+  background: rgba(194, 65, 12, 0.1);
+  color: #C2410C;
+}
+
+/* Marketplace - Pink */
+.nav-module.module-marketplace.active {
+  background: linear-gradient(135deg, #BE185D 0%, #a91553 100%);
+  box-shadow: 0 4px 16px rgba(190, 24, 93, 0.4), 0 2px 8px rgba(190, 24, 93, 0.2);
+}
+.nav-module.module-marketplace:hover:not(.active) {
+  background: rgba(190, 24, 93, 0.1);
+  color: #BE185D;
+}
+
+/* Finance - Yellow/Gold */
+.nav-module.module-finance.active {
+  background: linear-gradient(135deg, #A16207 0%, #8d5606 100%);
+  box-shadow: 0 4px 16px rgba(161, 98, 7, 0.4), 0 2px 8px rgba(161, 98, 7, 0.2);
+}
+.nav-module.module-finance:hover:not(.active) {
+  background: rgba(161, 98, 7, 0.1);
+  color: #A16207;
+}
+
+/* Events (Добрая Воля) - Violet */
+.nav-module.module-events.active {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7c4feb 100%);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.4), 0 2px 8px rgba(139, 92, 246, 0.2);
+}
+.nav-module.module-events:hover:not(.active) {
+  background: rgba(139, 92, 246, 0.1);
+  color: #8B5CF6;
+}
+
 .user-section {
   display: flex;
   align-items: center;
