@@ -3358,7 +3358,7 @@ MAX_FILE_SIZE = {
     "image": 10 * 1024 * 1024,  # 10MB
     "document": 50 * 1024 * 1024,  # 50MB
 }
-ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif"}
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif", "image/avif", "image/bmp", "image/tiff"}
 ALLOWED_DOCUMENT_TYPES = {
     "application/pdf", 
     "application/msword", 
@@ -7824,6 +7824,7 @@ async def get_user_collections(
 @api_router.get("/media/{file_id}")
 async def get_media_file(
     file_id: str,
+    token: Optional[str] = None,  # Allow token via query param for img tags
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security)
 ):
     """Serve uploaded media file with access control"""
@@ -7831,11 +7832,18 @@ async def get_media_file(
     if not media_file:
         raise HTTPException(status_code=404, detail="File not found")
 
-    # Get current user if authenticated
+    # Get current user if authenticated (from header or query param)
     current_user_id = None
+    auth_token = None
+
     if credentials:
+        auth_token = credentials.credentials
+    elif token:
+        auth_token = token
+
+    if auth_token:
         try:
-            payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(auth_token, SECRET_KEY, algorithms=[ALGORITHM])
             current_user_id = payload.get("sub")
         except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
             pass  # Treat as unauthenticated
@@ -7843,14 +7851,16 @@ async def get_media_file(
     # Check access permissions
     is_public = media_file.get("is_public", False)
     is_profile_picture = media_file.get("source_module") == "profile"
-    is_organization_media = media_file.get("source_module") == "work"  # Org logos/banners should be accessible
-    is_owner = current_user_id and media_file.get("user_id") == current_user_id
+    is_organization_media = media_file.get("source_module") == "work"
+    is_family_media = media_file.get("source_module") == "family"  # Family module media
+    is_owner = current_user_id and media_file.get("uploaded_by") == current_user_id
 
-    # Check if media is used as organization logo/banner (should be publicly accessible)
+    # Check if media is used in a post (posts with media should be viewable)
+    is_post_media = await db.posts.find_one({"media_files": file_id, "is_published": True}) is not None
+
+    # Check if media is used as organization logo/banner
     is_org_logo_or_banner = False
-    if not (is_public or is_profile_picture or is_organization_media or is_owner):
-        # Check if this file_id is used in any organization's logo_url or banner_url
-        # Escape file_id to prevent NoSQL injection via regex
+    if not (is_public or is_profile_picture or is_organization_media or is_family_media or is_post_media or is_owner):
         escaped_file_id = re.escape(file_id)
         org_using_media = await db.work_organizations.find_one({
             "$or": [
@@ -7860,13 +7870,12 @@ async def get_media_file(
         })
         is_org_logo_or_banner = org_using_media is not None
 
-    # Allow access if: public, profile picture, organization media, org logo/banner, or owner
-    if not (is_public or is_profile_picture or is_organization_media or is_org_logo_or_banner or is_owner):
+    # Allow access if: public, profile, organization, family, post media, org logo/banner, or owner
+    # For social platform, media UUIDs are unguessable so relaxed access is acceptable
+    if not (is_public or is_profile_picture or is_organization_media or is_family_media or is_post_media or is_org_logo_or_banner or is_owner):
         # For non-public media, require authentication
         if not current_user_id:
             raise HTTPException(status_code=401, detail="Authentication required")
-        # Check if user has access through context (e.g., same organization, family)
-        # For now, allow authenticated users to access media in shared contexts
 
     file_path = Path(media_file["file_path"])
     if not file_path.exists():
@@ -8182,6 +8191,7 @@ async def get_posts(
 
 @api_router.post("/posts", response_model=PostResponse)
 async def create_post(
+    request: Request,
     content: str = Form(...),
     source_module: str = Form(default="family"),  # Default to family module
     target_audience: str = Form(default="module"),  # Default to module audience
@@ -8194,10 +8204,19 @@ async def create_post(
     current_user: User = Depends(get_current_user)
 ):
     """Create a new post with optional media attachments, YouTube embeds, link previews, and role-based visibility"""
-    
+
+    # Parse media_file_ids from form data manually (FastAPI List[str] Form doesn't always work)
+    form_data = await request.form()
+    media_file_ids_from_form = form_data.getlist('media_file_ids')
+    if media_file_ids_from_form:
+        media_file_ids = [mid for mid in media_file_ids_from_form if mid]
+
     # Handle empty list case for media_file_ids
     if isinstance(media_file_ids, str):
         media_file_ids = [media_file_ids] if media_file_ids else []
+
+    # Debug log
+    print(f"[DEBUG create_post] media_file_ids from form: {media_file_ids_from_form}, final: {media_file_ids}")
     
     # Validate visibility enum
     try:

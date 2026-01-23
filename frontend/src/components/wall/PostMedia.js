@@ -4,22 +4,31 @@ import { extractYouTubeId } from './utils/postUtils';
 
 function PostMedia({ post, backendUrl, onImageClick }) {
   const [playingVideo, setPlayingVideo] = useState(null);
-  
+
+  // Get auth token for media requests
+  const token = localStorage.getItem('zion_token');
+
   // Helper to get media URL - handles both object format and string ID format
   const getMediaUrl = (media) => {
+    let baseUrl = '';
     // If media is just a string (ID), use the /api/media/{id} endpoint
     if (typeof media === 'string') {
-      return `${backendUrl}/api/media/${media}`;
+      baseUrl = `${backendUrl}/api/media/${media}`;
     }
     // If media is an object with file_url, use that
-    if (media.file_url) {
-      return `${backendUrl}${media.file_url}`;
+    else if (media.file_url) {
+      baseUrl = `${backendUrl}${media.file_url}`;
     }
     // If media has an id, use that
-    if (media.id) {
-      return `${backendUrl}/api/media/${media.id}`;
+    else if (media.id) {
+      baseUrl = `${backendUrl}/api/media/${media.id}`;
     }
-    return '';
+
+    // Append token as query param for img tag auth
+    if (baseUrl && token) {
+      return `${baseUrl}?token=${token}`;
+    }
+    return baseUrl;
   };
   
   // Check if media is an image
