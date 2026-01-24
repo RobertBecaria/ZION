@@ -40,7 +40,7 @@ const useJournalModule = (user, activeModule) => {
         setSchoolRole(null);
       }
     } catch (error) {
-      // Error handled silently in production
+      console.error('Error fetching school roles:', error);
     } finally {
       setLoadingSchoolRoles(false);
     }

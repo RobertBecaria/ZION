@@ -91,7 +91,8 @@ function EnhancedEventsPanel({
   });
 
   const handleEventAction = (event) => {
-    // TODO: Implement actual event actions (e.g., RSVP, edit, delete)
+    console.log(`Action: ${event.actionType} for event: ${event.title}`);
+    // TODO: Implement actual event actions
   };
 
   return (

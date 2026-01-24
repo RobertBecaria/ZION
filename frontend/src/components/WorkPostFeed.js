@@ -3,7 +3,6 @@ import { AlertCircle, FileText } from 'lucide-react';
 import WorkPostComposer from './WorkPostComposer';
 import WorkPostCard from './WorkPostCard';
 
-import { BACKEND_URL } from '../config/api';
 const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin, canPost }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +19,8 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     setError(null);
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/posts`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -49,7 +49,8 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}`, {
         method: 'DELETE',
@@ -67,7 +68,8 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
 
   const handleLike = async (postId) => {
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}/like`, {
         method: 'POST',

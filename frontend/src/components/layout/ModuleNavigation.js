@@ -41,9 +41,13 @@ const ModuleNavigation = ({
           {MODULES.map((module) => (
             <button
               key={module.key}
-              className={`nav-module module-${module.key} ${activeModule === module.key ? 'active' : ''}`}
-              data-module={module.key}
+              className={`nav-module ${activeModule === module.key ? 'active' : ''}`}
               onClick={() => handleModuleClick(module.key)}
+              style={{
+                color: activeModule === module.key ? 'white' : module.color,
+                backgroundColor: activeModule === module.key ? module.color : undefined,
+                borderColor: `${module.color}20`
+              }}
             >
               {module.name}
             </button>

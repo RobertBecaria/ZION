@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { BACKEND_URL } from '../config/api';
 import ReactDOM from 'react-dom';
 import { Calendar, Clock, MapPin, ChevronRight } from 'lucide-react';
 
 // Import the existing EventDetailsModal
 import WorkNextEventWidget from './WorkNextEventWidget';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 // Separate EventDetailsModal import (we'll use the one from WorkNextEventWidget)

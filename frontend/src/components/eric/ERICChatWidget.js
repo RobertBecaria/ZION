@@ -8,15 +8,15 @@
  * - 'eric-open-with-query': Opens chat and sends a pre-filled query
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { 
+import {
   MessageCircle, X, Send, Loader2, Minimize2, Maximize2,
-  Trash2, Settings, ChevronLeft, Sparkles, Image, Paperclip, FolderOpen
+  Trash2, Settings, ChevronLeft, Sparkles, Image, Paperclip, FolderOpen, Expand
 } from 'lucide-react';
 import './ERICChatWidget.css';
 import MediaPicker from './MediaPicker';
 import ERICSearchCards from './ERICSearchCards';
 
-const ERICChatWidget = ({ user }) => {
+const ERICChatWidget = ({ user, onOpenFullMode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [message, setMessage] = useState('');
@@ -454,14 +454,26 @@ const ERICChatWidget = ({ user }) => {
                   </button>
                 </>
               )}
-              <button 
+              {onOpenFullMode && (
+                <button
+                  className="eric-action-btn eric-fullmode-btn"
+                  onClick={() => {
+                    onOpenFullMode();
+                    setIsOpen(false);
+                  }}
+                  title="Открыть полный режим"
+                >
+                  <Expand size={18} />
+                </button>
+              )}
+              <button
                 className="eric-action-btn"
                 onClick={() => setIsMinimized(!isMinimized)}
                 title={isMinimized ? 'Развернуть' : 'Свернуть'}
               >
                 {isMinimized ? <Maximize2 size={18} /> : <Minimize2 size={18} />}
               </button>
-              <button 
+              <button
                 className="eric-action-btn close"
                 onClick={() => setIsOpen(false)}
                 title="Закрыть"

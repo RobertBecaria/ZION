@@ -125,7 +125,7 @@ const MarketplaceModuleContent = memo(function MarketplaceModuleContent({
           token={token}
           moduleColor={moduleColor}
           onBack={handleBackToSearch}
-          onContactSeller={(product) => { /* TODO: Implement contact seller */ }}
+          onContactSeller={(product) => console.log('Contact seller:', product.seller_id)}
         />
       );
     }

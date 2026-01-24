@@ -1,18 +1,16 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import './App.css';
-import './usability-fixes.css';
-// Skin V1 - Original Design
-import './skins/skin-v1-original.css';
 // Auth Components
 import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard } from './components/auth';
 // Layout Components
 import { ModuleNavigation, LeftSidebar, RightSidebar } from './components/layout';
 // Admin Components
 import { AdminPanel } from './components/admin';
-// Context
-import { AppContextProvider, useAppContext } from './context/AppContext';
 // Config
 import { getModuleByKey, getSidebarTintStyle } from './config/moduleConfig';
+import { BACKEND_URL } from './config/api';
+// Hooks
+import { useJournalModule } from './hooks';
 // Core Components (always loaded)
 import UniversalCalendar from './components/UniversalCalendar';
 import ContentNavigation from './components/ContentNavigation';
@@ -24,9 +22,8 @@ import MyInfoPage from './components/MyInfoPage';
 import GenderUpdateModal from './components/GenderUpdateModal';
 import WorkDepartmentManager from './components/WorkDepartmentManager';
 import NotificationDropdown from './components/NotificationDropdown';
-import ModuleErrorBoundary from './components/ModuleErrorBoundary';
 import { ERICChatWidget } from './components/eric';
-import { Search, ChevronRight, Plus, X, FileText, Image, Calendar, MessageCircle, Users, Moon, Sun } from 'lucide-react';
+import { Search, ChevronRight, Plus } from 'lucide-react';
 
 // Lazy load module content for code splitting
 const FamilyModuleContent = lazy(() => import('./pages/FamilyModuleContent'));
@@ -46,122 +43,280 @@ const ModuleLoading = () => (
   </div>
 );
 
-// Main Dashboard Component - Uses AppContext for state
+// Main Dashboard Component
 function Dashboard() {
   const { user, logout, refreshProfile } = useAuth();
+  
+  // Core navigation state
+  const [activeModule, setActiveModule] = useState('family');
+  const [activeView, setActiveView] = useState('wall');
+  const [moduleViewHistory, setModuleViewHistory] = useState({});
+  
+  // UI state
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showERICWidget, setShowERICWidget] = useState(false);
+  const [showGenderModal, setShowGenderModal] = useState(false);
+  
+  // Family module state
+  const [userFamily, setUserFamily] = useState(null);
+  const [loadingFamily, setLoadingFamily] = useState(true);
+  const [activeFilters, setActiveFilters] = useState([]);
+  
+  // Work module state
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState(null);
+  const [workSetupMode, setWorkSetupMode] = useState('choice');
+  const [activeDepartmentId, setActiveDepartmentId] = useState(null);
+  const [showDepartmentManager, setShowDepartmentManager] = useState(false);
+  const [departmentRefreshTrigger, setDepartmentRefreshTrigger] = useState(0);
+  const [myOrganizations, setMyOrganizations] = useState([]);
+  const [viewingPublicOrgId, setViewingPublicOrgId] = useState(null);
+  
+  // News module state
+  const [selectedChannelId, setSelectedChannelId] = useState(null);
+  const [selectedNewsUserId, setSelectedNewsUserId] = useState(null);
+  
+  // Services module state
+  const [selectedServiceListing, setSelectedServiceListing] = useState(null);
+  
+  // Marketplace module state
+  const [selectedMarketplaceProduct, setSelectedMarketplaceProduct] = useState(null);
+  const [editMarketplaceProduct, setEditMarketplaceProduct] = useState(null);
+  const [selectedInventoryCategory, setSelectedInventoryCategory] = useState(null);
+  const [editInventoryItem, setEditInventoryItem] = useState(null);
+  const [listForSaleItem, setListForSaleItem] = useState(null);
+  
+  // Good Will module state
+  const [selectedGoodWillEventId, setSelectedGoodWillEventId] = useState(null);
+  
+  // Media state
+  const [mediaStats, setMediaStats] = useState({});
+  const [selectedModuleFilter, setSelectedModuleFilter] = useState('all');
+  
+  // Chat state
+  const [chatGroups, setChatGroups] = useState([]);
+  const [activeGroup, setActiveGroup] = useState(null);
+  const [activeDirectChat, setActiveDirectChat] = useState(null);
+  const [loadingGroups, setLoadingGroups] = useState(true);
 
-  // Theme state - persisted to localStorage
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const saved = localStorage.getItem('zion-theme');
-    return saved === 'dark';
-  });
-
-  // Apply theme class to document
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.body.classList.remove('dark');
-    }
-    localStorage.setItem('zion-theme', isDarkMode ? 'dark' : 'light');
-  }, [isDarkMode]);
-
-  const toggleTheme = () => setIsDarkMode(!isDarkMode);
-
-  // All state is now managed by AppContext
+  // Journal/School Module Hook
   const {
-    // Core navigation
-    activeModule,
-    setActiveModule,
-    activeView,
-    setActiveView,
-    moduleViewHistory,
-    currentModule,
-
-    // UI state
-    showOnboarding,
-    setShowOnboarding,
-    currentTime,
-    showCalendar,
-    setShowCalendar,
-    showNotifications,
-    setShowNotifications,
-    showERICWidget,
-    setShowERICWidget,
-    showGenderModal,
-    setShowGenderModal,
-    showGlobalSearch,
-    setShowGlobalSearch,
-    showQuickCreate,
-    setShowQuickCreate,
-
-    // Family module
-    userFamily,
-    setUserFamily,
-    activeFilters,
-
-    // Work module
-    selectedOrganizationId,
-    setSelectedOrganizationId,
-    workSetupMode,
-    setWorkSetupMode,
-    viewingPublicOrgId,
-    setViewingPublicOrgId,
-    showDepartmentManager,
-    setShowDepartmentManager,
-    setDepartmentRefreshTrigger,
-
-    // News module
-    selectedChannelId,
-    setSelectedChannelId,
-    selectedNewsUserId,
-    setSelectedNewsUserId,
-
-    // Services module
-    selectedServiceListing,
-    setSelectedServiceListing,
-
-    // Marketplace module
-    selectedMarketplaceProduct,
-    setSelectedMarketplaceProduct,
-    editMarketplaceProduct,
-    setEditMarketplaceProduct,
-    selectedInventoryCategory,
-    setSelectedInventoryCategory,
-    editInventoryItem,
-    setEditInventoryItem,
-    listForSaleItem,
-    setListForSaleItem,
-
-    // Good Will module
-    selectedGoodWillEventId,
-    setSelectedGoodWillEventId,
-
-    // Media
-    selectedModuleFilter,
-    setSelectedModuleFilter,
-
-    // Chat
-    chatGroups,
-    activeGroup,
-    activeDirectChat,
-    handleGroupSelect,
-    handleCreateGroup,
-
-    // Journal/School module
     schoolRoles,
     loadingSchoolRoles,
     selectedSchool,
-    setSelectedSchool,
     schoolRole,
-    setSchoolRole,
     journalSchoolFilter,
     journalAudienceFilter,
-  } = useAppContext();
+    setSelectedSchool,
+    setSchoolRole,
+    setJournalSchoolFilter,
+    setJournalAudienceFilter
+  } = useJournalModule(user, activeModule);
 
+  // Module config
+  const currentModule = getModuleByKey(activeModule);
   const sidebarTintStyle = getSidebarTintStyle(currentModule.color);
+
+  // Custom setActiveView that also tracks module history
+  const handleSetActiveView = useCallback((view) => {
+    setActiveView(view);
+    setModuleViewHistory(prev => ({
+      ...prev,
+      [activeModule]: view
+    }));
+  }, [activeModule]);
+
+  // Setup window function for opening full department management
+  useEffect(() => {
+    window.openDepartmentManagement = () => {
+      setActiveView('work-department-management');
+    };
+    return () => {
+      delete window.openDepartmentManagement;
+    };
+  }, []);
+
+  // Load user's primary family
+  useEffect(() => {
+    const loadUserFamily = async () => {
+      if (!user || activeModule !== 'family') {
+        setLoadingFamily(false);
+        return;
+      }
+      
+      try {
+        const token = localStorage.getItem('zion_token');
+        const response = await fetch(`${BACKEND_URL}/api/family-profiles`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          const families = data.family_profiles || [];
+          const primaryFamily = families.find(f => f.user_role === 'PARENT' || f.is_user_member) || families[0];
+          setUserFamily(primaryFamily);
+        }
+      } catch (error) {
+        console.error('Error loading family:', error);
+      } finally {
+        setLoadingFamily(false);
+      }
+    };
+    
+    loadUserFamily();
+  }, [user, activeModule]);
+
+  // Check if user needs to set gender
+  useEffect(() => {
+    if (user) {
+      const hasAskedGender = localStorage.getItem(`gender_asked_${user.id}`);
+      if (!user.gender && !hasAskedGender) {
+        setShowGenderModal(true);
+      } else {
+        setShowGenderModal(false);
+      }
+    }
+  }, [user]);
+
+  // Onboarding check (currently disabled)
+  useEffect(() => {
+    if (user) {
+      setShowOnboarding(false);
+    }
+  }, [user]);
+
+  // Set appropriate view when switching to Work module
+  useEffect(() => {
+    if (activeModule === 'organizations') {
+      setActiveView('my-work');
+    }
+  }, [activeModule]);
+
+  // Fetch user's organizations when organizations module is active
+  useEffect(() => {
+    const fetchMyOrganizations = async () => {
+      if (activeModule !== 'organizations' || !user) return;
+      
+      try {
+        const token = localStorage.getItem('zion_token');
+        const response = await fetch(`${BACKEND_URL}/api/work/organizations/my`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setMyOrganizations(data.organizations || []);
+        }
+      } catch (error) {
+        console.error('Error fetching organizations:', error);
+      }
+    };
+    
+    fetchMyOrganizations();
+  }, [activeModule, user]);
+
+  // Set default view when entering Journal module
+  useEffect(() => {
+    if (activeModule === 'journal' && !loadingSchoolRoles) {
+      setActiveView('wall');
+    }
+  }, [activeModule, loadingSchoolRoles]);
+
+  // Update time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Fetch media statistics
+  const fetchMediaStats = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/media/modules`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        const simpleCounts = {};
+        let totalCount = 0;
+        
+        const backendToFrontendModuleMap = {
+          'family': 'family', 'community': 'news', 'personal': 'journal',
+          'business': 'services', 'work': 'organizations', 'education': 'journal',
+          'health': 'journal', 'government': 'organizations'
+        };
+        
+        const frontendModules = ['family', 'news', 'journal', 'services', 'organizations', 'marketplace', 'finance', 'events'];
+        frontendModules.forEach(module => { simpleCounts[module] = 0; });
+        
+        if (data.modules) {
+          Object.entries(data.modules).forEach(([backendModule, moduleData]) => {
+            const frontendModule = backendToFrontendModuleMap[backendModule] || backendModule;
+            const moduleCount = (moduleData.images?.length || 0) + 
+                              (moduleData.documents?.length || 0) + 
+                              (moduleData.videos?.length || 0);
+            if (simpleCounts.hasOwnProperty(frontendModule)) {
+              simpleCounts[frontendModule] += moduleCount;
+            }
+            totalCount += moduleCount;
+          });
+        }
+        simpleCounts['all'] = totalCount;
+        setMediaStats(simpleCounts);
+      }
+    } catch (error) {
+      console.error('Error fetching media stats:', error);
+    }
+  }, []);
+
+  // Fetch chat groups
+  const fetchChatGroups = useCallback(async () => {
+    setLoadingGroups(true);
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/chat-groups`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setChatGroups(data.chat_groups || []);
+        
+        const familyGroup = data.chat_groups?.find(g => g.group.group_type === 'FAMILY');
+        if (familyGroup && !activeGroup) {
+          setActiveGroup(familyGroup);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching chat groups:', error);
+    } finally {
+      setLoadingGroups(false);
+    }
+  }, [activeGroup]);
+
+  // Load chat groups and fetch media stats when dashboard loads
+  useEffect(() => {
+    if (user) {
+      fetchChatGroups();
+      fetchMediaStats();
+    }
+  }, [user, fetchChatGroups, fetchMediaStats]);
+
+  const handleGroupSelect = (groupData) => {
+    setActiveGroup(groupData);
+  };
+
+  const handleCreateGroup = () => {
+    fetchChatGroups();
+  };
 
   if (showOnboarding) {
     return <OnboardingWizard onComplete={async () => {
@@ -181,7 +336,7 @@ function Dashboard() {
       'family-profiles', 'family-create', 'family-view', 'family-invitations',
       'my-info', 'my-documents', 'event-planner', 'journal-calendar'
     ];
-
+    
     if (fullWidthViews.includes(activeView)) return true;
     if (activeModule === 'organizations') return true;
     if (activeModule === 'news' && activeView !== 'wall' && activeView !== 'feed') return true;
@@ -190,7 +345,7 @@ function Dashboard() {
     if (activeModule === 'finance') return true;
     if (activeModule === 'events') return true;
     if (activeModule === 'journal' && selectedSchool) return true;
-
+    
     return false;
   };
 
@@ -202,7 +357,7 @@ function Dashboard() {
     if (activeModule === 'marketplace' && activeView !== 'wall' && activeView !== 'feed') return false;
     if (activeModule === 'finance') return false;
     if (activeModule === 'events') return false;
-
+    
     const hiddenViews = [
       'chat', 'my-profile', 'media-photos', 'media-documents', 'media-videos',
       'family-profiles', 'family-create', 'family-view', 'family-invitations',
@@ -210,7 +365,7 @@ function Dashboard() {
     ];
     if (hiddenViews.includes(activeView)) return false;
     if (activeModule === 'organizations') return false;
-
+    
     return true;
   };
 
@@ -218,7 +373,7 @@ function Dashboard() {
   const renderModuleContent = () => {
     const commonProps = {
       activeView,
-      setActiveView,
+      setActiveView: handleSetActiveView,
       user,
       currentModule,
       activeGroup,
@@ -231,108 +386,90 @@ function Dashboard() {
     switch (activeModule) {
       case 'family':
         return (
-          <ModuleErrorBoundary moduleName="Family" moduleColor={currentModule.color}>
-            <FamilyModuleContent
-              {...commonProps}
-              userFamily={userFamily}
-              setUserFamily={setUserFamily}
-              activeFilters={activeFilters}
-              refreshProfile={refreshProfile}
-            />
-          </ModuleErrorBoundary>
+          <FamilyModuleContent
+            {...commonProps}
+            userFamily={userFamily}
+            setUserFamily={setUserFamily}
+            activeFilters={activeFilters}
+            refreshProfile={refreshProfile}
+          />
         );
 
       case 'organizations':
         return (
-          <ModuleErrorBoundary moduleName="Work" moduleColor={currentModule.color}>
-            <WorkModuleContent
-              {...commonProps}
-              selectedOrganizationId={selectedOrganizationId}
-              setSelectedOrganizationId={setSelectedOrganizationId}
-              workSetupMode={workSetupMode}
-              setWorkSetupMode={setWorkSetupMode}
-              viewingPublicOrgId={viewingPublicOrgId}
-              setViewingPublicOrgId={setViewingPublicOrgId}
-            />
-          </ModuleErrorBoundary>
+          <WorkModuleContent
+            {...commonProps}
+            selectedOrganizationId={selectedOrganizationId}
+            setSelectedOrganizationId={setSelectedOrganizationId}
+            workSetupMode={workSetupMode}
+            setWorkSetupMode={setWorkSetupMode}
+            viewingPublicOrgId={viewingPublicOrgId}
+            setViewingPublicOrgId={setViewingPublicOrgId}
+          />
         );
 
       case 'news':
         return (
-          <ModuleErrorBoundary moduleName="News" moduleColor={currentModule.color}>
-            <NewsModuleContent
-              {...commonProps}
-              selectedChannelId={selectedChannelId}
-              setSelectedChannelId={setSelectedChannelId}
-              selectedNewsUserId={selectedNewsUserId}
-              setSelectedNewsUserId={setSelectedNewsUserId}
-            />
-          </ModuleErrorBoundary>
+          <NewsModuleContent
+            {...commonProps}
+            selectedChannelId={selectedChannelId}
+            setSelectedChannelId={setSelectedChannelId}
+            selectedNewsUserId={selectedNewsUserId}
+            setSelectedNewsUserId={setSelectedNewsUserId}
+          />
         );
 
       case 'services':
         return (
-          <ModuleErrorBoundary moduleName="Services" moduleColor={currentModule.color}>
-            <ServicesModuleContent
-              {...commonProps}
-              selectedServiceListing={selectedServiceListing}
-              setSelectedServiceListing={setSelectedServiceListing}
-            />
-          </ModuleErrorBoundary>
+          <ServicesModuleContent
+            {...commonProps}
+            selectedServiceListing={selectedServiceListing}
+            setSelectedServiceListing={setSelectedServiceListing}
+          />
         );
 
       case 'marketplace':
         return (
-          <ModuleErrorBoundary moduleName="Marketplace" moduleColor={currentModule.color}>
-            <MarketplaceModuleContent
-              {...commonProps}
-              selectedMarketplaceProduct={selectedMarketplaceProduct}
-              setSelectedMarketplaceProduct={setSelectedMarketplaceProduct}
-              editMarketplaceProduct={editMarketplaceProduct}
-              setEditMarketplaceProduct={setEditMarketplaceProduct}
-              selectedInventoryCategory={selectedInventoryCategory}
-              setSelectedInventoryCategory={setSelectedInventoryCategory}
-              editInventoryItem={editInventoryItem}
-              setEditInventoryItem={setEditInventoryItem}
-              listForSaleItem={listForSaleItem}
-              setListForSaleItem={setListForSaleItem}
-            />
-          </ModuleErrorBoundary>
+          <MarketplaceModuleContent
+            {...commonProps}
+            selectedMarketplaceProduct={selectedMarketplaceProduct}
+            setSelectedMarketplaceProduct={setSelectedMarketplaceProduct}
+            editMarketplaceProduct={editMarketplaceProduct}
+            setEditMarketplaceProduct={setEditMarketplaceProduct}
+            selectedInventoryCategory={selectedInventoryCategory}
+            setSelectedInventoryCategory={setSelectedInventoryCategory}
+            editInventoryItem={editInventoryItem}
+            setEditInventoryItem={setEditInventoryItem}
+            listForSaleItem={listForSaleItem}
+            setListForSaleItem={setListForSaleItem}
+          />
         );
 
       case 'finance':
-        return (
-          <ModuleErrorBoundary moduleName="Finance" moduleColor={currentModule.color}>
-            <FinanceModuleContent {...commonProps} />
-          </ModuleErrorBoundary>
-        );
+        return <FinanceModuleContent {...commonProps} />;
 
       case 'events':
         return (
-          <ModuleErrorBoundary moduleName="Events" moduleColor={currentModule.color}>
-            <EventsModuleContent
-              {...commonProps}
-              selectedGoodWillEventId={selectedGoodWillEventId}
-              setSelectedGoodWillEventId={setSelectedGoodWillEventId}
-            />
-          </ModuleErrorBoundary>
+          <EventsModuleContent
+            {...commonProps}
+            selectedGoodWillEventId={selectedGoodWillEventId}
+            setSelectedGoodWillEventId={setSelectedGoodWillEventId}
+          />
         );
 
       case 'journal':
         return (
-          <ModuleErrorBoundary moduleName="Journal" moduleColor={currentModule.color}>
-            <JournalModuleContent
-              {...commonProps}
-              schoolRoles={schoolRoles}
-              loadingSchoolRoles={loadingSchoolRoles}
-              selectedSchool={selectedSchool}
-              setSelectedSchool={setSelectedSchool}
-              schoolRole={schoolRole}
-              setSchoolRole={setSchoolRole}
-              journalSchoolFilter={journalSchoolFilter}
-              journalAudienceFilter={journalAudienceFilter}
-            />
-          </ModuleErrorBoundary>
+          <JournalModuleContent
+            {...commonProps}
+            schoolRoles={schoolRoles}
+            loadingSchoolRoles={loadingSchoolRoles}
+            selectedSchool={selectedSchool}
+            setSelectedSchool={setSelectedSchool}
+            schoolRole={schoolRole}
+            setSchoolRole={setSchoolRole}
+            journalSchoolFilter={journalSchoolFilter}
+            journalAudienceFilter={journalAudienceFilter}
+          />
         );
 
       default:
@@ -341,7 +478,7 @@ function Dashboard() {
   };
 
   return (
-    <div className={`app module-${activeModule}`} data-module={activeModule}>
+    <div className="app">
       {/* Top Navigation Bar */}
       <ModuleNavigation
         activeModule={activeModule}
@@ -361,7 +498,7 @@ function Dashboard() {
         <LeftSidebar
           activeModule={activeModule}
           activeView={activeView}
-          setActiveView={setActiveView}
+          setActiveView={handleSetActiveView}
           user={user}
           schoolRoles={schoolRoles}
           loadingSchoolRoles={loadingSchoolRoles}
@@ -372,7 +509,7 @@ function Dashboard() {
         />
 
         {/* Central Content Area */}
-        <main className="content-area" data-module={activeModule}>
+        <main className="content-area">
           {showCalendar ? (
             <UniversalCalendar
               user={user}
@@ -384,17 +521,16 @@ function Dashboard() {
             <>
               <div className="content-header">
                 <div className="header-left">
-                  <span
-                    className={`module-pill pill-${activeModule}`}
-                    data-module={activeModule}
-                    style={{
+                  <span 
+                    className="module-pill" 
+                    style={{ 
                       background: `linear-gradient(135deg, ${currentModule.color} 0%, ${currentModule.color}dd 100%)`,
                       boxShadow: `0 4px 12px ${currentModule.color}30, 0 1px 3px ${currentModule.color}20`
                     }}
                   >
                     {currentModule.name}
                   </span>
-
+                  
                   {activeView && activeView !== 'wall' && activeView !== 'feed' && (
                     <>
                       <ChevronRight size={16} className="view-separator" />
@@ -422,31 +558,16 @@ function Dashboard() {
                     </>
                   )}
                 </div>
-
+                
                 <div className="header-right">
-                  <button
-                    className={`header-action-btn ${showGlobalSearch ? 'active' : ''}`}
-                    title="Поиск"
-                    onClick={() => setShowGlobalSearch(!showGlobalSearch)}
-                  >
+                  <button className="header-action-btn" title="Поиск">
                     <Search size={18} />
                   </button>
-                  <button
-                    className={`header-action-btn ${showQuickCreate ? 'active' : ''}`}
-                    title="Быстрое создание"
-                    onClick={() => setShowQuickCreate(!showQuickCreate)}
-                  >
+                  <button className="header-action-btn" title="Быстрое создание">
                     <Plus size={18} />
                   </button>
-                  <button
-                    className="header-action-btn theme-toggle-btn"
-                    title={isDarkMode ? 'Светлая тема' : 'Тёмная тема'}
-                    onClick={toggleTheme}
-                  >
-                    {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-                  </button>
                   <div style={{ position: 'relative' }}>
-                    <NotificationDropdown
+                    <NotificationDropdown 
                       isOpen={showNotifications}
                       onClose={() => setShowNotifications(!showNotifications)}
                       onOpenEricChat={() => setShowERICWidget(true)}
@@ -454,7 +575,7 @@ function Dashboard() {
                   </div>
                 </div>
               </div>
-
+              
               <div className="content-body">
                 {!['my-family-profile', 'family-public-view', 'my-info', 'my-documents', 'media-photos', 'media-documents', 'media-videos'].includes(activeView) && (
                   <ContentNavigation
@@ -486,7 +607,7 @@ function Dashboard() {
                         defaultTab={activeView === 'media-videos' ? 'videos' : activeView === 'media-documents' ? 'documents' : 'photos'}
                       />
                     )}
-
+                    
                     {/* Module Content - Lazy Loaded */}
                     {!['my-profile', 'my-info', 'media-photos', 'media-documents', 'media-videos'].includes(activeView) && (
                       <Suspense fallback={<ModuleLoading />}>
@@ -529,8 +650,43 @@ function Dashboard() {
           )}
         </main>
 
-        {/* Right Sidebar - Now uses AppContext internally */}
-        <RightSidebar />
+        {/* Right Sidebar */}
+        <RightSidebar
+          activeModule={activeModule}
+          activeView={activeView}
+          user={user}
+          currentModule={currentModule}
+          sidebarTintStyle={sidebarTintStyle}
+          activeFilters={activeFilters}
+          setActiveFilters={setActiveFilters}
+          userFamily={userFamily}
+          setActiveView={setActiveView}
+          schoolRoles={schoolRoles}
+          journalSchoolFilter={journalSchoolFilter}
+          setJournalSchoolFilter={setJournalSchoolFilter}
+          journalAudienceFilter={journalAudienceFilter}
+          setJournalAudienceFilter={setJournalAudienceFilter}
+          selectedSchool={selectedSchool}
+          setSelectedSchool={setSelectedSchool}
+          schoolRole={schoolRole}
+          selectedOrganizationId={selectedOrganizationId}
+          setSelectedOrganizationId={setSelectedOrganizationId}
+          activeDepartmentId={activeDepartmentId}
+          setActiveDepartmentId={setActiveDepartmentId}
+          setShowDepartmentManager={setShowDepartmentManager}
+          departmentRefreshTrigger={departmentRefreshTrigger}
+          myOrganizations={myOrganizations}
+          mediaStats={mediaStats}
+          selectedModuleFilter={selectedModuleFilter}
+          setSelectedModuleFilter={setSelectedModuleFilter}
+          chatGroups={chatGroups}
+          activeGroup={activeGroup}
+          handleGroupSelect={handleGroupSelect}
+          handleCreateGroup={handleCreateGroup}
+          activeDirectChat={activeDirectChat}
+          setActiveDirectChat={setActiveDirectChat}
+          fetchChatGroups={fetchChatGroups}
+        />
       </div>
 
       {/* Gender Update Modal */}
@@ -561,70 +717,14 @@ function Dashboard() {
       )}
 
       {/* ERIC AI Chat Widget */}
-      <ERICChatWidget user={user} />
-
-      {/* Global Search Overlay */}
-      {showGlobalSearch && (
-        <div className="global-search-overlay" onClick={() => setShowGlobalSearch(false)}>
-          <div className="global-search-container" onClick={(e) => e.stopPropagation()}>
-            <div className="global-search-header">
-              <Search size={20} />
-              <input
-                type="text"
-                className="global-search-input"
-                placeholder="Поиск по ZION.CITY..."
-                autoFocus
-              />
-              <button className="global-search-close" onClick={() => setShowGlobalSearch(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <div className="global-search-body">
-              <p className="search-hint">Начните вводить для поиска</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Quick Create Menu */}
-      {showQuickCreate && (
-        <div className="quick-create-overlay">
-          <div className="quick-create-backdrop" onClick={() => setShowQuickCreate(false)} />
-          <div className="quick-create-menu">
-            <div className="quick-create-header">Быстрое создание</div>
-            <div className="quick-create-options">
-              <button className="quick-create-option" onClick={() => { setActiveView('wall'); setShowQuickCreate(false); }}>
-                <FileText size={18} />
-                <span>Новый пост</span>
-              </button>
-              <button className="quick-create-option" onClick={() => { setActiveView('media-photos'); setShowQuickCreate(false); }}>
-                <Image size={18} />
-                <span>Загрузить фото</span>
-              </button>
-              <button className="quick-create-option" onClick={() => { setActiveView('event-planner'); setShowQuickCreate(false); }}>
-                <Calendar size={18} />
-                <span>Создать событие</span>
-              </button>
-              <button className="quick-create-option" onClick={() => { setActiveView('chat'); setShowQuickCreate(false); }}>
-                <MessageCircle size={18} />
-                <span>Написать сообщение</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ERICChatWidget
+        user={user}
+        onOpenFullMode={() => {
+          setActiveModule('marketplace');
+          setActiveView('eric-ai');
+        }}
+      />
     </div>
-  );
-}
-
-// Dashboard wrapper that provides the AppContext
-function DashboardWithContext() {
-  const { user, refreshProfile } = useAuth();
-
-  return (
-    <AppContextProvider user={user} refreshProfile={refreshProfile}>
-      <Dashboard />
-    </AppContextProvider>
   );
 }
 
@@ -641,10 +741,10 @@ function App() {
     };
 
     checkAdminRoute();
-
+    
     // Listen for popstate events (browser back/forward)
     window.addEventListener('popstate', checkAdminRoute);
-
+    
     return () => {
       window.removeEventListener('popstate', checkAdminRoute);
     };
@@ -658,7 +758,7 @@ function App() {
       </ErrorBoundary>
     );
   }
-
+  
   return (
     <ErrorBoundary>
       <AuthProvider>
@@ -689,7 +789,7 @@ function AuthWrapper({ authMode, setAuthMode }) {
     return <LoginForm onSwitchToRegister={() => setAuthMode('register')} />;
   }
 
-  return <DashboardWithContext />;
+  return <Dashboard />;
 }
 
 export default App;

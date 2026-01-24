@@ -147,7 +147,7 @@ const MarketplaceProductDetail = ({
           url: window.location.href
         });
       } catch (error) {
-        // Share was cancelled by user
+        console.log('Share cancelled');
       }
     } else {
       navigator.clipboard.writeText(window.location.href);

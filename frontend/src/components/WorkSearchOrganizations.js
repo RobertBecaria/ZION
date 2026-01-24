@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Search, Building2, MapPin, Users, Globe, Lock, ArrowLeft, Filter, Check, Clock } from 'lucide-react';
 import { Industries, OrganizationTypes } from '../mock-work';
 
-import { BACKEND_URL } from '../config/api';
 const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState({
@@ -23,7 +22,8 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
     setHasSearched(true);
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/search`, {
         method: 'POST',
@@ -55,7 +55,8 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   };
 
   const handleJoinOrganization = async (orgId, isPrivate) => {
-        const token = localStorage.getItem('zion_token');
+    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    const token = localStorage.getItem('zion_token');
 
     // Always send a join request (for both public and private organizations)
     // This ensures admins get notified and can approve/reject

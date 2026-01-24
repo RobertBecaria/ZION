@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Crown, AlertTriangle, Check, ChevronDown } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentOwnerId, onClose, onSuccess }) => {
   const [members, setMembers] = useState([]);
   const [selectedMemberId, setSelectedMemberId] = useState('');
@@ -17,7 +16,8 @@ const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentO
   const loadMembers = async () => {
     setLoading(true);
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -49,7 +49,8 @@ const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentO
     setError(null);
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(
         `${BACKEND_URL}/api/work/organizations/${organizationId}/transfer-ownership`,

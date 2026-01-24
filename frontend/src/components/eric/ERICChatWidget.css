@@ -2,69 +2,55 @@
  * ERIC Chat Widget Styles
  */
 
-/* Floating Button - Fixed flickering with padding-based hit area */
+/* Floating Button */
 .eric-widget-button {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  width: 80px;
-  height: 80px;
+  bottom: 24px;
+  right: 24px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   border: none;
-  background: transparent;
+  background: linear-gradient(135deg, #FFD93D 0%, #FF9500 100%);
+  box-shadow: 0 4px 20px rgba(255, 149, 0, 0.4);
   cursor: pointer;
   z-index: 9998;
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px; /* Creates stable hit area */
+  overflow: hidden;
   opacity: 1;
   visibility: visible;
-}
-
-.eric-widget-button::before {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FFD93D 0%, #FF9500 100%);
-  box-shadow: 0 4px 20px rgba(255, 149, 0, 0.4);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: -1;
+  transform: scale(1);
 }
 
 .eric-widget-button.hidden {
   opacity: 0;
   visibility: hidden;
+  transform: scale(0.8);
   pointer-events: none;
 }
 
-.eric-widget-button.hidden::before {
-  transform: scale(0.8);
+.eric-widget-button:hover {
+  /* Static - no animation to prevent flickering */
 }
 
-.eric-widget-button:hover::before {
-  transform: scale(1.1);
-  box-shadow: 0 6px 30px rgba(255, 149, 0, 0.5);
+.eric-widget-button.hidden:hover {
+  /* Static when hidden */
 }
 
 .eric-button-avatar {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 50%;
-  pointer-events: none;
-  position: relative;
-  z-index: 1;
 }
 
 .eric-button-badge {
   position: absolute;
-  bottom: 6px;
-  right: 6px;
+  bottom: -2px;
+  right: -2px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   font-size: 10px;
@@ -72,8 +58,6 @@
   padding: 2px 6px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-  pointer-events: none;
-  z-index: 2;
 }
 
 /* Chat Window */
@@ -184,6 +168,15 @@
 .eric-action-btn.close:hover {
   background: rgba(220, 38, 38, 0.8);
   color: white;
+}
+
+.eric-action-btn.eric-fullmode-btn {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.eric-action-btn.eric-fullmode-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: #6D28D9;
 }
 
 /* Messages Area */

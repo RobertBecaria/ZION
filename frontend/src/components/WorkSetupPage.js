@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Building2, Search, Plus, Globe, Lock, MapPin, Calendar, Users, Briefcase, Check, X } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
 
-import { BACKEND_URL } from '../config/api';
 const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinRequest }) => {
   
   const [mode, setMode] = useState(initialMode); // 'choice', 'search', 'create'
@@ -42,7 +41,8 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
     
     setSearching(true);
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
       
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/search`, {
         method: 'POST',
@@ -77,7 +77,8 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
   const handleCreateOrganization = async () => {
     setCreating(true);
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
       
       const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
         method: 'POST',
@@ -94,9 +95,11 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
       }
       
       const data = await response.json();
+      console.log('Organization created:', data);
       alert('Организация успешно создана!');
       onComplete && onComplete();
     } catch (error) {
+      console.error('Create organization error:', error);
       alert(`Ошибка: ${error.message}`);
     } finally {
       setCreating(false);
@@ -104,7 +107,8 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
   };
 
   const handleJoinOrganization = (orgId) => {
-    // TODO: Implement join organization API call
+    // Mock: Show success and navigate
+    console.log('Joining organization:', orgId);
     alert('Запрос на присоединение отправлен! (В разработке)');
     onJoinRequest && onJoinRequest(orgId);
   };

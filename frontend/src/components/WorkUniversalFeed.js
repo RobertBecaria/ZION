@@ -3,7 +3,6 @@ import { AlertCircle, FileText, Building2, Plus, Calendar, CheckCircle2 } from '
 import WorkPostCard from './WorkPostCard';
 import WorkTasksPanel from './work/WorkTasksPanel';
 
-import { BACKEND_URL } from '../config/api';
 const WorkUniversalFeed = ({ currentUserId }) => {
   const [posts, setPosts] = useState([]);
   const [organizations, setOrganizations] = useState([]);
@@ -23,7 +22,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
     setError(null);
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/feed`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -46,7 +46,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
   const loadOrganizations = async () => {
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -72,7 +73,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
     setPosting(true);
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${selectedOrg}/posts`, {
         method: 'POST',
@@ -106,7 +108,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
     if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}`, {
         method: 'DELETE',
@@ -124,7 +127,8 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
   const handleLike = async (postId) => {
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}/like`, {
         method: 'POST',

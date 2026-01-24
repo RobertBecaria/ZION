@@ -10,7 +10,7 @@ export const useOrganizationsData = (user, activeModule, setMyOrganizations) => 
 
     try {
       const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
+      const response = await fetch(`${BACKEND_URL}/api/work/organizations/my`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       

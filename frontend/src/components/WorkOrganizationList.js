@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, MapPin, Plus, Briefcase, Crown, Shield, ChevronRight } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFeed }) => {
   const [organizations, setOrganizations] = useState([]);
@@ -10,8 +9,9 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
   useEffect(() => {
     const loadOrganizations = async () => {
       try {
+        const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
         const token = localStorage.getItem('zion_token');
-
+        
         const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -23,8 +23,10 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
         }
         
         const data = await response.json();
+        console.log('Loaded organizations:', data.organizations?.map(o => ({name: o.name, id: o.id})));
         setOrganizations(data.organizations || []);
       } catch (error) {
+        console.error('Error loading organizations:', error);
         setError(error.message);
       } finally {
         setLoading(false);

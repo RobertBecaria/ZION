@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { X, UserPlus, Mail, Briefcase, Users, Shield, AlertCircle } from 'lucide-react';
 import { WorkRoleTypes } from '../mock-work';
 
-import { BACKEND_URL } from '../config/api';
 const WorkInviteMemberModal = ({ organizationId, organizationName, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     user_email: '',
@@ -37,7 +36,8 @@ const WorkInviteMemberModal = ({ organizationId, organizationName, onClose, onSu
     setError(null);
 
     try {
-            const token = localStorage.getItem('zion_token');
+      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members`, {
         method: 'POST',

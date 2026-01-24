@@ -4,8 +4,8 @@
  * Uses shared wall components for post display and interactions
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  Users, Globe, Lock, UserCheck, Image, Link2,
+import { 
+  Users, Globe, Lock, UserCheck, Image, Link2, 
   MessageCircle, Send, ChevronDown, X, Loader2,
   Plus, Smile
 } from 'lucide-react';
