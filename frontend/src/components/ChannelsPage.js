@@ -7,6 +7,7 @@ import {
   Tv, Plus, Search, Users, Hash, Check, Bell, 
   ChevronRight, Star, Building2, Globe, Lock
 } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 // Channel categories with Russian labels
 const CHANNEL_CATEGORIES = [
@@ -52,7 +53,6 @@ const ChannelsPage = ({
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -412,7 +412,6 @@ const CreateChannelModal = ({ moduleColor, onClose, onCreated }) => {
   const [loadingOrgs, setLoadingOrgs] = useState(true);
   const [error, setError] = useState('');
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // Load organizations where user is admin
   useEffect(() => {

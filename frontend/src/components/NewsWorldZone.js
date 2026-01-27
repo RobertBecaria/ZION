@@ -7,6 +7,7 @@ import {
   Users, UserPlus, UserCheck, Bell, Search, TrendingUp,
   MessageCircle, ChevronRight, Check, X, Clock
 } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const NewsWorldZone = ({ 
   user, 
@@ -27,8 +28,6 @@ const NewsWorldZone = ({
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadSocialData();

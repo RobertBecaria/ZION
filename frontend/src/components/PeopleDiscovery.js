@@ -7,8 +7,7 @@ import {
   Users, UserPlus, Search, MapPin, Briefcase, GraduationCap,
   Heart, X, ChevronRight, Loader2, RefreshCw, Filter
 } from 'lucide-react';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../config/api';
 
 const PeopleDiscovery = ({ 
   user,

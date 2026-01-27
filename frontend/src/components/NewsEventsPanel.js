@@ -9,6 +9,7 @@ import {
   Film, Video, Mic, Globe, Megaphone, MessageCircle,
   Users, ExternalLink, ChevronRight, Loader2, User
 } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 // Event type configurations
 const EVENT_TYPES = {
@@ -46,8 +47,6 @@ const NewsEventsPanel = ({
     event_link: '',
     cover_url: ''
   });
-
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   const fetchEvents = async () => {
     try {

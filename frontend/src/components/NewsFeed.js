@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { PostItem } from './wall';
 import LightboxModal from './LightboxModal';
+import { BACKEND_URL } from '../config/api';
 
 // Visibility options specific to News feed
 const VISIBILITY_OPTIONS = [
@@ -78,7 +79,6 @@ const NewsFeed = ({
   const fileInputRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
   const LIMIT = 20;
 
   // Load posts

@@ -8,6 +8,7 @@ import {
   MessageCircle, Check, X, Clock, ChevronLeft,
   UserX, Bell, BellOff
 } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const FriendsPage = ({ 
   user, 
@@ -33,8 +34,6 @@ const FriendsPage = ({
     following_count: 0,
     pending_friend_requests: 0
   });
-
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {

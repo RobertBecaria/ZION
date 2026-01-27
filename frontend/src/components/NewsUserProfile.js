@@ -9,6 +9,7 @@ import {
   MessageCircle, Calendar, FileText, Users, Heart, Loader2,
   MapPin, Briefcase, GraduationCap, Mail, Clock
 } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const NewsUserProfile = ({ 
   userId, 
@@ -23,8 +24,6 @@ const NewsUserProfile = ({
   const [actionLoading, setActionLoading] = useState(false);
   const [posts, setPosts] = useState([]);
   const [events, setEvents] = useState([]);
-
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {

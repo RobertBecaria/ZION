@@ -9,6 +9,7 @@ import {
   Shield, Trash2, Camera, Image, AlertTriangle, Copy, CheckCircle
 } from 'lucide-react';
 import NewsFeed from './NewsFeed';
+import { BACKEND_URL } from '../config/api';
 
 const ChannelView = ({ 
   channelId,
@@ -21,8 +22,6 @@ const ChannelView = ({
   const [showModeratorModal, setShowModeratorModal] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
-
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -352,8 +351,6 @@ const ModeratorModal = ({ channelId, accentColor, onClose }) => {
   const [adding, setAdding] = useState(null);
   const [error, setError] = useState('');
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadModerators();
@@ -634,8 +631,6 @@ const ChannelSettingsModal = ({ channel, accentColor, onClose, onDelete }) => {
 
   const avatarInputRef = useRef(null);
   const coverInputRef = useRef(null);
-
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
   const handleImageUpload = (file, type) => {
     if (!file) return;
