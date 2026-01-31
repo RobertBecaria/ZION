@@ -1,0 +1,1002 @@
+/* ============================================
+   ZION.CITY USABILITY FIXES
+   Targeted improvements for UX without changing layout positions
+============================================ */
+
+/* ============================================
+   1. SIDEBAR SCROLLING FIXES
+   Allow content to scroll properly within sidebars
+============================================ */
+
+.left-sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 66px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.left-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.left-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.left-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.right-sidebar {
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: calc(100vh - 66px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.right-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.right-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+}
+
+.right-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================
+   2. BUTTON LOADING STATES
+   Universal loading spinner for all buttons
+============================================ */
+
+/* Loading spinner base */
+.btn-loading,
+button[disabled].loading,
+button.loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.btn-loading::after,
+button[disabled].loading::after,
+button.loading::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  margin-left: -9px;
+  margin-top: -9px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  border-right-color: transparent;
+  animation: btn-spin 0.75s linear infinite;
+}
+
+@keyframes btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Primary button loading - white spinner */
+.btn-primary.loading::after,
+.auth-button.loading::after {
+  border-color: rgba(255, 255, 255, 0.8);
+  border-right-color: transparent;
+}
+
+/* Secondary button loading - dark spinner */
+.btn-secondary.loading::after {
+  border-color: rgba(28, 30, 33, 0.6);
+  border-right-color: transparent;
+}
+
+/* ============================================
+   3. IMPROVED DISABLED BUTTON STATES
+============================================ */
+
+button:disabled,
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-ghost:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+button:disabled:hover,
+.btn-primary:disabled:hover,
+.btn-secondary:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ============================================
+   4. FOCUS INDICATORS FOR ACCESSIBILITY
+============================================ */
+
+/* Skip to content link for screen readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #1877F2;
+  color: white;
+  padding: 8px 16px;
+  z-index: 10000;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 8px 0;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Enhanced focus rings */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid #1877F2;
+  outline-offset: 2px;
+}
+
+/* Remove default outline when focus-visible is supported */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   5. CARD CONTENT FITTING
+   Ensure cards expand to fit their content
+============================================ */
+
+/* Post cards auto-height */
+.post-item,
+.post-card,
+.widget,
+.card {
+  height: auto;
+  min-height: 0;
+}
+
+/* Events panel cards */
+.event-item,
+.event-card {
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+
+/* Profile cards */
+.profile-card {
+  height: auto;
+  min-height: 0;
+}
+
+/* Ensure text doesn't get cut off */
+.post-content,
+.event-description,
+.card-content {
+  overflow: visible;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   6. MODAL IMPROVEMENTS
+   Better modal sizing and responsiveness
+============================================ */
+
+.modal-overlay {
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.modal-content,
+.post-form,
+.modal {
+  max-height: calc(100vh - 2rem);
+  max-width: calc(100vw - 2rem);
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-body,
+.form-body {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Modal close button always accessible */
+.close-btn,
+.modal-close {
+  position: relative;
+  z-index: 10;
+  min-width: 36px;
+  min-height: 36px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   7. FORM INPUT CONSISTENCY
+============================================ */
+
+/* Consistent input sizing */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+select,
+textarea {
+  min-height: 44px; /* Touch-friendly minimum */
+  font-size: 16px; /* Prevent iOS zoom on focus */
+}
+
+/* Select dropdown styling */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M2.5 4.5L6 8l3.5-3.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Input error state */
+input.error,
+select.error,
+textarea.error,
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+  border-color: #EF4444 !important;
+  background-color: #FEF2F2 !important;
+}
+
+/* Input success state */
+input.success,
+select.success,
+textarea.success {
+  border-color: #22C55E !important;
+}
+
+/* ============================================
+   8. NAVIGATION IMPROVEMENTS
+============================================ */
+
+/* Active nav item indicator */
+.sidebar-nav .nav-item.active,
+.sidebar-nav button.active {
+  position: relative;
+}
+
+.sidebar-nav .nav-item.active::before,
+.sidebar-nav button.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 70%;
+  background: currentColor;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Hover state for nav items */
+.sidebar-nav button:hover:not(.active),
+.sidebar-nav .nav-item:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================
+   9. TOOLTIP IMPROVEMENTS
+============================================ */
+
+[title] {
+  position: relative;
+}
+
+/* ============================================
+   10. EMPTY STATE IMPROVEMENTS
+============================================ */
+
+.empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  opacity: 0.5;
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+  font-size: 0.95rem;
+  color: #6B7280;
+  max-width: 320px;
+  margin: 0 auto 1.5rem;
+}
+
+/* ============================================
+   11. LIST ITEM SPACING
+============================================ */
+
+.post-list,
+.feed-list,
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ============================================
+   12. IMAGE LOADING STATES
+============================================ */
+
+img {
+  background-color: #F3F4F6;
+}
+
+img.loading {
+  opacity: 0;
+}
+
+img.loaded {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* Avatar placeholder */
+.avatar-placeholder {
+  background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #6B7280;
+}
+
+/* ============================================
+   13. NOTIFICATION BADGES
+============================================ */
+
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #EF4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.notification-badge.hidden {
+  display: none;
+}
+
+/* ============================================
+   14. RESPONSIVE TOUCH TARGETS
+============================================ */
+
+@media (pointer: coarse) {
+  /* Larger touch targets on touch devices */
+  button,
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost,
+  .nav-module,
+  .profile-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .close-btn,
+  .icon-btn,
+  .action-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Increase spacing between interactive elements */
+  .sidebar-nav button {
+    margin-bottom: 4px;
+  }
+}
+
+/* ============================================
+   15. PRINT STYLES
+============================================ */
+
+@media print {
+  .left-sidebar,
+  .right-sidebar,
+  .top-nav,
+  .modal-overlay,
+  button,
+  .btn-primary,
+  .btn-secondary {
+    display: none !important;
+  }
+
+  .main-content-area {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: 1 !important;
+  }
+}
+
+/* ============================================
+   16. REDUCED MOTION
+============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* ============================================
+   17. HIGH CONTRAST MODE
+============================================ */
+
+@media (prefers-contrast: high) {
+  .btn-primary {
+    border: 2px solid currentColor;
+  }
+
+  .btn-secondary {
+    border: 2px solid #1C1E21;
+  }
+
+  input,
+  select,
+  textarea {
+    border-width: 2px;
+  }
+}
+
+/* ============================================
+   18. DARK MODE PREPARATION
+   (CSS custom properties for future dark mode)
+============================================ */
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --bg-tertiary: #F3F4F6;
+  --text-primary: #1C1E21;
+  --text-secondary: #65676B;
+  --text-tertiary: #9CA3AF;
+  --border-color: #E4E6EA;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   19. CONTENT AREA FULL WIDTH FIX
+============================================ */
+
+/* When right sidebar is hidden, main content should expand */
+.split-content-layout .main-content-area:only-child {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+/* Fix content area when events panel is hidden */
+.content-area.full-width .main-content-area {
+  flex: 1;
+  max-width: 100%;
+}
+
+/* ============================================
+   20. Z-INDEX MANAGEMENT
+============================================ */
+
+:root {
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-backdrop: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  --z-toast: 800;
+}
+
+.modal-overlay {
+  z-index: var(--z-modal-backdrop);
+}
+
+.modal,
+.post-form {
+  z-index: var(--z-modal);
+}
+
+.user-dropdown {
+  z-index: var(--z-dropdown);
+}
+
+.top-nav {
+  z-index: var(--z-fixed);
+}
+
+/* ============================================
+   21. CONTENT OVERFLOW HANDLING
+============================================ */
+
+/* Ensure long text wraps properly */
+.post-content p,
+.comment-content,
+.message-content,
+.event-description {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Long URLs break properly */
+.post-content a,
+.comment-content a {
+  word-break: break-all;
+}
+
+/* ============================================
+   22. SKELETON LOADING STATES
+============================================ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #F3F4F6 0%,
+    #E5E7EB 50%,
+    #F3F4F6 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-text {
+  height: 1em;
+  margin-bottom: 0.5em;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  height: 120px;
+  border-radius: 12px;
+}
+
+/* ============================================
+   23. ACTION BUTTON ROW IMPROVEMENTS
+============================================ */
+
+.action-buttons-row,
+.post-actions-row,
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.form-actions {
+  justify-content: flex-end;
+  padding-top: 1rem;
+  margin-top: 1rem;
+  border-top: 1px solid #E4E6EA;
+}
+
+/* ============================================
+   24. DROPDOWN MENU IMPROVEMENTS
+============================================ */
+
+.dropdown-menu {
+  min-width: 180px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0.5rem;
+  background: white;
+  border: 1px solid #E4E6EA;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+              0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #F3F4F6;
+}
+
+.dropdown-item.danger {
+  color: #DC2626;
+}
+
+.dropdown-item.danger:hover {
+  background-color: #FEF2F2;
+}
+
+/* ============================================
+   25. UTILITY CLASSES
+============================================ */
+
+/* Visually hidden but accessible to screen readers */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Clickable element base */
+.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Truncate text */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Flex utilities */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Gap utilities */
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 0.75rem; }
+.gap-4 { gap: 1rem; }
+
+/* ============================================
+   26. HEADER ACTION BUTTONS
+============================================ */
+
+.header-action-btn.active {
+  background: var(--gray-200);
+  color: #1877F2;
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* ============================================
+   27. GLOBAL SEARCH OVERLAY
+============================================ */
+
+.global-search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+  animation: fadeIn 0.2s ease;
+}
+
+.global-search-container {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.global-search-header {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #E4E6EA;
+  gap: 0.75rem;
+}
+
+.global-search-header svg {
+  color: #6B7280;
+  flex-shrink: 0;
+}
+
+.global-search-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1.125rem;
+  padding: 0.5rem 0;
+  background: transparent;
+}
+
+.global-search-input::placeholder {
+  color: #9CA3AF;
+}
+
+.global-search-close {
+  background: #F3F4F6;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6B7280;
+  transition: all 0.15s ease;
+}
+
+.global-search-close:hover {
+  background: #E5E7EB;
+  color: #374151;
+}
+
+.global-search-body {
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-hint {
+  text-align: center;
+  color: #9CA3AF;
+  padding: 2rem;
+}
+
+.search-results-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.search-result-item:hover {
+  background: #F3F4F6;
+}
+
+/* ============================================
+   28. QUICK CREATE MENU
+============================================ */
+
+.quick-create-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+.quick-create-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+}
+
+.quick-create-menu {
+  position: absolute;
+  top: 70px;
+  right: 1rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(0, 0, 0, 0.05);
+  min-width: 240px;
+  overflow: hidden;
+  animation: scaleIn 0.2s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.quick-create-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #E4E6EA;
+  font-weight: 600;
+  color: #374151;
+}
+
+.quick-create-options {
+  padding: 0.5rem;
+}
+
+.quick-create-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: #374151;
+  font-size: 0.95rem;
+}
+
+.quick-create-option:hover {
+  background: #F3F4F6;
+}
+
+.quick-create-option svg {
+  color: #6B7280;
+}
+
+.quick-create-option:hover svg {
+  color: currentColor;
+}
+
+/* ============================================
+   29. ERROR BOUNDARY FALLBACK
+============================================ */
+
+.error-fallback {
+  padding: 2rem;
+  text-align: center;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 12px;
+  margin: 1rem;
+}
+
+.error-fallback h3 {
+  color: #DC2626;
+  margin-bottom: 0.5rem;
+}
+
+.error-fallback p {
+  color: #7F1D1D;
+  margin-bottom: 1rem;
+}
+
+.error-fallback button {
+  background: #DC2626;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error-fallback button:hover {
+  background: #B91C1C;
+}
+
+/* ============================================
+   END USABILITY FIXES
+============================================ */

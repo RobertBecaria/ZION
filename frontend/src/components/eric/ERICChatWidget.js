@@ -15,6 +15,7 @@ import {
 import './ERICChatWidget.css';
 import MediaPicker from './MediaPicker';
 import ERICSearchCards from './ERICSearchCards';
+import { BACKEND_URL } from '../../config/api';
 
 const ERICChatWidget = ({ user, onOpenFullMode }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,8 +34,6 @@ const ERICChatWidget = ({ user, onOpenFullMode }) => {
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const fileInputRef = useRef(null);
-
-  import { BACKEND_URL } from '../../config/api';
 
   // Listen for custom events to open chat from outside (e.g., notifications)
   useEffect(() => {

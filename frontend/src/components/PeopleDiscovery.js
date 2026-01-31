@@ -4,10 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Users, UserPlus, Search, MapPin, Briefcase, GraduationCap,
   Heart, X, ChevronRight, Loader2, RefreshCw, Filter
 } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 const PeopleDiscovery = ({ 
   user,

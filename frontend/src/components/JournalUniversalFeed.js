@@ -4,6 +4,7 @@ import {
   Image, Paperclip, X, FileText, MoreHorizontal, Smile, ChevronDown, Bot, Check, Copy, Sparkles
 } from 'lucide-react';
 import ERICAnalyzeButton from './eric/ERICAnalyzeButton';
+import { BACKEND_URL } from '../config/api';
 
 const JournalUniversalFeed = ({ 
   currentUserId, 
@@ -28,8 +29,6 @@ const JournalUniversalFeed = ({
   const [showAnalysisModal, setShowAnalysisModal] = useState(false);
   const [analysisCopied, setAnalysisCopied] = useState(false);
   const fileInputRef = useRef(null);
-
-  import { BACKEND_URL } from '../config/api';
   const moduleColor = '#6D28D9'; // Purple for Journal
 
   const AUDIENCE_OPTIONS = [

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, Shield, Crown, Check, X, AlertTriangle, ChevronDown } from 'lucide-react';
 import { WorkRoleTypes } from '../mock-work';
+import { BACKEND_URL } from '../config/api';
 
 const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, currentUserId, onUpdate, onRemove }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -21,7 +22,6 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleQuickAdminToggle = async () => {
     setQuickActionLoading(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}/role`, {
@@ -50,7 +50,6 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleSave = async () => {
     setLoading(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}/role`, {
@@ -80,7 +79,6 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleDelete = async () => {
     setLoading(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}`, {

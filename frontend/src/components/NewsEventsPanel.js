@@ -5,11 +5,11 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Plus, Calendar, Clock, X, Check, Bell, BellOff,
   Film, Video, Mic, Globe, Megaphone, MessageCircle,
   Users, ExternalLink, ChevronRight, Loader2, User
 } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 // Event type configurations
 const EVENT_TYPES = {

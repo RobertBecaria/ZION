@@ -4,7 +4,6 @@
  */
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Clock, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
-
 import { BACKEND_URL } from '../../config/api';
 
 const DAYS_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Mail, Clock, Check, X, MessageSquare, AlertCircle } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
   const [requests, setRequests] = useState([]);
@@ -21,7 +22,6 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setError(null);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/join-requests`, {
@@ -49,7 +49,6 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setProcessingId(requestId);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/${requestId}/approve`, {
@@ -88,7 +87,6 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setProcessingId(rejectRequestId);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/${rejectRequestId}/reject`, {

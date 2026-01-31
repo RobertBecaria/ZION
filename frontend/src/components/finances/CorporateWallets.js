@@ -4,11 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   Building2, Wallet, Coins, Plus, Send, ArrowUpRight, ArrowDownLeft,
   ChevronRight, RefreshCw, X, AlertCircle, CheckCircle, Users, Clock
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const CorporateWallets = ({ user, moduleColor = '#A16207' }) => {
   const [corporateWallets, setCorporateWallets] = useState([]);

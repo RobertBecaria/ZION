@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import {
+import { BACKEND_URL } from '../config/api';
   User, Mail, Phone, MapPin, Briefcase, Calendar, Heart,
   Building2, Users, Award, Settings, Eye, EyeOff, Globe,
   Lock, Shield, ChevronRight, Cake, Gift, TrendingUp
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../config/api';
 
 function MyProfile({ user, activeModule, moduleColor }) {
   const [profileData, setProfileData] = useState(null);

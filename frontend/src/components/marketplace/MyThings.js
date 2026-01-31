@@ -4,12 +4,11 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   Plus, Search, Grid, List, Filter, AlertCircle, 
   Smartphone, Shirt, Car, Home, Laptop, Palette,
   ChevronRight, ShoppingCart, Calendar
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const CATEGORY_ICONS = {
   smart_things: Smartphone,

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Building2, MapPin, Users, Globe, Lock, ArrowLeft, Filter, Check, Clock } from 'lucide-react';
 import { Industries, OrganizationTypes } from '../mock-work';
+import { BACKEND_URL } from '../config/api';
 
 const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +23,6 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
     setHasSearched(true);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/search`, {
@@ -55,7 +55,6 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   };
 
   const handleJoinOrganization = async (orgId, isPrivate) => {
-    import { BACKEND_URL } from '../config/api';
     const token = localStorage.getItem('zion_token');
 
     // Always send a join request (for both public and private organizations)

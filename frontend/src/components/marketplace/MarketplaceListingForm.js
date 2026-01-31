@@ -5,7 +5,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, X, Plus, Camera, Bot, Check, Copy, Sparkles } from 'lucide-react';
 import ERICAnalyzeButton from '../eric/ERICAnalyzeButton';
-
 import { BACKEND_URL } from '../../config/api';
 
 const MarketplaceListingForm = ({

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AlertCircle, FileText } from 'lucide-react';
 import WorkPostComposer from './WorkPostComposer';
 import WorkPostCard from './WorkPostCard';
+import { BACKEND_URL } from '../config/api';
 
 const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin, canPost }) => {
   const [posts, setPosts] = useState([]);
@@ -19,7 +20,6 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     setError(null);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/posts`, {
@@ -49,7 +49,6 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}`, {
@@ -68,7 +67,6 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
 
   const handleLike = async (postId) => {
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}/like`, {

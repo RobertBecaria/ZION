@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Plus, Calendar, Clock, MapPin, Check, HelpCircle, X,
   Gift, Users, FileText, ChevronRight, Timer, Cake,
   GraduationCap, Bus, Trophy, Bell, Edit3
@@ -61,8 +62,6 @@ function UniversalEventsPanel({
     location: '',
     requires_rsvp: false
   });
-
-  import { BACKEND_URL } from '../config/api';
 
   useEffect(() => {
     if (activeGroup) {

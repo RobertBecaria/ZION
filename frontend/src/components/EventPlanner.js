@@ -36,6 +36,7 @@ import UpcomingEventsSidebar from './EventPlanner/UpcomingEventsSidebar';
 
 // Import utility functions
 import { getEventTypeInfo, getCreatorRoleInfo, getCountdown as getCountdownUtil } from './EventPlanner/utils';
+import { BACKEND_URL } from '../config/api';
 
 const EventPlanner = ({ 
   organizationId, 
@@ -102,8 +103,6 @@ const EventPlanner = ({
     requires_rsvp: false,
     max_attendees: null
   });
-
-  import { BACKEND_URL } from '../config/api';
 
   // Determine user's role capabilities
   const isTeacher = schoolRoles?.is_teacher && 

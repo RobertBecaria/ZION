@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Bell, BellRing, X, Check, CheckCheck, Trash2, Bot, Star, Heart, 
   MessageCircle, Users, Calendar, Sparkles, ExternalLink
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../config/api';
 
 const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
   const [notifications, setNotifications] = useState([]);

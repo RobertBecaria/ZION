@@ -4,11 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   Star, ThumbsUp, MessageCircle, 
   Loader2, User, Calendar, Check, X, Edit2
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const ServicesReviews = ({
   serviceId,

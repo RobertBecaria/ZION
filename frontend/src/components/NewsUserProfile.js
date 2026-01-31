@@ -5,11 +5,11 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   ArrowLeft, User, UserPlus, UserCheck, UserMinus, Bell, BellOff,
   MessageCircle, Calendar, FileText, Users, Heart, Loader2,
   MapPin, Briefcase, GraduationCap, Mail, Clock
 } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 const NewsUserProfile = ({ 
   userId, 

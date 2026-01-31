@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   MessageCircle, Send, Loader2, Trash2, Sparkles, Settings,
   Shield, ChevronRight, ToggleLeft, ToggleRight, AlertCircle,
   Users, DollarSign, MapPin, Heart, ShoppingBag, Calendar
@@ -21,8 +22,6 @@ const ERICProfile = ({ user }) => {
   const [profile, setProfile] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
-
-  import { BACKEND_URL } from '../../config/api';
 
   // Scroll to bottom of messages
   const scrollToBottom = () => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BookOpen, Plus, ChevronLeft, TrendingUp, Calendar, User, FileText, Award } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const StudentGradebook = ({ selectedSchool, role, onBack }) => {
   const [grades, setGrades] = useState([]);
@@ -11,8 +12,6 @@ const StudentGradebook = ({ selectedSchool, role, onBack }) => {
   const [showAddGradeModal, setShowAddGradeModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
-
-  import { BACKEND_URL } from '../config/api';
 
   const GRADE_TYPES = [
     { value: 'EXAM', label: 'Контрольная работа' },

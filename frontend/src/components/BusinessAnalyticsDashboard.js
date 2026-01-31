@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   BarChart3, Users, Calendar, Star, TrendingUp, 
   Loader2, AlertCircle, RefreshCw, ChevronDown
 } from 'lucide-react';
@@ -14,8 +15,6 @@ const BusinessAnalyticsDashboard = ({ organizationId }) => {
   const [analytics, setAnalytics] = useState(null);
   const [period, setPeriod] = useState('30d');
   const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
-
-  import { BACKEND_URL } from '../config/api';
 
   const periodOptions = [
     { value: '7d', label: 'За 7 дней' },

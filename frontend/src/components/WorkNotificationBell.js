@@ -3,7 +3,6 @@ import { Bell } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { ScrollArea } from './ui/scroll-area';
-
 import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 

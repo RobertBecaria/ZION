@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Calendar, ChevronLeft, ChevronRight, Plus, X, Clock, MapPin,
   Users
 } from 'lucide-react';
@@ -47,8 +48,6 @@ const AcademicCalendar = ({ organizationId, schoolRoles, user }) => {
     is_all_day: true,
     audience_type: 'PUBLIC'
   });
-
-  import { BACKEND_URL } from '../config/api';
   const moduleColor = '#6D28D9';
 
   // Check if user is a teacher (can create events)

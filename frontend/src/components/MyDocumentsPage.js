@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FileText, Plus, Edit2, Trash2, Upload, Save, X, Flag, File, Image as ImageIcon, CheckCircle, AlertCircle } from 'lucide-react';
 import { triggerConfetti, toast } from '../utils/animations';
+import { BACKEND_URL } from '../config/api';
 
 const MyDocumentsPage = () => {
   const [documents, setDocuments] = useState([]);
@@ -19,8 +20,6 @@ const MyDocumentsPage = () => {
   const [filePreview, setFilePreview] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
-
-  import { BACKEND_URL } from '../config/api';
 
   const documentTypes = [
     { value: 'PASSPORT', label: 'Паспорт (Внутренний)', icon: '🛂', color: '#DC2626' },

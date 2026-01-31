@@ -5,7 +5,6 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Trash2 } from 'lucide-react';
 import MarketplaceProductCard from './MarketplaceProductCard';
-
 import { BACKEND_URL } from '../../config/api';
 
 const MarketplaceFavorites = ({

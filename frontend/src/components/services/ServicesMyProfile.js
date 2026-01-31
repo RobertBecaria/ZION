@@ -9,7 +9,6 @@ import {
   Clock, DollarSign, Loader2, AlertCircle
 } from 'lucide-react';
 import ServiceListingForm from './ServiceListingForm';
-
 import { BACKEND_URL } from '../../config/api';
 
 const ServicesMyProfile = ({

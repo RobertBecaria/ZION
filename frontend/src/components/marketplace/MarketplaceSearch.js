@@ -10,7 +10,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import MarketplaceProductCard from './MarketplaceProductCard';
-
 import { BACKEND_URL } from '../../config/api';
 
 // Custom marker icon

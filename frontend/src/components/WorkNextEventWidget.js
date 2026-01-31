@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Calendar, Clock, MapPin, X, Users, Bell, CheckCircle, XCircle, HelpCircle, Eye } from 'lucide-react';
-
 import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 

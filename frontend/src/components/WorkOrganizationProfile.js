@@ -9,6 +9,7 @@ import WorkNotificationBell from './WorkNotificationBell';
 import WorkEventsPanel from './WorkEventsPanel';
 import TeacherProfileForm from './TeacherProfileForm';
 import TeacherDirectory from './TeacherDirectory';
+import { BACKEND_URL } from '../config/api';
 
 const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSettings }) => {
   const [organization, setOrganization] = useState(null);
@@ -44,7 +45,6 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     setError(null);
     
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       if (!token) {
@@ -96,7 +96,6 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     if (!organizationId || !organization?.user_is_admin) return;
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       // Load join requests count

@@ -4,7 +4,6 @@ import { Calendar, Clock, MapPin, ChevronRight } from 'lucide-react';
 
 // Import the existing EventDetailsModal
 import WorkNextEventWidget from './WorkNextEventWidget';
-
 import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 

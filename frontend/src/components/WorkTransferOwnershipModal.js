@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Crown, AlertTriangle, Check, ChevronDown } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentOwnerId, onClose, onSuccess }) => {
   const [members, setMembers] = useState([]);
@@ -16,7 +17,6 @@ const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentO
   const loadMembers = async () => {
     setLoading(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members`, {
@@ -49,7 +49,6 @@ const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentO
     setError(null);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(

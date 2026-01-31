@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { AlertCircle, FileText, Building2, Plus, Calendar, CheckCircle2 } from 'lucide-react';
 import WorkPostCard from './WorkPostCard';
 import WorkTasksPanel from './work/WorkTasksPanel';
+import { BACKEND_URL } from '../config/api';
 
 const WorkUniversalFeed = ({ currentUserId }) => {
   const [posts, setPosts] = useState([]);
@@ -22,7 +23,6 @@ const WorkUniversalFeed = ({ currentUserId }) => {
     setError(null);
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/feed`, {
@@ -46,7 +46,6 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
   const loadOrganizations = async () => {
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
@@ -73,7 +72,6 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
     setPosting(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${selectedOrg}/posts`, {
@@ -108,7 +106,6 @@ const WorkUniversalFeed = ({ currentUserId }) => {
     if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
 
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}`, {
@@ -127,7 +124,6 @@ const WorkUniversalFeed = ({ currentUserId }) => {
 
   const handleLike = async (postId) => {
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}/like`, {

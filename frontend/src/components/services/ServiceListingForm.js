@@ -4,11 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   ArrowLeft, Save, Building2, Clock, DollarSign, MapPin,
   Phone, Mail, Globe, Image, Tag, Loader2, Plus, X
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const DAYS_OF_WEEK = [
   { key: 'monday', label: 'Понедельник' },

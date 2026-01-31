@@ -10,7 +10,6 @@ import EventReviewsTab from './EventReviewsTab';
 import EventPhotosTab from './EventPhotosTab';
 import EventChatTab from './EventChatTab';
 import EventPaymentModal from './EventPaymentModal';
-
 import { BACKEND_URL } from '../../config/api';
 
 const GoodWillEventDetail = ({ 

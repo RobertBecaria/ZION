@@ -4,6 +4,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   X, Image, FileText, Search, Check, Loader2,
   FolderOpen, Calendar
 } from 'lucide-react';
@@ -21,8 +22,6 @@ const MediaPicker = ({
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'photos', 'documents'
-
-  import { BACKEND_URL } from '../../config/api';
 
   useEffect(() => {
     if (isOpen) {

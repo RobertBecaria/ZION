@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users, UserPlus } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
-  import { BACKEND_URL } from '../config/api';
   const API = `${BACKEND_URL}/api`;
   
   const [loading, setLoading] = useState(false);

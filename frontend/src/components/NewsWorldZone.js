@@ -4,10 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Users, UserPlus, UserCheck, Bell, Search, TrendingUp,
   MessageCircle, ChevronRight, Check, X, Clock
 } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 const NewsWorldZone = ({ 
   user, 

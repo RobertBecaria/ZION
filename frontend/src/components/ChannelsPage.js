@@ -4,10 +4,10 @@
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
+import { BACKEND_URL } from '../config/api';
   Tv, Plus, Search, Users, Hash, Check, Bell, 
   ChevronRight, Star, Building2, Globe, Lock
 } from 'lucide-react';
-import { BACKEND_URL } from '../config/api';
 
 // Channel categories with Russian labels
 const CHANNEL_CATEGORIES = [

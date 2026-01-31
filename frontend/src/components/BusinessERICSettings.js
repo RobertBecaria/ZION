@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Check, AlertCircle, Loader2, Save, BarChart3, Settings } from 'lucide-react';
 import BusinessAnalyticsDashboard from './BusinessAnalyticsDashboard';
+import { BACKEND_URL } from '../config/api';
 
 const BusinessERICSettings = ({ organizationId, onSave }) => {
   const [activeTab, setActiveTab] = useState('analytics');
@@ -24,8 +25,6 @@ const BusinessERICSettings = ({ organizationId, onSave }) => {
     business_description: '',
     specialties: []
   });
-
-  import { BACKEND_URL } from '../config/api';
 
   useEffect(() => {
     loadSettings();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Search, Plus, Globe, Lock, MapPin, Calendar, Users, Briefcase, Check, X } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
+import { BACKEND_URL } from '../config/api';
 
 const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinRequest }) => {
   
@@ -41,7 +42,6 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
     
     setSearching(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
       
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/search`, {
@@ -77,7 +77,6 @@ const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinReque
   const handleCreateOrganization = async () => {
     setCreating(true);
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
       
       const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {

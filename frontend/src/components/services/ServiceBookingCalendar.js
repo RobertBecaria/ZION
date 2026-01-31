@@ -8,12 +8,11 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { 
+import { BACKEND_URL } from '../../config/api';
   Calendar, Clock, Check, X, ChevronLeft, ChevronRight,
   User, Phone, Mail, MessageCircle, Loader2, Settings,
   Plus, Edit2, Trash2, CalendarDays
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const STATUS_COLORS = {
   PENDING: { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E' },

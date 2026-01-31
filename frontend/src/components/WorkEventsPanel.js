@@ -3,7 +3,6 @@ import { Calendar, Clock, MapPin, Users, Plus, X, Check, AlertCircle, Edit, Tras
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-
 import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 

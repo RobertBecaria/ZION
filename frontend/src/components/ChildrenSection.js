@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Plus, X, Edit2, Save } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
   const [children, setChildren] = useState([]);
@@ -15,8 +16,6 @@ const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
     school_name: '',
     notes: ''
   });
-
-  import { BACKEND_URL } from '../config/api';
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, MapPin, ChevronLeft } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const ClassSchedule = ({ selectedSchool, role, onBack }) => {
   const [schedules, setSchedules] = useState([]);
@@ -8,8 +9,6 @@ const ClassSchedule = ({ selectedSchool, role, onBack }) => {
   const [children, setChildren] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
-
-  import { BACKEND_URL } from '../config/api';
 
   const DAYS = [
     { key: 'MONDAY', label: 'Понедельник' },

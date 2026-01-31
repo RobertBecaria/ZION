@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, MapPin, Plus, Briefcase, Crown, Shield, ChevronRight } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFeed }) => {
   const [organizations, setOrganizations] = useState([]);
@@ -9,7 +10,6 @@ const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFee
   useEffect(() => {
     const loadOrganizations = async () => {
       try {
-        import { BACKEND_URL } from '../config/api';
         const token = localStorage.getItem('zion_token');
         
         const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {

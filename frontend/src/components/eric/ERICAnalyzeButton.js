@@ -4,6 +4,7 @@
  */
 import React, { useState } from 'react';
 import { Sparkles, Loader2 } from 'lucide-react';
+import { BACKEND_URL } from '../../config/api';
 
 const ERICAnalyzeButton = ({ 
   file,          // File object or URL to analyze
@@ -16,7 +17,6 @@ const ERICAnalyzeButton = ({
   disabled = false
 }) => {
   const [analyzing, setAnalyzing] = useState(false);
-  import { BACKEND_URL } from '../../config/api';
 
   const contextLabels = {
     work: 'Рабочий документ',

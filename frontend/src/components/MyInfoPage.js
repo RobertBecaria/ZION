@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import HouseholdSection from './HouseholdSection';
 import ChildrenSection from './ChildrenSection';
+import { BACKEND_URL } from '../config/api';
 
 // Profile Completion Progress Bar Component
 const ProfileCompletionBar = ({ percentage, animate }) => {
@@ -274,8 +275,6 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
-
-  import { BACKEND_URL } from '../config/api';
 
   // Calculate profile completion percentage
   const profileCompletion = useMemo(() => {

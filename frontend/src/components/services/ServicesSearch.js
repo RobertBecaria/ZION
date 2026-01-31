@@ -11,7 +11,6 @@ import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import ServiceCard from './ServiceCard';
 import ServiceCategories from './ServiceCategories';
-
 import { BACKEND_URL } from '../../config/api';
 
 // Custom marker icon for services

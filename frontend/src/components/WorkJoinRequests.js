@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Clock, Building2, XCircle, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { BACKEND_URL } from '../config/api';
 
 const WorkJoinRequests = ({ onBack, onViewProfile }) => {
   const [requests, setRequests] = useState([]);
@@ -16,7 +17,6 @@ const WorkJoinRequests = ({ onBack, onViewProfile }) => {
     setError(null);
     
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/my-requests`, {
@@ -43,7 +43,6 @@ const WorkJoinRequests = ({ onBack, onViewProfile }) => {
     setCancellingId(requestId);
     
     try {
-      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/${requestId}`, {

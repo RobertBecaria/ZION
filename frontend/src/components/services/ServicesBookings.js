@@ -4,11 +4,10 @@
  */
 import React, { useState, useEffect } from 'react';
 import { 
+import { BACKEND_URL } from '../../config/api';
   Calendar, Clock, User, Building2, Check, X, Phone, Mail,
   ChevronDown, Filter, Loader2, MessageCircle, AlertCircle
 } from 'lucide-react';
-
-import { BACKEND_URL } from '../../config/api';
 
 const STATUS_LABELS = {
   PENDING: { label: 'Ожидает', color: '#f59e0b', bg: '#f59e0b15' },
