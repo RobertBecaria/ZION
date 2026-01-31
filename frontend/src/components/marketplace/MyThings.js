@@ -3,9 +3,9 @@
  * Personal inventory management - main dashboard
  */
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
-  Plus, Search, Grid, List, Filter, AlertCircle, 
+import {
+  Plus, Search, Grid, List, Filter, AlertCircle,
   Smartphone, Shirt, Car, Home, Laptop, Palette,
   ChevronRight, ShoppingCart, Calendar
 } from 'lucide-react';

@@ -3,8 +3,8 @@
  * Manage bookings for both clients and providers
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import {
   Calendar, Clock, User, Building2, Check, X, Phone, Mail,
   ChevronDown, Filter, Loader2, MessageCircle, AlertCircle
 } from 'lucide-react';

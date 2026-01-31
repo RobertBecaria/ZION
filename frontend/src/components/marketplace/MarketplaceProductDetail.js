@@ -3,8 +3,8 @@
  * Detailed view of a marketplace product
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import {
   ArrowLeft, Heart, Share2, MapPin, Clock, Eye, Phone, MessageCircle,
   User, Building2, ChevronLeft, ChevronRight, AlertCircle, Coins, Wallet,
   CheckCircle, X

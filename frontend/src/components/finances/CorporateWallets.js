@@ -3,8 +3,8 @@
  * Displays and manages corporate wallets for organizations the user administers
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import {
   Building2, Wallet, Coins, Plus, Send, ArrowUpRight, ArrowDownLeft,
   ChevronRight, RefreshCw, X, AlertCircle, CheckCircle, Users, Clock
 } from 'lucide-react';

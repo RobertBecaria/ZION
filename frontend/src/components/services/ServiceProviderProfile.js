@@ -3,8 +3,8 @@
  * Detailed view of a service provider's profile
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import {
   ArrowLeft, Star, MapPin, Phone, Mail, Globe, Clock,
   Calendar, MessageCircle, Share2, Heart, ChevronRight, Coins, Wallet, CheckCircle, X, AlertCircle
 } from 'lucide-react';
