@@ -63,11 +63,12 @@ async def send_email(to_email: str, subject: str, html_content: str, text_conten
                 use_tls=SMTP_USE_TLS,
             )
         else:
-            # Local Postfix (no auth needed)
+            # Local Postfix (no auth needed, no TLS for internal connection)
             await aiosmtplib.send(
                 message,
                 hostname=SMTP_HOST,
                 port=SMTP_PORT,
+                start_tls=False,
             )
 
         logger.info(f"Email sent successfully to {to_email}: {subject}")
