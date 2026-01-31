@@ -6001,8 +6001,11 @@ async def invite_family_member(
     if existing_invitation:
         raise HTTPException(status_code=400, detail="Invitation already sent to this email")
     
-    # Check if user already exists in system
-    invited_user = await db.users.find_one({"email": invitation_data.invited_user_email})
+    # Check if user already exists in system (case-insensitive email lookup)
+    invited_email_lower = invitation_data.invited_user_email.lower().strip()
+    invited_user = await db.users.find_one({
+        "email": {"$regex": f"^{re.escape(invited_email_lower)}$", "$options": "i"}
+    })
     invited_user_id = invited_user["id"] if invited_user else None
     
     # Create invitation
@@ -9938,9 +9941,12 @@ async def add_work_member(
                 detail="You don't have permission to add members"
             )
         
-        # Find user by email
-        target_user = await db.users.find_one({"email": member_data.user_email})
-        
+        # Find user by email (case-insensitive)
+        user_email_lower = member_data.user_email.lower().strip()
+        target_user = await db.users.find_one({
+            "email": {"$regex": f"^{re.escape(user_email_lower)}$", "$options": "i"}
+        })
+
         if not target_user:
             raise HTTPException(
                 status_code=404,
