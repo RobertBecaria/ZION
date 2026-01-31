@@ -1,0 +1,35 @@
+# Postfix configuration for zioncity.app
+# Basic settings
+smtpd_banner = $myhostname ESMTP
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+compatibility_level = 3.6
+
+# TLS parameters
+smtpd_tls_cert_file = /etc/letsencrypt/live/zioncity.app/fullchain.pem
+smtpd_tls_key_file = /etc/letsencrypt/live/zioncity.app/privkey.pem
+smtpd_tls_security_level = may
+smtp_tls_security_level = may
+smtp_tls_CApath = /etc/ssl/certs
+
+# Network settings
+myhostname = mail.zioncity.app
+mydomain = zioncity.app
+myorigin = $mydomain
+mydestination = localhost
+relayhost =
+mynetworks = 127.0.0.0/8 172.28.0.0/16
+inet_interfaces = all
+inet_protocols = ipv4
+
+# Mailbox settings
+mailbox_size_limit = 0
+recipient_delimiter = +
+home_mailbox = Maildir/
+
+# DKIM milter
+milter_protocol = 6
+milter_default_action = accept
+smtpd_milters = inet:localhost:8891
+non_smtpd_milters = inet:localhost:8891

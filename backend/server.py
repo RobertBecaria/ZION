@@ -26,6 +26,10 @@ import base64
 from functools import lru_cache
 from contextlib import asynccontextmanager
 import time
+import secrets
+
+# Email service
+from email_service import send_verification_email, send_password_reset_email, send_invitation_email
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -4089,6 +4093,168 @@ async def login_user(login_data: UserLogin):
     )
     
     return Token(access_token=access_token, token_type="bearer", user=user_response)
+
+
+# Password Reset Request
+class PasswordResetRequest(BaseModel):
+    email: EmailStr
+
+
+class PasswordResetConfirm(BaseModel):
+    token: str
+    new_password: str = Field(..., min_length=6)
+
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(request: PasswordResetRequest):
+    """Request a password reset email."""
+    # Find user by email (case-insensitive)
+    email_lower = request.email.lower().strip()
+    user = await db.users.find_one({
+        "email": {"$regex": f"^{re.escape(email_lower)}$", "$options": "i"}
+    })
+
+    # Always return success to prevent email enumeration
+    if not user:
+        logger.info(f"Password reset requested for non-existent email: {email_lower}")
+        return {"message": "If this email exists, a password reset link has been sent."}
+
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
+
+    # Store token in database
+    await db.password_reset_tokens.delete_many({"user_id": user["id"]})  # Remove old tokens
+    await db.password_reset_tokens.insert_one({
+        "token": reset_token,
+        "user_id": user["id"],
+        "email": user["email"],
+        "expires_at": expires_at,
+        "created_at": datetime.now(timezone.utc),
+        "used": False
+    })
+
+    # Send email
+    user_name = user.get("first_name", "User")
+    email_sent = await send_password_reset_email(user["email"], user_name, reset_token)
+
+    if not email_sent:
+        logger.error(f"Failed to send password reset email to {user['email']}")
+
+    return {"message": "If this email exists, a password reset link has been sent."}
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(request: PasswordResetConfirm):
+    """Reset password using the token from email."""
+    # Find valid token
+    token_doc = await db.password_reset_tokens.find_one({
+        "token": request.token,
+        "used": False,
+        "expires_at": {"$gt": datetime.now(timezone.utc)}
+    })
+
+    if not token_doc:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired reset token"
+        )
+
+    # Hash new password
+    hashed_password = get_password_hash(request.new_password)
+
+    # Update user password
+    result = await db.users.update_one(
+        {"id": token_doc["user_id"]},
+        {"$set": {"password_hash": hashed_password}}
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to update password")
+
+    # Mark token as used
+    await db.password_reset_tokens.update_one(
+        {"token": request.token},
+        {"$set": {"used": True}}
+    )
+
+    logger.info(f"Password reset successful for user: {token_doc['user_id']}")
+    return {"message": "Password has been reset successfully"}
+
+
+# Email Verification
+class EmailVerificationRequest(BaseModel):
+    token: str
+
+
+@api_router.post("/auth/verify-email")
+async def verify_email(request: EmailVerificationRequest):
+    """Verify user email using token."""
+    # Find valid token
+    token_doc = await db.email_verification_tokens.find_one({
+        "token": request.token,
+        "used": False,
+        "expires_at": {"$gt": datetime.now(timezone.utc)}
+    })
+
+    if not token_doc:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or expired verification token"
+        )
+
+    # Update user as verified
+    result = await db.users.update_one(
+        {"id": token_doc["user_id"]},
+        {"$set": {"is_verified": True, "email_verified_at": datetime.now(timezone.utc)}}
+    )
+
+    if result.modified_count == 0:
+        raise HTTPException(status_code=400, detail="Failed to verify email")
+
+    # Mark token as used
+    await db.email_verification_tokens.update_one(
+        {"token": request.token},
+        {"$set": {"used": True}}
+    )
+
+    logger.info(f"Email verified for user: {token_doc['user_id']}")
+    return {"message": "Email verified successfully"}
+
+
+@api_router.post("/auth/resend-verification")
+async def resend_verification_email(current_user: User = Depends(get_current_user)):
+    """Resend email verification link."""
+    if current_user.is_verified:
+        return {"message": "Email is already verified"}
+
+    # Generate new verification token
+    verification_token = secrets.token_urlsafe(32)
+    expires_at = datetime.now(timezone.utc) + timedelta(hours=24)
+
+    # Store token
+    await db.email_verification_tokens.delete_many({"user_id": current_user.id})
+    await db.email_verification_tokens.insert_one({
+        "token": verification_token,
+        "user_id": current_user.id,
+        "email": current_user.email,
+        "expires_at": expires_at,
+        "created_at": datetime.now(timezone.utc),
+        "used": False
+    })
+
+    # Send email
+    email_sent = await send_verification_email(
+        current_user.email,
+        current_user.first_name or "User",
+        verification_token
+    )
+
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+
+    return {"message": "Verification email sent"}
+
 
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_current_user_profile(current_user: User = Depends(get_current_user)):
