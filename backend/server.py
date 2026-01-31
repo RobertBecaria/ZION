@@ -239,6 +239,21 @@ async def ensure_indexes():
         await db.chat_messages.create_index([("group_id", 1), ("created_at", -1)], background=True)
         await db.notifications.create_index([("user_id", 1), ("read", 1), ("created_at", -1)], background=True)
 
+        # News feed performance indexes
+        await db.user_friendships.create_index([("user1_id", 1)], background=True)
+        await db.user_friendships.create_index([("user2_id", 1)], background=True)
+        await db.user_friendships.create_index([("user1_id", 1), ("user2_id", 1)], unique=True, background=True)
+        await db.user_follows.create_index([("follower_id", 1)], background=True)
+        await db.user_follows.create_index([("target_id", 1)], background=True)
+        await db.user_follows.create_index([("follower_id", 1), ("target_id", 1)], unique=True, background=True)
+        await db.channel_subscriptions.create_index([("subscriber_id", 1)], background=True)
+        await db.channel_subscriptions.create_index([("channel_id", 1)], background=True)
+        await db.news_posts.create_index([("created_at", -1)], background=True)
+        await db.news_posts.create_index([("user_id", 1), ("created_at", -1)], background=True)
+        await db.news_posts.create_index([("channel_id", 1), ("created_at", -1)], background=True)
+        await db.news_posts.create_index([("visibility", 1), ("user_id", 1), ("created_at", -1)], background=True)
+        await db.news_post_likes.create_index([("post_id", 1), ("user_id", 1)], unique=True, background=True)
+
         logger.info("✅ Database indexes verified")
     except Exception as e:
         logger.warning(f"Index creation warning: {e}")
@@ -18882,35 +18897,43 @@ async def get_news_feed(
     current_user: User = Depends(get_current_user)
 ):
     """Get personalized news feed - only posts from your network (friends, following, subscribed channels)"""
-    
-    # Get user's friends
-    friendships = await db.user_friendships.find({
+
+    # PARALLEL LOAD: Fetch friendships, follows, and subscriptions concurrently
+    friendships_task = db.user_friendships.find({
         "$or": [
             {"user1_id": current_user.id},
             {"user2_id": current_user.id}
         ]
     }).to_list(1000)
-    
+
+    following_task = db.user_follows.find({
+        "follower_id": current_user.id
+    }).to_list(1000)
+
+    subscriptions_task = db.channel_subscriptions.find({
+        "subscriber_id": current_user.id
+    }).to_list(1000)
+
+    # Execute all three queries in parallel
+    friendships, following, subscriptions = await asyncio.gather(
+        friendships_task, following_task, subscriptions_task
+    )
+
+    # Process friendships
     friend_ids = set()
     for f in friendships:
         if f["user1_id"] == current_user.id:
             friend_ids.add(f["user2_id"])
         else:
             friend_ids.add(f["user1_id"])
-    
-    # Get users I'm following
-    following = await db.user_follows.find({
-        "follower_id": current_user.id
-    }).to_list(1000)
+
+    # Process follows
     following_ids = {f["target_id"] for f in following}
-    
+
     # Combined network: friends + people I follow
     network_ids = friend_ids | following_ids
-    
-    # Get subscribed channels
-    subscriptions = await db.channel_subscriptions.find({
-        "subscriber_id": current_user.id
-    }).to_list(1000)
+
+    # Process subscriptions
     subscribed_channel_ids = [s["channel_id"] for s in subscriptions]
     
     # Build query for posts from MY NETWORK only
@@ -18953,33 +18976,51 @@ async def get_news_feed(
         query,
         {"_id": 0}
     ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    
-    # Enrich posts with author info
+
+    # BATCH LOAD: Collect all unique IDs first
+    author_ids = list(set(post["user_id"] for post in posts))
+    channel_ids = list(set(post["channel_id"] for post in posts if post.get("channel_id")))
+    post_ids = [post["id"] for post in posts]
+
+    # Batch load authors (single query instead of N queries)
+    authors_list = await db.users.find(
+        {"id": {"$in": author_ids}},
+        {"_id": 0, "id": 1, "first_name": 1, "last_name": 1, "profile_picture": 1}
+    ).to_list(len(author_ids))
+    authors_map = {a["id"]: a for a in authors_list}
+
+    # Batch load channels (single query instead of N queries)
+    channels_map = {}
+    if channel_ids:
+        channels_list = await db.news_channels.find(
+            {"id": {"$in": channel_ids}},
+            {"_id": 0, "id": 1, "name": 1, "avatar_url": 1, "is_verified": 1}
+        ).to_list(len(channel_ids))
+        channels_map = {c["id"]: c for c in channels_list}
+
+    # Batch load likes (single query instead of N queries)
+    liked_posts = await db.news_post_likes.find({
+        "post_id": {"$in": post_ids},
+        "user_id": current_user.id
+    }).to_list(len(post_ids))
+    liked_post_ids = set(lp["post_id"] for lp in liked_posts)
+
+    # Enrich posts with batch-loaded data
     for post in posts:
-        author = await db.users.find_one(
-            {"id": post["user_id"]},
-            {"_id": 0, "password_hash": 0}
-        )
+        author = authors_map.get(post["user_id"])
         post["author"] = {
             "id": author["id"] if author else None,
             "first_name": author.get("first_name") if author else None,
             "last_name": author.get("last_name") if author else None,
             "profile_picture": author.get("profile_picture") if author else None
         }
-        
+
         # Add channel info if applicable
         if post.get("channel_id"):
-            channel = await db.news_channels.find_one(
-                {"id": post["channel_id"]},
-                {"_id": 0, "name": 1, "avatar_url": 1, "is_verified": 1}
-            )
-            post["channel"] = channel
-        
+            post["channel"] = channels_map.get(post["channel_id"])
+
         # Check if current user liked this post
-        liked = await db.news_post_likes.find_one({
-            "post_id": post["id"],
-            "user_id": current_user.id
-        })
+        liked = post["id"] in liked_post_ids
         post["is_liked"] = liked is not None
     
     total = await db.news_posts.count_documents(query)
@@ -19081,16 +19122,66 @@ async def get_user_news_posts(
         query,
         {"_id": 0}
     ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
-    
-    # Enrich posts
+
+    # Batch load likes (single query instead of N queries)
+    post_ids = [post["id"] for post in posts]
+    liked_posts = await db.news_post_likes.find({
+        "post_id": {"$in": post_ids},
+        "user_id": current_user.id
+    }).to_list(len(post_ids))
+    liked_post_ids = set(lp["post_id"] for lp in liked_posts)
+
+    # Enrich posts with batch-loaded data
     for post in posts:
-        liked = await db.news_post_likes.find_one({
-            "post_id": post["id"],
-            "user_id": current_user.id
-        })
-        post["is_liked"] = liked is not None
-    
-    return {"posts": posts}
+        post["is_liked"] = post["id"] in liked_post_ids
+
+    total = await db.news_posts.count_documents(query)
+
+    return {
+        "posts": posts,
+        "total": total,
+        "has_more": offset + limit < total
+    }
+
+@api_router.get("/news/posts/user/{user_id}/public")
+async def get_user_public_posts(
+    user_id: str,
+    limit: int = 20,
+    offset: int = 0,
+    current_user: User = Depends(get_current_user)
+):
+    """Get only PUBLIC posts from a user (for profile display to anyone)"""
+
+    query = {
+        "user_id": user_id,
+        "is_active": True,
+        "channel_id": None,
+        "visibility": "PUBLIC"
+    }
+
+    posts = await db.news_posts.find(
+        query,
+        {"_id": 0}
+    ).sort("created_at", -1).skip(offset).limit(limit).to_list(limit)
+
+    # Batch load likes
+    post_ids = [post["id"] for post in posts]
+    liked_posts = await db.news_post_likes.find({
+        "post_id": {"$in": post_ids},
+        "user_id": current_user.id
+    }).to_list(len(post_ids))
+    liked_post_ids = set(lp["post_id"] for lp in liked_posts)
+
+    for post in posts:
+        post["is_liked"] = post["id"] in liked_post_ids
+
+    total = await db.news_posts.count_documents(query)
+
+    return {
+        "posts": posts,
+        "total": total,
+        "has_more": offset + limit < total
+    }
 
 @api_router.post("/news/posts/{post_id}/like")
 async def like_news_post(

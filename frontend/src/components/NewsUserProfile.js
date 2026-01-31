@@ -11,8 +11,8 @@ import {
   MapPin, Briefcase, GraduationCap, Mail, Clock
 } from 'lucide-react';
 
-const NewsUserProfile = ({ 
-  userId, 
+const NewsUserProfile = ({
+  userId,
   user: currentUser,
   moduleColor = "#1D4ED8",
   onBack,
@@ -23,13 +23,16 @@ const NewsUserProfile = ({
   const [error, setError] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [posts, setPosts] = useState([]);
+  const [publicPosts, setPublicPosts] = useState([]);
   const [events, setEvents] = useState([]);
+  const [activeTab, setActiveTab] = useState('all'); // 'all' or 'public'
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (userId) {
       fetchUserProfile();
       fetchUserPosts();
+      fetchPublicPosts();
       fetchUserEvents();
     }
   }, [userId]);
@@ -59,7 +62,7 @@ const NewsUserProfile = ({
   const fetchUserPosts = async () => {
     try {
       const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/news/posts?user_id=${userId}&limit=10`, {
+      const response = await fetch(`${BACKEND_URL}/api/news/posts/user/${userId}?limit=10`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
@@ -69,6 +72,22 @@ const NewsUserProfile = ({
       }
     } catch (err) {
       console.error('Error fetching posts:', err);
+    }
+  };
+
+  const fetchPublicPosts = async () => {
+    try {
+      const token = localStorage.getItem('zion_token');
+      const response = await fetch(`${BACKEND_URL}/api/news/posts/user/${userId}/public?limit=10`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPublicPosts(data.posts || []);
+      }
+    } catch (err) {
+      console.error('Error fetching public posts:', err);
     }
   };
 
@@ -338,17 +357,39 @@ const NewsUserProfile = ({
         </div>
       )}
 
-      {/* User's Posts */}
-      {posts.length > 0 && (
-        <div className="profile-section">
+      {/* User's Posts Section with Tabs */}
+      <div className="profile-section">
+        <div className="posts-header">
           <h3>
             <FileText size={18} />
             Публикации
           </h3>
+          <div className="posts-tabs">
+            <button
+              className={`tab-btn ${activeTab === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveTab('all')}
+              style={activeTab === 'all' ? { backgroundColor: moduleColor, color: 'white' } : {}}
+            >
+              Все ({posts.length})
+            </button>
+            <button
+              className={`tab-btn ${activeTab === 'public' ? 'active' : ''}`}
+              onClick={() => setActiveTab('public')}
+              style={activeTab === 'public' ? { backgroundColor: moduleColor, color: 'white' } : {}}
+            >
+              🌐 Публичные ({publicPosts.length})
+            </button>
+          </div>
+        </div>
+
+        {activeTab === 'all' && posts.length > 0 && (
           <div className="profile-posts-list">
             {posts.map(post => (
               <div key={post.id} className="profile-post-item">
-                <p className="post-content">{post.content.substring(0, 150)}...</p>
+                <div className="post-visibility-badge" style={{ color: post.visibility === 'PUBLIC' ? '#10B981' : '#6B7280' }}>
+                  {post.visibility === 'PUBLIC' ? '🌐 Публичный' : post.visibility === 'FRIENDS_ONLY' ? '👥 Для друзей' : '👤 Для подписчиков'}
+                </div>
+                <p className="post-content">{post.content?.substring(0, 150)}{post.content?.length > 150 ? '...' : ''}</p>
                 <div className="post-meta">
                   <span>{formatDate(post.created_at)}</span>
                   <span>❤️ {post.likes_count || 0}</span>
@@ -356,11 +397,44 @@ const NewsUserProfile = ({
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+
+        {activeTab === 'public' && publicPosts.length > 0 && (
+          <div className="profile-posts-list">
+            <p className="public-posts-note" style={{ color: '#6B7280', fontSize: '13px', marginBottom: '12px' }}>
+              Эти записи видны всем посетителям вашего профиля
+            </p>
+            {publicPosts.map(post => (
+              <div key={post.id} className="profile-post-item">
+                <p className="post-content">{post.content?.substring(0, 150)}{post.content?.length > 150 ? '...' : ''}</p>
+                <div className="post-meta">
+                  <span>{formatDate(post.created_at)}</span>
+                  <span>❤️ {post.likes_count || 0}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {activeTab === 'public' && publicPosts.length === 0 && (
+          <div className="profile-empty-posts">
+            <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>
+              Нет публичных записей. Публичные записи видны всем посетителям профиля.
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'all' && posts.length === 0 && (
+          <div className="profile-empty-posts">
+            <p style={{ color: '#9CA3AF', textAlign: 'center', padding: '20px' }}>
+              Пока нет записей
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Empty State */}
-      {posts.length === 0 && events.length === 0 && (
+      {posts.length === 0 && publicPosts.length === 0 && events.length === 0 && (
         <div className="profile-empty">
           <FileText size={32} />
           <p>Пока нет публикаций</p>
