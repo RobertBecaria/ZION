@@ -8,7 +8,7 @@ import { useAuth } from './AuthContext';
 
 const BACKGROUND_IMAGE = 'https://customer-assets.emergentagent.com/job_19d0102c-736b-4d98-ac03-8c99eb900d4d/artifacts/vql02g0g_China2%20%281%29.jpg';
 
-function LoginForm({ onSwitchToRegister }) {
+function LoginForm({ onSwitchToRegister, onForgotPassword }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -99,11 +99,30 @@ function LoginForm({ onSwitchToRegister }) {
             </div>
           </div>
           
+          {onForgotPassword && (
+            <div style={{ textAlign: 'right', marginTop: '-10px', marginBottom: '10px' }}>
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#a5b4fc',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                Забыли пароль?
+              </button>
+            </div>
+          )}
+
           {error && <div className="error-message">{error}</div>}
-          
-          <button 
-            type="submit" 
-            className="auth-button" 
+
+          <button
+            type="submit"
+            className="auth-button"
             disabled={loading}
             style={{
               background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)',
@@ -113,7 +132,7 @@ function LoginForm({ onSwitchToRegister }) {
             {loading ? 'Входим...' : <><LogIn size={20} /> Войти</>}
           </button>
         </form>
-        
+
         <div className="auth-switch">
           <p style={{ color: '#94a3b8' }}>Нет аккаунта? <button onClick={onSwitchToRegister} style={{ color: '#a5b4fc' }}>Зарегистрироваться</button></p>
         </div>

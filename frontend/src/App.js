@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import './App.css';
 // Auth Components
-import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard } from './components/auth';
+import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard, ForgotPassword, ResetPassword } from './components/auth';
 // Layout Components
 import { ModuleNavigation, LeftSidebar, RightSidebar } from './components/layout';
 // Admin Components
@@ -733,6 +733,7 @@ function Dashboard() {
 // Main App Component
 function App() {
   const [authMode, setAuthMode] = useState('login');
+  const [resetToken, setResetToken] = useState(null);
   const [isAdminRoute, setIsAdminRoute] = useState(false);
 
   useEffect(() => {
@@ -743,10 +744,25 @@ function App() {
     };
 
     checkAdminRoute();
-    
+
+    // Check for password reset token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const path = window.location.pathname;
+
+    if (path === '/reset-password' && token) {
+      setResetToken(token);
+      setAuthMode('resetPassword');
+      // Clean up URL
+      window.history.replaceState({}, document.title, '/reset-password');
+    } else if (path === '/verify-email' && token) {
+      // Handle email verification - could add verification component later
+      setAuthMode('login');
+    }
+
     // Listen for popstate events (browser back/forward)
     window.addEventListener('popstate', checkAdminRoute);
-    
+
     return () => {
       window.removeEventListener('popstate', checkAdminRoute);
     };
@@ -765,15 +781,29 @@ function App() {
     <ErrorBoundary>
       <AuthProvider>
         <div className="App">
-          <AuthWrapper authMode={authMode} setAuthMode={setAuthMode} />
+          <AuthWrapper
+            authMode={authMode}
+            setAuthMode={setAuthMode}
+            resetToken={resetToken}
+            setResetToken={setResetToken}
+          />
         </div>
       </AuthProvider>
     </ErrorBoundary>
   );
 }
 
-function AuthWrapper({ authMode, setAuthMode }) {
+function AuthWrapper({ authMode, setAuthMode, resetToken, setResetToken }) {
   const { user, loading } = useAuth();
+
+  const handleBackToLogin = () => {
+    setAuthMode('login');
+    setResetToken(null);
+    // Clean up URL if on reset-password page
+    if (window.location.pathname === '/reset-password') {
+      window.history.replaceState({}, document.title, '/');
+    }
+  };
 
   if (loading) {
     return (
@@ -785,10 +815,34 @@ function AuthWrapper({ authMode, setAuthMode }) {
   }
 
   if (!user) {
+    // Password reset flow
+    if (authMode === 'resetPassword') {
+      return (
+        <ResetPassword
+          token={resetToken}
+          onBack={handleBackToLogin}
+          onSuccess={handleBackToLogin}
+        />
+      );
+    }
+
+    // Forgot password flow
+    if (authMode === 'forgotPassword') {
+      return <ForgotPassword onBack={handleBackToLogin} />;
+    }
+
+    // Registration
     if (authMode === 'register') {
       return <RegistrationForm onSwitchToLogin={() => setAuthMode('login')} />;
     }
-    return <LoginForm onSwitchToRegister={() => setAuthMode('register')} />;
+
+    // Default: Login
+    return (
+      <LoginForm
+        onSwitchToRegister={() => setAuthMode('register')}
+        onForgotPassword={() => setAuthMode('forgotPassword')}
+      />
+    );
   }
 
   return <Dashboard />;

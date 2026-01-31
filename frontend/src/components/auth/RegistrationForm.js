@@ -136,7 +136,7 @@ function RegistrationForm({ onSwitchToLogin }) {
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="+38 (067) 123-45-67"
+              placeholder="+7 (903) 123-45-67"
               style={inputStyle}
             />
           </div>
