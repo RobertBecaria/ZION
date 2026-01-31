@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Search, Building2, MapPin, Users, Globe, Lock, ArrowLeft, Filter, Check, Clock } from 'lucide-react';
 import { Industries, OrganizationTypes } from '../mock-work';
-import { BACKEND_URL } from '../config/api';
 
 const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   const [searchQuery, setSearchQuery] = useState('');

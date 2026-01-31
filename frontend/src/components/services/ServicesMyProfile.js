@@ -3,13 +3,13 @@
  * Provider dashboard for managing services and CRM
  */
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { 
   Plus, Edit2, Trash2, Eye, EyeOff, Calendar, Star,
   Building2, ChevronRight, Settings, BarChart2, Users,
   Clock, DollarSign, Loader2, AlertCircle
 } from 'lucide-react';
 import ServiceListingForm from './ServiceListingForm';
-import { BACKEND_URL } from '../../config/api';
 
 const ServicesMyProfile = ({
   user,

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { X, Save, Building2, Globe, Mail, MapPin, Image, AlertCircle, Check, Upload, Trash2, LogOut, Crown, UserCog, Clock, Sparkles } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
 import WorkTransferOwnershipModal from './WorkTransferOwnershipModal';
 import WorkMemberSettings from './WorkMemberSettings';
 import WorkChangeRequestsManager from './WorkChangeRequestsManager';
 import BusinessERICSettings from './BusinessERICSettings';
-import { BACKEND_URL } from '../config/api';
 
 const WorkOrganizationSettings = ({ organizationId, onClose, onSuccess, onLeaveOrganization, currentMembership }) => {
   const [organization, setOrganization] = useState(null);

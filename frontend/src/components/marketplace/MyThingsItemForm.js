@@ -3,9 +3,9 @@
  * Form to add or edit an inventory item
  */
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { ArrowLeft, Camera, X, Calendar } from 'lucide-react';
 
-import { BACKEND_URL } from '../../config/api';
 
 const CATEGORIES = [
   { value: 'smart_things', label: 'Умные Вещи', icon: '🔌' },

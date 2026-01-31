@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Calendar, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 
 function WorkCalendarWidget({ organizationId }) {

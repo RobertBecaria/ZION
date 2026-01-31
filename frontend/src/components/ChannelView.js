@@ -3,13 +3,13 @@
  * View a single channel with its posts and moderator management
  */
 import React, { useState, useEffect, useRef } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   ChevronLeft, Users, Check, Plus, Bell, BellOff, 
   Settings, Tv, Building2, Share2, UserPlus, X, Search,
   Shield, Trash2, Camera, Image, AlertTriangle, Copy, CheckCircle
 } from 'lucide-react';
 import NewsFeed from './NewsFeed';
-import { BACKEND_URL } from '../config/api';
 
 const ChannelView = ({ 
   channelId,

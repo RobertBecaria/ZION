@@ -3,8 +3,8 @@
  * Enhanced friend recommendation system with categories and filters
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   Users, UserPlus, Search, MapPin, Briefcase, GraduationCap,
   Heart, X, ChevronRight, Loader2, RefreshCw, Filter
 } from 'lucide-react';

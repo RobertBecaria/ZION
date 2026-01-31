@@ -3,8 +3,8 @@
  * Allows users to select photos/documents from their platform storage
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import { 
   X, Image, FileText, Search, Check, Loader2,
   FolderOpen, Calendar
 } from 'lucide-react';

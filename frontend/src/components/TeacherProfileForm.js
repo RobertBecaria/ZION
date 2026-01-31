@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   BookOpen, GraduationCap, Users, Award, CheckCircle, 
   X, ChevronDown, Search, User
 } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function TeacherProfileForm({ organizationId, onClose, onSave, moduleColor = '#ea580c' }) {
   const [loading, setLoading] = useState(true);

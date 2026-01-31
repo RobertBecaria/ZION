@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Send, MessageCircle } from 'lucide-react';
 
-import { BACKEND_URL } from '../../config/api';
 
 const EventChatTab = ({
   eventId,

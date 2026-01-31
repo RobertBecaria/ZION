@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Building2, Users, Edit3, Trash2, Plus, UserPlus, X } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function WorkDepartmentManager({ organizationId, onClose, moduleColor = '#C2410C' }) {
   console.log('WorkDepartmentManager loaded with organizationId:', organizationId);

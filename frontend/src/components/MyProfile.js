@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import {
 import { BACKEND_URL } from '../config/api';
+import {
   User, Mail, Phone, MapPin, Briefcase, Calendar, Heart,
   Building2, Users, Award, Settings, Eye, EyeOff, Globe,
   Lock, Shield, ChevronRight, Cake, Gift, TrendingUp

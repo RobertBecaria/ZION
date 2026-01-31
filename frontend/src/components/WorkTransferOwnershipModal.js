@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Crown, AlertTriangle, Check, ChevronDown } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { X, Crown, AlertTriangle, Check, ChevronDown } from 'lucide-react';
 
 const WorkTransferOwnershipModal = ({ organizationId, organizationName, currentOwnerId, onClose, onSuccess }) => {
   const [members, setMembers] = useState([]);

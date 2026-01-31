@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Building2, Users, MapPin, Globe, Mail, Calendar, Settings, UserPlus, Edit, Share2, Briefcase, ChevronRight, Crown, Bell, GraduationCap } from 'lucide-react';
 import WorkInviteMemberModal from './WorkInviteMemberModal';
 import WorkMemberManagement from './WorkMemberManagement';
@@ -9,7 +10,6 @@ import WorkNotificationBell from './WorkNotificationBell';
 import WorkEventsPanel from './WorkEventsPanel';
 import TeacherProfileForm from './TeacherProfileForm';
 import TeacherDirectory from './TeacherDirectory';
-import { BACKEND_URL } from '../config/api';
 
 const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSettings }) => {
   const [organization, setOrganization] = useState(null);

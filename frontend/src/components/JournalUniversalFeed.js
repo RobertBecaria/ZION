@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   Send, Plus, Heart, MessageCircle, User, Calendar, Trash2,
   Image, Paperclip, X, FileText, MoreHorizontal, Smile, ChevronDown, Bot, Check, Copy, Sparkles
 } from 'lucide-react';
 import ERICAnalyzeButton from './eric/ERICAnalyzeButton';
-import { BACKEND_URL } from '../config/api';
 
 const JournalUniversalFeed = ({ 
   currentUserId, 

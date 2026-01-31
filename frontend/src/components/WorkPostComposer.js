@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Send, X, Image, Paperclip, Bot, Check, Copy, Sparkles, FileText } from 'lucide-react';
 import ERICAnalyzeButton from './eric/ERICAnalyzeButton';
-import { BACKEND_URL } from '../config/api';
 
 const WorkPostComposer = ({ organizationId, organizationName, onPostCreated }) => {
   const [content, setContent] = useState('');

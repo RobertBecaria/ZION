@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Megaphone, Plus, Filter, AlertCircle, Info, ArrowLeft, X } from 'lucide-react';
 import WorkAnnouncementCard from './WorkAnnouncementCard';
 import WorkAnnouncementComposer from './WorkAnnouncementComposer';
-import { BACKEND_URL } from '../config/api';
 
 function WorkAnnouncementsList({ organizationId, onBack, currentUserId, moduleColor = '#C2410C' }) {
   const [announcements, setAnnouncements] = useState([]);

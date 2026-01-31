@@ -3,6 +3,7 @@
  * Main search and browse page for marketplace
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Search, Filter, Grid, List, Map as MapIcon, X, ChevronDown, Plus } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -10,7 +11,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import MarketplaceProductCard from './MarketplaceProductCard';
-import { BACKEND_URL } from '../../config/api';
 
 // Custom marker icon
 const productIcon = new L.Icon({

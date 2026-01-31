@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Megaphone, AlertCircle, Info, X, Building2, Users } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function WorkAnnouncementComposer({ organizationId, onClose, onSave, editingAnnouncement = null, moduleColor = '#C2410C' }) {
   const [departments, setDepartments] = useState([]);

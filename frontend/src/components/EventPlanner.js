@@ -12,6 +12,7 @@
  * - Students/Kids (Yellow events - Birthday parties)
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   Calendar, ChevronLeft, ChevronRight, Plus, X, Clock, MapPin,
   Users, Check, HelpCircle, XCircle, Gift, PartyPopper, Bell,
@@ -36,7 +37,6 @@ import UpcomingEventsSidebar from './EventPlanner/UpcomingEventsSidebar';
 
 // Import utility functions
 import { getEventTypeInfo, getCreatorRoleInfo, getCountdown as getCountdownUtil } from './EventPlanner/utils';
-import { BACKEND_URL } from '../config/api';
 
 const EventPlanner = ({ 
   organizationId, 

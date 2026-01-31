@@ -3,8 +3,8 @@
  * Displays aggregated metrics for business owners
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   BarChart3, Users, Calendar, Star, TrendingUp, 
   Loader2, AlertCircle, RefreshCw, ChevronDown
 } from 'lucide-react';

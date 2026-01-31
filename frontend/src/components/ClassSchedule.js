@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, User, MapPin, ChevronLeft } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { Calendar, Clock, User, MapPin, ChevronLeft } from 'lucide-react';
 
 const ClassSchedule = ({ selectedSchool, role, onBack }) => {
   const [schedules, setSchedules] = useState([]);

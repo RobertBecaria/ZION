@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Calendar, Users, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import GoodWillEventCard from './GoodWillEventCard';
 
-import { BACKEND_URL } from '../../config/api';
 
 const GoodWillMyEvents = ({ 
   token, 

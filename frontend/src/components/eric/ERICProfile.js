@@ -3,8 +3,8 @@
  * Full-featured interface for ERIC AI Assistant in THINGS module
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { 
 import { BACKEND_URL } from '../../config/api';
+import { 
   MessageCircle, Send, Loader2, Trash2, Sparkles, Settings,
   Shield, ChevronRight, ToggleLeft, ToggleRight, AlertCircle,
   Users, DollarSign, MapPin, Heart, ShoppingBag, Calendar

@@ -4,6 +4,7 @@
  * Uses shared wall components for post display and interactions
  */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { BACKEND_URL } from '../config/api';
 import {
   Users, Globe, Lock, UserCheck, Image, Link2,
   MessageCircle, Send, ChevronDown, X, Loader2,
@@ -11,7 +12,6 @@ import {
 } from 'lucide-react';
 import { PostItem } from './wall';
 import LightboxModal from './LightboxModal';
-import { BACKEND_URL } from '../config/api';
 
 // Visibility options specific to News feed
 const VISIBILITY_OPTIONS = [

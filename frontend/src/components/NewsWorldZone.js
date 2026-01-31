@@ -3,8 +3,8 @@
  * Right sidebar for News module with Friends, Followers, and social features
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   Users, UserPlus, UserCheck, Bell, Search, TrendingUp,
   MessageCircle, ChevronRight, Check, X, Clock
 } from 'lucide-react';

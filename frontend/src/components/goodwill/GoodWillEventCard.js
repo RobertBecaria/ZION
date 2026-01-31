@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { MapPin, Calendar, Users, Clock, Coins, Heart } from 'lucide-react';
 
-import { BACKEND_URL } from '../../config/api';
 
 const GoodWillEventCard = memo(({ 
   event, 

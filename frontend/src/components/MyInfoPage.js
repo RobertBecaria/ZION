@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   User, MapPin, Phone, Calendar, Heart, Edit2, Save, X, Lock, 
   AlertTriangle, Upload, Mail, Image as ImageIcon, CheckCircle2,
@@ -6,7 +7,6 @@ import {
 } from 'lucide-react';
 import HouseholdSection from './HouseholdSection';
 import ChildrenSection from './ChildrenSection';
-import { BACKEND_URL } from '../config/api';
 
 // Profile Completion Progress Bar Component
 const ProfileCompletionBar = ({ percentage, animate }) => {

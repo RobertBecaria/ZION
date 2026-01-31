@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, MapPin, Plus, Briefcase, Crown, Shield, ChevronRight } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { Building2, Users, MapPin, Plus, Briefcase, Crown, Shield, ChevronRight } from 'lucide-react';
 
 const WorkOrganizationList = ({ onOrgClick, onCreateNew, onJoinOrg, onExploreFeed }) => {
   const [organizations, setOrganizations] = useState([]);

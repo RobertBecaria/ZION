@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   Users, ArrowLeft, Search, Filter, GraduationCap,
   User, Mail, Phone, ChevronDown, X, Star, BookOpen
 } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 const StudentsList = ({ selectedSchool, role, onBack, moduleColor = '#6D28D9' }) => {
   const [students, setStudents] = useState([]);

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, Users, UserPlus, Search, Filter, LayoutGrid, List, ChevronLeft, Edit3, Trash2, MoreHorizontal, TrendingUp, Activity, Clock, Plus, X, UserMinus } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { Building2, Users, UserPlus, Search, Filter, LayoutGrid, List, ChevronLeft, Edit3, Trash2, MoreHorizontal, TrendingUp, Activity, Clock, Plus, X, UserMinus } from 'lucide-react';
 
 function WorkDepartmentManagementPage({ organizationId, onBack, moduleColor = '#C2410C' }) {
   const [departments, setDepartments] = useState([]);

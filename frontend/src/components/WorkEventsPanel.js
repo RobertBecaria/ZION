@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Calendar, Clock, MapPin, Users, Plus, X, Check, AlertCircle, Edit, Trash2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { ScrollArea } from './ui/scroll-area';
-import { BACKEND_URL } from '../config/api';
 const API = `${BACKEND_URL}/api`;
 
 const EVENT_TYPES = [

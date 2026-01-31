@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import {
   ArrowLeft, Calendar, MapPin, Users, Clock, Coins, Share2, Heart, User,
   CheckCircle, HelpCircle, XCircle, Star, MessageCircle, Image,
@@ -10,7 +11,6 @@ import EventReviewsTab from './EventReviewsTab';
 import EventPhotosTab from './EventPhotosTab';
 import EventChatTab from './EventChatTab';
 import EventPaymentModal from './EventPaymentModal';
-import { BACKEND_URL } from '../../config/api';
 
 const GoodWillEventDetail = ({ 
   eventId, 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Building2, Users, ChevronRight, Plus, TrendingUp } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function WorkDepartmentNavigator({ organizationId, activeDepartmentId, onDepartmentSelect, onCreateDepartment, moduleColor = '#C2410C', refreshTrigger = 0 }) {
   const [expanded, setExpanded] = useState(true);

@@ -8,6 +8,7 @@
  * - 'eric-open-with-query': Opens chat and sends a pre-filled query
  */
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import {
   MessageCircle, X, Send, Loader2, Minimize2, Maximize2,
   Trash2, Settings, ChevronLeft, Sparkles, Image, Paperclip, FolderOpen, Expand
@@ -15,7 +16,6 @@ import {
 import './ERICChatWidget.css';
 import MediaPicker from './MediaPicker';
 import ERICSearchCards from './ERICSearchCards';
-import { BACKEND_URL } from '../../config/api';
 
 const ERICChatWidget = ({ user, onOpenFullMode }) => {
   const [isOpen, setIsOpen] = useState(false);

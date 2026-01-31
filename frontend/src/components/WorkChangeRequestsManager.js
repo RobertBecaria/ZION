@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users, UserPlus } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users, UserPlus } from 'lucide-react';
 
 const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
   const API = `${BACKEND_URL}/api`;

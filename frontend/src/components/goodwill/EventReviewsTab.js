@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Star } from 'lucide-react';
 
-import { BACKEND_URL } from '../../config/api';
 
 const EventReviewsTab = ({
   eventId,

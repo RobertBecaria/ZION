@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { 
   GraduationCap, BookOpen, Users, Award, Search, Filter,
   Mail, Calendar, Star, ChevronDown, X
 } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 const TeacherDirectory = React.memo(function TeacherDirectory({ organizationId, moduleColor = '#ea580c', onEditProfile }) {
   const [teachers, setTeachers] = useState([]);

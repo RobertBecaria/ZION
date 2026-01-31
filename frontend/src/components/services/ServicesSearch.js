@@ -3,6 +3,7 @@
  * Main search and discovery page for services with OpenStreetMap integration
  */
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Search, Filter, MapPin, Grid, List, X, ChevronDown, Map as MapIcon, Navigation } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -11,7 +12,6 @@ import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
 import ServiceCard from './ServiceCard';
 import ServiceCategories from './ServiceCategories';
-import { BACKEND_URL } from '../../config/api';
 
 // Custom marker icon for services
 const serviceIcon = new L.Icon({

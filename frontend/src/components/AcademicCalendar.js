@@ -3,8 +3,8 @@
  * Calendar view for school events, holidays, and important dates
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   Calendar, ChevronLeft, ChevronRight, Plus, X, Clock, MapPin,
   Users
 } from 'lucide-react';

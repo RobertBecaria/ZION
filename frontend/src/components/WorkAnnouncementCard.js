@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Pin, AlertCircle, Info, Eye, ThumbsUp, Heart, Flame, MessageCircle, Edit3, Trash2, MoreHorizontal, Smile } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function WorkAnnouncementCard({ announcement, onEdit, onDelete, onPin, onReact, currentUserId, moduleColor = '#C2410C', organizationId }) {
   const [showMenu, setShowMenu] = useState(false);

@@ -3,8 +3,8 @@
  * Full friends management page with tabs for Friends, Followers, Following, and Requests
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   Users, UserPlus, UserCheck, UserMinus, Search, 
   MessageCircle, Check, X, Clock, ChevronLeft,
   UserX, Bell, BellOff

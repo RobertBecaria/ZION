@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { X, UserPlus, Mail, Briefcase, Users, Shield, AlertCircle } from 'lucide-react';
 import { WorkRoleTypes } from '../mock-work';
-import { BACKEND_URL } from '../config/api';
 
 const WorkInviteMemberModal = ({ organizationId, organizationName, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { AlertCircle, FileText } from 'lucide-react';
 import WorkPostComposer from './WorkPostComposer';
 import WorkPostCard from './WorkPostCard';
-import { BACKEND_URL } from '../config/api';
 
 const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin, canPost }) => {
   const [posts, setPosts] = useState([]);

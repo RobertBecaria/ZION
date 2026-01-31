@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Building2, Search, Plus, Globe, Lock, MapPin, Calendar, Users, Briefcase, Check, X } from 'lucide-react';
 import { OrganizationTypes, OrganizationSizes, Industries } from '../mock-work';
-import { BACKEND_URL } from '../config/api';
 
 const WorkSetupPage = ({ initialMode = 'choice', onBack, onComplete, onJoinRequest }) => {
   

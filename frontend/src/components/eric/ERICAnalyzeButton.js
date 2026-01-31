@@ -3,8 +3,8 @@
  * Add to any upload flow to enable contextual analysis with ERIC
  */
 import React, { useState } from 'react';
-import { Sparkles, Loader2 } from 'lucide-react';
 import { BACKEND_URL } from '../../config/api';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const ERICAnalyzeButton = ({ 
   file,          // File object or URL to analyze

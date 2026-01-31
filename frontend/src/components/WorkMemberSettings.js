@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { X, Save, Briefcase, Users, LogOut, UserCog, AlertCircle } from 'lucide-react';
 import WorkTeamManager from './WorkTeamManager';
-import { BACKEND_URL } from '../config/api';
 
 const WorkMemberSettings = ({ organizationId, currentMembership, onClose, onUpdate }) => {
   const API = `${BACKEND_URL}/api`;

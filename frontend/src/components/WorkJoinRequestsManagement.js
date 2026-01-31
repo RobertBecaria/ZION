@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, Clock, Check, X, MessageSquare, AlertCircle } from 'lucide-react';
 import { BACKEND_URL } from '../config/api';
+import { User, Mail, Clock, Check, X, MessageSquare, AlertCircle } from 'lucide-react';
 
 const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
   const [requests, setRequests] = useState([]);

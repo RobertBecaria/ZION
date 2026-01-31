@@ -4,9 +4,9 @@
  * Includes Analytics Dashboard tab
  */
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Sparkles, Check, AlertCircle, Loader2, Save, BarChart3, Settings } from 'lucide-react';
 import BusinessAnalyticsDashboard from './BusinessAnalyticsDashboard';
-import { BACKEND_URL } from '../config/api';
 
 const BusinessERICSettings = ({ organizationId, onSave }) => {
   const [activeTab, setActiveTab] = useState('analytics');

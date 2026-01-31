@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Edit2, Trash2, Shield, Crown, Check, X, AlertTriangle, ChevronDown } from 'lucide-react';
 import { WorkRoleTypes } from '../mock-work';
-import { BACKEND_URL } from '../config/api';
 
 const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, currentUserId, onUpdate, onRemove }) => {
   const [isEditing, setIsEditing] = useState(false);

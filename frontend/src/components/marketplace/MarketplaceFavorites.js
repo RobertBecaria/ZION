@@ -3,9 +3,9 @@
  * Shows user's favorite/wishlisted products
  */
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import { Heart, Trash2 } from 'lucide-react';
 import MarketplaceProductCard from './MarketplaceProductCard';
-import { BACKEND_URL } from '../../config/api';
 
 const MarketplaceFavorites = ({
   token,

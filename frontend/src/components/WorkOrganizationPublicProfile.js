@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { BACKEND_URL } from '../config/api';
 import { Building2, Users, MapPin, Globe, Calendar, UserPlus, Heart, ArrowLeft, Briefcase } from 'lucide-react';
 
-import { BACKEND_URL } from '../config/api';
 
 function WorkOrganizationPublicProfile({ organizationId, onBack, currentUserId, moduleColor = '#C2410C' }) {
   const [organization, setOrganization] = useState(null);

@@ -3,8 +3,8 @@
  * Modal for booking appointments with calendar view
  */
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, Clock, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
 import { BACKEND_URL } from '../../config/api';
+import { X, Calendar, Clock, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
 
 const DAYS_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 const MONTHS = [

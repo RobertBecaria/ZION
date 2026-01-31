@@ -4,8 +4,8 @@
  * Shows events from subscribed channels, friends, and personal events
  */
 import React, { useState, useEffect } from 'react';
-import { 
 import { BACKEND_URL } from '../config/api';
+import { 
   Plus, Calendar, Clock, X, Check, Bell, BellOff,
   Film, Video, Mic, Globe, Megaphone, MessageCircle,
   Users, ExternalLink, ChevronRight, Loader2, User

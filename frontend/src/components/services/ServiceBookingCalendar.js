@@ -3,11 +3,11 @@
  * FullCalendar-based booking system for service providers
  */
 import React, { useState, useEffect, useCallback } from 'react';
+import { BACKEND_URL } from '../../config/api';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { BACKEND_URL } from '../../config/api';
 import {
   Calendar, Clock, Check, X, ChevronLeft, ChevronRight,
   User, Phone, Mail, MessageCircle, Loader2, Settings,
