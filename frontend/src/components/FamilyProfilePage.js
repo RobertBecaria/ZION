@@ -1,8 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, MapPin, Calendar, Settings, UserPlus, MessageCircle, 
+import {
+  Users, MapPin, Calendar, Settings, UserPlus, MessageCircle,
   Heart, Image, FileText, Trophy, Briefcase, Camera, Share2, Edit3
 } from 'lucide-react';
+
+// Static lookup maps (moved outside component to avoid recreation on each render)
+const ROLE_NAMES = {
+  'CREATOR': 'Создатель',
+  'ADMIN': 'Администратор',
+  'ADULT_MEMBER': 'Член семьи',
+  'CHILD': 'Ребенок'
+};
+
+const CONTENT_TYPE_ICONS = {
+  'ANNOUNCEMENT': MessageCircle,
+  'PHOTO_ALBUM': Camera,
+  'EVENT': Calendar,
+  'MILESTONE': Trophy,
+  'BUSINESS_UPDATE': Briefcase
+};
+
+const CONTENT_TYPE_LABELS = {
+  'ANNOUNCEMENT': 'Объявление',
+  'PHOTO_ALBUM': 'Фотоальбом',
+  'EVENT': 'Событие',
+  'MILESTONE': 'Достижение',
+  'BUSINESS_UPDATE': 'Бизнес-новости'
+};
 
 const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) => {
   const [familyProfile, setFamilyProfile] = useState(null);
@@ -13,114 +37,56 @@ const FamilyProfilePage = ({ familyId, currentUser, onBack, onInviteMember }) =>
   const [isUserMember, setIsUserMember] = useState(false);
   const [userRole, setUserRole] = useState('');
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (familyId) {
-      fetchFamilyProfile();
-      fetchFamilyMembers();
-      fetchFamilyPosts();
-    }
+    if (!familyId) return;
+
+    // Fetch all family data in parallel
+    const fetchAllFamilyData = async () => {
+      const token = localStorage.getItem('zion_token');
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+      const headers = { 'Authorization': `Bearer ${token}` };
+
+      try {
+        const [profileRes, membersRes, postsRes] = await Promise.all([
+          fetch(`${backendUrl}/api/family-profiles/${familyId}`, { headers }),
+          fetch(`${backendUrl}/api/family-profiles/${familyId}/members`, { headers }),
+          fetch(`${backendUrl}/api/family-profiles/${familyId}/posts`, { headers })
+        ]);
+
+        if (profileRes.ok) {
+          const data = await profileRes.json();
+          setFamilyProfile(data);
+          setIsUserMember(data.is_user_member || false);
+          setUserRole(data.user_role || '');
+        }
+
+        if (membersRes.ok) {
+          const data = await membersRes.json();
+          setFamilyMembers(data.family_members || []);
+        }
+
+        if (postsRes.ok) {
+          const data = await postsRes.json();
+          setFamilyPosts(data.family_posts || []);
+        }
+      } catch (error) {
+        console.error('Error fetching family data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllFamilyData();
   }, [familyId]);
 
-  const fetchFamilyProfile = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-      
-      
-      const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFamilyProfile(data);
-        setIsUserMember(data.is_user_member || false);
-        setUserRole(data.user_role || '');
-      }
-    } catch (error) {
-      console.error('Error fetching family profile:', error);
-    }
-  };
-
-  const fetchFamilyMembers = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-      
-      
-      const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}/members`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFamilyMembers(data.family_members || []);
-      }
-    } catch (error) {
-      console.error('Error fetching family members:', error);
-    }
-  };
-
-  const fetchFamilyPosts = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
-      
-      
-      const response = await fetch(`${backendUrl}/api/family-profiles/${familyId}/posts`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFamilyPosts(data.family_posts || []);
-      }
-    } catch (error) {
-      console.error('Error fetching family posts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getRoleDisplayName = (role) => {
-    const roleNames = {
-      'CREATOR': 'Создатель',
-      'ADMIN': 'Администратор',
-      'ADULT_MEMBER': 'Член семьи',
-      'CHILD': 'Ребенок'
-    };
-    return roleNames[role] || role;
-  };
+  const getRoleDisplayName = (role) => ROLE_NAMES[role] || role;
 
   const getContentTypeIcon = (contentType) => {
-    const icons = {
-      'ANNOUNCEMENT': MessageCircle,
-      'PHOTO_ALBUM': Camera,
-      'EVENT': Calendar,
-      'MILESTONE': Trophy,
-      'BUSINESS_UPDATE': Briefcase
-    };
-    const IconComponent = icons[contentType] || MessageCircle;
+    const IconComponent = CONTENT_TYPE_ICONS[contentType] || MessageCircle;
     return <IconComponent className="w-4 h-4" />;
   };
 
-  const getContentTypeLabel = (contentType) => {
-    const labels = {
-      'ANNOUNCEMENT': 'Объявление',
-      'PHOTO_ALBUM': 'Фотоальбом',
-      'EVENT': 'Событие',
-      'MILESTONE': 'Достижение',
-      'BUSINESS_UPDATE': 'Бизнес-новости'
-    };
-    return labels[contentType] || contentType;
-  };
+  const getContentTypeLabel = (contentType) => CONTENT_TYPE_LABELS[contentType] || contentType;
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {

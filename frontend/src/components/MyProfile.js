@@ -14,49 +14,38 @@ function MyProfile({ user, activeModule, moduleColor }) {
   const [savingPrivacy, setSavingPrivacy] = useState(false);
 
   useEffect(() => {
-    fetchProfileData();
-    fetchPrivacySettings();
+    // Fetch profile and privacy settings in parallel
+    const fetchAllData = async () => {
+      const token = localStorage.getItem('zion_token');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+
+      try {
+        const [profileRes, privacyRes] = await Promise.all([
+          fetch(`${BACKEND_URL}/api/users/me/profile`, { headers }),
+          fetch(`${BACKEND_URL}/api/users/me/profile/privacy`, { headers })
+        ]);
+
+        if (profileRes.ok) {
+          const data = await profileRes.json();
+          setProfileData(data);
+        }
+
+        if (privacyRes.ok) {
+          const data = await privacyRes.json();
+          setPrivacySettings(data);
+        }
+      } catch (error) {
+        console.error('Error fetching profile data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAllData();
   }, []);
-
-  const fetchProfileData = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/users/me/profile`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setProfileData(data);
-      }
-    } catch (error) {
-      console.error('Error fetching profile:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPrivacySettings = async () => {
-    try {
-      const token = localStorage.getItem('zion_token');
-      const response = await fetch(`${BACKEND_URL}/api/users/me/profile/privacy`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setPrivacySettings(data);
-      }
-    } catch (error) {
-      console.error('Error fetching privacy settings:', error);
-    }
-  };
 
   const updatePrivacySetting = async (field, value) => {
     setSavingPrivacy(true);

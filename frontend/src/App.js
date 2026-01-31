@@ -277,7 +277,7 @@ function Dashboard() {
     }
   }, []);
 
-  // Fetch chat groups
+  // Fetch chat groups (stable callback - no activeGroup dependency to avoid circular updates)
   const fetchChatGroups = useCallback(async () => {
     setLoadingGroups(true);
     try {
@@ -289,26 +289,28 @@ function Dashboard() {
       if (response.ok) {
         const data = await response.json();
         setChatGroups(data.chat_groups || []);
-        
-        const familyGroup = data.chat_groups?.find(g => g.group.group_type === 'FAMILY');
-        if (familyGroup && !activeGroup) {
-          setActiveGroup(familyGroup);
-        }
+
+        // Use functional setState to avoid activeGroup dependency
+        setActiveGroup(prevGroup => {
+          if (prevGroup) return prevGroup; // Don't overwrite existing selection
+          const familyGroup = data.chat_groups?.find(g => g.group.group_type === 'FAMILY');
+          return familyGroup || prevGroup;
+        });
       }
     } catch (error) {
       console.error('Error fetching chat groups:', error);
     } finally {
       setLoadingGroups(false);
     }
-  }, [activeGroup]);
+  }, []); // No dependencies - stable reference
 
-  // Load chat groups and fetch media stats when dashboard loads
+  // Load chat groups and fetch media stats when user loads (only once)
   useEffect(() => {
     if (user) {
       fetchChatGroups();
       fetchMediaStats();
     }
-  }, [user, fetchChatGroups, fetchMediaStats]);
+  }, [user]); // Only user dependency - callbacks are now stable
 
   const handleGroupSelect = (groupData) => {
     setActiveGroup(groupData);

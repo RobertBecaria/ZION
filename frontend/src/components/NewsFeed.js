@@ -38,6 +38,13 @@ const VISIBILITY_OPTIONS = [
 // Common emojis for quick access
 const QUICK_EMOJIS = ['😀', '😂', '❤️', '👍', '🎉', '🔥', '✨', '🙌', '💪', '🤔', '👏', '💯'];
 
+// Static visibility options map for PostItem (avoids re-creation on every render)
+const VISIBILITY_OPTIONS_MAP = {
+  'PUBLIC': { icon: Globe, label: 'Публичный' },
+  'FRIENDS_AND_FOLLOWERS': { icon: UserCheck, label: 'Друзья и подписчики' },
+  'FRIENDS_ONLY': { icon: Users, label: 'Только друзья' }
+};
+
 const NewsFeed = ({ 
   user, 
   moduleColor = '#1D4ED8',
@@ -178,36 +185,35 @@ const NewsFeed = ({
 
   const uploadImages = async () => {
     if (selectedImages.length === 0) return [];
-    
+
     setUploadingImages(true);
-    const uploadedIds = [];
-    
+
     try {
       const token = localStorage.getItem('zion_token');
-      
-      for (const img of selectedImages) {
+
+      // Upload all images in parallel using Promise.all
+      const uploadPromises = selectedImages.map(img => {
         const formData = new FormData();
         formData.append('file', img.file);
         formData.append('source_module', 'community');
-        
-        const response = await fetch(`${BACKEND_URL}/api/media/upload`, {
+
+        return fetch(`${BACKEND_URL}/api/media/upload`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: formData
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          uploadedIds.push(data.id || data.file_id);
-        }
-      }
+        })
+          .then(response => response.ok ? response.json() : null)
+          .catch(() => null);
+      });
+
+      const results = await Promise.all(uploadPromises);
+      return results.filter(r => r).map(r => r.id || r.file_id);
     } catch (error) {
       console.error('Error uploading images:', error);
+      return [];
     } finally {
       setUploadingImages(false);
     }
-    
-    return uploadedIds;
   };
 
   const handleAddLink = async () => {
@@ -571,12 +577,16 @@ const NewsFeed = ({
         setPostComments(prev => {
           const updated = { ...prev };
           Object.keys(updated).forEach(postId => {
-            updated[postId] = updated[postId]?.filter(c => c.id !== commentId).map(c => {
-              if (c.replies) {
-                c.replies = c.replies.filter(r => r.id !== commentId);
+            // Single pass: filter and transform in one reduce
+            updated[postId] = updated[postId]?.reduce((acc, c) => {
+              if (c.id !== commentId) {
+                acc.push({
+                  ...c,
+                  replies: c.replies?.filter(r => r.id !== commentId)
+                });
               }
-              return c;
-            });
+              return acc;
+            }, []);
           });
           return updated;
         });
@@ -911,11 +921,7 @@ const NewsFeed = ({
                 onPostEdit={handleEdit}
                 onPostDelete={handleDelete}
                 formatDate={formatDate}
-                visibilityOptions={{
-                  'PUBLIC': { icon: Globe, label: 'Публичный' },
-                  'FRIENDS_AND_FOLLOWERS': { icon: UserCheck, label: 'Друзья и подписчики' },
-                  'FRIENDS_ONLY': { icon: Users, label: 'Только друзья' }
-                }}
+                visibilityOptions={VISIBILITY_OPTIONS_MAP}
               />
             ))}
             

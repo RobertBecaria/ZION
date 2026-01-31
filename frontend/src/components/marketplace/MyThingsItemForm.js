@@ -101,38 +101,43 @@ const MyThingsItemForm = ({
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
-    
+
     if (formData.images.length + files.length > 5) {
       alert('Максимум 5 изображений');
       return;
     }
-    
+
     setUploading(true);
-    
-    for (const file of files) {
-      try {
+
+    try {
+      // Upload all images in parallel using Promise.all
+      const uploadPromises = files.map(file => {
         const formDataUpload = new FormData();
         formDataUpload.append('file', file);
-        
-        const response = await fetch(`${BACKEND_URL}/api/media/upload?module=marketplace`, {
+
+        return fetch(`${BACKEND_URL}/api/media/upload?module=marketplace`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${token}` },
           body: formDataUpload
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setFormData(prev => ({
-            ...prev,
-            images: [...prev.images, data.url]
-          }));
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
+        })
+          .then(response => response.ok ? response.json() : null)
+          .catch(() => null);
+      });
+
+      const results = await Promise.all(uploadPromises);
+      const newUrls = results.filter(r => r).map(r => r.url);
+
+      if (newUrls.length > 0) {
+        setFormData(prev => ({
+          ...prev,
+          images: [...prev.images, ...newUrls]
+        }));
       }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    } finally {
+      setUploading(false);
     }
-    
-    setUploading(false);
   };
 
   const removeImage = (index) => {

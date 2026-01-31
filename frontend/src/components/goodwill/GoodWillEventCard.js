@@ -21,9 +21,17 @@ const GoodWillEventCard = memo(({
   };
 
   const getMinPrice = () => {
-    if (event.is_free) return null;
-    const prices = event.ticket_types?.map(t => t.altyn_price || t.price).filter(p => p > 0) || [];
-    return prices.length > 0 ? Math.min(...prices) : null;
+    if (event.is_free || !event.ticket_types?.length) return null;
+
+    // Single pass to find minimum price (avoids intermediate arrays)
+    let minPrice = null;
+    for (const ticket of event.ticket_types) {
+      const price = ticket.altyn_price || ticket.price;
+      if (price > 0 && (minPrice === null || price < minPrice)) {
+        minPrice = price;
+      }
+    }
+    return minPrice;
   };
 
   const minPrice = getMinPrice();

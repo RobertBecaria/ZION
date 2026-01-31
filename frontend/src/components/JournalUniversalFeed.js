@@ -49,62 +49,56 @@ const JournalUniversalFeed = ({
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
-      
-      // Get posts from all user's schools or filtered school
-      const allPosts = [];
-      
+
+      // Collect all fetch promises for parallel execution
+      const fetchPromises = [];
+
       if (schoolRoles) {
-        // Fetch from schools where user is teacher
+        // Create fetch promises for teacher schools
         if (schoolRoles.schools_as_teacher) {
-          for (const school of schoolRoles.schools_as_teacher) {
+          schoolRoles.schools_as_teacher.forEach(school => {
             if (schoolFilter === 'all' || schoolFilter === school.organization_id) {
               let url = `${BACKEND_URL}/api/journal/organizations/${school.organization_id}/posts`;
               if (externalAudienceFilter !== 'all') {
                 url += `?audience_filter=${externalAudienceFilter}`;
               }
-              
-              const response = await fetch(url, {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-              
-              if (response.ok) {
-                const data = await response.json();
-                allPosts.push(...data);
-              }
+
+              fetchPromises.push(
+                fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+                  .then(r => r.ok ? r.json() : [])
+                  .catch(() => [])
+              );
             }
-          }
+          });
         }
-        
-        // Fetch from schools where user is parent
+
+        // Create fetch promises for parent schools
         if (schoolRoles.schools_as_parent) {
-          for (const school of schoolRoles.schools_as_parent) {
+          schoolRoles.schools_as_parent.forEach(school => {
             if (schoolFilter === 'all' || schoolFilter === school.organization_id) {
               let url = `${BACKEND_URL}/api/journal/organizations/${school.organization_id}/posts`;
               if (externalAudienceFilter !== 'all') {
                 url += `?audience_filter=${externalAudienceFilter}`;
               }
-              
-              const response = await fetch(url, {
-                headers: {
-                  'Authorization': `Bearer ${token}`
-                }
-              });
-              
-              if (response.ok) {
-                const data = await response.json();
-                allPosts.push(...data);
-              }
+
+              fetchPromises.push(
+                fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+                  .then(r => r.ok ? r.json() : [])
+                  .catch(() => [])
+              );
             }
-          }
+          });
         }
       }
-      
+
+      // Execute all fetches in parallel
+      const results = await Promise.all(fetchPromises);
+      const allPosts = results.flat();
+
       // Remove duplicates and sort by date
       const uniquePosts = Array.from(new Map(allPosts.map(post => [post.post_id, post])).values());
       uniquePosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-      
+
       setPosts(uniquePosts);
     } catch (error) {
       console.error('Error fetching posts:', error);
