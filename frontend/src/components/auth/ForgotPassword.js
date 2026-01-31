@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
-import { BACKEND_URL } from '../../config';
+import { BACKEND_URL } from '../../config/api';
 
 const BACKGROUND_IMAGE = 'https://customer-assets.emergentagent.com/job_19d0102c-736b-4d98-ac03-8c99eb900d4d/artifacts/vql02g0g_China2%20%281%29.jpg';
 
