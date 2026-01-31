@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, X, Plus, Camera, Bot, Check, Copy, Sparkles } from 'lucide-react';
 import ERICAnalyzeButton from '../eric/ERICAnalyzeButton';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const MarketplaceListingForm = ({
   user,
@@ -64,7 +64,7 @@ const MarketplaceListingForm = ({
     const fetchOrganizations = async () => {
       if (!token) return;
       try {
-        const response = await fetch(`${BACKEND_URL}/api/organizations/my`, {
+        const response = await fetch(`${BACKEND_URL}/api/work/organizations`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
