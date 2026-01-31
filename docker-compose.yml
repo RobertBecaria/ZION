@@ -40,6 +40,12 @@ services:
       
       # Redis
       - REDIS_URL=redis://redis:6379
+
+      # Email (Postfix on host)
+      - SMTP_HOST=host.docker.internal
+      - SMTP_PORT=25
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./logs:/app/logs
       - ./backend/uploads:/app/backend/uploads
