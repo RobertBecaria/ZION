@@ -19,7 +19,7 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     setError(null);
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/posts`, {
@@ -49,7 +49,7 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
     if (!window.confirm('Вы уверены, что хотите удалить этот пост?')) return;
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}`, {
@@ -68,7 +68,7 @@ const WorkPostFeed = ({ organizationId, organizationName, currentUserId, isAdmin
 
   const handleLike = async (postId) => {
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/posts/${postId}/like`, {

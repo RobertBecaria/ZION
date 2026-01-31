@@ -13,7 +13,7 @@ import {
   Plus, Edit2, Trash2, CalendarDays
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const STATUS_COLORS = {
   PENDING: { bg: '#FEF3C7', border: '#F59E0B', text: '#92400E' },

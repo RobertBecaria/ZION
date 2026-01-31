@@ -275,7 +275,7 @@ const MyInfoPage = ({ user, moduleColor = '#059669', onProfileUpdate }) => {
   const [showDangerZone, setShowDangerZone] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   // Calculate profile completion percentage
   const profileCompletion = useMemo(() => {

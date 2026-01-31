@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Eye, EyeOff, Archive } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const STATUS_LABELS = {
   active: { label: 'Активно', color: '#10B981' },

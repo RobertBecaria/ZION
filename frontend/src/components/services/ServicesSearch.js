@@ -12,7 +12,7 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import ServiceCard from './ServiceCard';
 import ServiceCategories from './ServiceCategories';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 // Custom marker icon for services
 const serviceIcon = new L.Icon({

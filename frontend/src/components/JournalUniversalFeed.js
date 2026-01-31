@@ -29,7 +29,7 @@ const JournalUniversalFeed = ({
   const [analysisCopied, setAnalysisCopied] = useState(false);
   const fileInputRef = useRef(null);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
   const moduleColor = '#6D28D9'; // Purple for Journal
 
   const AUDIENCE_OPTIONS = [

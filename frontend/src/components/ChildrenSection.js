@@ -16,7 +16,7 @@ const ChildrenSection = ({ user, moduleColor = '#1E40AF' }) => {
     notes: ''
   });
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {

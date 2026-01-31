@@ -22,7 +22,7 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
     setHasSearched(true);
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/search`, {
@@ -55,7 +55,7 @@ const WorkSearchOrganizations = ({ onBack, onViewProfile, onJoinSuccess }) => {
   };
 
   const handleJoinOrganization = async (orgId, isPrivate) => {
-    const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+    import { BACKEND_URL } from '../config/api';
     const token = localStorage.getItem('zion_token');
 
     // Always send a join request (for both public and private organizations)

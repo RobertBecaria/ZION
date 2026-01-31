@@ -44,7 +44,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     setError(null);
     
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       if (!token) {
@@ -96,7 +96,7 @@ const WorkOrganizationProfile = ({ organizationId, onBack, onInviteMember, onSet
     if (!organizationId || !organization?.user_is_admin) return;
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       // Load join requests count

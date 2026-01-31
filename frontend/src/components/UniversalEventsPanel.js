@@ -62,7 +62,7 @@ function UniversalEventsPanel({
     requires_rsvp: false
   });
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   useEffect(() => {
     if (activeGroup) {

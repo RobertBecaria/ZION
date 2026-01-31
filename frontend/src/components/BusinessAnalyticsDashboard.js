@@ -15,7 +15,7 @@ const BusinessAnalyticsDashboard = ({ organizationId }) => {
   const [period, setPeriod] = useState('30d');
   const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   const periodOptions = [
     { value: '7d', label: 'За 7 дней' },

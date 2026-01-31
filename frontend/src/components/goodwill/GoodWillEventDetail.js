@@ -11,7 +11,7 @@ import EventPhotosTab from './EventPhotosTab';
 import EventChatTab from './EventChatTab';
 import EventPaymentModal from './EventPaymentModal';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const GoodWillEventDetail = ({ 
   eventId, 

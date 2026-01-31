@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Calendar, Users, Plus, Edit, Trash2, Eye } from 'lucide-react';
 import GoodWillEventCard from './GoodWillEventCard';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const GoodWillMyEvents = ({ 
   token, 

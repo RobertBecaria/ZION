@@ -21,7 +21,7 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setError(null);
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/join-requests`, {
@@ -49,7 +49,7 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setProcessingId(requestId);
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/${requestId}/approve`, {
@@ -88,7 +88,7 @@ const WorkJoinRequestsManagement = ({ organizationId, organizationName }) => {
     setProcessingId(rejectRequestId);
 
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/join-requests/${rejectRequestId}/reject`, {

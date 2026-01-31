@@ -4,7 +4,7 @@ import {
   MessageCircle, Users, Calendar, Sparkles, ExternalLink
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../config/api';
 
 const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
   const [notifications, setNotifications] = useState([]);

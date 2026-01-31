@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Calendar, MapPin, Clock, Coins, Plus, X, Globe, Image, Youtube, Users, RefreshCw } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const GoodWillEventForm = ({ 
   token, 

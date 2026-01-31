@@ -5,7 +5,7 @@ import {
   Lock, Shield, ChevronRight, Cake, Gift, TrendingUp
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../config/api';
 
 function MyProfile({ user, activeModule, moduleColor }) {
   const [profileData, setProfileData] = useState(null);

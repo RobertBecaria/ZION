@@ -8,7 +8,7 @@ import {
   Loader2, User, Calendar, Check, X, Edit2
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const ServicesReviews = ({
   serviceId,

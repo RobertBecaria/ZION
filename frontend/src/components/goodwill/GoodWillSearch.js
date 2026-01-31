@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, MapPin, Calendar, X, ChevronDown } from 'lucide-react';
 import GoodWillEventCard from './GoodWillEventCard';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const GoodWillSearch = ({ 
   token, 

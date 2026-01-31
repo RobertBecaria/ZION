@@ -8,7 +8,7 @@ import {
   ChevronRight, RefreshCw, X, AlertCircle, CheckCircle, Users, Clock
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const CorporateWallets = ({ user, moduleColor = '#A16207' }) => {
   const [corporateWallets, setCorporateWallets] = useState([]);

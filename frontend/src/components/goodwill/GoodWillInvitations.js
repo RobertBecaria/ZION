@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Calendar, MapPin, Check, X, User } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const GoodWillInvitations = ({ 
   token, 

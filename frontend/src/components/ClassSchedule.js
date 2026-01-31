@@ -9,7 +9,7 @@ const ClassSchedule = ({ selectedSchool, role, onBack }) => {
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   const DAYS = [
     { key: 'MONDAY', label: 'Понедельник' },

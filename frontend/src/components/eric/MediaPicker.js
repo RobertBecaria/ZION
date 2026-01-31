@@ -22,7 +22,7 @@ const MediaPicker = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // 'all', 'photos', 'documents'
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../../config/api';
 
   useEffect(() => {
     if (isOpen) {

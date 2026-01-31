@@ -8,7 +8,7 @@ import {
   Phone, Mail, Globe, Image, Tag, Loader2, Plus, X
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const DAYS_OF_WEEK = [
   { key: 'monday', label: 'Понедельник' },

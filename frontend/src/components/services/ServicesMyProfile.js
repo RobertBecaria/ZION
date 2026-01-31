@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import ServiceListingForm from './ServiceListingForm';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const ServicesMyProfile = ({
   user,

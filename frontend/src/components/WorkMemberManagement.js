@@ -21,7 +21,7 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleQuickAdminToggle = async () => {
     setQuickActionLoading(true);
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}/role`, {
@@ -50,7 +50,7 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleSave = async () => {
     setLoading(true);
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}/role`, {
@@ -80,7 +80,7 @@ const WorkMemberManagement = ({ member, organizationId, isCurrentUser, isOwner, 
   const handleDelete = async () => {
     setLoading(true);
     try {
-      const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+      import { BACKEND_URL } from '../config/api';
       const token = localStorage.getItem('zion_token');
 
       const response = await fetch(`${BACKEND_URL}/api/work/organizations/${organizationId}/members/${member.user_id}`, {

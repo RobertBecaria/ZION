@@ -48,7 +48,7 @@ const AcademicCalendar = ({ organizationId, schoolRoles, user }) => {
     audience_type: 'PUBLIC'
   });
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
   const moduleColor = '#6D28D9';
 
   // Check if user is a teacher (can create events)

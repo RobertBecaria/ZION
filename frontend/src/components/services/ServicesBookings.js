@@ -8,7 +8,7 @@ import {
   ChevronDown, Filter, Loader2, MessageCircle, AlertCircle
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../../config/api';
 
 const STATUS_LABELS = {
   PENDING: { label: 'Ожидает', color: '#f59e0b', bg: '#f59e0b15' },

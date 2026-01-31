@@ -4,7 +4,7 @@ import {
   User, Mail, Phone, ChevronDown, X, Star, BookOpen
 } from 'lucide-react';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../config/api';
 
 const StudentsList = ({ selectedSchool, role, onBack, moduleColor = '#6D28D9' }) => {
   const [students, setStudents] = useState([]);

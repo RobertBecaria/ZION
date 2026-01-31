@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Send, Users, Home, Globe, Image, Paperclip, X, Bot, Check, Copy, Sparkles, FileText } from 'lucide-react';
 import ERICAnalyzeButton from './eric/ERICAnalyzeButton';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+import { BACKEND_URL } from '../config/api';
 
 const FamilyPostComposer = ({ familyUnit, user, onPostCreated }) => {
   const [content, setContent] = useState('');

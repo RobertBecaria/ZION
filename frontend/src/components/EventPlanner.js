@@ -103,7 +103,7 @@ const EventPlanner = ({
     max_attendees: null
   });
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   // Determine user's role capabilities
   const isTeacher = schoolRoles?.is_teacher && 

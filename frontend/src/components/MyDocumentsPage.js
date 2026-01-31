@@ -20,7 +20,7 @@ const MyDocumentsPage = () => {
   const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   const documentTypes = [
     { value: 'PASSPORT', label: 'Паспорт (Внутренний)', icon: '🛂', color: '#DC2626' },

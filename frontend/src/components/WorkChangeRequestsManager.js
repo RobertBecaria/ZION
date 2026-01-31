@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, User, AlertCircle, Briefcase, Users, UserPlus } from 'lucide-react';
 
 const WorkChangeRequestsManager = ({ organizationId, onRequestHandled }) => {
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || import.meta.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
   const API = `${BACKEND_URL}/api`;
   
   const [loading, setLoading] = useState(false);

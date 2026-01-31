@@ -12,7 +12,7 @@ const StudentGradebook = ({ selectedSchool, role, onBack }) => {
   const [students, setStudents] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  import { BACKEND_URL } from '../config/api';
 
   const GRADE_TYPES = [
     { value: 'EXAM', label: 'Контрольная работа' },

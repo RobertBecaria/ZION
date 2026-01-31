@@ -3,7 +3,7 @@ import { X, Save, Briefcase, Users, LogOut, UserCog, AlertCircle } from 'lucide-
 import WorkTeamManager from './WorkTeamManager';
 
 const WorkMemberSettings = ({ organizationId, currentMembership, onClose, onUpdate }) => {
-  const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+  import { BACKEND_URL } from '../config/api';
   const API = `${BACKEND_URL}/api`;
   
   const [loading, setLoading] = useState(false);
