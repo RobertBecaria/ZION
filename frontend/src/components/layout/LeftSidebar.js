@@ -72,7 +72,15 @@ const LeftSidebar = ({
   );
 
   return (
-    <aside className="w-72 bg-white border-r border-gray-200 h-[calc(100vh-64px)] fixed left-0 top-16 overflow-y-auto">
+    <aside
+      className="left-sidebar w-72 h-[calc(100vh-64px)] fixed left-0 top-16 overflow-y-auto"
+      style={{
+        '--module-color': moduleColor,
+        '--module-tint': `${moduleColor}14`,
+        background: `linear-gradient(180deg, ${moduleColor}12 0%, rgba(255,255,255,0.85) 100%)`,
+        borderRight: '1px solid rgba(0,0,0,0.06)'
+      }}
+    >
       <div className="p-4">
         {/* User Profile Card */}
         <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 border border-gray-200">

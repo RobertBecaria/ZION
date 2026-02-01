@@ -76,10 +76,24 @@ const RightSidebar = ({
   const moduleColor = moduleData?.color || '#6B7280';
 
   return (
-    <aside className="w-80 bg-white border-l border-gray-200 h-[calc(100vh-64px)] fixed right-0 top-16 overflow-y-auto">
+    <aside
+      className="right-sidebar w-80 h-[calc(100vh-64px)] fixed right-0 top-16 overflow-y-auto"
+      style={{
+        '--module-color': moduleColor,
+        '--module-tint': `${moduleColor}14`,
+        background: `linear-gradient(180deg, ${moduleColor}12 0%, rgba(255,255,255,0.85) 100%)`,
+        borderLeft: '1px solid rgba(0,0,0,0.06)'
+      }}
+    >
       {/* Hide header for Chat view - it has its own */}
       {activeView !== 'chat' && (
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <div
+          className="sticky top-0 px-4 py-3 z-10 backdrop-blur-md"
+          style={{
+            background: `linear-gradient(180deg, ${moduleColor}08 0%, rgba(255,255,255,0.9) 100%)`,
+            borderBottom: '1px solid rgba(0,0,0,0.04)'
+          }}
+        >
           <div className="flex items-center gap-2">
             <Globe size={18} style={{ color: moduleColor }} />
             <h3 className="font-semibold text-gray-900">Мировая Зона</h3>

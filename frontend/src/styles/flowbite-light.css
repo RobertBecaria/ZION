@@ -573,6 +573,236 @@ body {
   padding: var(--space-md) !important;
 }
 
+/* Family World Zone Widgets */
+.family-world-zone {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-md) !important;
+}
+
+.family-world-zone .widget {
+  margin: 0 !important;
+  background: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+/* Search Widget */
+.search-widget .search-input {
+  width: 100% !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  border: none !important;
+  border-radius: var(--radius-md) !important;
+  background: var(--surface-sunken) !important;
+  box-shadow: var(--neu-shadow-inset) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.875rem !important;
+  color: var(--text-primary) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.search-widget .search-input:focus {
+  outline: none !important;
+  box-shadow: var(--neu-shadow-deep-inset), 0 0 0 2px var(--module-color, #10b981) !important;
+}
+
+.search-widget .search-input::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* Filter List Widget */
+.unified-filter-widget .filter-list,
+.filter-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.filter-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-sm) !important;
+  padding: var(--space-sm) var(--space-md) !important;
+  border-radius: var(--radius-sm) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.875rem !important;
+  color: var(--text-secondary) !important;
+}
+
+.filter-item:hover {
+  background: rgba(var(--module-rgb, 16, 185, 129), 0.08) !important;
+  color: var(--text-primary) !important;
+}
+
+.filter-item.active {
+  background: rgba(var(--module-rgb, 16, 185, 129), 0.12) !important;
+  color: var(--text-primary) !important;
+  font-weight: 500 !important;
+}
+
+.filter-item .filter-icon {
+  font-size: 1rem !important;
+  width: 20px !important;
+  text-align: center !important;
+}
+
+.filter-item .filter-label {
+  flex: 1 !important;
+}
+
+.filter-item .filter-check {
+  font-weight: 600 !important;
+}
+
+/* Quick Filter Buttons */
+.filters-widget .filter-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: var(--space-xs) !important;
+}
+
+.filter-btn {
+  padding: var(--space-xs) var(--space-md) !important;
+  border-radius: var(--radius-full) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  border: 1px solid var(--surface-sunken) !important;
+  background: var(--surface-raised) !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.filter-btn:hover {
+  border-color: var(--module-color, #10b981) !important;
+  color: var(--module-color, #10b981) !important;
+}
+
+.filter-btn.active {
+  background: var(--module-color, #10b981) !important;
+  border-color: var(--module-color, #10b981) !important;
+  color: white !important;
+}
+
+/* Friends Widget */
+.friends-widget .friends-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-sm) !important;
+}
+
+.friend-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-sm) !important;
+  padding: var(--space-xs) !important;
+  border-radius: var(--radius-md) !important;
+  transition: background var(--transition-fast) !important;
+}
+
+.friend-item:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.friend-avatar {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--radius-full) !important;
+  background: linear-gradient(135deg, var(--surface-sunken), var(--surface-raised)) !important;
+  box-shadow: var(--neu-shadow-subtle) !important;
+}
+
+.friend-name {
+  flex: 1 !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+}
+
+.online-indicator {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: var(--radius-full) !important;
+  background: #22c55e !important;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5) !important;
+}
+
+/* Hashtags Widget */
+.topics-widget .hashtags-list {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: var(--space-xs) !important;
+}
+
+.hashtag {
+  padding: var(--space-xs) var(--space-sm) !important;
+  border-radius: var(--radius-full) !important;
+  background: rgba(var(--module-rgb, 16, 185, 129), 0.1) !important;
+  color: var(--module-color, #10b981) !important;
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.hashtag:hover {
+  background: rgba(var(--module-rgb, 16, 185, 129), 0.2) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Affiliations Widget */
+.affiliations-widget .affiliations-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--space-sm) !important;
+}
+
+.affiliation-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-sm) !important;
+  padding: var(--space-xs) !important;
+  border-radius: var(--radius-md) !important;
+  transition: background var(--transition-fast) !important;
+}
+
+.affiliation-item:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+.affiliation-icon {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: var(--radius-md) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: var(--neu-shadow-subtle) !important;
+}
+
+.affiliation-info {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.affiliation-name {
+  font-family: var(--font-body) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--text-primary) !important;
+}
+
+.affiliation-role {
+  font-family: var(--font-body) !important;
+  font-size: 0.75rem !important;
+  color: var(--text-tertiary) !important;
+}
+
 /* ============================================
    11. CONTENT AREA - 12% Module Tint
    ============================================ */
