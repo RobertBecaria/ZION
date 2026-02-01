@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import './App.css';
 // Auth Components
 import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard, ForgotPassword, ResetPassword } from './components/auth';
@@ -35,12 +36,74 @@ const FinanceModuleContent = lazy(() => import('./pages/FinanceModuleContent'));
 const EventsModuleContent = lazy(() => import('./pages/EventsModuleContent'));
 const JournalModuleContent = lazy(() => import('./pages/JournalModuleContent'));
 
-// Loading fallback component
+// Page transition animation variants (2025 design trends)
+const pageVariants = {
+  initial: {
+    opacity: 0,
+    y: 20,
+    scale: 0.98
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.35,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.99,
+    transition: {
+      duration: 0.2,
+      ease: [0.4, 0, 1, 1]
+    }
+  }
+};
+
+// Module switch animation
+const moduleVariants = {
+  initial: {
+    opacity: 0,
+    scale: 0.95,
+    filter: 'blur(8px)'
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 1.02,
+    filter: 'blur(4px)',
+    transition: {
+      duration: 0.25
+    }
+  }
+};
+
+// Loading fallback component with animation
 const ModuleLoading = () => (
-  <div className="module-loading">
-    <div className="loading-spinner"></div>
+  <motion.div
+    className="module-loading"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+  >
+    <motion.div
+      className="loading-spinner"
+      animate={{ rotate: 360 }}
+      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+    />
     <p>Загрузка...</p>
-  </div>
+  </motion.div>
 );
 
 // Main Dashboard Component

@@ -1,9 +1,10 @@
 /**
  * LeftSidebar Component
  * Left sidebar with user profile and module-specific navigation
- * Redesigned with Flowbite styling
+ * Redesigned with Flowbite styling + Framer Motion animations (2025 design)
  */
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Newspaper, Heart, Briefcase, GraduationCap,
   Users, MessageCircle, Image, Video, FileText, Settings, Tv,
@@ -28,62 +29,105 @@ const LeftSidebar = ({
   const currentModule = getModuleByKey(activeModule);
   const moduleColor = currentModule.color;
 
-  // Navigation button component
+  // Navigation button component with Framer Motion animations
   const NavButton = ({ icon: Icon, label, viewKey, color = moduleColor, onClick }) => {
     const isActive = activeView === viewKey || (Array.isArray(viewKey) && viewKey.includes(activeView));
     const handleClick = onClick || (() => setActiveView(Array.isArray(viewKey) ? viewKey[0] : viewKey));
 
     return (
-      <button
+      <motion.button
         onClick={handleClick}
         className={`
           w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-          transition-all duration-200
+          relative overflow-hidden
           ${isActive
-            ? 'text-white shadow-md'
-            : 'text-gray-700 hover:bg-gray-100'
+            ? 'text-white shadow-lg'
+            : 'text-gray-700'
           }
         `}
         style={{
-          backgroundColor: isActive ? color : undefined,
-          boxShadow: isActive ? `0 2px 8px ${color}40` : undefined
+          backgroundColor: isActive ? color : 'transparent',
+          boxShadow: isActive ? `0 4px 14px ${color}50, inset 0 1px 0 rgba(255,255,255,0.2)` : undefined
         }}
+        whileHover={{ 
+          scale: 1.02, 
+          x: 4,
+          backgroundColor: isActive ? color : 'rgba(243, 244, 246, 1)'
+        }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
       >
+        {/* Active shimmer effect */}
+        {isActive && (
+          <motion.span
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+            initial={{ x: '-100%' }}
+            animate={{ x: '100%' }}
+            transition={{ 
+              duration: 1.5, 
+              repeat: Infinity, 
+              repeatDelay: 4,
+              ease: "easeInOut"
+            }}
+          />
+        )}
         <Icon size={18} className={isActive ? 'text-white' : 'text-gray-500'} />
-        <span className="flex-1 text-left">{label}</span>
-        {isActive && <ChevronRight size={16} className="text-white/70" />}
-      </button>
+        <span className="flex-1 text-left relative z-10">{label}</span>
+        {isActive && (
+          <motion.span
+            initial={{ opacity: 0, x: -5 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ChevronRight size={16} className="text-white/70" />
+          </motion.span>
+        )}
+      </motion.button>
     );
   };
 
-  // Section divider component
+  // Section divider component with fade
   const Divider = () => (
-    <div className="h-px bg-gray-200 my-3 mx-2" />
+    <motion.div 
+      className="h-px bg-gray-200 my-3 mx-2" 
+      initial={{ scaleX: 0 }}
+      animate={{ scaleX: 1 }}
+      transition={{ duration: 0.3 }}
+    />
   );
 
-  // Section label component
+  // Section label component with animation
   const SectionLabel = ({ children, color = moduleColor }) => (
-    <div
-      className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
-      style={{ color }}
+    <motion.div
+      className="px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-lg mb-1"
+      style={{ 
+        color,
+        backgroundColor: `${color}1F`, // 12% opacity background
+      }}
+      initial={{ opacity: 0, y: -5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 
   return (
-    <aside
-      className="left-sidebar w-72 h-[calc(100vh-64px)] fixed left-0 top-16 overflow-y-auto"
+    <aside 
+      className="w-72 border-r border-gray-200 h-[calc(100vh-64px)] fixed left-0 top-16 overflow-y-auto"
       style={{
-        '--module-color': moduleColor,
-        '--module-tint': `${moduleColor}14`,
-        background: `linear-gradient(180deg, ${moduleColor}12 0%, rgba(255,255,255,0.85) 100%)`,
-        borderRight: '1px solid rgba(0,0,0,0.06)'
+        backgroundColor: `${moduleColor}0A`, // 4% base tint
       }}
     >
       <div className="p-4">
         {/* User Profile Card */}
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 border border-gray-200">
+        <div 
+          className="rounded-xl p-4 mb-4 border backdrop-blur-sm"
+          style={{
+            backgroundColor: `${moduleColor}1F`, // 12% opacity
+            borderColor: `${moduleColor}30`,
+          }}
+        >
           {/* Avatar */}
           <div className="flex flex-col items-center mb-4">
             <div className="relative">
@@ -326,14 +370,6 @@ const LeftSidebar = ({
           )}
 
           {/* ==================== COMMON SECTIONS ==================== */}
-          <Divider />
-
-          {/* Friends - Hidden in News module */}
-          {activeModule !== 'news' && (
-            <NavButton icon={Users} label="Мои Друзья" viewKey="friends" />
-          )}
-          <NavButton icon={MessageCircle} label="Мои Сообщения" viewKey="chat" />
-
           <Divider />
           <SectionLabel>Медиа Хранилище</SectionLabel>
           <NavButton icon={Image} label="Мои Фото" viewKey="media-photos" />

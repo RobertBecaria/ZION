@@ -1,9 +1,10 @@
 /**
  * ModuleNavigation Component
  * Top navigation bar with module selection buttons
- * Redesigned with Flowbite styling
+ * Redesigned with Flowbite styling + Framer Motion animations (2025 design)
  */
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User, Calendar, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { MODULES, MODULE_DEFAULT_VIEWS } from '../../config/moduleConfig';
 import NotificationDropdown from '../NotificationDropdown';
@@ -33,20 +34,35 @@ const ModuleNavigation = ({
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-sm"
+      className="fixed top-0 left-0 right-0 z-50 border-b shadow-lg transition-all duration-500 ease-in-out"
       data-module={activeModule}
+      style={{
+        background: `linear-gradient(135deg, ${currentModule.color}15 0%, ${currentModule.color}08 50%, ${currentModule.color}15 100%)`,
+        borderColor: `${currentModule.color}30`,
+        boxShadow: `0 4px 20px ${currentModule.color}20, inset 0 -1px 0 ${currentModule.color}15`
+      }}
     >
+      {/* Animated gradient accent line at top */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-1 transition-all duration-500"
+        style={{
+          background: `linear-gradient(90deg, ${currentModule.color}60, ${currentModule.color}, ${currentModule.color}60)`
+        }}
+      />
+      
       <div className="flex items-center justify-between h-16 px-4 lg:px-6">
         {/* Logo Section */}
         <div className="flex items-center gap-3">
           <img
             src="/zion-logo.jpeg"
             alt="ZION.CITY Logo"
-            className="h-10 w-10 rounded-full object-cover shadow-md ring-2 ring-white/50 transition-transform duration-300 hover:scale-110"
-            style={{ boxShadow: `0 4px 12px ${currentModule.color}40` }}
+            className="h-10 w-10 rounded-full object-cover shadow-lg ring-2 ring-white transition-all duration-300"
+            style={{
+              boxShadow: `0 4px 14px ${currentModule.color}50, 0 0 20px ${currentModule.color}30`
+            }}
           />
           <h1
-            className="text-xl font-bold tracking-tight hidden sm:block"
+            className="text-xl font-bold tracking-tight hidden sm:block transition-colors duration-300"
             style={{ color: currentModule.color }}
           >
             ZION.CITY
@@ -58,24 +74,59 @@ const ModuleNavigation = ({
           {MODULES.map((module) => {
             const isActive = activeModule === module.key;
             return (
-              <button
+              <motion.button
                 key={module.key}
                 onClick={() => handleModuleClick(module.key)}
                 className={`
                   px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap
-                  transition-all duration-200 ease-in-out
+                  relative overflow-hidden
                   ${isActive
-                    ? 'text-white shadow-md transform scale-105'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                    ? 'text-white shadow-lg'
+                    : 'text-gray-600 hover:text-gray-900'
                   }
                 `}
                 style={{
-                  backgroundColor: isActive ? module.color : undefined,
-                  boxShadow: isActive ? `0 4px 14px ${module.color}40` : undefined
+                  backgroundColor: isActive ? module.color : 'transparent',
+                  boxShadow: isActive 
+                    ? `0 4px 20px ${module.color}50, 0 0 30px ${module.color}30, inset 0 1px 0 rgba(255,255,255,0.2)` 
+                    : undefined
                 }}
+                whileHover={{ 
+                  scale: isActive ? 1.02 : 1.05,
+                  backgroundColor: isActive ? module.color : 'rgba(243, 244, 246, 1)'
+                }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                layout
               >
-                {module.name}
-              </button>
+                {/* Active indicator dot */}
+                {isActive && (
+                  <motion.span
+                    className="absolute -bottom-0.5 left-1/2 w-1.5 h-1.5 bg-white rounded-full"
+                    layoutId="activeModuleDot"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    style={{ transform: 'translateX(-50%)' }}
+                  />
+                )}
+                
+                {/* Shimmer effect on active */}
+                {isActive && (
+                  <motion.span
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    initial={{ x: '-100%' }}
+                    animate={{ x: '100%' }}
+                    transition={{ 
+                      duration: 1.5, 
+                      repeat: Infinity, 
+                      repeatDelay: 3,
+                      ease: "easeInOut"
+                    }}
+                  />
+                )}
+                
+                <span className="relative z-10">{module.name}</span>
+              </motion.button>
             );
           })}
         </div>
@@ -85,7 +136,12 @@ const ModuleNavigation = ({
           {/* Clock Widget */}
           <button
             onClick={() => setShowCalendar(!showCalendar)}
-            className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors border border-gray-200"
+            className="hidden md:flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300"
+            style={{
+              backgroundColor: `${currentModule.color}10`,
+              borderColor: `${currentModule.color}25`,
+              border: `1px solid ${currentModule.color}25`
+            }}
             title="Открыть календарь"
           >
             <div className="text-right">
@@ -102,7 +158,7 @@ const ModuleNavigation = ({
                 })}
               </div>
             </div>
-            <Calendar size={18} className="text-gray-400" />
+            <Calendar size={18} style={{ color: currentModule.color }} />
           </button>
 
           {/* Notification Bell */}
@@ -115,7 +171,10 @@ const ModuleNavigation = ({
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-300"
+              style={{
+                backgroundColor: `${currentModule.color}10`,
+              }}
             >
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
                 {user?.profile_picture ? (

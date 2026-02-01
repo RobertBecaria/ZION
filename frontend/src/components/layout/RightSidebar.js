@@ -76,22 +76,19 @@ const RightSidebar = ({
   const moduleColor = moduleData?.color || '#6B7280';
 
   return (
-    <aside
-      className="right-sidebar w-80 h-[calc(100vh-64px)] fixed right-0 top-16 overflow-y-auto"
+    <aside 
+      className="w-80 border-l border-gray-200 h-[calc(100vh-64px)] fixed right-0 top-16 overflow-y-auto"
       style={{
-        '--module-color': moduleColor,
-        '--module-tint': `${moduleColor}14`,
-        background: `linear-gradient(180deg, ${moduleColor}12 0%, rgba(255,255,255,0.85) 100%)`,
-        borderLeft: '1px solid rgba(0,0,0,0.06)'
+        backgroundColor: `${moduleColor}0A`, // 4% base tint
       }}
     >
       {/* Hide header for Chat view - it has its own */}
       {activeView !== 'chat' && (
-        <div
-          className="sticky top-0 px-4 py-3 z-10 backdrop-blur-md"
+        <div 
+          className="sticky top-0 border-b px-4 py-3 z-10 backdrop-blur-sm"
           style={{
-            background: `linear-gradient(180deg, ${moduleColor}08 0%, rgba(255,255,255,0.9) 100%)`,
-            borderBottom: '1px solid rgba(0,0,0,0.04)'
+            backgroundColor: `${moduleColor}1F`, // 12% opacity
+            borderColor: `${moduleColor}30`,
           }}
         >
           <div className="flex items-center gap-2">
@@ -155,20 +152,29 @@ const RightSidebar = ({
 
         {/* Public View Button - Family Profile */}
         {activeModule === 'family' && userFamily && activeView === 'my-family-profile' && (
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+          <div 
+            className="rounded-xl p-4 border backdrop-blur-sm"
+            style={{
+              backgroundColor: `${moduleColor}1F`, // 12% opacity
+              borderColor: `${moduleColor}30`,
+            }}
+          >
             <div className="flex items-center gap-2 mb-3">
               <Eye size={16} style={{ color: moduleColor }} />
               <span className="font-semibold text-gray-900 text-sm">Публичный просмотр</span>
             </div>
             <button
               onClick={() => setActiveView('family-public-view')}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-2"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 border-2 relative overflow-hidden group"
               style={{
                 backgroundColor: activeView === 'family-public-view' ? moduleColor : 'white',
                 color: activeView === 'family-public-view' ? 'white' : moduleColor,
-                borderColor: moduleColor
+                borderColor: moduleColor,
+                boxShadow: activeView === 'family-public-view' ? `0 4px 14px ${moduleColor}40` : undefined
               }}
             >
+              {/* Shine effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
               <Eye size={16} />
               Как видят другие
             </button>
