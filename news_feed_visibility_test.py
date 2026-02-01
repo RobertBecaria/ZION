@@ -18,7 +18,7 @@ Test Scenarios:
 4. Compare with all posts to ensure no stranger posts
 5. Test profile visibility for different user types
 
-Backend URL: https://dbfix-social.preview.emergentagent.com/api
+Backend URL: https://merge-verify.preview.emergentagent.com/api
 """
 
 import requests
@@ -27,7 +27,7 @@ import sys
 from datetime import datetime
 
 # Get backend URL from environment
-BACKEND_URL = "https://dbfix-social.preview.emergentagent.com/api"
+BACKEND_URL = "https://merge-verify.preview.emergentagent.com/api"
 
 class NewsVisibilityTester:
     def __init__(self):

@@ -5,7 +5,7 @@ import sys
 from datetime import datetime
 
 class FinalVerificationTest:
-    def __init__(self, base_url="https://dbfix-social.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://merge-verify.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         

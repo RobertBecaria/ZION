@@ -9,7 +9,7 @@ This test creates a comprehensive scenario with:
 3. Posts with different visibility levels
 4. Verification of feed filtering logic
 
-Backend URL: https://dbfix-social.preview.emergentagent.com/api
+Backend URL: https://merge-verify.preview.emergentagent.com/api
 """
 
 import requests
@@ -19,7 +19,7 @@ from datetime import datetime
 import time
 
 # Get backend URL from environment
-BACKEND_URL = "https://dbfix-social.preview.emergentagent.com/api"
+BACKEND_URL = "https://merge-verify.preview.emergentagent.com/api"
 
 class ComprehensiveNewsVisibilityTester:
     def __init__(self):

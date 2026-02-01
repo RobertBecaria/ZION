@@ -11,7 +11,7 @@ Test Scenarios:
 5. List Backups - Verify backup listing
 6. Cleanup Backup - Test backup cleanup
 
-Backend URL: https://dbfix-social.preview.emergentagent.com/api
+Backend URL: https://merge-verify.preview.emergentagent.com/api
 Admin Credentials: Architect / X17resto1!X21resto1!
 """
 
@@ -22,7 +22,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BACKEND_URL = "https://dbfix-social.preview.emergentagent.com/api"
+BACKEND_URL = "https://merge-verify.preview.emergentagent.com/api"
 ADMIN_USERNAME = "Architect"
 ADMIN_PASSWORD = "X17resto1!X21resto1!"
 
