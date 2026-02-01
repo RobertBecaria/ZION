@@ -488,7 +488,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="app">
+    <div className="app" data-module={activeModule}>
       {/* Top Navigation Bar */}
       <ModuleNavigation
         activeModule={activeModule}

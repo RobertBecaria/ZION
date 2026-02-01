@@ -42,7 +42,8 @@ const ModuleNavigation = ({
           <img
             src="/zion-logo.jpeg"
             alt="ZION.CITY Logo"
-            className="h-10 w-10 rounded-lg object-cover shadow-sm"
+            className="h-10 w-10 rounded-full object-cover shadow-md ring-2 ring-white/50 transition-transform duration-300 hover:scale-110"
+            style={{ boxShadow: `0 4px 12px ${currentModule.color}40` }}
           />
           <h1
             className="text-xl font-bold tracking-tight hidden sm:block"

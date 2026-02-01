@@ -3,8 +3,8 @@
  * Centralized configuration for backend API URL
  */
 
-// Default to localhost:8001 for development if not configured
-const DEFAULT_BACKEND_URL = 'http://localhost:8001';
+// Default to localhost:8000 for development if not configured
+const DEFAULT_BACKEND_URL = 'http://localhost:8000';
 
 /**
  * Get the backend API URL from environment variables
@@ -26,7 +26,7 @@ export const getBackendUrl = () => {
       console.warn(
         'REACT_APP_BACKEND_URL is not configured. Using default: ' + DEFAULT_BACKEND_URL + '\n' +
         'To fix this, create a .env file in the frontend directory with:\n' +
-        'REACT_APP_BACKEND_URL=http://localhost:8001'
+        'REACT_APP_BACKEND_URL=http://localhost:8000'
       );
     }
     return DEFAULT_BACKEND_URL;
@@ -39,7 +39,7 @@ export const getBackendUrl = () => {
  * The backend API URL
  * Use this constant for all API calls
  * - '' (empty) for production same-domain relative URLs
- * - 'http://localhost:8001' for development
+ * - 'http://localhost:8000' for development
  */
 export const BACKEND_URL = getBackendUrl();
 
