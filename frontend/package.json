@@ -3,8 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "flowbite": "^2.5.2",
-    "flowbite-react": "^0.10.2",
     "@2gis/mapgl": "^1.67.0",
     "@fullcalendar/core": "^6.1.19",
     "@fullcalendar/daygrid": "^6.1.19",
@@ -56,7 +54,7 @@
     "lucide-react": "^0.507.0",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
-    "react-day-picker": "8.10.1",
+    "react-day-picker": "^9.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.2",
     "react-leaflet": "^5.0.0",
