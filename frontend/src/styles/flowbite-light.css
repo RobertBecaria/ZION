@@ -1,0 +1,1292 @@
+/**
+ * ZION.CITY Light Mode Design System
+ * Based on Flowbite + Tailwind CSS
+ * Clean, consistent spacing and typography
+ */
+
+/* ============================================
+   1. CSS VARIABLES - Light Mode Foundation
+   ============================================ */
+:root {
+  /* Background Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --bg-tertiary: #f3f4f6;
+  --bg-hover: #e5e7eb;
+
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #6b7280;
+  --text-muted: #9ca3af;
+
+  /* Border Colors */
+  --border-light: #e5e7eb;
+  --border-default: #d1d5db;
+  --border-dark: #9ca3af;
+
+  /* Module Colors */
+  --family: #10b981;
+  --family-light: #d1fae5;
+  --family-dark: #059669;
+
+  --news: #3b82f6;
+  --news-light: #dbeafe;
+  --news-dark: #2563eb;
+
+  --journal: #8b5cf6;
+  --journal-light: #ede9fe;
+  --journal-dark: #7c3aed;
+
+  --services: #ef4444;
+  --services-light: #fee2e2;
+  --services-dark: #dc2626;
+
+  --organizations: #f97316;
+  --organizations-light: #ffedd5;
+  --organizations-dark: #ea580c;
+
+  --marketplace: #ec4899;
+  --marketplace-light: #fce7f3;
+  --marketplace-dark: #db2777;
+
+  --finance: #eab308;
+  --finance-light: #fef9c3;
+  --finance-dark: #ca8a04;
+
+  --events: #06b6d4;
+  --events-light: #cffafe;
+  --events-dark: #0891b2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Spacing Scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+}
+
+/* ============================================
+   2. BASE STYLES
+   ============================================ */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   3. LAYOUT - Three Column Dashboard
+   ============================================ */
+.dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-secondary);
+}
+
+/* Left Sidebar */
+.sidebar-left {
+  width: 280px;
+  min-width: 280px;
+  background-color: var(--bg-primary);
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.sidebar-left-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-left-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+}
+
+.sidebar-left-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-light);
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main-header {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-light);
+  padding: var(--space-3) var(--space-6);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.main-body {
+  flex: 1;
+  padding: var(--space-6);
+  overflow-y: auto;
+}
+
+/* Right Sidebar */
+.sidebar-right {
+  width: 320px;
+  min-width: 320px;
+  background-color: var(--bg-primary);
+  border-left: 1px solid var(--border-light);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar-right-section {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sidebar-right-section:last-child {
+  border-bottom: none;
+}
+
+/* ============================================
+   4. NAVIGATION
+   ============================================ */
+.module-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+}
+
+.module-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.module-nav-item:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.module-nav-item.active {
+  background-color: var(--module-color-light, var(--bg-tertiary));
+  color: var(--module-color, var(--text-primary));
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-nav-item:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-item.active {
+  background-color: var(--module-color-light, var(--bg-tertiary));
+  color: var(--module-color, var(--text-primary));
+  font-weight: 600;
+}
+
+.sidebar-nav-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   5. CARDS
+   ============================================ */
+.card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-header {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-body {
+  padding: var(--space-5);
+}
+
+.card-footer {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--border-light);
+  background-color: var(--bg-secondary);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+/* Post Card */
+.post-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-4);
+  transition: box-shadow var(--transition-fast);
+}
+
+.post-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.post-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+}
+
+.post-card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.post-card-avatar-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.post-card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-card-author {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.post-card-time {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.post-card-content {
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.post-card-text {
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.post-card-media {
+  padding: 0 var(--space-5) var(--space-4);
+}
+
+.post-card-media img {
+  width: 100%;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+.post-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-light);
+}
+
+.post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.post-action-btn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* ============================================
+   6. PROFILE CARD
+   ============================================ */
+.profile-card {
+  text-align: center;
+  padding: var(--space-5);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-3);
+  object-fit: cover;
+  border: 3px solid var(--bg-tertiary);
+}
+
+.profile-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 1.5rem;
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-1);
+}
+
+.profile-email {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+/* ============================================
+   7. BUTTONS
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background-color: var(--module-color, #3b82f6);
+  color: white;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: var(--radius-lg);
+}
+
+.btn-sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: 0.8125rem;
+}
+
+.btn-lg {
+  padding: var(--space-3) var(--space-6);
+  font-size: 1rem;
+}
+
+/* ============================================
+   8. FORM INPUTS
+   ============================================ */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.form-input {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--module-color, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background-color: var(--bg-primary);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* ============================================
+   9. BADGES
+   ============================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-md);
+}
+
+.badge-primary {
+  background-color: var(--module-color-light, #dbeafe);
+  color: var(--module-color-dark, #2563eb);
+}
+
+.badge-success {
+  background-color: #d1fae5;
+  color: #059669;
+}
+
+.badge-warning {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.badge-error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.badge-neutral {
+  background-color: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   10. SECTION HEADERS
+   ============================================ */
+.section-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-3);
+  padding: 0 var(--space-3);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.section-header h2 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ============================================
+   11. MODULE COLOR UTILITIES
+   ============================================ */
+[data-module="family"] {
+  --module-color: var(--family);
+  --module-color-light: var(--family-light);
+  --module-color-dark: var(--family-dark);
+}
+
+[data-module="news"] {
+  --module-color: var(--news);
+  --module-color-light: var(--news-light);
+  --module-color-dark: var(--news-dark);
+}
+
+[data-module="journal"] {
+  --module-color: var(--journal);
+  --module-color-light: var(--journal-light);
+  --module-color-dark: var(--journal-dark);
+}
+
+[data-module="services"] {
+  --module-color: var(--services);
+  --module-color-light: var(--services-light);
+  --module-color-dark: var(--services-dark);
+}
+
+[data-module="organizations"] {
+  --module-color: var(--organizations);
+  --module-color-light: var(--organizations-light);
+  --module-color-dark: var(--organizations-dark);
+}
+
+[data-module="marketplace"] {
+  --module-color: var(--marketplace);
+  --module-color-light: var(--marketplace-light);
+  --module-color-dark: var(--marketplace-dark);
+}
+
+[data-module="finance"] {
+  --module-color: var(--finance);
+  --module-color-light: var(--finance-light);
+  --module-color-dark: var(--finance-dark);
+}
+
+[data-module="events"] {
+  --module-color: var(--events);
+  --module-color-light: var(--events-light);
+  --module-color-dark: var(--events-dark);
+}
+
+/* ============================================
+   12. UTILITY CLASSES
+   ============================================ */
+.text-module {
+  color: var(--module-color);
+}
+
+.bg-module {
+  background-color: var(--module-color);
+}
+
+.bg-module-light {
+  background-color: var(--module-color-light);
+}
+
+.border-module {
+  border-color: var(--module-color);
+}
+
+/* ============================================
+   13. SCROLLBAR STYLING
+   ============================================ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-dark);
+}
+
+/* ============================================
+   14. RESPONSIVE ADJUSTMENTS
+   ============================================ */
+@media (max-width: 1280px) {
+  .sidebar-right {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar-left {
+    width: 240px;
+    min-width: 240px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .sidebar-left {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+
+  .main-body {
+    padding: var(--space-4);
+  }
+}
+
+/* ============================================
+   15. APP LAYOUT OVERRIDES
+   Override existing App.css styles for new Flowbite layout
+   ============================================ */
+
+/* Main App Container */
+.app {
+  min-height: 100vh;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Top Navigation Override */
+.top-nav {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 64px !important;
+  background: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  z-index: 50 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.top-nav::before,
+.top-nav::after {
+  display: none !important;
+}
+
+/* Main Container - holds sidebars and content */
+.main-container {
+  display: flex !important;
+  padding-top: 64px !important;
+  min-height: 100vh !important;
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Left Sidebar Override */
+.left-sidebar {
+  position: fixed !important;
+  top: 64px !important;
+  left: 0 !important;
+  width: 288px !important;
+  height: calc(100vh - 64px) !important;
+  background: var(--bg-primary) !important;
+  border-right: 1px solid var(--border-light) !important;
+  overflow-y: auto !important;
+  z-index: 40 !important;
+}
+
+.left-sidebar::before {
+  display: none !important;
+}
+
+/* Sidebar Header */
+.left-sidebar .sidebar-header {
+  padding: var(--space-4) var(--space-5) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: transparent !important;
+}
+
+.left-sidebar .sidebar-header h3 {
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  margin: 0 !important;
+}
+
+/* User Profile Section */
+.user-profile-section {
+  padding: var(--space-4) !important;
+}
+
+.profile-card-enhanced {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary)) !important;
+  border-radius: var(--radius-xl) !important;
+  padding: var(--space-5) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+.profile-avatar-large {
+  width: 80px !important;
+  height: 80px !important;
+  margin: 0 auto var(--space-3) !important;
+  position: relative !important;
+}
+
+.profile-avatar-large .avatar-image,
+.profile-avatar-large .avatar-placeholder {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: var(--radius-full) !important;
+  object-fit: cover !important;
+  border: 3px solid white !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.profile-info-enhanced {
+  text-align: center !important;
+  margin-top: var(--space-3) !important;
+}
+
+.profile-info-enhanced .profile-name {
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+}
+
+.profile-info-enhanced .profile-email {
+  font-size: 0.8125rem !important;
+  color: var(--text-tertiary) !important;
+  margin: var(--space-1) 0 0 !important;
+}
+
+/* Profile Buttons */
+.profile-btn {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-3) !important;
+  width: 100% !important;
+  padding: var(--space-2) var(--space-3) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+  text-align: left !important;
+  margin-top: var(--space-1) !important;
+}
+
+.profile-btn:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.profile-btn.primary,
+.profile-btn.active {
+  color: white !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.profile-btn.secondary {
+  color: var(--text-secondary) !important;
+  background: transparent !important;
+}
+
+/* Sidebar Divider */
+.sidebar-divider {
+  height: 1px !important;
+  background: var(--border-light) !important;
+  margin: var(--space-3) var(--space-2) !important;
+}
+
+/* Navigation Group */
+.nav-group {
+  margin-top: var(--space-4) !important;
+}
+
+.nav-group-label {
+  font-size: 0.6875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-muted) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 0 var(--space-3) !important;
+  margin-bottom: var(--space-2) !important;
+}
+
+/* Navigation Items */
+.sidebar-nav .nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-3) !important;
+  padding: var(--space-2) var(--space-3) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+  text-decoration: none !important;
+  border-radius: var(--radius-lg) !important;
+  transition: all var(--transition-fast) !important;
+  margin-bottom: var(--space-1) !important;
+}
+
+.sidebar-nav .nav-item:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+.sidebar-nav .nav-item.active {
+  background-color: var(--module-color-light, var(--bg-tertiary)) !important;
+  color: var(--module-color, var(--text-primary)) !important;
+  font-weight: 600 !important;
+}
+
+/* Right Sidebar Override */
+.right-sidebar {
+  position: fixed !important;
+  top: 64px !important;
+  right: 0 !important;
+  width: 320px !important;
+  height: calc(100vh - 64px) !important;
+  background: var(--bg-primary) !important;
+  border-left: 1px solid var(--border-light) !important;
+  overflow-y: auto !important;
+  z-index: 40 !important;
+}
+
+.right-sidebar::before {
+  display: none !important;
+}
+
+.right-sidebar .sidebar-header {
+  position: sticky !important;
+  top: 0 !important;
+  padding: var(--space-4) var(--space-5) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: var(--bg-primary) !important;
+  z-index: 10 !important;
+}
+
+.right-sidebar .sidebar-header h3 {
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  color: var(--text-primary) !important;
+  margin: 0 !important;
+}
+
+/* Widgets in Right Sidebar */
+.widget {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: var(--radius-xl) !important;
+  margin: var(--space-4) !important;
+  overflow: hidden !important;
+}
+
+.widget-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-2) !important;
+  padding: var(--space-3) var(--space-4) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  color: var(--text-primary) !important;
+}
+
+.widget-content {
+  padding: var(--space-4) !important;
+}
+
+/* Content Area Override */
+.content-area {
+  flex: 1 !important;
+  margin-left: 288px !important;
+  margin-right: 320px !important;
+  min-height: calc(100vh - 64px) !important;
+  background: var(--bg-secondary) !important;
+}
+
+/* Content Header */
+.content-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: var(--space-4) var(--space-6) !important;
+  background: var(--bg-primary) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  position: sticky !important;
+  top: 64px !important;
+  z-index: 30 !important;
+}
+
+.content-header .header-left {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-2) !important;
+}
+
+.content-header .module-pill {
+  padding: var(--space-1) var(--space-3) !important;
+  border-radius: var(--radius-full) !important;
+  font-size: 0.8125rem !important;
+  font-weight: 600 !important;
+  color: white !important;
+}
+
+.content-header .view-separator {
+  color: var(--text-muted) !important;
+}
+
+.content-header .current-view {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: var(--text-secondary) !important;
+}
+
+.content-header .header-right {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-2) !important;
+}
+
+.content-header .header-action-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: var(--radius-lg) !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--text-secondary) !important;
+  cursor: pointer !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.content-header .header-action-btn:hover {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Content Body */
+.content-body {
+  padding: var(--space-6) !important;
+}
+
+/* Content Navigation Tabs */
+.content-navigation {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--space-1) !important;
+  padding: 0 var(--space-6) var(--space-4) !important;
+  border-bottom: 1px solid var(--border-light) !important;
+  background: var(--bg-primary) !important;
+  margin: 0 calc(-1 * var(--space-6)) var(--space-4) !important;
+}
+
+/* Split Content Layout */
+.split-content-layout {
+  display: flex !important;
+  gap: var(--space-6) !important;
+}
+
+.main-content-area {
+  flex: 1 !important;
+  min-width: 0 !important;
+}
+
+.main-content-area.full-width {
+  flex: 1 !important;
+}
+
+.events-panel-area {
+  width: 320px !important;
+  flex-shrink: 0 !important;
+}
+
+/* ============================================
+   16. COMPONENT OVERRIDES
+   ============================================ */
+
+/* Post Item */
+.post-item {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: var(--radius-xl) !important;
+  margin-bottom: var(--space-4) !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: box-shadow var(--transition-fast) !important;
+}
+
+.post-item:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Create Post Card */
+.create-post-card {
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-light) !important;
+  border-radius: var(--radius-xl) !important;
+  padding: var(--space-4) !important;
+  margin-bottom: var(--space-4) !important;
+}
+
+/* Module Loading */
+.module-loading {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: var(--space-12) !important;
+  color: var(--text-tertiary) !important;
+}
+
+.loading-spinner {
+  width: 32px !important;
+  height: 32px !important;
+  border: 3px solid var(--border-light) !important;
+  border-top-color: var(--module-color, #3b82f6) !important;
+  border-radius: var(--radius-full) !important;
+  animation: spin 0.8s linear infinite !important;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Coming Soon Section */
+.coming-soon-section {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 300px !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* ============================================
+   17. RESPONSIVE LAYOUT OVERRIDES
+   ============================================ */
+@media (max-width: 1400px) {
+  .right-sidebar {
+    width: 280px !important;
+  }
+
+  .content-area {
+    margin-right: 280px !important;
+  }
+
+  .events-panel-area {
+    width: 280px !important;
+  }
+}
+
+@media (max-width: 1280px) {
+  .right-sidebar {
+    display: none !important;
+  }
+
+  .content-area {
+    margin-right: 0 !important;
+  }
+
+  .events-panel-area {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .left-sidebar {
+    width: 260px !important;
+  }
+
+  .content-area {
+    margin-left: 260px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .left-sidebar {
+    position: fixed !important;
+    left: -100% !important;
+    transition: left var(--transition-normal) !important;
+  }
+
+  .left-sidebar.open {
+    left: 0 !important;
+  }
+
+  .content-area {
+    margin-left: 0 !important;
+  }
+
+  .content-header {
+    padding: var(--space-3) var(--space-4) !important;
+  }
+
+  .content-body {
+    padding: var(--space-4) !important;
+  }
+}
+
+/* ============================================
+   18. ANIMATION UTILITIES
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp var(--transition-normal) ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown var(--transition-normal) ease-out;
+}
+
+/* ============================================
+   19. HIDE SCROLLBAR UTILITY
+   ============================================ */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

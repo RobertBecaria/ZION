@@ -1,15 +1,16 @@
 /**
  * LeftSidebar Component
  * Left sidebar with user profile and module-specific navigation
+ * Redesigned with Flowbite styling
  */
 import React from 'react';
-import { 
-  User, Newspaper, Heart, Briefcase, GraduationCap, 
+import {
+  User, Newspaper, Heart, Briefcase, GraduationCap,
   Users, MessageCircle, Image, Video, FileText, Settings, Tv,
   ShoppingCart, Package, Store, Smartphone, Shirt, Car, Home as HomeIcon, Laptop, Palette,
-  Wallet, Send, TrendingUp, DollarSign, Coins, Bot
+  Wallet, Send, TrendingUp, DollarSign, Coins, Bot, Search, Calendar, ChevronRight
 } from 'lucide-react';
-import { getModuleByKey, getSidebarTintStyle } from '../../config/moduleConfig';
+import { getModuleByKey } from '../../config/moduleConfig';
 
 const LeftSidebar = ({
   activeModule,
@@ -25,619 +26,321 @@ const LeftSidebar = ({
   setSelectedChannelId
 }) => {
   const currentModule = getModuleByKey(activeModule);
-  const sidebarTintStyle = getSidebarTintStyle(currentModule.color);
+  const moduleColor = currentModule.color;
 
-  // Helper to create button style
-  const getButtonStyle = (isActive, color = currentModule.color) => ({
-    backgroundColor: isActive ? color : undefined,
-    background: isActive 
-      ? `linear-gradient(135deg, ${color} 0%, ${color}dd 100%)`
-      : undefined,
-    color: isActive ? 'white' : undefined
-  });
+  // Navigation button component
+  const NavButton = ({ icon: Icon, label, viewKey, color = moduleColor, onClick }) => {
+    const isActive = activeView === viewKey || (Array.isArray(viewKey) && viewKey.includes(activeView));
+    const handleClick = onClick || (() => setActiveView(Array.isArray(viewKey) ? viewKey[0] : viewKey));
 
-  // Helper to create divider style
-  const getDividerStyle = (color = currentModule.color) => ({
-    background: `linear-gradient(90deg, transparent, ${color}30, transparent)`
-  });
+    return (
+      <button
+        onClick={handleClick}
+        className={`
+          w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+          transition-all duration-200
+          ${isActive
+            ? 'text-white shadow-md'
+            : 'text-gray-700 hover:bg-gray-100'
+          }
+        `}
+        style={{
+          backgroundColor: isActive ? color : undefined,
+          boxShadow: isActive ? `0 2px 8px ${color}40` : undefined
+        }}
+      >
+        <Icon size={18} className={isActive ? 'text-white' : 'text-gray-500'} />
+        <span className="flex-1 text-left">{label}</span>
+        {isActive && <ChevronRight size={16} className="text-white/70" />}
+      </button>
+    );
+  };
+
+  // Section divider component
+  const Divider = () => (
+    <div className="h-px bg-gray-200 my-3 mx-2" />
+  );
+
+  // Section label component
+  const SectionLabel = ({ children, color = moduleColor }) => (
+    <div
+      className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider"
+      style={{ color }}
+    >
+      {children}
+    </div>
+  );
 
   return (
-    <aside className="left-sidebar" style={sidebarTintStyle}>
-      <div className="sidebar-header">
-        <h3>Личный кабинет</h3>
-      </div>
-      
-      {/* User Profile Section */}
-      <div className="user-profile-section">
-        <div className="profile-card-enhanced">
-          {/* Profile Avatar */}
-          <div className="profile-avatar-large">
-            {user?.profile_picture ? (
-              <img 
-                src={user.profile_picture} 
-                alt={`${user.first_name} ${user.last_name}`}
-                className="avatar-image"
-              />
-            ) : (
-              <div 
-                className="avatar-placeholder" 
-                style={{ backgroundColor: currentModule.color }}
+    <aside className="w-72 bg-white border-r border-gray-200 h-[calc(100vh-64px)] fixed left-0 top-16 overflow-y-auto">
+      <div className="p-4">
+        {/* User Profile Card */}
+        <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 mb-4 border border-gray-200">
+          {/* Avatar */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="relative">
+              <div
+                className="w-20 h-20 rounded-full overflow-hidden ring-4 ring-white shadow-lg"
+                style={{ backgroundColor: `${moduleColor}20` }}
               >
-                <User size={70} color="white" strokeWidth={2.5} />
+                {user?.profile_picture ? (
+                  <img
+                    src={user.profile_picture}
+                    alt={`${user.first_name} ${user.last_name}`}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-full h-full flex items-center justify-center"
+                    style={{ backgroundColor: moduleColor }}
+                  >
+                    <User size={36} className="text-white" strokeWidth={2} />
+                  </div>
+                )}
               </div>
-            )}
-            <div className="status-indicator online"></div>
-          </div>
-          
-          {/* Profile Info */}
-          <div className="profile-info-enhanced">
-            <h4 className="profile-name">
+              <div
+                className="absolute bottom-1 right-1 w-4 h-4 rounded-full border-2 border-white bg-green-500"
+                title="Онлайн"
+              />
+            </div>
+            <h3 className="mt-3 font-semibold text-gray-900 text-center">
               {user?.name_alias || `${user?.first_name} ${user?.last_name}`}
-            </h4>
-            <p className="profile-email">@{user?.email?.split('@')[0]}</p>
+            </h3>
+            <p className="text-sm text-gray-500">
+              @{user?.email?.split('@')[0]}
+            </p>
           </div>
+
+          {/* Profile Button */}
+          <NavButton
+            icon={User}
+            label="Мой Профиль"
+            viewKey="my-profile"
+          />
         </div>
-        
-        {/* My Profile Button - Always visible */}
-        <button 
-          className={`profile-btn ${activeView === 'my-profile' ? 'primary' : 'secondary'}`}
-          style={getButtonStyle(activeView === 'my-profile')}
-          onClick={() => setActiveView('my-profile')}
-        >
-          <User size={18} />
-          <span>Мой Профиль</span>
-        </button>
-        
-        {/* Generic Feed Button - Only for modules without dedicated feed button */}
-        {activeModule !== 'organizations' && activeModule !== 'journal' && activeModule !== 'news' && (
-          <button 
-            className={`profile-btn ${activeView === 'feed' ? 'primary' : 'secondary'}`}
-            style={getButtonStyle(activeView === 'feed')}
-            onClick={() => setActiveView('feed')}
-          >
-            <Newspaper size={18} />
-            <span>Моя Лента</span>
-          </button>
-        )}
-        
-        {/* ==================== FAMILY MODULE ==================== */}
-        {activeModule === 'family' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle()}></div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-family-profile' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-family-profile', '#059669')}
-              onClick={() => setActiveView('my-family-profile')}
-            >
-              <Heart size={18} />
-              <span>МОЯ СЕМЬЯ</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle()}></div>
-          </>
-        )}
-        
-        {/* ==================== ORGANIZATIONS MODULE ==================== */}
-        {activeModule === 'organizations' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#C2410C')}></div>
-            
-            <button 
-              className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'wall' || activeView === 'feed', '#C2410C')}
-              onClick={() => setActiveView('wall')}
-            >
-              <Newspaper size={18} />
-              <span>МОЯ ЛЕНТА</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#C2410C')}></div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-work' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-work', '#C2410C')}
-              onClick={() => setActiveView('my-work')}
-            >
-              <Briefcase size={18} />
-              <span>МОЯ РАБОТА</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-school-admin' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-school-admin', '#1E40AF')}
-              onClick={() => setActiveView('my-school-admin')}
-            >
-              <GraduationCap size={18} />
-              <span>МОЯ ШКОЛА</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
 
-        {/* ==================== JOURNAL MODULE ==================== */}
-        {activeModule === 'journal' && !loadingSchoolRoles && schoolRoles && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#6D28D9')}></div>
-            
-            <button 
-              className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'wall' || activeView === 'feed', '#6D28D9')}
-              onClick={() => setActiveView('wall')}
-            >
-              <Newspaper size={18} />
-              <span>МОЯ ЛЕНТА</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#6D28D9')}></div>
-            
-            {/* MY SCHOOL button for parents */}
-            {schoolRoles.is_parent && (
-              <button 
-                className={`profile-btn ${schoolRole === 'parent' ? 'primary' : 'secondary'}`}
-                style={getButtonStyle(schoolRole === 'parent', '#6D28D9')}
+        {/* Module-specific Navigation */}
+        <div className="space-y-1">
+          {/* Generic Feed Button - For modules without dedicated feed */}
+          {activeModule !== 'organizations' && activeModule !== 'journal' && activeModule !== 'news' && (
+            <NavButton
+              icon={Newspaper}
+              label="Моя Лента"
+              viewKey="feed"
+            />
+          )}
+
+          {/* ==================== FAMILY MODULE ==================== */}
+          {activeModule === 'family' && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Heart}
+                label="Моя Семья"
+                viewKey="my-family-profile"
+                color="#059669"
+              />
+            </>
+          )}
+
+          {/* ==================== ORGANIZATIONS MODULE ==================== */}
+          {activeModule === 'organizations' && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Newspaper}
+                label="Моя Лента"
+                viewKey={['wall', 'feed']}
+                color="#C2410C"
+              />
+              <Divider />
+              <NavButton
+                icon={Briefcase}
+                label="Моя Работа"
+                viewKey="my-work"
+                color="#C2410C"
+              />
+              <NavButton
+                icon={GraduationCap}
+                label="Моя Школа"
+                viewKey="my-school-admin"
+                color="#1E40AF"
+              />
+            </>
+          )}
+
+          {/* ==================== JOURNAL MODULE ==================== */}
+          {activeModule === 'journal' && !loadingSchoolRoles && schoolRoles && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Newspaper}
+                label="Моя Лента"
+                viewKey={['wall', 'feed']}
+                color="#6D28D9"
+              />
+              <Divider />
+              {schoolRoles.is_parent && (
+                <NavButton
+                  icon={GraduationCap}
+                  label="Моя Школа"
+                  viewKey="journal-school-tiles"
+                  color="#6D28D9"
+                  onClick={() => {
+                    setSchoolRole('parent');
+                    setSelectedSchool(null);
+                    setActiveView('journal-school-tiles');
+                  }}
+                />
+              )}
+              {schoolRoles.is_teacher && (
+                <NavButton
+                  icon={Briefcase}
+                  label="Моя Работа"
+                  viewKey="journal-school-tiles"
+                  color="#6D28D9"
+                  onClick={() => {
+                    setSchoolRole('teacher');
+                    setSelectedSchool(null);
+                    setActiveView('journal-school-tiles');
+                  }}
+                />
+              )}
+            </>
+          )}
+
+          {/* ==================== NEWS MODULE ==================== */}
+          {activeModule === 'news' && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Newspaper}
+                label="Моя Лента"
+                viewKey={['wall', 'feed']}
+                color="#1D4ED8"
                 onClick={() => {
-                  setSchoolRole('parent');
-                  setSelectedSchool(null);
-                  setActiveView('journal-school-tiles');
+                  setActiveView('feed');
+                  if (setSelectedChannelId) setSelectedChannelId(null);
                 }}
-              >
-                <GraduationCap size={18} />
-                <span>МОЯ ШКОЛА</span>
-              </button>
-            )}
-            
-            {/* MY WORK button for teachers */}
-            {schoolRoles.is_teacher && (
-              <button 
-                className={`profile-btn ${schoolRole === 'teacher' ? 'primary' : 'secondary'}`}
-                style={getButtonStyle(schoolRole === 'teacher', '#6D28D9')}
+              />
+              <NavButton
+                icon={Tv}
+                label="Каналы"
+                viewKey="channels"
+                color="#1D4ED8"
                 onClick={() => {
-                  setSchoolRole('teacher');
-                  setSelectedSchool(null);
-                  setActiveView('journal-school-tiles');
+                  setActiveView('channels');
+                  if (setSelectedChannelId) setSelectedChannelId(null);
                 }}
-              >
-                <Briefcase size={18} />
-                <span>МОЯ РАБОТА</span>
-              </button>
-            )}
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+              />
+            </>
+          )}
 
-        {/* ==================== NEWS MODULE ==================== */}
-        {activeModule === 'news' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#1D4ED8')}></div>
-            
-            <button 
-              className={`profile-btn ${(activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'wall' || activeView === 'feed', '#1D4ED8')}
-              onClick={() => {
-                setActiveView('feed');
-                if (setSelectedChannelId) setSelectedChannelId(null);
-              }}
-            >
-              <Newspaper size={18} />
-              <span>МОЯ ЛЕНТА</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'channels' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'channels', '#1D4ED8')}
-              onClick={() => {
-                setActiveView('channels');
-                if (setSelectedChannelId) setSelectedChannelId(null);
-              }}
-            >
-              <Tv size={18} />
-              <span>КАНАЛЫ</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+          {/* ==================== SERVICES MODULE ==================== */}
+          {activeModule === 'services' && (
+            <>
+              <Divider />
+              <NavButton icon={Search} label="Поиск" viewKey="services-search" color="#B91C1C" />
+              <NavButton icon={Briefcase} label="Мой Профиль" viewKey="services-my-profile" color="#B91C1C" />
+              <NavButton icon={Newspaper} label="Моя Лента" viewKey="services-feed" color="#B91C1C" />
+              <NavButton icon={FileText} label="Мои Заявки" viewKey="services-bookings" color="#B91C1C" />
+              <NavButton icon={Calendar} label="Календарь" viewKey="services-calendar" color="#B91C1C" />
+            </>
+          )}
 
-        {/* ==================== SERVICES MODULE ==================== */}
-        {activeModule === 'services' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#B91C1C')}></div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'services-search' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'services-search', '#B91C1C')}
-              onClick={() => setActiveView('services-search')}
-            >
-              <span style={{ fontSize: '18px' }}>🔍</span>
-              <span>ПОИСК</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'services-my-profile' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'services-my-profile', '#B91C1C')}
-              onClick={() => setActiveView('services-my-profile')}
-            >
-              <Briefcase size={18} />
-              <span>МОЙ ПРОФИЛЬ</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'services-feed' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'services-feed', '#B91C1C')}
-              onClick={() => setActiveView('services-feed')}
-            >
-              <Newspaper size={18} />
-              <span>МОЯ ЛЕНТА</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'services-bookings' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'services-bookings', '#B91C1C')}
-              onClick={() => setActiveView('services-bookings')}
-            >
-              <span style={{ fontSize: '18px' }}>📋</span>
-              <span>МОИ ЗАЯВКИ</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'services-calendar' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'services-calendar', '#B91C1C')}
-              onClick={() => setActiveView('services-calendar')}
-            >
-              <span style={{ fontSize: '18px' }}>📅</span>
-              <span>КАЛЕНДАРЬ</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+          {/* ==================== MARKETPLACE MODULE ==================== */}
+          {activeModule === 'marketplace' && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Bot}
+                label="ERIC AI"
+                viewKey="eric-ai"
+                color="#F59E0B"
+              />
+              <Divider />
+              <NavButton
+                icon={Store}
+                label="Маркетплейс"
+                viewKey="marketplace-search"
+                color="#BE185D"
+              />
+              <Divider />
+              <SectionLabel color="#BE185D">Мои Вещи</SectionLabel>
+              <NavButton icon={Smartphone} label="Умные Вещи" viewKey="my-things-smart" color="#3B82F6" />
+              <NavButton icon={Shirt} label="Мой Гардероб" viewKey="my-things-wardrobe" color="#EC4899" />
+              <NavButton icon={Car} label="Мой Гараж" viewKey="my-things-garage" color="#F59E0B" />
+              <NavButton icon={HomeIcon} label="Мой Дом" viewKey="my-things-home" color="#10B981" />
+              <NavButton icon={Laptop} label="Моя Электроника" viewKey="my-things-electronics" color="#8B5CF6" />
+              <NavButton icon={Palette} label="Моя Коллекция" viewKey="my-things-collection" color="#F97316" />
+              <Divider />
+              <NavButton icon={Package} label="Мои Объявления" viewKey="marketplace-my-listings" color="#BE185D" />
+              <NavButton icon={Heart} label="Избранное" viewKey="marketplace-favorites" color="#BE185D" />
+            </>
+          )}
 
-        {/* ==================== MARKETPLACE MODULE (ВЕЩИ) ==================== */}
-        {activeModule === 'marketplace' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
-            
-            {/* ERIC AI Assistant */}
-            <button 
-              className={`profile-btn ${activeView === 'eric-ai' ? 'primary' : 'secondary'}`}
-              style={activeView === 'eric-ai' ? {
-                background: 'linear-gradient(135deg, #FFD93D 0%, #FF9500 100%)',
-                color: '#333'
-              } : {}}
-              onClick={() => setActiveView('eric-ai')}
-            >
-              <Bot size={18} />
-              <span>ERIC AI</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
-            
-            {/* MARKETPLACE Section */}
-            <button 
-              className={`profile-btn ${activeView === 'marketplace-search' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'marketplace-search', '#BE185D')}
-              onClick={() => setActiveView('marketplace-search')}
-            >
-              <Store size={18} />
-              <span>МАРКЕТПЛЕЙС</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
-            
-            {/* MY THINGS Section */}
-            <div className="nav-group-label" style={{ color: '#BE185D', padding: '8px 12px', fontSize: '11px' }}>
-              МОИ ВЕЩИ
-            </div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-smart' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-smart', '#3B82F6')}
-              onClick={() => setActiveView('my-things-smart')}
-            >
-              <Smartphone size={18} />
-              <span>Умные Вещи</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-wardrobe' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-wardrobe', '#EC4899')}
-              onClick={() => setActiveView('my-things-wardrobe')}
-            >
-              <Shirt size={18} />
-              <span>Мой Гардероб</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-garage' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-garage', '#F59E0B')}
-              onClick={() => setActiveView('my-things-garage')}
-            >
-              <Car size={18} />
-              <span>Мой Гараж</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-home' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-home', '#10B981')}
-              onClick={() => setActiveView('my-things-home')}
-            >
-              <HomeIcon size={18} />
-              <span>Мой Дом</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-electronics' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-electronics', '#8B5CF6')}
-              onClick={() => setActiveView('my-things-electronics')}
-            >
-              <Laptop size={18} />
-              <span>Моя Электроника</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'my-things-collection' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'my-things-collection', '#F97316')}
-              onClick={() => setActiveView('my-things-collection')}
-            >
-              <Palette size={18} />
-              <span>Моя Коллекция</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#BE185D')}></div>
-            
-            {/* User's Listings & Favorites */}
-            <button 
-              className={`profile-btn ${activeView === 'marketplace-my-listings' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'marketplace-my-listings', '#BE185D')}
-              onClick={() => setActiveView('marketplace-my-listings')}
-            >
-              <Package size={18} />
-              <span>МОИ ОБЪЯВЛЕНИЯ</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'marketplace-favorites' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'marketplace-favorites', '#BE185D')}
-              onClick={() => setActiveView('marketplace-favorites')}
-            >
-              <Heart size={18} />
-              <span>ИЗБРАННОЕ</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+          {/* ==================== FINANCE MODULE ==================== */}
+          {activeModule === 'finance' && (
+            <>
+              <Divider />
+              <NavButton
+                icon={Wallet}
+                label="Мой Кошелёк"
+                viewKey={['wallet', 'wall', 'feed']}
+                color="#A16207"
+              />
+              <Divider />
+              <SectionLabel color="#A16207">Быстрые Действия</SectionLabel>
+              <NavButton icon={Coins} label="Отправить COIN" viewKey="wallet" color="#059669" />
+              <NavButton icon={TrendingUp} label="Передать TOKEN" viewKey="wallet" color="#8B5CF6" />
+              <Divider />
+              <SectionLabel color="#A16207">Информация</SectionLabel>
+              <NavButton icon={DollarSign} label="Курсы валют" viewKey="wallet" color="#A16207" />
+            </>
+          )}
 
-        {/* ==================== FINANCE MODULE (ФИНАНСЫ) ==================== */}
-        {activeModule === 'finance' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#A16207')}></div>
-            
-            <button 
-              className={`profile-btn ${(activeView === 'wallet' || activeView === 'wall' || activeView === 'feed') ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'wallet' || activeView === 'wall' || activeView === 'feed', '#A16207')}
-              onClick={() => setActiveView('wallet')}
-            >
-              <Wallet size={18} />
-              <span>МОЙ КОШЕЛЁК</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#A16207')}></div>
-            
-            {/* Quick Actions */}
-            <div className="nav-group-label" style={{ color: '#A16207', padding: '8px 12px', fontSize: '11px' }}>
-              БЫСТРЫЕ ДЕЙСТВИЯ
-            </div>
-            
-            <button 
-              className={`profile-btn secondary`}
-              style={{ color: '#059669' }}
-              onClick={() => setActiveView('wallet')}
-            >
-              <Coins size={18} />
-              <span>Отправить COIN</span>
-            </button>
-            
-            <button 
-              className={`profile-btn secondary`}
-              style={{ color: '#8B5CF6' }}
-              onClick={() => setActiveView('wallet')}
-            >
-              <TrendingUp size={18} />
-              <span>Передать TOKEN</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#A16207')}></div>
-            
-            {/* Finance Info */}
-            <div className="nav-group-label" style={{ color: '#A16207', padding: '8px 12px', fontSize: '11px' }}>
-              ИНФОРМАЦИЯ
-            </div>
-            
-            <button 
-              className={`profile-btn secondary`}
-              onClick={() => setActiveView('wallet')}
-            >
-              <DollarSign size={18} />
-              <span>Курсы валют</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+          {/* ==================== EVENTS MODULE ==================== */}
+          {activeModule === 'events' && (
+            <>
+              <Divider />
+              <NavButton icon={Search} label="Поиск Мероприятий" viewKey="goodwill-search" color="#8B5CF6" />
+              <NavButton icon={Calendar} label="Календарь" viewKey="goodwill-calendar" color="#8B5CF6" />
+              <Divider />
+              <SectionLabel color="#8B5CF6">Моя Активность</SectionLabel>
+              <NavButton icon={Heart} label="Мои мероприятия" viewKey="goodwill-my-events" color="#8B5CF6" />
+              <NavButton icon={Send} label="Приглашения" viewKey="goodwill-invitations" color="#8B5CF6" />
+              <NavButton icon={Users} label="Группы по интересам" viewKey="goodwill-groups" color="#8B5CF6" />
+              <Divider />
+              <SectionLabel color="#8B5CF6">Организатор</SectionLabel>
+              <NavButton icon={User} label="Профиль организатора" viewKey="goodwill-organizer-profile" color="#8B5CF6" />
+              <NavButton icon={Heart} label="Создать мероприятие" viewKey="goodwill-create-event" color="#8B5CF6" />
+            </>
+          )}
 
-        {/* GOOD WILL MODULE (ДОБРАЯ ВОЛЯ) */}
-        {activeModule === 'events' && (
-          <>
-            <div className="sidebar-divider" style={getDividerStyle('#8B5CF6')}></div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-search' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-search', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-search')}
-            >
-              <Heart size={18} />
-              <span>ПОИСК МЕРОПРИЯТИЙ</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-calendar' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-calendar', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-calendar')}
-            >
-              <Heart size={18} />
-              <span>Календарь</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#8B5CF6')}></div>
-            
-            <div className="nav-group-label" style={{ color: '#8B5CF6', padding: '8px 12px', fontSize: '11px' }}>
-              МОЯ АКТИВНОСТЬ
-            </div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-my-events' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-my-events', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-my-events')}
-            >
-              <Heart size={18} />
-              <span>Мои мероприятия</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-invitations' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-invitations', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-invitations')}
-            >
-              <Heart size={18} />
-              <span>Приглашения</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-groups' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-groups', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-groups')}
-            >
-              <Users size={18} />
-              <span>Группы по интересам</span>
-            </button>
-            
-            <div className="sidebar-divider" style={getDividerStyle('#8B5CF6')}></div>
-            
-            <div className="nav-group-label" style={{ color: '#8B5CF6', padding: '8px 12px', fontSize: '11px' }}>
-              ОРГАНИЗАТОР
-            </div>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-organizer-profile' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-organizer-profile', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-organizer-profile')}
-            >
-              <User size={18} />
-              <span>Профиль организатора</span>
-            </button>
-            
-            <button 
-              className={`profile-btn ${activeView === 'goodwill-create-event' ? 'primary' : 'secondary'}`}
-              style={getButtonStyle(activeView === 'goodwill-create-event', '#8B5CF6')}
-              onClick={() => setActiveView('goodwill-create-event')}
-            >
-              <Heart size={18} />
-              <span>Создать мероприятие</span>
-            </button>
-            
-            <div className="sidebar-divider"></div>
-          </>
-        )}
+          {/* ==================== COMMON SECTIONS ==================== */}
+          <Divider />
+
+          {/* Friends - Hidden in News module */}
+          {activeModule !== 'news' && (
+            <NavButton icon={Users} label="Мои Друзья" viewKey="friends" />
+          )}
+          <NavButton icon={MessageCircle} label="Мои Сообщения" viewKey="chat" />
+
+          <Divider />
+          <SectionLabel>Медиа Хранилище</SectionLabel>
+          <NavButton icon={Image} label="Мои Фото" viewKey="media-photos" />
+          <NavButton icon={FileText} label="Мои Документы" viewKey="media-documents" />
+          <NavButton icon={Video} label="Мои Видео" viewKey="media-videos" />
+
+          <Divider />
+          <SectionLabel>Моя Информация</SectionLabel>
+          <NavButton icon={User} label="Профиль" viewKey="my-info" />
+          <NavButton icon={FileText} label="Документы" viewKey="my-documents" />
+
+          <Divider />
+          <NavButton icon={Settings} label="Настройки" viewKey="settings" />
+        </div>
       </div>
-
-      {/* Navigation Links */}
-      <nav className="sidebar-nav">
-        {/* Friends link - hidden in News module (moved to right sidebar) */}
-        {activeModule !== 'news' && (
-          <a href="#" className="nav-item">
-            <Users size={20} />
-            <span>Мои Друзья</span>
-          </a>
-        )}
-        <a href="#" className="nav-item">
-          <MessageCircle size={20} />
-          <span>Мои Сообщения</span>
-        </a>
-        
-        {/* Media Storage Section */}
-        <div className="nav-group">
-          <div className="nav-group-label">МЕДИА ХРАНИЛИЩЕ</div>
-          <a 
-            href="#" 
-            className={`nav-item ${activeView === 'media-photos' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveView('media-photos');
-            }}
-          >
-            <Image size={20} />
-            <span>Мои Фото</span>
-          </a>
-          <a 
-            href="#" 
-            className={`nav-item ${activeView === 'media-documents' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveView('media-documents');
-            }}
-          >
-            <FileText size={20} />
-            <span>Мои Документы</span>
-          </a>
-          <a 
-            href="#" 
-            className={`nav-item ${activeView === 'media-videos' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveView('media-videos');
-            }}
-          >
-            <Video size={20} />
-            <span>Мои Видео</span>
-          </a>
-        </div>
-
-        {/* MY INFO Module */}
-        <div className="nav-group">
-          <div className="nav-group-label">МОЯ ИНФОРМАЦИЯ</div>
-          <a 
-            href="#" 
-            className={`nav-item ${activeView === 'my-info' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveView('my-info');
-            }}
-          >
-            <User size={20} />
-            <span>Профиль</span>
-          </a>
-          <a 
-            href="#" 
-            className={`nav-item ${activeView === 'my-documents' ? 'active' : ''}`}
-            onClick={(e) => {
-              e.preventDefault();
-              setActiveView('my-documents');
-            }}
-          >
-            <FileText size={20} />
-            <span>Документы</span>
-          </a>
-        </div>
-        
-        <a href="#" className="nav-item">
-          <Settings size={20} />
-          <span>Настройки</span>
-        </a>
-      </nav>
     </aside>
   );
 };
