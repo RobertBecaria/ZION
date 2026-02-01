@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { BACKEND_URL } from '../config/api';
 import { 
   Bell, BellRing, X, Check, CheckCheck, Trash2, Bot, Star, Heart, 
@@ -45,7 +45,7 @@ const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
     };
   }, [isOpen, onClose]);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('zion_token');
@@ -63,9 +63,9 @@ const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchUnreadCount = async () => {
+  const fetchUnreadCount = useCallback(async () => {
     try {
       const token = localStorage.getItem('zion_token');
       const response = await fetch(`${BACKEND_URL}/api/notifications/unread-count`, {
@@ -79,9 +79,9 @@ const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
     } catch (error) {
       console.error('Error fetching unread count:', error);
     }
-  };
+  }, []);
 
-  const markAsRead = async (notificationId) => {
+  const markAsRead = useCallback(async (notificationId) => {
     try {
       const token = localStorage.getItem('zion_token');
       await fetch(`${BACKEND_URL}/api/notifications/${notificationId}/read`, {
@@ -89,14 +89,14 @@ const NotificationDropdown = ({ isOpen, onClose, onOpenEricChat }) => {
         headers: { 'Authorization': `Bearer ${token}` }
       });
 
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
-  };
+  }, []);
 
   const markAllAsRead = async () => {
     try {

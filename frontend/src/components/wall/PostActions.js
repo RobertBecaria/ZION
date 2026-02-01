@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Heart, MessageCircle, Share2, ThumbsUp } from 'lucide-react';
 
 // Quick emoji reactions - always visible
@@ -36,40 +36,38 @@ function PostActions({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleReaction = (emoji) => {
+  const handleReaction = useCallback((emoji) => {
     onReaction(post.id, emoji);
     setShowReactionPicker(false);
     setShowFullPicker(false);
-  };
+  }, [post.id, onReaction]);
 
-  const handleLikeHover = () => {
+  const handleLikeHover = useCallback(() => {
     timeoutRef.current = setTimeout(() => {
       setShowReactionPicker(true);
     }, 500);
-  };
+  }, []);
 
-  const handleLikeLeave = () => {
+  const handleLikeLeave = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-  };
+  }, []);
 
-  const handleLikeClick = () => {
+  const handleLikeClick = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
     onLike(post.id);
-  };
+  }, [post.id, onLike]);
 
-  // Get reaction summary for display
-  const getReactionSummary = () => {
+  // Get reaction summary for display - memoized
+  const reactionSummary = useMemo(() => {
     if (!post.top_reactions || post.top_reactions.length === 0) return null;
     const totalReactions = post.top_reactions.reduce((sum, r) => sum + r.count, 0);
     const emojis = post.top_reactions.slice(0, 3).map(r => r.emoji).join('');
     return { emojis, count: totalReactions };
-  };
-
-  const reactionSummary = getReactionSummary();
+  }, [post.top_reactions]);
 
   return (
     <div className="enhanced-post-actions">

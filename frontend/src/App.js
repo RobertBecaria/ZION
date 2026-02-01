@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import './App.css';
 // Auth Components
 import { AuthProvider, useAuth, ErrorBoundary, LoginForm, RegistrationForm, OnboardingWizard, ForgotPassword, ResetPassword } from './components/auth';
@@ -115,9 +115,9 @@ function Dashboard() {
     setJournalAudienceFilter
   } = useJournalModule(user, activeModule);
 
-  // Module config
-  const currentModule = getModuleByKey(activeModule);
-  const sidebarTintStyle = getSidebarTintStyle(currentModule.color);
+  // Module config - memoized to prevent unnecessary re-renders
+  const currentModule = useMemo(() => getModuleByKey(activeModule), [activeModule]);
+  const sidebarTintStyle = useMemo(() => getSidebarTintStyle(currentModule.color), [currentModule.color]);
 
   // Custom setActiveView that also tracks module history
   const handleSetActiveView = useCallback((view) => {
@@ -224,11 +224,11 @@ function Dashboard() {
     }
   }, [activeModule, loadingSchoolRoles]);
 
-  // Update time every second
+  // Update time every minute (reduces unnecessary re-renders)
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
-    }, 1000);
+    }, 60000);
     return () => clearInterval(timer);
   }, []);
 
@@ -304,21 +304,39 @@ function Dashboard() {
     }
   }, []); // No dependencies - stable reference
 
-  // Load chat groups and fetch media stats when user loads (only once)
+  // Load chat groups and fetch media stats in parallel when user loads (only once)
   useEffect(() => {
     if (user) {
-      fetchChatGroups();
-      fetchMediaStats();
+      Promise.all([fetchChatGroups(), fetchMediaStats()]);
     }
   }, [user]); // Only user dependency - callbacks are now stable
 
-  const handleGroupSelect = (groupData) => {
+  const handleGroupSelect = useCallback((groupData) => {
     setActiveGroup(groupData);
-  };
+  }, []);
 
-  const handleCreateGroup = () => {
+  const handleCreateGroup = useCallback(() => {
     fetchChatGroups();
-  };
+  }, [fetchChatGroups]);
+
+  // Memoized common props for module content - prevents unnecessary re-renders
+  const commonProps = useMemo(() => ({
+    activeView,
+    setActiveView: handleSetActiveView,
+    user,
+    currentModule,
+    activeGroup,
+    activeDirectChat,
+    chatGroups,
+    handleGroupSelect,
+    handleCreateGroup,
+  }), [activeView, handleSetActiveView, user, currentModule, activeGroup, activeDirectChat, chatGroups, handleGroupSelect, handleCreateGroup]);
+
+  // Memoized module pill style
+  const modulePillStyle = useMemo(() => ({
+    background: `linear-gradient(135deg, ${currentModule.color} 0%, ${currentModule.color}dd 100%)`,
+    boxShadow: `0 4px 12px ${currentModule.color}30, 0 1px 3px ${currentModule.color}20`
+  }), [currentModule.color]);
 
   if (showOnboarding) {
     return <OnboardingWizard onComplete={async () => {
@@ -373,17 +391,7 @@ function Dashboard() {
 
   // Render module content based on active module
   const renderModuleContent = () => {
-    const commonProps = {
-      activeView,
-      setActiveView: handleSetActiveView,
-      user,
-      currentModule,
-      activeGroup,
-      activeDirectChat,
-      chatGroups,
-      handleGroupSelect,
-      handleCreateGroup,
-    };
+    // commonProps is now memoized at component level
 
     switch (activeModule) {
       case 'family':
@@ -523,42 +531,29 @@ function Dashboard() {
             <>
               <div className="content-header">
                 <div className="header-left">
-                  <span 
-                    className="module-pill" 
-                    style={{ 
-                      background: `linear-gradient(135deg, ${currentModule.color} 0%, ${currentModule.color}dd 100%)`,
-                      boxShadow: `0 4px 12px ${currentModule.color}30, 0 1px 3px ${currentModule.color}20`
-                    }}
+                  <span
+                    className="module-pill"
+                    style={modulePillStyle}
                   >
                     {currentModule.name}
                   </span>
-                  
-                  {activeView && activeView !== 'wall' && activeView !== 'feed' && (
-                    <>
-                      <ChevronRight size={16} className="view-separator" />
-                      <span className="current-view">
-                        {activeView === 'photos' && 'Фото'}
-                        {activeView === 'videos' && 'Видео'}
-                        {activeView === 'documents' && 'Документы'}
-                        {activeView === 'calendar' && 'Календарь'}
-                        {activeView === 'my-info' && 'Моя Информация'}
-                        {activeView === 'my-documents' && 'Мои Документы'}
-                        {!['photos', 'videos', 'documents', 'calendar', 'my-info', 'my-documents', 'feed'].includes(activeView) && 'Стена'}
-                      </span>
-                    </>
-                  )}
-                  {(!activeView || activeView === 'wall') && (
-                    <>
-                      <ChevronRight size={16} className="view-separator" />
-                      <span className="current-view">Стена</span>
-                    </>
-                  )}
-                  {activeView === 'feed' && (
-                    <>
-                      <ChevronRight size={16} className="view-separator" />
-                      <span className="current-view">Моя Лента</span>
-                    </>
-                  )}
+
+                  <ChevronRight size={16} className="view-separator" />
+                  <span className="current-view">
+                    {(() => {
+                      const viewLabels = {
+                        'photos': 'Фото',
+                        'videos': 'Видео',
+                        'documents': 'Документы',
+                        'calendar': 'Календарь',
+                        'my-info': 'Моя Информация',
+                        'my-documents': 'Мои Документы',
+                        'feed': 'Моя Лента',
+                        'wall': 'Стена'
+                      };
+                      return viewLabels[activeView] || 'Стена';
+                    })()}
+                  </span>
                 </div>
                 
                 <div className="header-right">

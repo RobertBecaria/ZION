@@ -1,9 +1,19 @@
-import React, { useState, memo } from 'react';
+import React, { useState, useMemo, memo } from 'react';
 import { User, MoreHorizontal, Globe, Users, Lock, UserCheck, Edit2, Trash2 } from 'lucide-react';
 import { formatTime } from './utils/postUtils';
 import PostMedia from './PostMedia';
 import PostActions from './PostActions';
 import CommentSection from './CommentSection';
+
+// Default visibility options - defined outside component to prevent recreation
+const DEFAULT_VISIBILITY_OPTIONS = {
+  'PUBLIC': { icon: Globe, label: 'Публичный' },
+  'HOUSEHOLD_ONLY': { icon: Users, label: 'Домохозяйство' },
+  'PRIVATE': { icon: Lock, label: 'Приватный' },
+  'FAMILY_ONLY': { icon: Users, label: 'Только семья' },
+  'FRIENDS_AND_FOLLOWERS': { icon: UserCheck, label: 'Друзья и подписчики' },
+  'FRIENDS_ONLY': { icon: Users, label: 'Только друзья' }
+};
 
 const PostItem = memo(function PostItem({ 
   post, 
@@ -31,31 +41,28 @@ const PostItem = memo(function PostItem({
   visibilityOptions
 }) {
   const [showMenu, setShowMenu] = useState(false);
-  
+
   // Check if current user is the author
   const isAuthor = post.user_id === user?.id || post.author?.id === user?.id;
+
+  // Memoize merged visibility options to prevent recreation on every render
+  const allVisibilityOptions = useMemo(
+    () => ({ ...DEFAULT_VISIBILITY_OPTIONS, ...visibilityOptions }),
+    [visibilityOptions]
+  );
   
-  // Default visibility options
-  const defaultVisibilityOptions = {
-    'PUBLIC': { icon: Globe, label: 'Публичный' },
-    'HOUSEHOLD_ONLY': { icon: Users, label: 'Домохозяйство' },
-    'PRIVATE': { icon: Lock, label: 'Приватный' },
-    'FAMILY_ONLY': { icon: Users, label: 'Только семья' },
-    'FRIENDS_AND_FOLLOWERS': { icon: UserCheck, label: 'Друзья и подписчики' },
-    'FRIENDS_ONLY': { icon: Users, label: 'Только друзья' }
-  };
-  
-  const allVisibilityOptions = { ...defaultVisibilityOptions, ...visibilityOptions };
-  
-  // Get visibility icon
-  const getVisibilityIcon = () => {
+  // Get visibility icon - memoized
+  const visibilityIcon = useMemo(() => {
     const visibility = allVisibilityOptions[post.visibility] || allVisibilityOptions['PUBLIC'];
     const IconComponent = visibility.icon;
     return <IconComponent size={12} color="#65676b" title={visibility.label} />;
-  };
-  
-  // Format date using custom or default function
-  const displayDate = formatDate ? formatDate(post.created_at) : formatTime(post.created_at);
+  }, [allVisibilityOptions, post.visibility]);
+
+  // Format date using custom or default function - memoized
+  const displayDate = useMemo(
+    () => formatDate ? formatDate(post.created_at) : formatTime(post.created_at),
+    [formatDate, post.created_at]
+  );
 
   return (
     <div className="enhanced-post-item">
@@ -83,7 +90,7 @@ const PostItem = memo(function PostItem({
             <div className="post-meta">
               <span className="post-time">{displayDate}</span>
               <span className="meta-dot">·</span>
-              {getVisibilityIcon()}
+              {visibilityIcon}
             </div>
           </div>
         </div>
