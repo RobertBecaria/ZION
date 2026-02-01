@@ -3,10 +3,9 @@ import {
   Coins, TrendingUp, Users, Gift, Plus, Send, RefreshCw,
   DollarSign, PieChart, History, Wallet, ArrowUpRight, ArrowDownRight,
   AlertTriangle, CheckCircle, Search, X, RotateCcw, Eye,
-  Building, CreditCard, ArrowRightLeft, Landmark, FileText
+  Building, CreditCard, ArrowRightLeft, Landmark, FileText, Server
 } from 'lucide-react';
-import AdminAltynTransfers from '../finances/AdminAltynTransfers';
-import AdminAltynAccounts from '../finances/AdminAltynAccounts';
+import AdminNodeManagement from './AdminNodeManagement';
 
 // Get backend URL - smart detection for both preview and production
 const getBackendUrl = () => {
@@ -922,16 +921,15 @@ const AdminAltynManagement = () => {
           { id: 'overview', label: 'Обзор', icon: PieChart },
           { id: 'wallet', label: 'Master Wallet', icon: Wallet },
           { id: 'tokens', label: 'Токены', icon: TrendingUp },
+          { id: 'nodes', label: 'NODE', icon: Server },
           { id: 'transactions', label: 'Транзакции', icon: ArrowRightLeft },
-          { id: 'eth-transfers', label: 'ETH Transfers', icon: ArrowRightLeft },
-          { id: 'accounts', label: 'Аккаунты', icon: Users },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                ? tab.id === 'nodes' ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
                 : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
             }`}
           >
@@ -1159,6 +1157,11 @@ const AdminAltynManagement = () => {
         </div>
       )}
 
+      {/* NODE Tab */}
+      {activeTab === 'nodes' && (
+        <AdminNodeManagement />
+      )}
+
       {/* Transactions Tab */}
       {activeTab === 'transactions' && (
         <div className="space-y-6">
@@ -1233,16 +1236,6 @@ const AdminAltynManagement = () => {
             </div>
           </div>
         </div>
-      )}
-
-      {/* ETH Transfers Tab */}
-      {activeTab === 'eth-transfers' && (
-        <AdminAltynTransfers moduleColor="#A16207" />
-      )}
-
-      {/* Accounts Tab */}
-      {activeTab === 'accounts' && (
-        <AdminAltynAccounts moduleColor="#A16207" />
       )}
 
       {/* Modals */}

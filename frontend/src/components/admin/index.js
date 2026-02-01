@@ -4,4 +4,5 @@ export { default as AdminDashboard } from './AdminDashboard';
 export { default as AdminUserManagement } from './AdminUserManagement';
 export { default as AdminDatabaseManagement } from './AdminDatabaseManagement';
 export { default as AdminAltynManagement } from './AdminAltynManagement';
+export { default as AdminNodeManagement } from './AdminNodeManagement';
 export { default as AdminLayout } from './AdminLayout';

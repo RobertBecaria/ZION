@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Wallet, Coins, TrendingUp, Send, ArrowDownLeft, ArrowUpRight,
-  RefreshCw, DollarSign, Percent, Gift, Building2, ChevronRight, ArrowRightLeft
+  RefreshCw, DollarSign, Percent, Gift, Building2, ChevronRight, Server
 } from 'lucide-react';
 import SendCoins from './SendCoins';
 import TransactionHistory from './TransactionHistory';
@@ -13,7 +13,7 @@ import TokenPortfolio from './TokenPortfolio';
 import ExchangeRates from './ExchangeRates';
 import AdminFinance from './AdminFinance';
 import CorporateWallets from './CorporateWallets';
-import AltynTransfer from './AltynTransfer';
+import NodeManagement from './NodeManagement';
 
 const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
   const [wallet, setWallet] = useState(null);
@@ -236,6 +236,14 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
           Обзор
         </button>
         <button 
+          className={`tab ${activeTab === 'nodes' ? 'active' : ''}`}
+          onClick={() => setActiveTab('nodes')}
+          style={activeTab === 'nodes' ? { borderColor: '#8B5CF6', color: '#8B5CF6' } : {}}
+        >
+          <Server size={18} />
+          NODE
+        </button>
+        <button 
           className={`tab ${activeTab === 'transactions' ? 'active' : ''}`}
           onClick={() => setActiveTab('transactions')}
           style={activeTab === 'transactions' ? { borderColor: moduleColor, color: moduleColor } : {}}
@@ -267,14 +275,6 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
           <Building2 size={18} />
           Бизнес
         </button>
-        <button 
-          className={`tab ${activeTab === 'transfer' ? 'active' : ''}`}
-          onClick={() => setActiveTab('transfer')}
-          style={activeTab === 'transfer' ? { borderColor: moduleColor, color: moduleColor } : {}}
-        >
-          <ArrowRightLeft size={18} />
-          Перенос с ETH
-        </button>
         {isAdmin && (
           <button 
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
@@ -299,6 +299,10 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
           </div>
         )}
 
+        {activeTab === 'nodes' && (
+          <NodeManagement user={user} moduleColor="#8B5CF6" />
+        )}
+
         {activeTab === 'transactions' && (
           <TransactionHistory moduleColor={moduleColor} />
         )}
@@ -317,13 +321,6 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
 
         {activeTab === 'corporate' && (
           <CorporateWallets user={user} moduleColor={moduleColor} />
-        )}
-
-        {activeTab === 'transfer' && (
-          <AltynTransfer 
-            moduleColor={moduleColor}
-            onSuccess={handleRefresh}
-          />
         )}
 
         {activeTab === 'admin' && isAdmin && (
