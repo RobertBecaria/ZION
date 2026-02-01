@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Wallet, Coins, TrendingUp, Send, ArrowDownLeft, ArrowUpRight,
-  RefreshCw, DollarSign, Percent, Gift, Building2, ChevronRight
+  RefreshCw, DollarSign, Percent, Gift, Building2, ChevronRight, ArrowRightLeft
 } from 'lucide-react';
 import SendCoins from './SendCoins';
 import TransactionHistory from './TransactionHistory';
@@ -13,6 +13,7 @@ import TokenPortfolio from './TokenPortfolio';
 import ExchangeRates from './ExchangeRates';
 import AdminFinance from './AdminFinance';
 import CorporateWallets from './CorporateWallets';
+import AltynTransfer from './AltynTransfer';
 
 const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
   const [wallet, setWallet] = useState(null);
@@ -266,6 +267,14 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
           <Building2 size={18} />
           Бизнес
         </button>
+        <button 
+          className={`tab ${activeTab === 'transfer' ? 'active' : ''}`}
+          onClick={() => setActiveTab('transfer')}
+          style={activeTab === 'transfer' ? { borderColor: moduleColor, color: moduleColor } : {}}
+        >
+          <ArrowRightLeft size={18} />
+          Перенос с ETH
+        </button>
         {isAdmin && (
           <button 
             className={`tab ${activeTab === 'admin' ? 'active' : ''}`}
@@ -308,6 +317,13 @@ const WalletDashboard = ({ user, moduleColor = '#A16207' }) => {
 
         {activeTab === 'corporate' && (
           <CorporateWallets user={user} moduleColor={moduleColor} />
+        )}
+
+        {activeTab === 'transfer' && (
+          <AltynTransfer 
+            moduleColor={moduleColor}
+            onSuccess={handleRefresh}
+          />
         )}
 
         {activeTab === 'admin' && isAdmin && (

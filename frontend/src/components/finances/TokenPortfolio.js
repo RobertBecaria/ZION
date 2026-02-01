@@ -2,37 +2,10 @@
  * TokenPortfolio Component
  * Shows user's TOKEN holdings and dividend information
  */
-import React, { useState, useEffect } from 'react';
-import { TrendingUp, Users, Gift, PieChart, Award, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { TrendingUp, Gift, PieChart, Award } from 'lucide-react';
 
 const TokenPortfolio = ({ wallet, portfolio, moduleColor = '#A16207' }) => {
-  const [tokenHolders, setTokenHolders] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchTokenHolders = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem('zion_token');
-      
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/finance/token-holders`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setTokenHolders(data.holders || []);
-      }
-    } catch (err) {
-      console.error('Error fetching token holders:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchTokenHolders();
-  }, []);
-
   const tokenBalance = wallet?.token_balance || 0;
   const tokenPercentage = wallet?.token_percentage || 0;
   const totalDividends = wallet?.total_dividends_received || 0;
@@ -104,34 +77,6 @@ const TokenPortfolio = ({ wallet, portfolio, moduleColor = '#A16207' }) => {
             <span className="econ-value">= 1 USD</span>
           </div>
         </div>
-      </div>
-
-      {/* Token Holders Leaderboard */}
-      <div className="holders-section">
-        <h3><Users size={20} /> Топ держателей ALTYN TOKEN</h3>
-        
-        {loading ? (
-          <div className="loading-state">
-            <RefreshCw size={24} className="spin" />
-            <span>Загрузка...</span>
-          </div>
-        ) : (
-          <div className="holders-list">
-            {tokenHolders.map((holder, index) => (
-              <div key={holder.user_id} className="holder-item">
-                <div className="holder-rank">#{index + 1}</div>
-                <div className="holder-info">
-                  <span className="holder-name">{holder.user_name}</span>
-                  <span className="holder-percentage">{holder.percentage.toFixed(4)}%</span>
-                </div>
-                <div className="holder-balance">
-                  <span className="balance-value">{formatNumber(holder.token_balance)}</span>
-                  <span className="balance-label">AT</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Dividend Calculation Example */}
@@ -220,14 +165,14 @@ const TokenPortfolio = ({ wallet, portfolio, moduleColor = '#A16207' }) => {
           font-weight: 500;
         }
 
-        .economics-section, .holders-section {
+        .economics-section {
           background: #f8fafc;
           border-radius: 12px;
           padding: 20px;
           margin-bottom: 20px;
         }
 
-        .economics-section h3, .holders-section h3 {
+        .economics-section h3 {
           display: flex;
           align-items: center;
           gap: 10px;
@@ -258,98 +203,6 @@ const TokenPortfolio = ({ wallet, portfolio, moduleColor = '#A16207' }) => {
           font-size: 16px;
           font-weight: 600;
           color: #1e293b;
-        }
-
-        .loading-state {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 12px;
-          padding: 32px;
-          color: #64748b;
-        }
-
-        .loading-state .spin {
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-
-        .holders-list {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .holder-item {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding: 12px 16px;
-          background: white;
-          border-radius: 10px;
-        }
-
-        .holder-rank {
-          width: 32px;
-          height: 32px;
-          background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
-          color: white;
-          border-radius: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 700;
-        }
-
-        .holder-item:nth-child(1) .holder-rank {
-          background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-        }
-
-        .holder-item:nth-child(2) .holder-rank {
-          background: linear-gradient(135deg, #94A3B8 0%, #64748B 100%);
-        }
-
-        .holder-item:nth-child(3) .holder-rank {
-          background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%);
-        }
-
-        .holder-info {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        .holder-name {
-          font-size: 14px;
-          font-weight: 500;
-          color: #1e293b;
-        }
-
-        .holder-percentage {
-          font-size: 12px;
-          color: #8B5CF6;
-        }
-
-        .holder-balance {
-          text-align: right;
-        }
-
-        .balance-value {
-          font-size: 16px;
-          font-weight: 600;
-          color: #1e293b;
-        }
-
-        .balance-label {
-          font-size: 12px;
-          color: #64748b;
-          margin-left: 4px;
         }
 
         .dividend-example {

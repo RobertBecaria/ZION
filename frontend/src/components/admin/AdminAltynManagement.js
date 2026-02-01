@@ -5,6 +5,8 @@ import {
   AlertTriangle, CheckCircle, Search, X, RotateCcw, Eye,
   Building, CreditCard, ArrowRightLeft, Landmark, FileText
 } from 'lucide-react';
+import AdminAltynTransfers from '../finances/AdminAltynTransfers';
+import AdminAltynAccounts from '../finances/AdminAltynAccounts';
 
 // Get backend URL - smart detection for both preview and production
 const getBackendUrl = () => {
@@ -921,6 +923,8 @@ const AdminAltynManagement = () => {
           { id: 'wallet', label: 'Master Wallet', icon: Wallet },
           { id: 'tokens', label: 'Токены', icon: TrendingUp },
           { id: 'transactions', label: 'Транзакции', icon: ArrowRightLeft },
+          { id: 'eth-transfers', label: 'ETH Transfers', icon: ArrowRightLeft },
+          { id: 'accounts', label: 'Аккаунты', icon: Users },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -1229,6 +1233,16 @@ const AdminAltynManagement = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ETH Transfers Tab */}
+      {activeTab === 'eth-transfers' && (
+        <AdminAltynTransfers moduleColor="#A16207" />
+      )}
+
+      {/* Accounts Tab */}
+      {activeTab === 'accounts' && (
+        <AdminAltynAccounts moduleColor="#A16207" />
       )}
 
       {/* Modals */}
