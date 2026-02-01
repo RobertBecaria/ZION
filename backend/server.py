@@ -22185,6 +22185,16 @@ async def transfer_assets(
         payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
         sender_id = payload.get("sub")
         
+        # Check if sender is blocked
+        sender_block = await db.altyn_account_blocks.find_one({"user_id": sender_id})
+        if sender_block:
+            if sender_block.get("account_blocked"):
+                raise HTTPException(status_code=403, detail="Ваш ALTYN аккаунт заблокирован")
+            if request.asset_type == AssetType.COIN and sender_block.get("coin_blocked"):
+                raise HTTPException(status_code=403, detail="Операции с ALTYN COIN заблокированы для вашего аккаунта")
+            if request.asset_type == AssetType.TOKEN and sender_block.get("token_blocked"):
+                raise HTTPException(status_code=403, detail="Операции с ALTYN TOKEN заблокированы для вашего аккаунта")
+        
         # Validate amount
         if request.amount <= 0:
             raise HTTPException(status_code=400, detail="Amount must be positive")
@@ -23394,6 +23404,476 @@ async def get_portfolio(credentials: HTTPAuthorizationCredentials = Depends(secu
     except Exception as e:
         logger.error(f"Error getting portfolio: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+# ===== ALTYN TOKEN TRANSFER FROM ETHEREUM =====
+
+# Etherscan API configuration
+ETHERSCAN_API_KEY = os.environ.get("ETHERSCAN_API_KEY", "VVMQZ79XB3PXDXT5R8FFM23JJF3A7JFQDU")
+ALTYN_TOKEN_CONTRACT = "0x095d7847945c6a496cad77bff0687a1bf367ec4a"
+ETHERSCAN_API_URL = "https://api.etherscan.io/v2/api"
+
+class AltynTransferMode(str, Enum):
+    AUTOMATIC = "AUTOMATIC"  # Instant token issuance after verification
+    MODERATION = "MODERATION"  # Requires admin approval
+
+class AltynTransferStatus(str, Enum):
+    PENDING = "PENDING"  # Awaiting verification/approval
+    VERIFIED = "VERIFIED"  # Wallet verified, awaiting approval (moderation mode)
+    APPROVED = "APPROVED"  # Admin approved, tokens issued
+    REJECTED = "REJECTED"  # Admin rejected
+    COMPLETED = "COMPLETED"  # Tokens issued successfully
+    FAILED = "FAILED"  # Verification or issuance failed
+
+class AltynTransferRequest(BaseModel):
+    """Request to transfer ALTYN TOKEN from Ethereum to Zion.City"""
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    eth_wallet_address: str  # User's Ethereum wallet
+    token_balance_eth: float  # Balance found on Etherscan (in token units)
+    token_balance_raw: str  # Raw balance from Etherscan (wei/smallest unit)
+    amount_to_issue: float  # Amount to issue on Zion.City
+    status: AltynTransferStatus = AltynTransferStatus.PENDING
+    signature: Optional[str] = None  # Cryptographic signature (for moderation)
+    signature_message: Optional[str] = None  # Message that was signed
+    admin_notes: Optional[str] = None  # Admin comments
+    processed_by: Optional[str] = None  # Admin who processed
+    processed_at: Optional[datetime] = None
+    rejection_reason: Optional[str] = None
+    transaction_id: Optional[str] = None  # Reference to created transaction
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+class AltynTransferSettings(BaseModel):
+    """Global settings for ALTYN transfer feature"""
+    id: str = "altyn_transfer_settings"
+    enabled: bool = True  # Feature enabled/disabled globally
+    mode: AltynTransferMode = AltynTransferMode.AUTOMATIC
+    require_signature: bool = False  # Require cryptographic signature
+    access_mode: str = "everyone"  # "everyone" or "selected"
+    allowed_users: List[str] = []  # User IDs if access_mode is "selected"
+    blocked_users: List[str] = []  # Blocked user IDs
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_by: Optional[str] = None
+
+# === ALTYN TRANSFER HELPER FUNCTIONS ===
+
+async def get_altyn_transfer_settings() -> dict:
+    """Get or create ALTYN transfer settings"""
+    settings = await db.altyn_transfer_settings.find_one({"id": "altyn_transfer_settings"}, {"_id": 0})
+    if not settings:
+        default_settings = AltynTransferSettings()
+        settings_dict = default_settings.dict()
+        settings_dict["updated_at"] = settings_dict["updated_at"].isoformat()
+        await db.altyn_transfer_settings.insert_one(settings_dict)
+        settings = settings_dict
+    else:
+        # Ensure datetime fields are properly serialized
+        if "updated_at" in settings and isinstance(settings["updated_at"], datetime):
+            settings["updated_at"] = settings["updated_at"].isoformat()
+    return settings
+
+async def is_eth_wallet_used(wallet_address: str) -> bool:
+    """Check if ETH wallet has already been used for transfer"""
+    wallet_lower = wallet_address.lower()
+    used = await db.used_eth_wallets.find_one({"wallet_address": wallet_lower})
+    return used is not None
+
+async def mark_eth_wallet_used(wallet_address: str, user_id: str, transfer_id: str):
+    """Mark ETH wallet as used"""
+    await db.used_eth_wallets.insert_one({
+        "id": str(uuid.uuid4()),
+        "wallet_address": wallet_address.lower(),
+        "user_id": user_id,
+        "transfer_id": transfer_id,
+        "used_at": datetime.now(timezone.utc).isoformat()
+    })
+
+async def get_eth_token_balance(wallet_address: str) -> dict:
+    """Get ALTYN TOKEN balance from Etherscan API"""
+    import httpx
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                ETHERSCAN_API_URL,
+                params={
+                    "chainid": "1",  # Ethereum mainnet
+                    "module": "account",
+                    "action": "tokenbalance",
+                    "contractaddress": ALTYN_TOKEN_CONTRACT,
+                    "address": wallet_address,
+                    "tag": "latest",
+                    "apikey": ETHERSCAN_API_KEY
+                },
+                timeout=30.0
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("status") == "1":
+                    raw_balance = data.get("result", "0")
+                    # ALTYN TOKEN has 18 decimals (standard ERC-20)
+                    balance = int(raw_balance) / (10 ** 18)
+                    return {
+                        "success": True,
+                        "balance": balance,
+                        "raw_balance": raw_balance,
+                        "contract": ALTYN_TOKEN_CONTRACT
+                    }
+                else:
+                    return {
+                        "success": False,
+                        "error": data.get("message", "Unknown error"),
+                        "result": data.get("result")
+                    }
+            else:
+                return {
+                    "success": False,
+                    "error": f"Etherscan API error: {response.status_code}"
+                }
+    except httpx.TimeoutException:
+        return {"success": False, "error": "Etherscan API timeout"}
+    except Exception as e:
+        logger.error(f"Etherscan API error: {e}")
+        return {"success": False, "error": str(e)}
+
+async def verify_eth_signature(message: str, signature: str, expected_address: str) -> bool:
+    """Verify Ethereum signature matches expected wallet address"""
+    try:
+        from eth_account.messages import encode_defunct
+        from eth_account import Account
+        
+        message_hash = encode_defunct(text=message)
+        recovered_address = Account.recover_message(message_hash, signature=signature)
+        return recovered_address.lower() == expected_address.lower()
+    except ImportError:
+        logger.warning("eth_account not installed, skipping signature verification")
+        return True  # Skip verification if library not available
+    except Exception as e:
+        logger.error(f"Signature verification error: {e}")
+        return False
+
+async def issue_altyn_tokens(user_id: str, amount: float, transfer_id: str, admin_id: Optional[str] = None) -> dict:
+    """Issue ALTYN TOKENs to user from Central Bank"""
+    try:
+        # Get treasury and user wallet
+        treasury = await get_or_create_treasury()
+        user_wallet = await get_or_create_wallet(user_id)
+        
+        # Create transaction
+        tx = Transaction(
+            from_wallet_id=treasury["id"],
+            to_wallet_id=user_wallet["id"],
+            from_user_id=TREASURY_USER_ID,
+            to_user_id=user_id,
+            amount=amount,
+            asset_type=AssetType.TOKEN,  # Issue TOKENs not COINs
+            transaction_type=TransactionType.TRANSFER,
+            description=f"ALTYN TOKEN перевод с Ethereum (Transfer ID: {transfer_id})"
+        )
+        
+        # Update user wallet with TOKENs
+        await db.wallets.update_one(
+            {"user_id": user_id},
+            {
+                "$inc": {"token_balance": amount},
+                "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}
+            }
+        )
+        
+        # Save transaction
+        tx_dict = tx.dict()
+        tx_dict["created_at"] = tx_dict["created_at"].isoformat()
+        await db.transactions.insert_one(tx_dict)
+        
+        return {
+            "success": True,
+            "transaction_id": tx.id,
+            "transaction_code": tx.code,
+            "amount": amount
+        }
+    except Exception as e:
+        logger.error(f"Error issuing ALTYN tokens: {e}")
+        return {"success": False, "error": str(e)}
+
+# === ALTYN TRANSFER USER ENDPOINTS ===
+
+class VerifyWalletRequest(BaseModel):
+    eth_wallet_address: str
+
+class SubmitTransferRequest(BaseModel):
+    eth_wallet_address: str
+    signature: Optional[str] = None  # Required in moderation mode with signature
+
+@api_router.get("/finance/altyn-transfer/check-access")
+async def check_altyn_transfer_access(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """Check if user can access ALTYN transfer feature"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        settings = await get_altyn_transfer_settings()
+        
+        if not settings.get("enabled", True):
+            return {
+                "has_access": False,
+                "reason": "Функция временно отключена",
+                "settings": {"mode": settings.get("mode"), "require_signature": settings.get("require_signature", False)}
+            }
+        
+        # Check if user is blocked
+        if user_id in settings.get("blocked_users", []):
+            return {
+                "has_access": False,
+                "reason": "Доступ к функции ограничен для вашего аккаунта"
+            }
+        
+        # Check access mode
+        access_mode = settings.get("access_mode", "everyone")
+        if access_mode == "selected":
+            if user_id not in settings.get("allowed_users", []):
+                return {
+                    "has_access": False,
+                    "reason": "Функция доступна только для выбранных пользователей"
+                }
+        
+        return {
+            "has_access": True,
+            "settings": {
+                "mode": settings.get("mode"),
+                "require_signature": settings.get("require_signature", False)
+            }
+        }
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+@api_router.post("/finance/altyn-transfer/verify-wallet")
+async def verify_eth_wallet(
+    request: VerifyWalletRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Verify ETH wallet and get ALTYN TOKEN balance"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        # Validate wallet address format
+        wallet = request.eth_wallet_address.strip()
+        if not wallet.startswith("0x") or len(wallet) != 42:
+            raise HTTPException(status_code=400, detail="Неверный формат адреса кошелька Ethereum")
+        
+        # Check if wallet already used
+        if await is_eth_wallet_used(wallet):
+            raise HTTPException(
+                status_code=400, 
+                detail="Этот кошелек уже использовался для переноса токенов"
+            )
+        
+        # Check user access
+        settings = await get_altyn_transfer_settings()
+        if not settings.get("enabled", True):
+            raise HTTPException(status_code=403, detail="Функция временно отключена")
+        
+        if user_id in settings.get("blocked_users", []):
+            raise HTTPException(status_code=403, detail="Доступ ограничен")
+        
+        # Get balance from Etherscan
+        balance_result = await get_eth_token_balance(wallet)
+        
+        if not balance_result.get("success"):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Ошибка проверки баланса: {balance_result.get('error', 'Unknown')}"
+            )
+        
+        balance = balance_result.get("balance", 0)
+        
+        if balance <= 0:
+            raise HTTPException(
+                status_code=400,
+                detail="На указанном кошельке нет ALTYN TOKEN"
+            )
+        
+        # Generate signature message if required
+        signature_message = None
+        if settings.get("require_signature") or settings.get("mode") == "MODERATION":
+            timestamp = datetime.now(timezone.utc).isoformat()
+            signature_message = f"Подтверждаю перенос {balance} ALTYN TOKEN на платформу Zion.City. Кошелек: {wallet}. Время: {timestamp}"
+        
+        return {
+            "success": True,
+            "wallet_address": wallet,
+            "balance": balance,
+            "raw_balance": balance_result.get("raw_balance"),
+            "contract": ALTYN_TOKEN_CONTRACT,
+            "signature_required": settings.get("require_signature", False) or settings.get("mode") == "MODERATION",
+            "signature_message": signature_message,
+            "mode": settings.get("mode")
+        }
+        
+    except HTTPException:
+        raise
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Wallet verification error: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка верификации кошелька")
+
+@api_router.post("/finance/altyn-transfer/submit")
+async def submit_altyn_transfer(
+    request: SubmitTransferRequest,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+):
+    """Submit ALTYN token transfer request"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        wallet = request.eth_wallet_address.strip()
+        
+        # Validate wallet format
+        if not wallet.startswith("0x") or len(wallet) != 42:
+            raise HTTPException(status_code=400, detail="Неверный формат адреса кошелька")
+        
+        # Check if wallet already used
+        if await is_eth_wallet_used(wallet):
+            raise HTTPException(
+                status_code=400,
+                detail="Этот кошелек уже использовался для переноса токенов"
+            )
+        
+        # Get settings
+        settings = await get_altyn_transfer_settings()
+        if not settings.get("enabled", True):
+            raise HTTPException(status_code=403, detail="Функция временно отключена")
+        
+        if user_id in settings.get("blocked_users", []):
+            raise HTTPException(status_code=403, detail="Доступ ограничен")
+        
+        # Verify balance again
+        balance_result = await get_eth_token_balance(wallet)
+        if not balance_result.get("success") or balance_result.get("balance", 0) <= 0:
+            raise HTTPException(status_code=400, detail="Не удалось подтвердить баланс токенов")
+        
+        balance = balance_result.get("balance")
+        raw_balance = balance_result.get("raw_balance")
+        
+        # Generate signature message
+        timestamp = datetime.now(timezone.utc).isoformat()
+        signature_message = f"Подтверждаю перенос {balance} ALTYN TOKEN на платформу Zion.City. Кошелек: {wallet}. Время: {timestamp}"
+        
+        # Verify signature if required
+        if settings.get("require_signature") and settings.get("mode") == "MODERATION":
+            if not request.signature:
+                raise HTTPException(status_code=400, detail="Требуется криптографическая подпись")
+            
+            if not await verify_eth_signature(signature_message, request.signature, wallet):
+                raise HTTPException(status_code=400, detail="Неверная подпись")
+        
+        # Create transfer request
+        transfer = AltynTransferRequest(
+            user_id=user_id,
+            eth_wallet_address=wallet.lower(),
+            token_balance_eth=balance,
+            token_balance_raw=raw_balance,
+            amount_to_issue=balance,
+            signature=request.signature,
+            signature_message=signature_message if request.signature else None
+        )
+        
+        # Determine status based on mode
+        mode = settings.get("mode", "AUTOMATIC")
+        
+        if mode == "AUTOMATIC":
+            # Issue tokens immediately
+            issue_result = await issue_altyn_tokens(user_id, balance, transfer.id)
+            
+            if issue_result.get("success"):
+                transfer.status = AltynTransferStatus.COMPLETED
+                transfer.transaction_id = issue_result.get("transaction_id")
+                transfer.processed_at = datetime.now(timezone.utc)
+                
+                # Mark wallet as used
+                await mark_eth_wallet_used(wallet, user_id, transfer.id)
+            else:
+                transfer.status = AltynTransferStatus.FAILED
+                transfer.admin_notes = issue_result.get("error")
+        else:
+            # Moderation mode - wait for admin approval
+            transfer.status = AltynTransferStatus.VERIFIED if request.signature else AltynTransferStatus.PENDING
+        
+        # Save transfer request
+        transfer_dict = transfer.dict()
+        transfer_dict["created_at"] = transfer_dict["created_at"].isoformat()
+        transfer_dict["updated_at"] = transfer_dict["updated_at"].isoformat()
+        if transfer_dict.get("processed_at"):
+            transfer_dict["processed_at"] = transfer_dict["processed_at"].isoformat()
+        await db.altyn_transfers.insert_one(transfer_dict)
+        
+        # Get user name for response
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1})
+        
+        return {
+            "success": True,
+            "transfer": {
+                "id": transfer.id,
+                "status": transfer.status.value,
+                "amount": balance,
+                "wallet_address": wallet,
+                "transaction_id": transfer.transaction_id,
+                "message": "Токены успешно зачислены на ваш счёт!" if transfer.status == AltynTransferStatus.COMPLETED 
+                          else "Заявка отправлена на рассмотрение администратором"
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+    except Exception as e:
+        logger.error(f"Transfer submission error: {e}")
+        raise HTTPException(status_code=500, detail="Ошибка создания заявки")
+
+@api_router.get("/finance/altyn-transfer/my-requests")
+async def get_my_altyn_transfers(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100)
+):
+    """Get current user's ALTYN transfer requests"""
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        
+        transfers = await db.altyn_transfers.find(
+            {"user_id": user_id},
+            {"_id": 0}
+        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        
+        total = await db.altyn_transfers.count_documents({"user_id": user_id})
+        
+        return {
+            "success": True,
+            "transfers": transfers,
+            "total": total,
+            "skip": skip,
+            "limit": limit
+        }
+        
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# ===== END ALTYN TOKEN TRANSFER (User endpoints) =====
+# NOTE: Admin endpoints are defined later after get_current_admin function
 
 # ===== END FINANCES MODULE =====
 
@@ -26667,6 +27147,540 @@ async def admin_initialize_tokens(
     except Exception as e:
         logger.error(f"Admin initialize tokens error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+# === ALTYN TRANSFER ADMIN ENDPOINTS ===
+
+@api_router.get("/admin/finance/altyn-transfer-settings")
+async def get_altyn_transfer_settings_admin(admin: str = Depends(get_current_admin)):
+    """Get ALTYN transfer settings (Admin only)"""
+    settings = await get_altyn_transfer_settings()
+    
+    # Get statistics
+    total_transfers = await db.altyn_transfers.count_documents({})
+    completed_transfers = await db.altyn_transfers.count_documents({"status": "COMPLETED"})
+    pending_transfers = await db.altyn_transfers.count_documents({"status": {"$in": ["PENDING", "VERIFIED"]}})
+    
+    # Get total tokens issued
+    pipeline = [
+        {"$match": {"status": "COMPLETED"}},
+        {"$group": {"_id": None, "total": {"$sum": "$amount_to_issue"}}}
+    ]
+    total_issued = await db.altyn_transfers.aggregate(pipeline).to_list(1)
+    
+    return {
+        "success": True,
+        "settings": settings,
+        "statistics": {
+            "total_transfers": total_transfers,
+            "completed_transfers": completed_transfers,
+            "pending_transfers": pending_transfers,
+            "total_tokens_issued": total_issued[0]["total"] if total_issued else 0
+        }
+    }
+
+@api_router.put("/admin/finance/altyn-transfer-settings")
+async def update_altyn_transfer_settings_admin(
+    enabled: Optional[bool] = None,
+    mode: Optional[str] = None,
+    require_signature: Optional[bool] = None,
+    access_mode: Optional[str] = None,
+    admin: str = Depends(get_current_admin)
+):
+    """Update ALTYN transfer settings (Admin only)"""
+    update_data = {"updated_at": datetime.now(timezone.utc).isoformat(), "updated_by": admin}
+    
+    if enabled is not None:
+        update_data["enabled"] = enabled
+    if mode is not None:
+        if mode not in ["AUTOMATIC", "MODERATION"]:
+            raise HTTPException(status_code=400, detail="Invalid mode")
+        update_data["mode"] = mode
+    if require_signature is not None:
+        update_data["require_signature"] = require_signature
+    if access_mode is not None:
+        if access_mode not in ["everyone", "selected"]:
+            raise HTTPException(status_code=400, detail="Invalid access_mode")
+        update_data["access_mode"] = access_mode
+    
+    await db.altyn_transfer_settings.update_one(
+        {"id": "altyn_transfer_settings"},
+        {"$set": update_data},
+        upsert=True
+    )
+    
+    settings = await get_altyn_transfer_settings()
+    return {"success": True, "settings": settings}
+
+@api_router.get("/admin/finance/altyn-transfers")
+async def get_all_altyn_transfers(
+    admin: str = Depends(get_current_admin),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    transfer_status: Optional[str] = None,
+    search: Optional[str] = None
+):
+    """Get all ALTYN transfer requests (Admin only)"""
+    query = {}
+    
+    if transfer_status:
+        query["status"] = transfer_status
+    
+    if search:
+        query["$or"] = [
+            {"eth_wallet_address": {"$regex": safe_regex(search), "$options": "i"}},
+            {"id": {"$regex": safe_regex(search), "$options": "i"}}
+        ]
+    
+    transfers = await db.altyn_transfers.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    total = await db.altyn_transfers.count_documents(query)
+    
+    # Enrich with user names
+    for transfer in transfers:
+        user = await db.users.find_one({"id": transfer["user_id"]}, {"_id": 0, "first_name": 1, "last_name": 1, "email": 1})
+        if user:
+            transfer["user_name"] = f"{user['first_name']} {user['last_name']}"
+            transfer["user_email"] = user.get("email")
+    
+    return {
+        "success": True,
+        "transfers": transfers,
+        "total": total,
+        "skip": skip,
+        "limit": limit
+    }
+
+@api_router.put("/admin/finance/altyn-transfers/{transfer_id}")
+async def update_altyn_transfer(
+    transfer_id: str,
+    amount_to_issue: Optional[float] = None,
+    admin_notes: Optional[str] = None,
+    admin: str = Depends(get_current_admin)
+):
+    """Update ALTYN transfer request (Admin only)"""
+    transfer = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
+    
+    if transfer["status"] == "COMPLETED":
+        raise HTTPException(status_code=400, detail="Нельзя изменить завершённую заявку")
+    
+    update_data = {"updated_at": datetime.now(timezone.utc).isoformat()}
+    
+    if amount_to_issue is not None:
+        if amount_to_issue <= 0:
+            raise HTTPException(status_code=400, detail="Сумма должна быть положительной")
+        update_data["amount_to_issue"] = amount_to_issue
+    
+    if admin_notes is not None:
+        update_data["admin_notes"] = admin_notes
+    
+    await db.altyn_transfers.update_one({"id": transfer_id}, {"$set": update_data})
+    
+    updated = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    return {"success": True, "transfer": updated}
+
+@api_router.put("/admin/finance/altyn-transfers/{transfer_id}/approve")
+async def approve_altyn_transfer(
+    transfer_id: str,
+    admin: str = Depends(get_current_admin)
+):
+    """Approve ALTYN transfer and issue tokens (Admin only)"""
+    transfer = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
+    
+    if transfer["status"] == "COMPLETED":
+        raise HTTPException(status_code=400, detail="Заявка уже обработана")
+    
+    if transfer["status"] == "REJECTED":
+        raise HTTPException(status_code=400, detail="Заявка была отклонена")
+    
+    # Check if wallet already used (safety check)
+    if await is_eth_wallet_used(transfer["eth_wallet_address"]):
+        raise HTTPException(status_code=400, detail="Кошелек уже использован")
+    
+    # Issue tokens
+    amount = transfer.get("amount_to_issue", transfer["token_balance_eth"])
+    issue_result = await issue_altyn_tokens(transfer["user_id"], amount, transfer_id, admin)
+    
+    if not issue_result.get("success"):
+        raise HTTPException(status_code=500, detail=f"Ошибка выпуска токенов: {issue_result.get('error')}")
+    
+    # Mark wallet as used
+    await mark_eth_wallet_used(transfer["eth_wallet_address"], transfer["user_id"], transfer_id)
+    
+    # Update transfer
+    await db.altyn_transfers.update_one(
+        {"id": transfer_id},
+        {"$set": {
+            "status": "COMPLETED",
+            "processed_by": admin,
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+            "transaction_id": issue_result.get("transaction_id"),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    updated = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    return {
+        "success": True,
+        "transfer": updated,
+        "transaction": {
+            "id": issue_result.get("transaction_id"),
+            "code": issue_result.get("transaction_code"),
+            "amount": amount
+        }
+    }
+
+@api_router.put("/admin/finance/altyn-transfers/{transfer_id}/reject")
+async def reject_altyn_transfer(
+    transfer_id: str,
+    reason: str = Query(..., description="Причина отклонения"),
+    admin: str = Depends(get_current_admin)
+):
+    """Reject ALTYN transfer request (Admin only)"""
+    transfer = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
+    
+    if transfer["status"] == "COMPLETED":
+        raise HTTPException(status_code=400, detail="Нельзя отклонить завершённую заявку")
+    
+    await db.altyn_transfers.update_one(
+        {"id": transfer_id},
+        {"$set": {
+            "status": "REJECTED",
+            "rejection_reason": reason,
+            "processed_by": admin,
+            "processed_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    updated = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    return {"success": True, "transfer": updated}
+
+@api_router.delete("/admin/finance/altyn-transfers/{transfer_id}")
+async def delete_altyn_transfer(
+    transfer_id: str,
+    admin: str = Depends(get_current_admin)
+):
+    """Delete ALTYN transfer request (Admin only)"""
+    transfer = await db.altyn_transfers.find_one({"id": transfer_id}, {"_id": 0})
+    if not transfer:
+        raise HTTPException(status_code=404, detail="Заявка не найдена")
+    
+    if transfer["status"] == "COMPLETED":
+        raise HTTPException(status_code=400, detail="Нельзя удалить завершённую заявку")
+    
+    await db.altyn_transfers.delete_one({"id": transfer_id})
+    return {"success": True, "message": "Заявка удалена"}
+
+@api_router.put("/admin/users/{user_id}/altyn-transfer-access")
+async def toggle_user_altyn_transfer_access(
+    user_id: str,
+    allow: bool = Query(..., description="Разрешить или заблокировать"),
+    admin: str = Depends(get_current_admin)
+):
+    """Toggle user's access to ALTYN transfer feature (Admin only)"""
+    user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1})
+    if not user:
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+    
+    settings = await get_altyn_transfer_settings()
+    blocked_users = settings.get("blocked_users", [])
+    allowed_users = settings.get("allowed_users", [])
+    
+    if allow:
+        # Remove from blocked, add to allowed
+        if user_id in blocked_users:
+            blocked_users.remove(user_id)
+        if user_id not in allowed_users:
+            allowed_users.append(user_id)
+    else:
+        # Add to blocked, remove from allowed
+        if user_id not in blocked_users:
+            blocked_users.append(user_id)
+        if user_id in allowed_users:
+            allowed_users.remove(user_id)
+    
+    await db.altyn_transfer_settings.update_one(
+        {"id": "altyn_transfer_settings"},
+        {"$set": {
+            "blocked_users": blocked_users,
+            "allowed_users": allowed_users,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": admin
+        }}
+    )
+    
+    return {
+        "success": True,
+        "user_id": user_id,
+        "user_name": f"{user['first_name']} {user['last_name']}",
+        "access_allowed": allow
+    }
+
+# === ALTYN ACCOUNT MANAGEMENT ENDPOINTS ===
+
+@api_router.get("/admin/finance/altyn-accounts")
+async def get_altyn_accounts(
+    admin: str = Depends(get_current_admin),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    search: Optional[str] = None,
+    blocked_only: bool = Query(False, description="Show only blocked accounts")
+):
+    """Get all user accounts with ALTYN wallet info (Admin only)"""
+    try:
+        # Build user query
+        user_query = {}
+        if search:
+            user_query["$or"] = [
+                {"email": {"$regex": safe_regex(search), "$options": "i"}},
+                {"first_name": {"$regex": safe_regex(search), "$options": "i"}},
+                {"last_name": {"$regex": safe_regex(search), "$options": "i"}}
+            ]
+        
+        # Get users
+        users = await db.users.find(
+            user_query,
+            {"_id": 0, "id": 1, "email": 1, "first_name": 1, "last_name": 1, "is_active": 1, "created_at": 1}
+        ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+        
+        total_users = await db.users.count_documents(user_query)
+        
+        # Enrich with wallet and block info
+        accounts = []
+        for user in users:
+            wallet = await db.wallets.find_one({"user_id": user["id"]}, {"_id": 0})
+            block_info = await db.altyn_account_blocks.find_one({"user_id": user["id"]}, {"_id": 0})
+            
+            account = {
+                "user_id": user["id"],
+                "email": user.get("email"),
+                "first_name": user.get("first_name"),
+                "last_name": user.get("last_name"),
+                "is_active": user.get("is_active", True),
+                "created_at": user.get("created_at"),
+                "wallet": {
+                    "coin_balance": wallet.get("coin_balance", 0) if wallet else 0,
+                    "token_balance": wallet.get("token_balance", 0) if wallet else 0,
+                    "has_wallet": wallet is not None
+                },
+                "blocks": {
+                    "account_blocked": block_info.get("account_blocked", False) if block_info else False,
+                    "coin_blocked": block_info.get("coin_blocked", False) if block_info else False,
+                    "token_blocked": block_info.get("token_blocked", False) if block_info else False,
+                    "block_reason": block_info.get("block_reason") if block_info else None,
+                    "blocked_at": block_info.get("blocked_at") if block_info else None,
+                    "blocked_by": block_info.get("blocked_by") if block_info else None
+                }
+            }
+            
+            # Filter if blocked_only
+            if blocked_only:
+                if account["blocks"]["account_blocked"] or account["blocks"]["coin_blocked"] or account["blocks"]["token_blocked"]:
+                    accounts.append(account)
+            else:
+                accounts.append(account)
+        
+        return {
+            "success": True,
+            "accounts": accounts,
+            "total": total_users if not blocked_only else len(accounts),
+            "skip": skip,
+            "limit": limit
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting altyn accounts: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.get("/admin/finance/altyn-accounts/{user_id}")
+async def get_altyn_account_detail(
+    user_id: str,
+    admin: str = Depends(get_current_admin)
+):
+    """Get detailed ALTYN account info for a user (Admin only)"""
+    try:
+        user = await db.users.find_one(
+            {"id": user_id},
+            {"_id": 0, "id": 1, "email": 1, "first_name": 1, "last_name": 1, "is_active": 1, "created_at": 1}
+        )
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        
+        wallet = await db.wallets.find_one({"user_id": user_id}, {"_id": 0})
+        block_info = await db.altyn_account_blocks.find_one({"user_id": user_id}, {"_id": 0})
+        
+        # Get recent transactions
+        recent_tx = await db.transactions.find(
+            {"$or": [{"from_user_id": user_id}, {"to_user_id": user_id}]},
+            {"_id": 0}
+        ).sort("created_at", -1).limit(10).to_list(10)
+        
+        # Get ALTYN transfer requests
+        transfer_requests = await db.altyn_transfers.find(
+            {"user_id": user_id},
+            {"_id": 0}
+        ).sort("created_at", -1).limit(5).to_list(5)
+        
+        return {
+            "success": True,
+            "account": {
+                "user": user,
+                "wallet": wallet,
+                "blocks": block_info or {
+                    "account_blocked": False,
+                    "coin_blocked": False,
+                    "token_blocked": False
+                },
+                "recent_transactions": recent_tx,
+                "transfer_requests": transfer_requests
+            }
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting altyn account detail: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.put("/admin/finance/altyn-accounts/{user_id}/block")
+async def block_altyn_account(
+    user_id: str,
+    block_account: Optional[bool] = Query(None, description="Block entire ALTYN account"),
+    block_coin: Optional[bool] = Query(None, description="Block ALTYN COIN operations"),
+    block_token: Optional[bool] = Query(None, description="Block ALTYN TOKEN operations"),
+    reason: Optional[str] = Query(None, description="Reason for blocking"),
+    admin: str = Depends(get_current_admin)
+):
+    """Block/unblock user's ALTYN account or specific assets (Admin only)"""
+    try:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1, "email": 1})
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        
+        # Get current block info
+        block_info = await db.altyn_account_blocks.find_one({"user_id": user_id})
+        
+        update_data = {
+            "user_id": user_id,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "updated_by": admin
+        }
+        
+        if block_account is not None:
+            update_data["account_blocked"] = block_account
+            if block_account:
+                update_data["blocked_at"] = datetime.now(timezone.utc).isoformat()
+                update_data["blocked_by"] = admin
+        
+        if block_coin is not None:
+            update_data["coin_blocked"] = block_coin
+            if block_coin:
+                update_data["coin_blocked_at"] = datetime.now(timezone.utc).isoformat()
+                update_data["coin_blocked_by"] = admin
+        
+        if block_token is not None:
+            update_data["token_blocked"] = block_token
+            if block_token:
+                update_data["token_blocked_at"] = datetime.now(timezone.utc).isoformat()
+                update_data["token_blocked_by"] = admin
+        
+        if reason:
+            update_data["block_reason"] = reason
+        
+        # Upsert block info
+        await db.altyn_account_blocks.update_one(
+            {"user_id": user_id},
+            {"$set": update_data},
+            upsert=True
+        )
+        
+        # Get updated info
+        updated_block = await db.altyn_account_blocks.find_one({"user_id": user_id}, {"_id": 0})
+        
+        return {
+            "success": True,
+            "user_id": user_id,
+            "user_name": f"{user['first_name']} {user['last_name']}",
+            "user_email": user.get("email"),
+            "blocks": updated_block
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error blocking altyn account: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.delete("/admin/finance/altyn-accounts/{user_id}/block")
+async def unblock_altyn_account(
+    user_id: str,
+    admin: str = Depends(get_current_admin)
+):
+    """Remove all blocks from user's ALTYN account (Admin only)"""
+    try:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0, "first_name": 1, "last_name": 1})
+        if not user:
+            raise HTTPException(status_code=404, detail="Пользователь не найден")
+        
+        await db.altyn_account_blocks.delete_one({"user_id": user_id})
+        
+        return {
+            "success": True,
+            "user_id": user_id,
+            "user_name": f"{user['first_name']} {user['last_name']}",
+            "message": "Все блокировки сняты"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error unblocking altyn account: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@api_router.get("/admin/finance/altyn-blocked-stats")
+async def get_altyn_blocked_stats(admin: str = Depends(get_current_admin)):
+    """Get statistics on blocked ALTYN accounts (Admin only)"""
+    try:
+        total_blocked_accounts = await db.altyn_account_blocks.count_documents({"account_blocked": True})
+        total_coin_blocked = await db.altyn_account_blocks.count_documents({"coin_blocked": True})
+        total_token_blocked = await db.altyn_account_blocks.count_documents({"token_blocked": True})
+        
+        # Get recent blocks
+        recent_blocks = await db.altyn_account_blocks.find(
+            {"$or": [{"account_blocked": True}, {"coin_blocked": True}, {"token_blocked": True}]},
+            {"_id": 0}
+        ).sort("updated_at", -1).limit(10).to_list(10)
+        
+        # Enrich with user names
+        for block in recent_blocks:
+            user = await db.users.find_one(
+                {"id": block["user_id"]},
+                {"_id": 0, "first_name": 1, "last_name": 1, "email": 1}
+            )
+            if user:
+                block["user_name"] = f"{user['first_name']} {user['last_name']}"
+                block["user_email"] = user.get("email")
+        
+        return {
+            "success": True,
+            "stats": {
+                "total_blocked_accounts": total_blocked_accounts,
+                "total_coin_blocked": total_coin_blocked,
+                "total_token_blocked": total_token_blocked
+            },
+            "recent_blocks": recent_blocks
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting blocked stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+# ===== END ALTYN TRANSFER ADMIN ENDPOINTS =====
 
 # --- Central Bank / Master Wallet Endpoints ---
 
