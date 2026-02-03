@@ -1,0 +1,781 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   ZION.CITY LUXURY VERTU THEME OVERRIDES
+   Applies luxury styling to the existing app structure
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   1. GLOBAL LUXURY THEME - Applied to body
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body {
+  background-color: #0a0e1a !important;
+  color: #ffffff !important;
+  background-image: 
+    /* Quilted diamond pattern */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%231a2540' stroke-width='1'%3E%3Cpath d='M0 40 L40 0 L80 40 L40 80 Z' /%3E%3C/g%3E%3Ccircle cx='40' cy='40' r='2' fill='%23243050' /%3E%3C/svg%3E"),
+    /* Subtle noise texture */
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E"),
+    /* Deep gradient overlay */
+    radial-gradient(ellipse 120% 80% at 50% 0%, rgba(20, 29, 51, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 60% at 100% 100%, rgba(15, 22, 40, 0.6) 0%, transparent 50%),
+    linear-gradient(180deg, #0a0e1a 0%, #0f1628 50%, #141d33 100%) !important;
+  background-size: 80px 80px, 200px 200px, 100% 100%, 100% 100%, 100% 100% !important;
+  background-attachment: fixed !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   2. APP CONTAINER & MAIN LAYOUT
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.app {
+  background: transparent !important;
+  min-height: 100vh;
+}
+
+.main-container {
+  background: transparent !important;
+}
+
+.content-area {
+  background: transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   3. TOP NAVIGATION BAR - Luxury Glass Effect
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.top-nav,
+.module-navigation,
+nav[class*="top-nav"],
+header {
+  background: rgba(20, 29, 51, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+.top-nav::after,
+.module-navigation::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 50%, 
+    transparent 100%);
+}
+
+/* Module navigation pills */
+.module-nav-item,
+.nav-item,
+button[class*="nav-item"] {
+  color: rgba(255, 255, 255, 0.65) !important;
+  background: transparent !important;
+  border-radius: 9999px !important;
+  transition: all 0.2s ease !important;
+}
+
+.module-nav-item:hover,
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.module-nav-item.active,
+.nav-item.active {
+  background: linear-gradient(135deg, var(--module-color, #3b82f6) 0%, var(--module-color-dark, #2563eb) 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   4. LEFT SIDEBAR - Luxury Metal & Glass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.left-sidebar,
+.sidebar-left,
+aside[class*="left"],
+div[class*="left-sidebar"] {
+  background: rgba(20, 29, 51, 0.92) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 4px 0 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Sidebar navigation items */
+.sidebar-nav-item,
+.sidebar-item,
+.menu-item {
+  color: rgba(255, 255, 255, 0.65) !important;
+  background: transparent !important;
+  border-radius: 12px !important;
+  transition: all 0.15s ease !important;
+  position: relative !important;
+}
+
+.sidebar-nav-item:hover,
+.sidebar-item:hover,
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.sidebar-nav-item.active,
+.sidebar-item.active,
+.menu-item.active {
+  background: linear-gradient(135deg, 
+    rgba(var(--module-rgb, 59, 130, 246), 0.15) 0%, 
+    rgba(var(--module-rgb, 59, 130, 246), 0.05) 100%) !important;
+  color: var(--module-color, #3b82f6) !important;
+}
+
+.sidebar-nav-item.active::before,
+.sidebar-item.active::before,
+.menu-item.active::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 3px !important;
+  height: 24px !important;
+  background: var(--module-color, #3b82f6) !important;
+  border-radius: 0 4px 4px 0 !important;
+  box-shadow: 0 0 12px var(--module-glow, rgba(59, 130, 246, 0.5)) !important;
+}
+
+/* Sidebar section titles */
+.sidebar-section-title,
+.section-title {
+  color: rgba(255, 255, 255, 0.4) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   5. RIGHT SIDEBAR - Events Panel
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.right-sidebar,
+.sidebar-right,
+aside[class*="right"],
+div[class*="right-sidebar"],
+.events-panel-area,
+.events-panel {
+  background: rgba(20, 29, 51, 0.92) !important;
+  backdrop-filter: blur(30px) !important;
+  -webkit-backdrop-filter: blur(30px) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: -4px 0 30px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   6. GLASS CARDS - Post Cards, Content Cards
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.card,
+.post-card,
+.glass-card,
+.content-card,
+div[class*="card"],
+.bg-white,
+.bg-gray-50,
+.rounded-xl[class*="shadow"],
+.rounded-lg[class*="shadow"],
+.rounded-2xl[class*="shadow"] {
+  background: rgba(20, 29, 51, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 0 rgba(0, 0, 0, 0.1) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+}
+
+.card::before,
+.post-card::before,
+.glass-card::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 1px !important;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 20%, 
+    rgba(255, 255, 255, 0.15) 50%, 
+    rgba(255, 255, 255, 0.1) 80%, 
+    transparent 100%) !important;
+  pointer-events: none !important;
+}
+
+.card:hover,
+.post-card:hover,
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 30px -10px var(--module-glow, rgba(59, 130, 246, 0.4)),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   7. PROFILE CARD - Ornate Gold Frame
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.profile-card,
+.user-profile-card,
+div[class*="profile-card"] {
+  background: rgba(20, 29, 51, 0.85) !important;
+  border: 1px solid rgba(201, 169, 98, 0.3) !important;
+}
+
+/* Profile avatar with gold ring */
+.profile-avatar,
+.user-avatar,
+.avatar-lg,
+.avatar-xl,
+.avatar-2xl {
+  box-shadow: 
+    0 0 0 3px #0f1628,
+    0 0 0 5px #c9a962,
+    0 4px 16px rgba(201, 169, 98, 0.3) !important;
+}
+
+/* Ornate profile frame wrapper */
+.profile-frame-ornate {
+  position: relative;
+  padding: 8px;
+  background: linear-gradient(135deg, #e4d4a8 0%, #c9a962 25%, #9a7b3c 50%, #c9a962 75%, #e4d4a8 100%);
+  background-size: 200% 200%;
+  border-radius: 50%;
+  animation: luxury-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes luxury-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   8. TEXT STYLING - Luxury Typography
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Primary text */
+h1, h2, h3, h4, h5, h6,
+.text-gray-900,
+.text-gray-800,
+.text-slate-900,
+.text-slate-800 {
+  color: #ffffff !important;
+}
+
+/* Secondary text */
+p,
+.text-gray-700,
+.text-gray-600,
+.text-slate-700,
+.text-slate-600 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Tertiary/muted text */
+.text-gray-500,
+.text-gray-400,
+.text-slate-500,
+.text-slate-400,
+.text-muted {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Gold accent text */
+.text-gold {
+  color: #e4d4a8 !important;
+}
+
+/* Module-colored text preserved */
+[data-module="family"] .module-text { color: #10b981 !important; }
+[data-module="news"] .module-text { color: #3b82f6 !important; }
+[data-module="journal"] .module-text { color: #8b5cf6 !important; }
+[data-module="services"] .module-text { color: #ef4444 !important; }
+[data-module="organizations"] .module-text { color: #f97316 !important; }
+[data-module="marketplace"] .module-text { color: #ec4899 !important; }
+[data-module="finance"] .module-text { color: #eab308 !important; }
+[data-module="events"] .module-text { color: #06b6d4 !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   9. BUTTONS - Luxury Gradient & Glass
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Primary buttons */
+button[class*="primary"],
+.btn-primary,
+button.bg-blue-500,
+button.bg-blue-600,
+button[class*="bg-family"],
+button[class*="bg-news"],
+button[class*="bg-journal"],
+button[class*="bg-services"],
+button[class*="bg-organizations"],
+button[class*="bg-marketplace"],
+button[class*="bg-finance"],
+button[class*="bg-events"] {
+  background: linear-gradient(135deg, var(--module-color, #3b82f6) 0%, var(--module-color-dark, #2563eb) 100%) !important;
+  color: white !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 16px var(--module-glow, rgba(59, 130, 246, 0.4)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+button[class*="primary"]:hover,
+.btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 
+    0 8px 24px var(--module-glow, rgba(59, 130, 246, 0.5)),
+    0 0 40px var(--module-glow, rgba(59, 130, 246, 0.3)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Secondary/ghost buttons */
+button[class*="secondary"],
+.btn-secondary,
+button.bg-gray-100,
+button.bg-gray-200,
+button.bg-white {
+  background: rgba(20, 29, 51, 0.75) !important;
+  backdrop-filter: blur(10px) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+button[class*="secondary"]:hover,
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Ghost buttons */
+button[class*="ghost"],
+.btn-ghost {
+  background: transparent !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid transparent !important;
+}
+
+button[class*="ghost"]:hover,
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   10. FORM INPUTS - Luxury Glass Style
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+textarea,
+select,
+.input,
+.form-input,
+input[class*="input"],
+input.border,
+textarea.border {
+  background: rgba(20, 29, 51, 0.75) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+  transition: all 0.2s ease !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+input:hover:not(:focus),
+textarea:hover:not(:focus) {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--module-color, #3b82f6) !important;
+  box-shadow: 
+    0 0 0 3px var(--module-glow, rgba(59, 130, 246, 0.3)),
+    0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  outline: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   11. BADGES & PILLS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.badge,
+.pill,
+.tag,
+span[class*="badge"],
+span[class*="rounded-full"][class*="bg-"] {
+  background: rgba(var(--module-rgb, 59, 130, 246), 0.15) !important;
+  color: var(--module-color, #3b82f6) !important;
+  border: 1px solid rgba(var(--module-rgb, 59, 130, 246), 0.2) !important;
+}
+
+/* Module pill in header */
+.module-pill {
+  background: linear-gradient(135deg, 
+    rgba(var(--module-rgb, 59, 130, 246), 0.2) 0%, 
+    rgba(var(--module-rgb, 59, 130, 246), 0.1) 100%) !important;
+  color: var(--module-color, #3b82f6) !important;
+  border: 1px solid rgba(var(--module-rgb, 59, 130, 246), 0.3) !important;
+  box-shadow: 0 0 15px rgba(var(--module-rgb, 59, 130, 246), 0.2) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   12. DROPDOWNS & MENUS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.dropdown,
+.menu,
+.dropdown-menu,
+div[class*="dropdown"],
+div[role="menu"],
+ul[class*="dropdown"] {
+  background: rgba(20, 29, 51, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 16px !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.dropdown-item,
+.menu-item,
+button[role="menuitem"],
+a[role="menuitem"] {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transition: all 0.15s ease !important;
+}
+
+.dropdown-item:hover,
+.menu-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   13. MODALS & OVERLAYS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.modal-overlay,
+.overlay,
+div[class*="modal-backdrop"],
+div[class*="fixed"][class*="inset-0"][class*="bg-"] {
+  background: rgba(10, 14, 26, 0.85) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.modal,
+.modal-content,
+div[class*="modal"][class*="bg-white"],
+div[role="dialog"] {
+  background: rgba(20, 29, 51, 0.95) !important;
+  backdrop-filter: blur(30px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 24px !important;
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   14. TABS & TAB PANELS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tabs,
+.tab-list,
+div[role="tablist"] {
+  background: rgba(20, 29, 51, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px !important;
+  padding: 4px !important;
+}
+
+.tab,
+button[role="tab"] {
+  color: rgba(255, 255, 255, 0.6) !important;
+  background: transparent !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.tab:hover,
+button[role="tab"]:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.tab[aria-selected="true"],
+.tab.active,
+button[role="tab"][aria-selected="true"] {
+  background: linear-gradient(135deg, var(--module-color, #3b82f6) 0%, var(--module-color-dark, #2563eb) 100%) !important;
+  color: white !important;
+  box-shadow: 0 2px 12px var(--module-glow, rgba(59, 130, 246, 0.4)) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   15. SCROLLBAR STYLING
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 3px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+}
+
+* {
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   16. DIVIDERS & BORDERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+hr,
+.divider,
+.border-t,
+.border-b,
+[class*="border-gray"],
+[class*="border-slate"] {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Luxury divider with gradient */
+.luxury-divider {
+  height: 1px !important;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.1) 20%, 
+    rgba(255, 255, 255, 0.15) 50%, 
+    rgba(255, 255, 255, 0.1) 80%, 
+    transparent 100%) !important;
+  border: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   17. ICONS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+svg {
+  color: currentColor !important;
+}
+
+.icon-muted {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   18. LOADING STATES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.skeleton,
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: skeleton-shimmer 1.5s infinite !important;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.spinner {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-top-color: var(--module-color, #3b82f6) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   19. POST COMPOSER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.post-composer,
+.composer,
+div[class*="composer"] {
+  background: rgba(20, 29, 51, 0.75) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   20. CONTENT HEADER
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.content-header {
+  background: rgba(20, 29, 51, 0.6) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.header-action-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.header-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   21. MODULE-SPECIFIC GLOW BORDERS
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+[data-module="family"] .card,
+[data-module="family"] .glass-card {
+  border-color: rgba(16, 185, 129, 0.2) !important;
+}
+[data-module="family"] .card:hover,
+[data-module="family"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(16, 185, 129, 0.4) !important;
+}
+
+[data-module="news"] .card,
+[data-module="news"] .glass-card {
+  border-color: rgba(59, 130, 246, 0.2) !important;
+}
+[data-module="news"] .card:hover,
+[data-module="news"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(59, 130, 246, 0.4) !important;
+}
+
+[data-module="journal"] .card,
+[data-module="journal"] .glass-card {
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+[data-module="journal"] .card:hover,
+[data-module="journal"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(139, 92, 246, 0.4) !important;
+}
+
+[data-module="services"] .card,
+[data-module="services"] .glass-card {
+  border-color: rgba(239, 68, 68, 0.2) !important;
+}
+[data-module="services"] .card:hover,
+[data-module="services"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(239, 68, 68, 0.4) !important;
+}
+
+[data-module="organizations"] .card,
+[data-module="organizations"] .glass-card {
+  border-color: rgba(249, 115, 22, 0.2) !important;
+}
+[data-module="organizations"] .card:hover,
+[data-module="organizations"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(249, 115, 22, 0.4) !important;
+}
+
+[data-module="marketplace"] .card,
+[data-module="marketplace"] .glass-card {
+  border-color: rgba(236, 72, 153, 0.2) !important;
+}
+[data-module="marketplace"] .card:hover,
+[data-module="marketplace"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(236, 72, 153, 0.4) !important;
+}
+
+[data-module="finance"] .card,
+[data-module="finance"] .glass-card {
+  border-color: rgba(234, 179, 8, 0.2) !important;
+}
+[data-module="finance"] .card:hover,
+[data-module="finance"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(234, 179, 8, 0.4) !important;
+}
+
+[data-module="events"] .card,
+[data-module="events"] .glass-card {
+  border-color: rgba(6, 182, 212, 0.2) !important;
+}
+[data-module="events"] .card:hover,
+[data-module="events"] .glass-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(6, 182, 212, 0.4) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   22. TOOLTIP STYLING
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.tooltip,
+[role="tooltip"],
+div[class*="tooltip"] {
+  background: rgba(20, 29, 51, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   END OF LUXURY VERTU THEME OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
