@@ -5,8 +5,11 @@
 /* Flowbite styles */
 @import 'flowbite/dist/flowbite.css';
 
-/* ZION Light Mode Design System */
+/* ZION Light Mode Design System (backup) */
 @import './styles/flowbite-light.css';
+
+/* ZION Luxury VERTU Theme - Primary Skin */
+@import './skins/skin-v6-luxury-vertu.css';
 
 /* Inter font from Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
