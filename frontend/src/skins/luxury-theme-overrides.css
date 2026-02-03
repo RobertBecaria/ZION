@@ -762,7 +762,67 @@ div[class*="composer"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   22. TOOLTIP STYLING
+   22. ADDITIONAL WHITE ELEMENT FIXES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Fix any remaining white backgrounds */
+.bg-white,
+div.bg-white,
+.bg-gray-50,
+div.bg-gray-50,
+.bg-gray-100,
+div.bg-gray-100,
+[class*="bg-white"],
+[class*="bg-gray-5"],
+[class*="bg-gray-1"] {
+  background: rgba(20, 29, 51, 0.75) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* White text on dark backgrounds */
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Fix remaining light borders */
+.border-gray-100,
+.border-gray-200,
+.border-gray-300,
+[class*="border-gray"] {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Fix tab content areas */
+[role="tabpanel"],
+.tab-content,
+.tab-panel {
+  background: transparent !important;
+}
+
+/* Fix any white rounded containers */
+.rounded-xl.bg-white,
+.rounded-2xl.bg-white,
+.rounded-lg.bg-white {
+  background: rgba(20, 29, 51, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Empty state styling */
+.empty-state,
+.no-data,
+.no-results {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Fix hover backgrounds */
+.hover\:bg-gray-50:hover,
+.hover\:bg-gray-100:hover,
+.hover\:bg-white:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   23. TOOLTIP STYLING
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .tooltip,
